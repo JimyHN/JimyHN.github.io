@@ -1,242 +1,135 @@
-# Lista de TJnull (NetSecFocus Trophy Room) — PWK V3 / PEN-200
-# Fuente: https://docs.google.com/spreadsheets/d/1dwSMIAPIam0PuRBkCiDI88pU3yzrqqHkDtBngUHNCw8
-# Última actualización de la lista: 18 de julio de 2026
+# Lista de TJnull para la OSCP (versión ordenada por dificultad de Shellshock9001)
+# Fuente: https://github.com/Shellshock9001/Tjs-Nulls-OSCP-list-in-order-from-easy-medium-hard-insane-more-challenging-and-alphabetical
+# (PDF "Tj Null's OSCP LIST", agosto de 2022). Nombres corregidos a su forma oficial en HackTheBox.
 #
-# Campos por máquina: name, os, difficulty ("—" si se desconoce), note (opcional)
-# y status (opcional: Pendiente | En curso | Resuelta). Si existe un post con
-# `machine: <name>` en su front matter, se enlaza solo y se marca como Resuelta.
+# Campos por máquina: name, os, difficulty y status (opcional: Pendiente | En curso | Resuelta).
+# Si existe un post con `machine: <name>` y `platform: HackTheBox`, se enlaza solo y se marca como Resuelta.
 
-- platform: "HackTheBox"
-  id: htb
-  sections:
-    - title: "Linux"
-      machines:
-        - { name: "Busqueda", os: "Linux", difficulty: "Easy" }
-        - { name: "UpDown", os: "Linux", difficulty: "Medium" }
-        - { name: "Sau", os: "Linux", difficulty: "Easy" }
-        - { name: "Help", os: "Linux", difficulty: "Easy" }
-        - { name: "Broker", os: "Linux", difficulty: "Easy" }
-        - { name: "Intentions", os: "Linux", difficulty: "Hard" }
-        - { name: "Soccer", os: "Linux", difficulty: "Easy" }
-        - { name: "Keeper", os: "Linux", difficulty: "Easy" }
-        - { name: "Monitored", os: "Linux", difficulty: "Medium" }
-        - { name: "BoardLight", os: "Linux", difficulty: "Easy" }
-        - { name: "Networked", os: "Linux", difficulty: "Easy" }
-        - { name: "CozyHosting", os: "Linux", difficulty: "Easy" }
-        - { name: "Editorial", os: "Linux", difficulty: "Easy" }
-        - { name: "Magic", os: "Linux", difficulty: "Medium" }
-        - { name: "Pandora", os: "Linux", difficulty: "Easy" }
-        - { name: "Builder", os: "Linux", difficulty: "Medium" }
-        - { name: "LinkVortex", os: "Linux", difficulty: "Easy" }
-        - { name: "Dog", os: "Linux", difficulty: "Easy" }
-        - { name: "Markup", os: "Windows", difficulty: "Very Easy", note: "Starting Point" }
-        - { name: "Editor", os: "Linux", difficulty: "Easy" }
-        - { name: "Usage", os: "Linux", difficulty: "Easy" }
-        - { name: "Titanic", os: "Linux", difficulty: "Easy" }
-        - { name: "Outbound", os: "Linux", difficulty: "Easy", note: "Assumed Breach Box" }
-        - { name: "Expressway", os: "Linux", difficulty: "Easy", note: "Old System" }
-        - { name: "Browsed", os: "Linux", difficulty: "Medium" }
-    - title: "Windows"
-      machines:
-        - { name: "Escape", os: "Windows", difficulty: "Medium" }
-        - { name: "Servmon", os: "Windows", difficulty: "Easy" }
-        - { name: "Support", os: "Windows", difficulty: "Easy" }
-        - { name: "StreamIO", os: "Windows", difficulty: "Medium" }
-        - { name: "Blackfield", os: "Windows", difficulty: "Hard" }
-        - { name: "Intelligence", os: "Windows", difficulty: "Medium" }
-        - { name: "Jeeves", os: "Windows", difficulty: "Medium" }
-        - { name: "Manager", os: "Windows", difficulty: "Medium" }
-        - { name: "Access", os: "Windows", difficulty: "Easy" }
-        - { name: "Aero", os: "Windows", difficulty: "Medium" }
-        - { name: "Mailing", os: "Windows", difficulty: "Easy" }
-        - { name: "Administrator", os: "Windows", difficulty: "Medium" }
-        - { name: "Certified", os: "Windows", difficulty: "Medium" }
-        - { name: "Heist", os: "Windows", difficulty: "Easy" }
-        - { name: "Tombwatcher", os: "Windows", difficulty: "Medium", note: "Assumed Breach Box" }
-    - title: "Active Directory"
-      machines:
-        - { name: "Active", os: "Windows", difficulty: "Easy" }
-        - { name: "Forest", os: "Windows", difficulty: "Easy" }
-        - { name: "Sauna", os: "Windows", difficulty: "Easy" }
-        - { name: "Monteverde", os: "Windows", difficulty: "Medium" }
-        - { name: "Timelapse", os: "Windows", difficulty: "Easy" }
-        - { name: "Return", os: "Windows", difficulty: "Easy" }
-        - { name: "Cascade", os: "Windows", difficulty: "Medium" }
-        - { name: "Flight", os: "Windows", difficulty: "Hard" }
-        - { name: "Blackfield", os: "Windows", difficulty: "Hard" }
-        - { name: "Cicada", os: "Windows", difficulty: "Easy" }
-        - { name: "Escape", os: "Windows", difficulty: "Medium" }
-        - { name: "Adagio", os: "Windows", difficulty: "—", note: "HTB Enterprise Box" }
-        - { name: "TheFrizz", os: "Windows", difficulty: "Medium" }
-        - { name: "Fluffy", os: "Windows", difficulty: "Easy" }
-        - { name: "Puppy", os: "Windows", difficulty: "Medium" }
-        - { name: "Voleur", os: "Windows", difficulty: "Medium" }
-        - { name: "Signed", os: "Windows", difficulty: "Medium", note: "Assumed Breach" }
-        - { name: "Eighteen", os: "Windows", difficulty: "Easy", note: "Assumed Breach" }
-    - title: "Post-OSCP"
-      machines:
-        - { name: "Mentor", os: "Linux", difficulty: "Medium" }
-        - { name: "Absolute", os: "Windows", difficulty: "Insane" }
-        - { name: "Outdated", os: "Windows", difficulty: "Medium" }
-        - { name: "Atom", os: "Windows", difficulty: "Medium" }
-        - { name: "APT", os: "Windows", difficulty: "Insane" }
-        - { name: "Aero", os: "Windows", difficulty: "Medium" }
-        - { name: "Cerberus", os: "Windows/Linux", difficulty: "Hard" }
-        - { name: "Multimaster", os: "Windows", difficulty: "Insane" }
-        - { name: "Cereal", os: "Windows", difficulty: "Hard" }
-        - { name: "Quick", os: "Linux", difficulty: "Hard" }
-        - { name: "Authority", os: "Windows", difficulty: "Medium" }
-        - { name: "Clicker", os: "Linux", difficulty: "Medium" }
-        - { name: "Rebound", os: "Windows", difficulty: "Insane" }
-        - { name: "Mailing", os: "Windows", difficulty: "Easy" }
-        - { name: "Vintage", os: "Windows", difficulty: "Hard" }
-        - { name: "EscapeTwo", os: "Windows", difficulty: "Easy" }
-        - { name: "Tombwatcher", os: "Windows", difficulty: "Medium", note: "Active Directory" }
-        - { name: "Rustykey", os: "Windows", difficulty: "Hard", note: "Timeroasting attack" }
-        - { name: "DarkZero", os: "Windows", difficulty: "Hard", note: "Assumed Breach" }
-- platform: "Proving Grounds Practice"
-  id: pg-practice
-  sections:
-    - title: "Linux"
-      machines:
-        - { name: "Twiggy", os: "Linux", difficulty: "—" }
-        - { name: "Exfiltrated", os: "Linux", difficulty: "—" }
-        - { name: "Pelican", os: "Linux", difficulty: "—" }
-        - { name: "Astronaut", os: "Linux", difficulty: "—" }
-        - { name: "Blackgate", os: "Linux", difficulty: "—" }
-        - { name: "Boolean", os: "Linux", difficulty: "—" }
-        - { name: "Clue", os: "Linux", difficulty: "—" }
-        - { name: "Cockpit", os: "Linux", difficulty: "—" }
-        - { name: "Codo", os: "Linux", difficulty: "—" }
-        - { name: "Crane", os: "Linux", difficulty: "—" }
-        - { name: "Levram", os: "Linux", difficulty: "—" }
-        - { name: "Extplorer", os: "Linux", difficulty: "—" }
-        - { name: "Hub", os: "Linux", difficulty: "—" }
-        - { name: "Image", os: "Linux", difficulty: "—" }
-        - { name: "law", os: "Linux", difficulty: "—" }
-        - { name: "Lavita", os: "Linux", difficulty: "—" }
-        - { name: "PC", os: "Linux", difficulty: "—" }
-        - { name: "Fired", os: "Linux", difficulty: "—" }
-        - { name: "Press", os: "Linux", difficulty: "—" }
-        - { name: "Scrutiny", os: "Linux", difficulty: "—" }
-        - { name: "RubyDome", os: "Linux", difficulty: "—" }
-        - { name: "Zipper", os: "Linux", difficulty: "—" }
-        - { name: "Flu", os: "Linux", difficulty: "—" }
-        - { name: "Workaholic", os: "Linux", difficulty: "—" }
-        - { name: "PyLoader", os: "Linux", difficulty: "—" }
-        - { name: "Plum", os: "Linux", difficulty: "—" }
-        - { name: "SPX", os: "Linux", difficulty: "—" }
-        - { name: "Jordak", os: "Linux", difficulty: "—" }
-        - { name: "BitForge", os: "Linux", difficulty: "—" }
-        - { name: "Vmdak", os: "Linux", difficulty: "—" }
-        - { name: "Ochima", os: "Linux", difficulty: "—" }
-        - { name: "Nibbles", os: "Linux", difficulty: "—" }
-        - { name: "CVE-2023-6019", os: "Linux", difficulty: "—" }
-        - { name: "Sea", os: "Linux", difficulty: "—" }
-        - { name: "Payday", os: "Linux", difficulty: "—" }
-        - { name: "Snookums", os: "Linux", difficulty: "—" }
-        - { name: "SpiderSociety", os: "Linux", difficulty: "—" }
-    - title: "Windows"
-      machines:
-        - { name: "Algernon", os: "Windows", difficulty: "—" }
-        - { name: "Authby", os: "Windows", difficulty: "—" }
-        - { name: "Craft", os: "Windows", difficulty: "—" }
-        - { name: "Hutch", os: "Windows", difficulty: "—" }
-        - { name: "Internal", os: "Windows", difficulty: "—" }
-        - { name: "Jacko", os: "Windows", difficulty: "—" }
-        - { name: "Kevin", os: "Windows", difficulty: "—" }
-        - { name: "Resourced", os: "Windows", difficulty: "—" }
-        - { name: "Squid", os: "Windows", difficulty: "—" }
-        - { name: "DVR4", os: "Windows", difficulty: "—" }
-        - { name: "Hepet", os: "Windows", difficulty: "—" }
-        - { name: "Shenzi", os: "Windows", difficulty: "—" }
-        - { name: "Nickel", os: "Windows", difficulty: "—" }
-        - { name: "Slort", os: "Windows", difficulty: "—" }
-        - { name: "MedJed", os: "Windows", difficulty: "—" }
-        - { name: "Monster", os: "Windows", difficulty: "—" }
-        - { name: "Mice", os: "Windows", difficulty: "—" }
-    - title: "Active Directory"
-      machines:
-        - { name: "Access", os: "Windows", difficulty: "—" }
-        - { name: "Heist", os: "Windows", difficulty: "—" }
-        - { name: "Vault", os: "Windows", difficulty: "—" }
-        - { name: "Nagoya", os: "Windows", difficulty: "—" }
-        - { name: "Resourced", os: "Windows", difficulty: "—" }
-        - { name: "Hutch", os: "Windows", difficulty: "—" }
-    - title: "Post-OSCP"
-      machines:
-        - { name: "Nagoya", os: "Windows", difficulty: "—" }
-        - { name: "Osaka", os: "Windows", difficulty: "—" }
-        - { name: "ProStore", os: "Linux", difficulty: "—" }
-        - { name: "RPC1", os: "Linux", difficulty: "—" }
-        - { name: "Symbolic", os: "Windows", difficulty: "—" }
-        - { name: "Upsploit", os: "Linux", difficulty: "—" }
-        - { name: "Validator", os: "Linux", difficulty: "—" }
-        - { name: "GLPI", os: "Linux", difficulty: "—" }
-        - { name: "Marshalled", os: "Linux", difficulty: "—" }
-        - { name: "Educated", os: "Linux", difficulty: "—" }
-        - { name: "Kyoto", os: "Windows", difficulty: "—", note: "Buffer Overflow" }
-        - { name: "Nara", os: "Windows", difficulty: "—", note: "Active Directory" }
-- platform: "Proving Grounds Play"
-  id: pg-play
-  sections:
-    - title: "Linux"
-      machines:
-        - { name: "Election 1", os: "Linux", difficulty: "—" }
-        - { name: "Stapler", os: "Linux", difficulty: "—" }
-        - { name: "Monitoring", os: "Linux", difficulty: "—" }
-        - { name: "InsanityHosting", os: "Linux", difficulty: "—" }
-        - { name: "Vegeta 1", os: "Linux", difficulty: "—" }
-        - { name: "SoSimple", os: "Linux", difficulty: "—" }
-        - { name: "Gaara", os: "Linux", difficulty: "—" }
-        - { name: "Amaterasu", os: "Linux", difficulty: "—" }
-        - { name: "Blogger", os: "Linux", difficulty: "—" }
-        - { name: "Potato", os: "Linux", difficulty: "—" }
-        - { name: "DC-9", os: "Linux", difficulty: "—" }
-        - { name: "Tre", os: "Linux", difficulty: "—" }
-        - { name: "Seppuku", os: "Linux", difficulty: "—" }
-        - { name: "Funbox", os: "Linux", difficulty: "—" }
-        - { name: "Katana", os: "Linux", difficulty: "—" }
-        - { name: "DriftingBlue6", os: "Linux", difficulty: "—" }
-        - { name: "Loly", os: "Linux", difficulty: "—" }
-        - { name: "Sams", os: "Windows", difficulty: "—" }
-        - { name: "BTRSys2.1", os: "Linux", difficulty: "—" }
-- platform: "Vulnlab"
-  id: vulnlab
-  sections:
-    - title: "Linux"
-      machines:
-        - { name: "Data", os: "Linux", difficulty: "—" }
-        - { name: "Feedback", os: "Linux", difficulty: "—" }
-        - { name: "Sync", os: "Linux", difficulty: "—" }
-        - { name: "Forgotten", os: "Linux", difficulty: "—" }
-        - { name: "Build", os: "Linux", difficulty: "—" }
-        - { name: "Bamboo", os: "Linux", difficulty: "—" }
-        - { name: "Dump", os: "Linux", difficulty: "—" }
-    - title: "Windows"
-      machines:
-        - { name: "Media", os: "Windows", difficulty: "—" }
-        - { name: "Job", os: "Windows", difficulty: "—" }
-        - { name: "Job2", os: "Windows", difficulty: "—" }
-        - { name: "Lock", os: "Windows", difficulty: "—" }
-        - { name: "Escape", os: "Windows", difficulty: "—" }
-        - { name: "Bruno", os: "Windows", difficulty: "—" }
-    - title: "Active Directory"
-      machines:
-        - { name: "Baby", os: "Windows", difficulty: "—" }
-        - { name: "Baby2", os: "Windows", difficulty: "—" }
-        - { name: "Breach", os: "Windows", difficulty: "—" }
-        - { name: "Sweep", os: "Windows", difficulty: "—" }
-        - { name: "Sendai", os: "Windows", difficulty: "—" }
-        - { name: "Phantom", os: "Windows", difficulty: "—" }
-        - { name: "Hybrid", os: "Windows", difficulty: "—", note: "Chain" }
-        - { name: "Trusted", os: "Windows", difficulty: "—", note: "Chain" }
-        - { name: "Lustrous", os: "Windows", difficulty: "—", note: "Chain" }
-        - { name: "Reflection", os: "Windows", difficulty: "—", note: "Chain" }
-    - title: "Post-OSCP"
-      machines:
-        - { name: "Race", os: "Linux", difficulty: "—" }
-        - { name: "Kaiju", os: "—", difficulty: "—", note: "Chain" }
-        - { name: "Push", os: "—", difficulty: "—", note: "Chain" }
-        - { name: "Intercept", os: "—", difficulty: "—", note: "Chain" }
-        - { name: "Zero", os: "—", difficulty: "—" }
+platform: "HackTheBox"
+sections:
+  - id: easy
+    title: "Easy"
+    machines:
+      - { name: "Active", os: "Windows", difficulty: "Easy" }
+      - { name: "Admirer", os: "Linux", difficulty: "Easy" }
+      - { name: "Armageddon", os: "Linux", difficulty: "Easy" }
+      - { name: "Arctic", os: "Windows", difficulty: "Easy" }
+      - { name: "Bashed", os: "Linux", difficulty: "Easy" }
+      - { name: "Bastion", os: "Windows", difficulty: "Easy" }
+      - { name: "Beep", os: "Linux", difficulty: "Easy" }
+      - { name: "Blue", os: "Windows", difficulty: "Easy" }
+      - { name: "Blocky", os: "Linux", difficulty: "Easy" }
+      - { name: "Blunder", os: "Linux", difficulty: "Easy" }
+      - { name: "Bounty", os: "Windows", difficulty: "Easy" }
+      - { name: "Buff", os: "Windows", difficulty: "Easy" }
+      - { name: "Delivery", os: "Linux", difficulty: "Easy" }
+      - { name: "Devel", os: "Windows", difficulty: "Easy" }
+      - { name: "Doctor", os: "Linux", difficulty: "Easy" }
+      - { name: "Forest", os: "Windows", difficulty: "Easy" }
+      - { name: "FriendZone", os: "Linux", difficulty: "Easy" }
+      - { name: "Frolic", os: "Linux", difficulty: "Easy" }
+      - { name: "Grandpa", os: "Windows", difficulty: "Easy" }
+      - { name: "Granny", os: "Windows", difficulty: "Easy" }
+      - { name: "Horizontall", os: "Linux", difficulty: "Easy" }
+      - { name: "Irked", os: "Linux", difficulty: "Easy" }
+      - { name: "Jerry", os: "Windows", difficulty: "Easy" }
+      - { name: "Knife", os: "Linux", difficulty: "Easy" }
+      - { name: "Love", os: "Windows", difficulty: "Easy" }
+      - { name: "Legacy", os: "Windows", difficulty: "Easy" }
+      - { name: "Luanne", os: "NetBSD", difficulty: "Easy" }
+      - { name: "Mirai", os: "Linux", difficulty: "Easy" }
+      - { name: "Networked", os: "Linux", difficulty: "Easy" }
+      - { name: "Nibbles", os: "Linux", difficulty: "Easy" }
+      - { name: "Omni", os: "Windows", difficulty: "Easy" }
+      - { name: "OpenAdmin", os: "Linux", difficulty: "Easy" }
+      - { name: "Optimum", os: "Windows", difficulty: "Easy" }
+      - { name: "Previse", os: "Linux", difficulty: "Easy" }
+      - { name: "Postman", os: "Linux", difficulty: "Easy" }
+      - { name: "Remote", os: "Windows", difficulty: "Easy" }
+      - { name: "ScriptKiddie", os: "Linux", difficulty: "Easy" }
+      - { name: "Sense", os: "FreeBSD", difficulty: "Easy" }
+      - { name: "ServMon", os: "Windows", difficulty: "Easy" }
+      - { name: "Shocker", os: "Linux", difficulty: "Easy" }
+      - { name: "Sunday", os: "Solaris", difficulty: "Easy" }
+      - { name: "Support", os: "Windows", difficulty: "Easy" }
+      - { name: "SwagShop", os: "Linux", difficulty: "Easy" }
+      - { name: "Traverxec", os: "Linux", difficulty: "Easy" }
+      - { name: "Tabby", os: "Linux", difficulty: "Easy" }
+      - { name: "Valentine", os: "Linux", difficulty: "Easy" }
+  - id: medium
+    title: "Medium"
+    machines:
+      - { name: "Bastard", os: "Windows", difficulty: "Medium" }
+      - { name: "Chatterbox", os: "Windows", difficulty: "Medium" }
+      - { name: "Cronos", os: "Linux", difficulty: "Medium" }
+      - { name: "Forge", os: "Linux", difficulty: "Medium" }
+      - { name: "Fuse", os: "Windows", difficulty: "Medium" }
+      - { name: "Haircut", os: "Linux", difficulty: "Medium" }
+      - { name: "Intelligence", os: "Windows", difficulty: "Medium" }
+      - { name: "Jarvis", os: "Linux", difficulty: "Medium" }
+      - { name: "Magic", os: "Linux", difficulty: "Medium" }
+      - { name: "Mango", os: "Linux", difficulty: "Medium" }
+      - { name: "Nineveh", os: "Linux", difficulty: "Medium" }
+      - { name: "Node", os: "Linux", difficulty: "Medium" }
+      - { name: "Ophiuchi", os: "Linux", difficulty: "Medium" }
+      - { name: "Passage", os: "Linux", difficulty: "Medium" }
+      - { name: "Pit", os: "Linux", difficulty: "Medium" }
+      - { name: "Poison", os: "Linux", difficulty: "Medium" }
+      - { name: "Popcorn", os: "Linux", difficulty: "Medium" }
+      - { name: "Ready", os: "Linux", difficulty: "Medium" }
+      - { name: "Seal", os: "Linux", difficulty: "Medium" }
+      - { name: "SecNotes", os: "Windows", difficulty: "Medium" }
+      - { name: "Shibboleth", os: "Linux", difficulty: "Medium" }
+      - { name: "Silo", os: "Windows", difficulty: "Medium" }
+      - { name: "SolidState", os: "Linux", difficulty: "Medium" }
+      - { name: "SneakyMailer", os: "Linux", difficulty: "Medium" }
+      - { name: "TartarSauce", os: "Linux", difficulty: "Medium" }
+      - { name: "Worker", os: "Windows", difficulty: "Medium" }
+      - { name: "Writer", os: "Linux", difficulty: "Medium" }
+  - id: hard
+    title: "Hard"
+    machines:
+      - { name: "Conceal", os: "Windows", difficulty: "Hard" }
+      - { name: "Object", os: "Windows", difficulty: "Hard" }
+  - id: insane
+    title: "Insane"
+    machines:
+      - { name: "APT", os: "Windows", difficulty: "Insane" }
+      - { name: "Bankrobber", os: "Windows", difficulty: "Insane" }
+      - { name: "Brainfuck", os: "Linux", difficulty: "Insane" }
+  - id: more
+    title: "Más exigentes que la OSCP"
+    machines:
+      - { name: "Atom", os: "Windows", difficulty: "Medium" }
+      - { name: "Bart", os: "Windows", difficulty: "Medium" }
+      - { name: "Bitlab", os: "Linux", difficulty: "Medium" }
+      - { name: "Blackfield", os: "Windows", difficulty: "Hard" }
+      - { name: "Book", os: "Linux", difficulty: "Medium" }
+      - { name: "Breadcrumbs", os: "Windows", difficulty: "Hard" }
+      - { name: "Cascade", os: "Windows", difficulty: "Medium" }
+      - { name: "Control", os: "Windows", difficulty: "Hard" }
+      - { name: "DevOops", os: "Linux", difficulty: "Medium" }
+      - { name: "Dynstr", os: "Linux", difficulty: "Medium" }
+      - { name: "Falafel", os: "Linux", difficulty: "Hard" }
+      - { name: "Hawk", os: "Linux", difficulty: "Medium" }
+      - { name: "Jail", os: "Linux", difficulty: "Insane" }
+      - { name: "Jeeves", os: "Windows", difficulty: "Medium" }
+      - { name: "Kotarak", os: "Linux", difficulty: "Hard" }
+      - { name: "LaCasaDePapel", os: "Linux", difficulty: "Easy" }
+      - { name: "Lightweight", os: "Linux", difficulty: "Medium" }
+      - { name: "Mango", os: "Linux", difficulty: "Medium" }
+      - { name: "Monitors", os: "Linux", difficulty: "Hard" }
+      - { name: "Monteverde", os: "Windows", difficulty: "Medium" }
+      - { name: "Nest", os: "Windows", difficulty: "Easy" }
+      - { name: "Netmon", os: "Windows", difficulty: "Easy" }
+      - { name: "October", os: "Linux", difficulty: "Medium" }
+      - { name: "Pikaboo", os: "Linux", difficulty: "Hard" }
+      - { name: "PivotAPI", os: "Windows", difficulty: "Insane" }
+      - { name: "Querier", os: "Windows", difficulty: "Medium" }
+      - { name: "Quick", os: "Linux", difficulty: "Hard" }
+      - { name: "Safe", os: "Linux", difficulty: "Easy" }
+      - { name: "Sauna", os: "Windows", difficulty: "Easy" }
+      - { name: "Sizzle", os: "Windows", difficulty: "Insane" }
+      - { name: "Sniper", os: "Windows", difficulty: "Medium" }
+      - { name: "Stacked", os: "Linux", difficulty: "Insane" }
+      - { name: "Tally", os: "Windows", difficulty: "Hard" }

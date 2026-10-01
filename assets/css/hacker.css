@@ -1043,3 +1043,11 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
 
 .hx-rm-link i { transition: transform 0.2s; }
 .hx-rm-link:hover i { transform: translateX(4px); }
+
+.hx-rm-count {
+  margin-left: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--hx-muted);
+  vertical-align: middle;
+}
