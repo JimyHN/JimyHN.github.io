@@ -4,4 +4,25 @@ icon: fas fa-certificate
 order: 3
 ---
 
-<p>test</p>
+<p class="hx-lead">Certificaciones que he sacado y las que tengo entre ceja y ceja. Pulsa una tarjeta para ver el certificado.</p>
+
+{% assign obtenidas = site.data.certificaciones.obtenidas %}
+{% assign en_progreso = site.data.certificaciones.en_progreso %}
+
+{% if obtenidas.size > 0 %}
+  <h2 id="obtenidas">Obtenidas <span class="hx-rm-count">{{ obtenidas.size }}</span></h2>
+  <div class="hx-creds">
+    {% for c in obtenidas %}
+      {% include hx-credential.html item=c estado="obtenida" %}
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if en_progreso.size > 0 %}
+  <h2 id="en-progreso">En progreso <span class="hx-rm-count">{{ en_progreso.size }}</span></h2>
+  <div class="hx-creds">
+    {% for c in en_progreso %}
+      {% include hx-credential.html item=c estado="en-progreso" %}
+    {% endfor %}
+  </div>
+{% endif %}
