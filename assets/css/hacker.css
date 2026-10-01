@@ -2087,16 +2087,38 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   100% { transform: translate(2px, 1px); clip-path: inset(0 0 0 0); }
 }
 
-/* Avatar: cada 20 s se eleva, gira sobre su eje vertical como una moneda y baja */
+/* Avatar: cada 20 s gira como una moneda (≈5 s de animación):
+   se eleva 0,4 s → anticipa girando al revés 0,4 s → 3 vueltas en 3,5 s
+   (lento-rápido-lento) → se pasa y vuelve atrás 0,4 s → baja 0,4 s */
 #sidebar #avatar {
-  animation: hx-coin 20s ease-in-out infinite;
-  animation-delay: 5s;
+  animation: hx-coin 20s infinite;
+  animation-delay: 3s;
   transform-style: preserve-3d;
 }
 
 @keyframes hx-coin {
-  0%, 88% { transform: perspective(700px) translateY(0) rotateY(0deg); }
-  90.5% { transform: perspective(700px) translateY(-12px) rotateY(0deg); }
-  96.5% { transform: perspective(700px) translateY(-12px) rotateY(360deg); }
-  99%, 100% { transform: perspective(700px) translateY(0) rotateY(360deg); }
+  0%, 74.5% {
+    transform: perspective(700px) translateY(0) rotateY(0deg);
+    animation-timing-function: ease-out;
+  }
+  76.5% {
+    transform: perspective(700px) translateY(-12px) rotateY(0deg);
+    animation-timing-function: ease-out;
+  }
+  78.5% {
+    transform: perspective(700px) translateY(-12px) rotateY(-25deg);
+    animation-timing-function: cubic-bezier(0.55, 0, 0.25, 1);
+  }
+  96% {
+    transform: perspective(700px) translateY(-12px) rotateY(1105deg);
+    animation-timing-function: ease-in-out;
+  }
+  98% {
+    transform: perspective(700px) translateY(-12px) rotateY(1080deg);
+    animation-timing-function: ease-in;
+  }
+  100% {
+    transform: perspective(700px) translateY(0) rotateY(1080deg);
+  }
+}
 }
