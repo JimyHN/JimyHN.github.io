@@ -92,7 +92,9 @@
   }
 
   /* --- Frases rotatorias bajo el nombre del sidebar ---
-     Cada 10 s se borra la frase y se escribe otra, letra a letra (0,1 s por letra). */
+     Cada frase se borra con retroceso y se escribe la siguiente letra a letra (0,1 s).
+     Una frase puede ser un texto o un guion de pasos (ver _data/frases.yml).
+     Los 10 s hasta la siguiente cuentan desde que termina de escribirse. */
   function initSubtitle() {
     const sub = document.querySelector('#sidebar .site-subtitle');
     if (!sub) return;
@@ -104,18 +106,75 @@
     if (!phrases.length) phrases = [sub.textContent.trim()];
 
     const span = document.createElement('span');
+    const cursor = caret();
     sub.textContent = '';
-    sub.setAttribute('aria-live', 'polite');
-    sub.append(span, caret());
+    sub.append(span, cursor);
+
+    const finalText = (p) => {
+      if (typeof p === 'string') return p;
+      let t = [];
+      (p.pasos || []).forEach((st) => {
+        if (st.escribe) t = t.concat(Array.from(st.escribe));
+        if (st.borra !== undefined) t = st.borra === 'todo' ? [] : t.slice(0, -st.borra);
+      });
+      return t.join('');
+    };
 
     if (reduceMotion) {
-      span.textContent = phrases[0];
+      span.textContent = finalText(phrases.find((p) => typeof p === 'string') || phrases[0]);
       return;
     }
 
     const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-    let last = -1;
+    const chars = () => Array.from(span.textContent); // respeta los emojis
+    // Mientras escribe/borra el cursor no parpadea
+    const busy = (on) => cursor.classList.toggle('hx-caret-busy', on);
 
+    async function erase(n) {
+      busy(true);
+      let left = n === 'todo' || n === undefined ? chars().length : n;
+      while (left-- > 0 && chars().length) {
+        span.textContent = chars().slice(0, -1).join('');
+        await wait(55);
+      }
+      busy(false);
+    }
+
+    async function write(text) {
+      busy(true);
+      for (const ch of Array.from(text)) {
+        span.textContent += ch;
+        await wait(100);
+      }
+      busy(false);
+    }
+
+    async function glitch(ms) {
+      const original = span.textContent;
+      const symbols = '!<>-_\\/[]{}=+*^?#$%&@01';
+      sub.classList.add('hx-sub-glitch');
+      const end = Date.now() + ms;
+      while (Date.now() < end) {
+        span.textContent = Array.from(original)
+          .map((ch) => (ch !== ' ' && Math.random() < 0.45 ? symbols[Math.floor(Math.random() * symbols.length)] : ch))
+          .join('');
+        await wait(60);
+      }
+      span.textContent = original;
+      sub.classList.remove('hx-sub-glitch');
+    }
+
+    async function play(p) {
+      if (typeof p === 'string') return write(p);
+      for (const st of p.pasos || []) {
+        if (st.escribe) await write(st.escribe);
+        else if (st.borra !== undefined) await erase(st.borra);
+        else if (st.espera) await wait(st.espera);
+        else if (st.rayar) await glitch(st.rayar);
+      }
+    }
+
+    let last = -1;
     function next() {
       let i;
       do { i = Math.floor(Math.random() * phrases.length); } while (phrases.length > 1 && i === last);
@@ -123,27 +182,15 @@
       return phrases[i];
     }
 
-    async function erase() {
-      while (span.textContent.length) {
-        span.textContent = Array.from(span.textContent).slice(0, -1).join('');
-        await wait(35);
-      }
-    }
-
-    async function write(text) {
-      const chars = Array.from(text); // respeta los emojis
-      for (let i = 1; i <= chars.length; i++) {
-        span.textContent = chars.slice(0, i).join('');
-        await wait(100);
-      }
-    }
-
     (async function loop() {
       for (;;) {
-        const started = Date.now();
-        await erase();
-        await write(next());
-        await wait(Math.max(0, 10000 - (Date.now() - started)));
+        if (span.textContent) {
+          await wait(400);
+          await erase('todo');
+          await wait(350);
+        }
+        await play(next());
+        await wait(10000);
       }
     })();
   }

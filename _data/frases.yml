@@ -20,3 +20,26 @@
 - "Hoy no es tu día, pero sigue leyendo"
 - "Ese sudo -l no se va a mirar solo"
 - "Menos mirar y más hackear"
+
+# Frases con "guion": una lista de pasos que se ejecutan en orden.
+#   escribe: "texto"   -> escribe letra a letra a continuación de lo que haya
+#   borra: N | todo    -> borra N letras (o todo) como con la tecla de retroceso
+#   espera: ms         -> pausa en milisegundos
+#   rayar: ms          -> el texto se "raya" (glitch) durante ese tiempo
+# Los 10 segundos para la siguiente frase empiezan a contar al acabar el guion.
+- pasos:
+    - escribe: "Te voy a contar algo muy"
+    - espera: 700
+    - borra: 3
+    - escribe: "importante"
+    - espera: 700
+    - borra: 15
+    - escribe: "un secreto: el root de"
+    - espera: 800
+    - borra: todo
+    - espera: 400
+    - escribe: "Wuop, Wuop, que te vacilo"
+- pasos:
+    - escribe: "A rayarse"
+    - espera: 3000
+    - rayar: 2500
