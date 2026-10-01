@@ -251,10 +251,46 @@
     });
   }
 
+  /* --- Nombre del sitio en la pestaña con letra caligráfica (Unicode) ---
+     El <title> del HTML se queda normal para buscadores y lectores de pantalla. */
+  function toScript(text) {
+    return Array.from(text)
+      .map((ch) => {
+        const c = ch.codePointAt(0);
+        if (c >= 65 && c <= 90) return String.fromCodePoint(0x1d4d0 + c - 65); // A-Z
+        if (c >= 97 && c <= 122) return String.fromCodePoint(0x1d4ea + c - 97); // a-z
+        return ch;
+      })
+      .join('');
+  }
+
+  function initTabTitle() {
+    const meta = document.querySelector('meta[property="og:site_name"]');
+    const name = meta ? meta.content : '';
+    if (!name || !document.title.includes(name)) return;
+    document.title = document.title.replace(name, toScript(name));
+  }
+
+  /* --- Prueba de favicon: ?favicon=circulo | ?favicon=transparente --- */
+  function initFaviconTest() {
+    let style = new URLSearchParams(location.search).get('favicon');
+    try {
+      if (style) localStorage.setItem('hx-favicon', style);
+      else style = localStorage.getItem('hx-favicon');
+    } catch (e) { /* almacenamiento no disponible */ }
+    if (style !== 'circulo' && style !== 'transparente') return;
+
+    document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach((link) => {
+      link.href = link.href.replace(/\/favicons\/[a-z]+\//, '/favicons/' + style + '/');
+    });
+  }
+
   function init() {
     initMatrix();
     initGlitch();
     initSubtitle();
+    initTabTitle();
+    initFaviconTest();
     initAscii();
     initTerminal();
     initReveal();
