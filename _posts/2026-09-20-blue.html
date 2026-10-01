@@ -58,7 +58,7 @@ smb-security-mode: message_signing: disabled (dangerous)</div></div>
 
   <section class="hx-wu-sec" id="enumeracion" style="--c:94 180 248"><h2>Enumeración</h2>
     <p>Listo los recursos compartidos con sesión nula y compruebo la vulnerabilidad de SMB:</p>
-    <div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">smbclient -L //blue/ -N</span></div><div class="hx-t-out">ADMIN$   C$   IPC$   Share   Users</div><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">nmap -p445 --script smb-vuln-ms17-010 blue</span></div><div class="hx-t-out">smb-vuln-ms17-010: <span class="hx-cr">VULNERABLE</span> (CVE-2017-0143)</div></div>
+    <div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">smbclient -L //blue/ -N</span></div><div class="hx-t-out">ADMIN$   C$   IPC$   Share   Users</div><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">nmap -p445 --script smb-vuln-* blue</span></div><div class="hx-t-out">smb-vuln-ms17-010: <span class="hx-cr">VULNERABLE</span> (CVE-2017-0143)</div></div>
   </section>
 
   <section class="hx-wu-sec" id="explotacion" style="--c:255 175 0"><h2>Explotación</h2>
@@ -77,7 +77,13 @@ Server username: <span class="hx-cg">NT AUTHORITY\SYSTEM</span></div></div>
   </section>
 
   <section class="hx-wu-sec" id="arreglo" style="--c:46 230 214"><h2>Cómo se arregla</h2>
-    <p>Aplicar el parche <span class="hx-cg">MS17-010</span>, desactivar <span class="hx-cg">SMBv1</span>, no exponer el puerto 445 fuera de la red interna y activar la firma SMB.</p>
+    <p>Todo parte de un sistema sin actualizar, así que el arreglo va por capas:</p>
+    <ul class="hx-wu-list">
+      <li><b>Aplicar el parche <span class="hx-cg">MS17-010</span>.</b> Microsoft lo publicó en marzo de 2017, incluso para versiones ya sin soporte como XP o Server 2003. Con el parche puesto, el desbordamiento deja de existir.</li>
+      <li><b>Desactivar <span class="hx-cg">SMBv1</span>.</b> Es la medida de fondo: es un protocolo obsoleto que no debería estar activo en ninguna red moderna. En Windows se quita con <span class="hx-cg">Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol</span>.</li>
+      <li><b>No exponer el puerto <span class="hx-cc">445</span>.</b> SMB no tiene por qué ser accesible desde fuera de la red interna; filtrarlo en el firewall reduce muchísimo la superficie de ataque.</li>
+      <li><b>Activar la firma SMB.</b> El escaneo la marcaba como deshabilitada, y tenerla activa evita manipulaciones de las sesiones SMB.</li>
+    </ul>
   </section>
 
   <section class="hx-wu-sec" id="conclusiones" style="--c:200 210 220"><h2>Conclusiones</h2>

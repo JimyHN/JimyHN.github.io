@@ -3285,12 +3285,12 @@ article:has(.hx-wu) > .post-desc { display: none; }
 
 .hx-wu-img {
   display: block;
-  width: 72px;
-  height: 72px;
-  border-radius: 14px;
-  border: 1px solid var(--hx-border);
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 2px solid var(--hx-green);
   flex-shrink: 0;
-  box-shadow: 0 6px 20px rgb(0 0 0 / 45%);
+  box-shadow: 0 0 0 3px rgb(159 239 0 / 18%), 0 6px 20px rgb(0 0 0 / 45%), 0 0 18px rgb(159 239 0 / 25%);
   background-size: cover;
   background-position: center;
   background-color: #05070a;
@@ -3419,6 +3419,28 @@ article:has(.hx-wu) > .post-desc { display: none; }
 .content .hx-wu-sec[id='arreglo'] > h2::before { content: '🛠️'; }
 .content .hx-wu-sec[id='conclusiones'] > h2::before { content: '🧠'; }
 
+/* Lista dentro de un write-up */
+.content .hx-wu-list {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+}
+.content .hx-wu-list li {
+  position: relative;
+  margin: 0.55rem 0;
+  padding: 0 0 0 1.4rem;
+  line-height: 1.6;
+}
+.content .hx-wu-list li::before {
+  content: '▹';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: rgb(var(--c));
+  font-weight: 800;
+}
+.content .hx-wu-list li b { color: #e6edf3; }
+
 /* Colores de resalte */
 .hx-cg { color: var(--hx-green); font-weight: 700; }
 .hx-cc { color: var(--hx-cyan); font-weight: 700; }
@@ -3484,10 +3506,12 @@ article:has(.hx-wu) > .post-desc { display: none; }
 .hx-wu-card img,
 .hx-wu-cardimg {
   display: block;
-  width: 54px;
-  height: 54px;
-  border-radius: 10px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--hx-green);
   flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgb(159 239 0 / 16%), 0 0 14px rgb(159 239 0 / 22%);
   background-size: cover;
   background-position: center;
   background-color: #05070a;
