@@ -1,51 +1,49 @@
 {%- comment -%}
-  Panel de filtros de máquinas: dificultad → SO → plataforma → búsqueda.
+  Filtros de máquinas en filas: dificultad → SO → plataforma → buscar.
   Uso: {% include hx-filterbar.html target="id-contenedor" empty="id-sin-resultados" total=N %}
   Cada elemento filtrable lleva data-name, data-diff, data-os y data-platform.
 {%- endcomment -%}
 
 <div class="hx-fbar" data-target="{{ include.target }}" data-empty="{{ include.empty }}">
-  <div class="hx-fbar-head" aria-hidden="true">
-    <span class="hx-fbar-prompt">$</span> filter --machines
-    <span class="hx-fbar-count"><b>{{ include.total }}</b> resultados</span>
-  </div>
-
   <div class="hx-fbar-row">
-    <span class="hx-fbar-label"><i class="fas fa-signal"></i> Dificultad</span>
+    <span class="hx-fbar-label">Dificultad</span>
     <div class="hx-seg" role="group" aria-label="Dificultad" data-group="diff">
       <button type="button" class="hx-opt is-active" data-value="all" aria-pressed="true">Todas</button>
-      <button type="button" class="hx-opt hx-opt-easy" data-value="easy" aria-pressed="false"><span class="hx-dotc"></span>Easy</button>
-      <button type="button" class="hx-opt hx-opt-medium" data-value="medium" aria-pressed="false"><span class="hx-dotc"></span>Medium</button>
-      <button type="button" class="hx-opt hx-opt-hard" data-value="hard" aria-pressed="false"><span class="hx-dotc"></span>Hard</button>
-      <button type="button" class="hx-opt hx-opt-insane" data-value="insane" aria-pressed="false"><span class="hx-dotc"></span>Insane</button>
+      <button type="button" class="hx-opt hx-opt-easy" data-value="easy" aria-pressed="false">Easy</button>
+      <button type="button" class="hx-opt hx-opt-medium" data-value="medium" aria-pressed="false">Medium</button>
+      <button type="button" class="hx-opt hx-opt-hard" data-value="hard" aria-pressed="false">Hard</button>
+      <button type="button" class="hx-opt hx-opt-insane" data-value="insane" aria-pressed="false">Insane</button>
     </div>
   </div>
 
   <div class="hx-fbar-row">
-    <span class="hx-fbar-label"><i class="fas fa-desktop"></i> Sistema</span>
+    <span class="hx-fbar-label">Sistema</span>
     <div class="hx-seg" role="group" aria-label="Sistema operativo" data-group="os">
       <button type="button" class="hx-opt is-active" data-value="all" aria-pressed="true">Todos</button>
-      <button type="button" class="hx-opt" data-value="linux" aria-pressed="false"><i class="fab fa-linux"></i>Linux</button>
-      <button type="button" class="hx-opt" data-value="windows" aria-pressed="false"><i class="fab fa-windows"></i>Windows</button>
-      <button type="button" class="hx-opt" data-value="otros" aria-pressed="false"><i class="fas fa-microchip"></i>Otros</button>
+      <button type="button" class="hx-opt" data-value="linux" aria-pressed="false"><i class="fab fa-linux"></i> Linux</button>
+      <button type="button" class="hx-opt" data-value="windows" aria-pressed="false"><i class="fab fa-windows"></i> Windows</button>
+      <button type="button" class="hx-opt" data-value="otros" aria-pressed="false">Otros</button>
     </div>
   </div>
 
   <div class="hx-fbar-row">
-    <span class="hx-fbar-label"><i class="fas fa-cube"></i> Plataforma</span>
+    <span class="hx-fbar-label">Plataforma</span>
     <div class="hx-seg" role="group" aria-label="Plataforma" data-group="platform">
       <button type="button" class="hx-opt is-active" data-value="all" aria-pressed="true">Todas</button>
-      <button type="button" class="hx-opt hx-opt-htb" data-value="hackthebox" aria-pressed="false"><i class="fas fa-cube"></i>HackTheBox</button>
+      <button type="button" class="hx-opt" data-value="hackthebox" aria-pressed="false">HackTheBox</button>
     </div>
   </div>
 
-  <div class="hx-fbar-row hx-fbar-search">
-    <span class="hx-fbar-label"><i class="fas fa-search"></i> Buscar</span>
-    <div class="hx-search">
-      <span class="hx-search-prompt" aria-hidden="true">grep -i</span>
-      <input type="search" placeholder="nombre de la máquina…" aria-label="Buscar máquina por nombre" autocomplete="off" spellcheck="false">
-      <kbd aria-hidden="true">/</kbd>
+  <form class="hx-fbar-row hx-search" role="search">
+    <span class="hx-fbar-label">Máquina</span>
+    <div class="hx-seg">
+      <input type="search" placeholder="Nombre de la máquina…" aria-label="Nombre de la máquina" autocomplete="off" spellcheck="false">
+      <button type="submit" class="hx-opt hx-search-btn"><i class="fas fa-search"></i> Buscar</button>
     </div>
-    <button type="button" class="hx-fbar-reset" hidden><i class="fas fa-rotate-left" aria-hidden="true"></i> Limpiar</button>
-  </div>
+  </form>
+
+  <p class="hx-fbar-count">
+    <b>{{ include.total }}</b> máquinas
+    <button type="button" class="hx-fbar-reset" hidden>· limpiar filtros</button>
+  </p>
 </div>
