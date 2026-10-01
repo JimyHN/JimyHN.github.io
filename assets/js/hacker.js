@@ -55,8 +55,9 @@
   }
 
   /* --- Efectos de la foto de perfil ---
-     Se ejecuta un efecto, se esperan 20 s y sale otro al azar.
-     Un efecto no puede repetirse hasta que hayan salido otros 3. */
+     Cada efecto: anticipación → efecto → 2 s finales volviendo suavemente al origen.
+     Tras cada efecto se esperan 10 s y sale otro al azar; un efecto no se repite
+     hasta que hayan salido otros 3. */
   function initAvatarFx() {
     const avatar = document.querySelector('#sidebar #avatar');
     const img = avatar && avatar.querySelector('img');
@@ -65,7 +66,10 @@
     const ICON = '/assets/img/favicons/circulo/web-app-manifest-512x512.png';
     const PHOTO = img.src;
     new Image().src = ICON; // precarga
+    const BASE_GLOW = '0 0 24px rgba(159, 239, 0, 0.25)';
+    const P = 'perspective(700px) ';
     const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const play = (el, frames, opts) => el.animate(frames, { fill: 'forwards', ...opts }).finished;
     const size = () => avatar.getBoundingClientRect().width || 112;
 
     const fx = document.createElement('div');
@@ -73,44 +77,79 @@
     fx.setAttribute('aria-hidden', 'true');
     avatar.append(fx);
 
-    const P = 'perspective(700px) ';
+    const make = (cls, parent = fx, tag = 'i') => {
+      const e = document.createElement(tag);
+      e.className = cls;
+      parent.append(e);
+      return e;
+    };
 
-    // 1. Moneda: se eleva, anticipa, gira rápido, frena pasándose, vuelve, cae y "se coloca"
+    // Limpia las animaciones "forwards" de un elemento al terminar
+    const reset = (...els) => els.forEach((el) => el.getAnimations().forEach((an) => an.cancel()));
+
+    // Pulso verde de "colocado" (se desvanece solo)
+    const settle = () => avatar.animate(
+      [
+        { boxShadow: '0 0 0 0 rgba(159, 239, 0, 0.7), ' + BASE_GLOW },
+        { boxShadow: '0 0 0 16px rgba(159, 239, 0, 0), ' + BASE_GLOW }
+      ],
+      { duration: 1400, easing: 'ease-out' }
+    ).finished;
+
+    // Temblor previo (anticipación): se encoge y vibra cada vez más
+    const tremble = (el, ms = 600, amp = 3) => play(el, [
+      { transform: 'scale(1) translateX(0)' },
+      { transform: `scale(0.96) translateX(${-amp * 0.4}px)`, offset: 0.25 },
+      { transform: `scale(0.95) translateX(${amp * 0.7}px)`, offset: 0.5 },
+      { transform: `scale(0.94) translateX(${-amp}px)`, offset: 0.75 },
+      { transform: 'scale(0.93) translateX(0)' }
+    ], { duration: ms, easing: 'ease-in' });
+
+    // 1. Moneda: se eleva, anticipa, gira, frena pasándose, vuelve y cae (6,2 s)
     async function coin() {
-      await avatar.animate(
-        [
-          { transform: P + 'translateY(0) rotateY(0deg)', easing: 'ease-out' },
-          { transform: P + 'translateY(-14px) rotateY(0deg)', offset: 0.07, easing: 'cubic-bezier(0.35, 0, 0.35, 1)' },
-          { transform: P + 'translateY(-14px) rotateY(-70deg)', offset: 0.25, easing: 'cubic-bezier(0.5, 0, 1, 0.6)' },
-          { transform: P + 'translateY(-14px) rotateY(990deg)', offset: 0.57, easing: 'cubic-bezier(0, 0.6, 0.4, 1)' },
-          { transform: P + 'translateY(-14px) rotateY(1200deg)', offset: 0.75, easing: 'cubic-bezier(0.45, 0, 0.55, 1)' },
-          { transform: P + 'translateY(-14px) rotateY(1080deg)', offset: 0.93, easing: 'cubic-bezier(0.5, 0, 0.9, 0.5)' },
-          { transform: P + 'translateY(0) rotateY(1080deg)' }
-        ],
-        { duration: 5600 }
-      ).finished;
-      avatar.classList.add('fx-settled');
-      await wait(1300);
-      avatar.classList.remove('fx-settled');
+      await play(avatar, [
+        { transform: P + 'translateY(0) rotateY(0deg)', easing: 'ease-out' },
+        { transform: P + 'translateY(-14px) rotateY(0deg)', offset: 0.065, easing: 'cubic-bezier(0.35, 0, 0.35, 1)' },
+        { transform: P + 'translateY(-14px) rotateY(-70deg)', offset: 0.226, easing: 'cubic-bezier(0.5, 0, 1, 0.6)' },
+        { transform: P + 'translateY(-14px) rotateY(990deg)', offset: 0.516, easing: 'cubic-bezier(0, 0.6, 0.4, 1)' },
+        { transform: P + 'translateY(-14px) rotateY(1200deg)', offset: 0.677, easing: 'cubic-bezier(0.45, 0, 0.55, 1)' },
+        { transform: P + 'translateY(-14px) rotateY(1080deg)', offset: 0.871, easing: 'cubic-bezier(0.45, 0, 0.55, 1)' },
+        { transform: P + 'translateY(0) rotateY(1080deg)' }
+      ], { duration: 6200 });
+      reset(avatar);
+      await settle();
     }
 
     // 2. Se raya, aparece el icono 3 s, se vuelve a rayar y vuelve la foto
     async function glitchSwap(src) {
       avatar.classList.add('fx-glitch');
-      await wait(300);
+      await wait(320);
       img.src = src;
-      await wait(350);
+      await wait(340);
       avatar.classList.remove('fx-glitch');
     }
 
     async function glitchIcon() {
+      await tremble(img, 600, 3);
       await glitchSwap(ICON);
+      play(img, [{ transform: 'scale(0.93)' }, { transform: 'scale(1)' }], { duration: 500, easing: 'ease-out' });
       await wait(3000);
+      await tremble(img, 500, 3);
       await glitchSwap(PHOTO);
+      // 2 s de recuperación: restos del glitch que se desvanecen
+      await play(img, [
+        { transform: 'scale(0.93) translateX(-2px)', filter: 'hue-rotate(70deg) saturate(2.5) contrast(1.4)' },
+        { transform: 'scale(1.02) translateX(1px)', filter: 'hue-rotate(20deg) saturate(1.4)', offset: 0.35 },
+        { transform: 'scale(1) translateX(0)', filter: 'hue-rotate(0deg) saturate(1) contrast(1)' }
+      ], { duration: 2000, easing: 'ease-out' });
+      reset(img);
     }
 
-    // 3. Lluvia de bits que convierte la foto en 0 y 1
+    // 3. Lluvia de bits que convierte la foto en 0 y 1 (≈6,5 s)
     async function bits() {
+      await play(img, [{ transform: 'scale(1)', filter: 'brightness(1)' }, { transform: 'scale(0.95)', filter: 'brightness(0.6)' }],
+        { duration: 500, easing: 'ease-in' });
+
       const S = size();
       const dpr = window.devicePixelRatio || 1;
       const canvas = document.createElement('canvas');
@@ -119,7 +158,6 @@
       const ctx = canvas.getContext('2d');
       ctx.scale(dpr, dpr);
 
-      // Brillo de la foto en una rejilla de celdas
       const cell = 6;
       const n = Math.ceil(S / cell);
       const sample = document.createElement('canvas');
@@ -134,17 +172,22 @@
       } catch (e) { /* sin acceso a los píxeles: solo lluvia */ }
 
       const drops = Array.from({ length: n }, () => -Math.random() * n);
-      const start = performance.now();
-      const TOTAL = 5200;
+      const ease = (x) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
+      const IN = 1300, HOLD = 2700, OUT = 2000, TOTAL = IN + HOLD + OUT;
       ctx.font = `${cell + 1}px "JetBrains Mono", monospace`;
       ctx.textBaseline = 'top';
+      const start = performance.now();
 
       await new Promise((resolve) => {
         function frame(now) {
-          const t = now - start;
-          // 0-1,3 s: cae la lluvia y se va la foto · 1,3-3,9 s: foto en bits · 3,9-5,2 s: vuelve
-          const bitsAlpha = t < 1300 ? t / 1300 : t > 3900 ? Math.max(0, 1 - (t - 3900) / 1300) : 1;
-          img.style.opacity = String(1 - bitsAlpha);
+          const t = Math.min(now - start, TOTAL);
+          const k = t < IN ? ease(t / IN) : t < IN + HOLD ? 1 : 1 - ease((t - IN - HOLD) / OUT);
+          img.style.opacity = String(1 - k);
+          // la foto vuelve de tamaño y brillo durante los 2 s finales
+          const back = t < IN + HOLD ? 0 : ease((t - IN - HOLD) / OUT);
+          img.style.transform = `scale(${0.95 + 0.05 * back})`;
+          img.style.filter = `brightness(${0.6 + 0.4 * back})`;
+
           ctx.clearRect(0, 0, S, S);
           ctx.save();
           ctx.beginPath();
@@ -154,16 +197,15 @@
             for (let y = 0; y < n; y++) {
               for (let x = 0; x < n; x++) {
                 const l = lum[y * n + x];
-                ctx.fillStyle = `rgba(159, 239, 0, ${(0.15 + l * 0.85) * bitsAlpha})`;
+                ctx.fillStyle = `rgba(159, 239, 0, ${(0.15 + l * 0.85) * k})`;
                 ctx.fillText(l > 0.45 ? '1' : '0', x * cell, y * cell);
               }
             }
           }
-          const rain = t < 4600 ? 1 : Math.max(0, 1 - (t - 4600) / 600);
           drops.forEach((y, i) => {
-            for (let k = 0; k < 6; k++) {
-              ctx.fillStyle = `rgba(${k === 0 ? '230, 255, 200' : '159, 239, 0'}, ${(1 - k / 6) * rain})`;
-              ctx.fillText(Math.random() < 0.5 ? '0' : '1', i * cell, (y - k) * cell);
+            for (let j = 0; j < 6; j++) {
+              ctx.fillStyle = `rgba(${j === 0 ? '230, 255, 200' : '159, 239, 0'}, ${(1 - j / 6) * k})`;
+              ctx.fillText(Math.random() < 0.5 ? '0' : '1', i * cell, (y - j) * cell);
             }
             drops[i] = y > n + 6 ? -Math.random() * 8 : y + 0.5;
           });
@@ -173,11 +215,12 @@
         }
         requestAnimationFrame(frame);
       });
-      img.style.opacity = '';
+      reset(img);
+      Object.assign(img.style, { opacity: '', transform: '', filter: '' });
       canvas.remove();
     }
 
-    // 4. Se rompe en mil pedazos y se recompone
+    // 4. Se agrieta, estalla en pedazos y se recompone (≈4,3 s + pulso)
     async function shatter() {
       const S = size();
       const round = document.createElement('canvas');
@@ -190,24 +233,33 @@
       let url;
       try { url = round.toDataURL(); } catch (e) { return; }
 
+      // Anticipación: tiembla cada vez más fuerte con destellos
+      await play(img, [
+        { transform: 'translate(0, 0)', filter: 'brightness(1)' },
+        { transform: 'translate(-1px, 1px)', filter: 'brightness(1.2)', offset: 0.2 },
+        { transform: 'translate(2px, -1px)', filter: 'brightness(0.9)', offset: 0.4 },
+        { transform: 'translate(-3px, 2px)', filter: 'brightness(1.4)', offset: 0.6 },
+        { transform: 'translate(4px, -2px)', filter: 'brightness(0.9)', offset: 0.8 },
+        { transform: 'translate(0, 0) scale(0.96)', filter: 'brightness(1.6)' }
+      ], { duration: 700, easing: 'ease-in' });
+
       const G = 9;
       const t = S / G;
       const pieces = [];
       for (let y = 0; y < G; y++) {
         for (let x = 0; x < G; x++) {
-          const p = document.createElement('span');
-          p.className = 'hx-shard';
+          const p = make('hx-shard', fx, 'span');
           Object.assign(p.style, {
             left: x * t + 'px', top: y * t + 'px', width: t + 0.5 + 'px', height: t + 0.5 + 'px',
             backgroundImage: `url(${url})`, backgroundSize: `${S}px ${S}px`,
             backgroundPosition: `${-x * t}px ${-y * t}px`
           });
-          fx.append(p);
           pieces.push({ p, x: x - G / 2 + 0.5, y: y - G / 2 + 0.5 });
         }
       }
+      reset(img);
       img.style.opacity = '0';
-      avatar.classList.add('fx-shatter');
+      // 0,9 s estallido · 0,5 s flotando · 2,2 s volviendo despacio
       await Promise.all(pieces.map(({ p, x, y }) => {
         const dist = 40 + Math.random() * 70;
         const len = Math.hypot(x, y) || 1;
@@ -215,38 +267,115 @@
         const dy = (y / len) * dist + (Math.random() - 0.5) * 30;
         const rot = (Math.random() - 0.5) * 540;
         const out = `translate(${dx}px, ${dy}px) rotate(${rot}deg) scale(${0.4 + Math.random() * 0.5})`;
-        return p.animate(
-          [
-            { transform: 'none', opacity: 1, easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)' },
-            { transform: out, opacity: 0.85, offset: 0.35 },
-            { transform: out, opacity: 0.85, offset: 0.5, easing: 'cubic-bezier(0.7, 0, 0.3, 1)' },
-            { transform: 'none', opacity: 1 }
-          ],
-          { duration: 2600, delay: Math.random() * 120 }
-        ).finished;
+        const drift = `translate(${dx * 1.08}px, ${dy * 1.08 + 4}px) rotate(${rot * 1.1}deg) scale(0.6)`;
+        return p.animate([
+          { transform: 'scale(0.96)', opacity: 1, easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)' },
+          { transform: out, opacity: 0.85, offset: 0.25, easing: 'linear' },
+          { transform: drift, opacity: 0.8, offset: 0.39, easing: 'cubic-bezier(0.45, 0, 0.25, 1)' },
+          { transform: 'none', opacity: 1 }
+        ], { duration: 3600, delay: Math.random() * 120, fill: 'forwards' }).finished;
       }));
       img.style.opacity = '';
       pieces.forEach(({ p }) => p.remove());
-      avatar.classList.remove('fx-shatter');
-      avatar.classList.add('fx-settled');
-      await wait(1300);
-      avatar.classList.remove('fx-settled');
+      await settle();
     }
 
-    // 5. Aura de energía y 6. Holograma: efectos CSS con duración fija
-    async function cssFx(name, ms, html) {
-      if (html) fx.innerHTML = html;
-      avatar.classList.add(name);
-      await wait(ms);
-      avatar.classList.remove(name);
+    // Frena poco a poco una animación infinita (giro) mientras dura `ms`
+    function slowDown(anims, ms) {
+      const start = performance.now();
+      return new Promise((resolve) => {
+        (function step(now) {
+          const k = Math.min((now - start) / ms, 1);
+          anims.forEach((an) => { an.playbackRate = Math.max(0.05, 1 - k); });
+          if (k < 1) requestAnimationFrame(step);
+          else resolve();
+        })(start);
+      });
+    }
+
+    // 5. Aura de energía: inspira, estalla en energía y se apaga despacio (≈5,5 s)
+    async function aura() {
+      await play(avatar, [{ transform: 'scale(1)' }, { transform: 'scale(0.93)' }], { duration: 600, easing: 'ease-in-out' });
+      const ring = make('hx-aura-ring');
+      const orbit = make('hx-orbit');
+      const dots = Array.from({ length: 6 }, (_, i) => ({ b: make('', orbit, 'b'), a: i * 60 }));
+
+      play(avatar, [{ transform: 'scale(0.93)' }, { transform: 'scale(1.04)', offset: 0.4 }, { transform: 'scale(1)' }],
+        { duration: 700, easing: 'ease-out' });
+      const spins = [
+        ring.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }], { duration: 900, iterations: Infinity }),
+        orbit.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(360deg)' }], { duration: 2200, iterations: Infinity })
+      ];
+      play(ring, [{ opacity: 0, scale: '0.85' }, { opacity: 1, scale: '1' }], { duration: 600, easing: 'ease-out' });
+      dots.forEach(({ b, a }) => play(b, [
+        { transform: `rotate(${a}deg) translateX(30px)`, opacity: 0 },
+        { transform: `rotate(${a}deg) translateX(74px)`, opacity: 1 }
+      ], { duration: 800, easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)' }));
+      const glow = avatar.animate([
+        { boxShadow: '0 0 30px 6px rgba(159, 239, 0, 0.55), 0 0 70px 14px rgba(46, 230, 214, 0.25)' },
+        { boxShadow: '0 0 18px 2px rgba(159, 239, 0, 0.4), 0 0 50px 8px rgba(46, 230, 214, 0.18)' }
+      ], { duration: 700, iterations: Infinity, direction: 'alternate', easing: 'ease-in-out' });
+
+      await wait(2600);
+
+      // 2 s finales: el giro frena, el anillo y las partículas se apagan, el brillo baja
+      const shadow = getComputedStyle(avatar).boxShadow;
+      glow.cancel();
+      await Promise.all([
+        slowDown(spins, 2000),
+        play(ring, [{ opacity: 1, scale: '1' }, { opacity: 0, scale: '0.85' }], { duration: 2000, easing: 'ease-in-out' }),
+        ...dots.map(({ b, a }) => play(b, [
+          { transform: `rotate(${a}deg) translateX(74px)`, opacity: 1 },
+          { transform: `rotate(${a}deg) translateX(40px)`, opacity: 0 }
+        ], { duration: 2000, easing: 'ease-in-out' })),
+        play(avatar, [{ boxShadow: shadow }, { boxShadow: BASE_GLOW }], { duration: 2000, easing: 'ease-in-out' })
+      ]);
+      spins.forEach((an) => an.cancel());
+      reset(avatar);
+      ring.remove();
+      orbit.remove();
+    }
+
+    // 6. Holograma: parpadea, se vuelve holograma con visor y se desvanece (≈6,4 s)
+    async function holo() {
+      const hud = make('hx-hud');
+      make('hx-hud-ring');
+      make('hx-hud-scan');
+      fx.classList.add('is-holo');
+      const D = 6400;
+      // 0-0,5 s anticipación (parpadeo) · 0,5-1,1 s entra · 1,1-4,4 s holograma · 4,4-6,4 s vuelve
+      const tint = 'grayscale(1) sepia(1) hue-rotate(130deg) saturate(3) brightness(1.1)';
+      const none = 'grayscale(0) sepia(0) hue-rotate(0deg) saturate(1) brightness(1)';
+      await Promise.all([
+        play(img, [
+          { filter: none, opacity: 1, transform: 'scale(1)' },
+          { filter: none, opacity: 0.4, transform: 'scale(0.97)', offset: 0.03 },
+          { filter: none, opacity: 1, transform: 'scale(0.97)', offset: 0.05 },
+          { filter: none, opacity: 0.5, transform: 'scale(0.97)', offset: 0.078 },
+          { filter: tint, opacity: 0.85, transform: 'scale(1)', offset: 0.17 },
+          { filter: tint, opacity: 0.6, transform: 'scale(1)', offset: 0.35 },
+          { filter: tint, opacity: 0.95, transform: 'scale(1)', offset: 0.37 },
+          { filter: tint, opacity: 0.45, transform: 'scale(1)', offset: 0.39 },
+          { filter: tint, opacity: 0.85, transform: 'scale(1)', offset: 0.55 },
+          { filter: tint, opacity: 0.85, transform: 'scale(1)', offset: 0.6875, easing: 'ease-in-out' },
+          { filter: none, opacity: 1, transform: 'scale(1)' }
+        ], { duration: D }),
+        play(fx, [
+          { opacity: 0 }, { opacity: 0, offset: 0.078 }, { opacity: 1, offset: 0.17 },
+          { opacity: 1, offset: 0.6875, easing: 'ease-in-out' }, { opacity: 0 }
+        ], { duration: D }),
+        play(hud, [
+          { transform: 'scale(1.5) rotate(45deg)', opacity: 0 },
+          { transform: 'scale(1.5) rotate(45deg)', opacity: 0, offset: 0.078, easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)' },
+          { transform: 'scale(1) rotate(0deg)', opacity: 1, offset: 0.2 },
+          { transform: 'scale(1) rotate(0deg)', opacity: 1, offset: 0.6875, easing: 'ease-in-out' },
+          { transform: 'scale(1.25) rotate(-20deg)', opacity: 0 }
+        ], { duration: D })
+      ]);
+      reset(img, fx);
+      fx.classList.remove('is-holo');
       fx.innerHTML = '';
     }
-
-    const aura = () =>
-      cssFx('fx-aura', 4200, '<i class="hx-orbit"><b></b><b></b><b></b><b></b><b></b><b></b></i>');
-
-    const holo = () =>
-      cssFx('fx-holo', 4800, '<i class="hx-hud"></i><i class="hx-hud-ring"></i><i class="hx-hud-scan"></i>');
 
     const effects = [coin, glitchIcon, bits, shatter, aura, holo];
     const recent = [];
@@ -261,7 +390,7 @@
           if (recent.length > 3) recent.shift();
           try { await effects[i](); } catch (e) { /* un efecto fallido no para el resto */ }
         }
-        await wait(20000);
+        await wait(10000);
       }
     })();
   }
