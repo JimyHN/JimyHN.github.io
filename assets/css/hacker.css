@@ -3477,3 +3477,79 @@ article:has(.hx-wu) > .post-desc { display: none; }
   .hx-wu-head { flex-direction: column; text-align: center; }
   .content .hx-wu-table { min-width: 100%; }
 }
+
+/* ==========================================================================
+   Tarjeta de máquina en la lista de Write-ups (imagen + nombre + SO + fecha)
+   ========================================================================== */
+.content a.hx-mcard,
+.hx-mcard {
+  --os: 125 139 153;
+  --diff: 159 239 0;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem;
+  border: 1px solid var(--hx-border);
+  border-radius: 12px;
+  background: linear-gradient(150deg, rgb(var(--os) / 14%), var(--hx-bg-2) 60%);
+  text-decoration: none;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.3, 1), border-color 0.25s, box-shadow 0.25s;
+}
+
+.hx-mcard[data-os='windows'] { --os: 94 180 248; }
+.hx-mcard[data-os='linux'] { --os: 255 175 0; }
+.hx-mcard[data-diff='easy'] { --diff: 159 239 0; }
+.hx-mcard[data-diff='medium'] { --diff: 255 175 0; }
+.hx-mcard[data-diff='hard'] { --diff: 255 62 62; }
+.hx-mcard[data-diff='insane'] { --diff: 193 108 255; }
+
+.hx-mcard-img {
+  width: 62px;
+  height: 62px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 1px solid rgb(var(--os) / 40%);
+  object-fit: cover;
+  background: #05070a;
+}
+
+.hx-mcard-ph {
+  display: grid;
+  place-items: center;
+  color: rgb(var(--os));
+  font-size: 1.6rem;
+}
+
+.hx-mcard-body { min-width: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+
+.content .hx-mcard-name {
+  margin: 0;
+  font-family: var(--hx-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #e6edf3;
+  transition: color 0.2s;
+}
+
+.hx-mcard-meta {
+  margin: 0;
+  font-family: var(--hx-mono);
+  font-size: 0.74rem;
+  color: var(--hx-muted);
+}
+
+.hx-mcard-meta i { color: rgb(var(--os)); margin-right: 0.2rem; }
+
+.hx-mcard .hx-badge { align-self: flex-start; margin-top: 0.1rem; }
+
+.content a.hx-mcard:hover,
+.hx-mcard:hover {
+  transform: translateY(-4px);
+  border-color: rgb(var(--diff));
+  box-shadow: 0 12px 30px rgb(0 0 0 / 50%), 0 0 20px rgb(var(--os) / 30%);
+}
+
+.hx-mcard:hover .hx-mcard-name { color: rgb(var(--os)); }
+.hx-mcard:hover .hx-mcard-img { border-color: rgb(var(--os)); }
+
+.hx-mcard[hidden] { display: none; }

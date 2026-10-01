@@ -17,24 +17,22 @@ order: 1
       {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
       {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
       {% else %}{% assign os_key = 'otros' %}{% endif %}
-      <a class="hx-card" href="{{ post.url | relative_url }}" data-name="{{ post.machine | default: post.title | downcase }}" data-diff="{{ post.difficulty | default: '' | downcase }}" data-os="{{ os_key }}" data-platform="{{ post.platform | default: '' | downcase | remove: ' ' }}">
-        <div class="hx-card-top">
-          {% if os_down contains 'windows' %}
-            <i class="fab fa-windows" aria-hidden="true"></i>
-          {% elsif os_down != '' %}
-            <i class="fab fa-linux" aria-hidden="true"></i>
-          {% else %}
-            <i class="fas fa-server" aria-hidden="true"></i>
-          {% endif %}
-          {% if post.difficulty %}
-            <span class="hx-badge hx-diff-{{ post.difficulty | downcase }}">{{ post.difficulty }}</span>
-          {% endif %}
+      <a class="hx-mcard" data-os="{{ os_key }}" data-diff="{{ post.difficulty | default: '' | downcase }}" href="{{ post.url | relative_url }}" data-name="{{ post.machine | default: post.title | downcase }}" data-platform="{{ post.platform | default: '' | downcase | remove: ' ' }}">
+        {% if post.image %}
+          <img class="hx-mcard-img" src="{{ post.image | relative_url }}" alt="{{ post.title }}" loading="lazy">
+        {% else %}
+          <span class="hx-mcard-img hx-mcard-ph">
+            {% if os_down contains 'windows' %}<i class="fab fa-windows"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-server"></i>{% endif %}
+          </span>
+        {% endif %}
+        <div class="hx-mcard-body">
+          <h3 class="hx-mcard-name">{{ post.title }}</h3>
+          <p class="hx-mcard-meta">
+            {% if os_down contains 'windows' %}<i class="fab fa-windows"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-microchip"></i>{% endif %}
+            {{ post.os }} · {{ post.date | date: '%d/%m/%Y' }}
+          </p>
+          {% if post.difficulty %}<span class="hx-badge hx-diff-{{ post.difficulty | downcase }}">{{ post.difficulty }}</span>{% endif %}
         </div>
-        <p class="hx-card-title">{{ post.title }}</p>
-        <p class="hx-card-desc">{{ post.description | default: post.excerpt | strip_html | truncate: 140 }}</p>
-        <span class="hx-card-meta">
-          {{ post.date | date: '%d/%m/%Y' }}{% if post.platform %} · {{ post.platform }}{% endif %}{% if post.os %} · {{ post.os }}{% endif %}
-        </span>
       </a>
     {% endfor %}
   </div>

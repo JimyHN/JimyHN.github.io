@@ -7,14 +7,14 @@ genera el post en _posts/ y se guardan las imágenes de la máquina.
 
 Uso:
     python3 submit-writeup/writeup.py            # abre el editor
-    python3 submit-writeup/writeup.py -n Blue -ip 10.10.10.40 \
-        -u https://labs.hackthebox.com/achievement/machine/2772097/51
+    python3 submit-writeup/writeup.py -u https://labs.hackthebox.com/achievement/machine/2772097/51
     python3 submit-writeup/writeup.py -h
 
-Flags (opcionales, solo rellenan el editor al abrirlo):
-    -n/--name   Nombre de la máquina (obligatorio para traer la imagen).
-    -ip         IP de la máquina (si no, se usa una por defecto).
-    -u/--url    URL del logro de HackTheBox (de ahí sale la imagen y la prueba).
+El nombre, la IP y lo demás se escriben en el editor. La URL es opcional (solo
+rellena el campo al abrir); también puedes pegarla en el editor y pulsar "Traer imagen".
+
+Flags:
+    -u/--url    URL del logro de HackTheBox (opcional, rellena el campo).
     -p/--port   Puerto del servidor (por defecto 8099).
     --no-open   No abrir el navegador automáticamente.
 """
@@ -149,15 +149,12 @@ class Handler(BaseHTTPRequestHandler):
 
 def main():
     p = argparse.ArgumentParser(description="Editor de write-ups del blog.")
-    p.add_argument("-n", "--name", default="", help="Nombre de la máquina")
-    p.add_argument("-ip", "--ip", default="", help="IP de la máquina")
-    p.add_argument("-u", "--url", default="", help="URL del logro de HackTheBox")
+    p.add_argument("-u", "--url", default="", help="URL del logro de HackTheBox (opcional, rellena el campo)")
     p.add_argument("-p", "--port", type=int, default=8099, help="Puerto del servidor")
     p.add_argument("--no-open", action="store_true", help="No abrir el navegador")
     args = p.parse_args()
 
-    qs = urllib.parse.urlencode({k: v for k, v in
-                                 {"name": args.name, "ip": args.ip or DEFAULT_IP, "url": args.url}.items() if v})
+    qs = urllib.parse.urlencode({k: v for k, v in {"url": args.url}.items() if v})
     editor_url = f"http://localhost:{args.port}/editor.html" + (f"?{qs}" if qs else "")
 
     srv = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
