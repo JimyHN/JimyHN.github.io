@@ -372,6 +372,8 @@ body::after {
   gap: 0.5rem;
   justify-content: center !important;
   width: 100%;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
 }
 
 #sidebar .sidebar-bottom > a {
@@ -3242,3 +3244,34 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
 @media (max-width: 640px) {
   .hx-carousel-track .hx-cred { flex-basis: 85%; }
 }
+
+/* Estado "Resuelta" verificable (enlace a la prueba de máquina comprometida) */
+.hx-status-proof {
+  text-decoration: none;
+  border-bottom: none !important;
+  transition: text-shadow 0.2s, transform 0.15s;
+}
+
+.hx-status-proof i { font-size: 0.72em; }
+
+.hx-status-proof:hover {
+  text-shadow: 0 0 10px rgb(159 239 0 / 60%);
+  transform: translateY(-1px);
+}
+
+/* Aviso de máquina comprometida dentro del write-up */
+.hx-pwned {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 1.2rem 0;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgb(159 239 0 / 45%);
+  border-radius: 8px;
+  background: var(--hx-green-soft);
+  font-family: var(--hx-mono);
+  font-size: 0.85rem;
+}
+
+.hx-pwned i { color: var(--hx-green); font-size: 1.1rem; }
+.hx-pwned a { margin-left: auto; white-space: nowrap; }
