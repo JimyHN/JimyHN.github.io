@@ -1469,6 +1469,18 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   max-width: 48ch;
 }
 
+.hx-info-bio b {
+  color: var(--hx-green);
+  font-weight: 700;
+  text-shadow: 0 0 8px rgb(159 239 0 / 25%);
+}
+
+.hx-info-bio-wink {
+  margin-top: 0.6rem;
+  font-style: italic;
+  color: var(--hx-muted);
+}
+
 /* Datos en una sola fila (Objetivo · Write-ups · Herramientas · Certificaciones · GitHub) */
 .hx-stats {
   display: flex;
