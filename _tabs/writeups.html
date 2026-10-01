@@ -18,8 +18,8 @@ order: 1
       {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
       {% else %}{% assign os_key = 'otros' %}{% endif %}
       <a class="hx-mcard" data-os="{{ os_key }}" data-diff="{{ post.difficulty | default: '' | downcase }}" href="{{ post.url | relative_url }}" data-name="{{ post.machine | default: post.title | downcase }}" data-platform="{{ post.platform | default: '' | downcase | remove: ' ' }}">
-        <span class="hx-mcard-img{% unless post.image %} hx-mcard-ph{% endunless %}"{% if post.image %} style="background-image:url('{{ post.image | relative_url }}')"{% endif %}>
-          {% unless post.image %}{% if os_down contains 'windows' %}<i class="fab fa-windows"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
+        <span class="hx-mcard-img{% unless post.thumb %} hx-mcard-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
+          {% unless post.thumb %}{% if os_down contains 'windows' %}<i class="fab fa-windows"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
         </span>
         <div class="hx-mcard-body">
           <h3 class="hx-mcard-name">{{ post.title }}</h3>
