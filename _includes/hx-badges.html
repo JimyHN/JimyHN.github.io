@@ -1,0 +1,18 @@
+{%- comment -%}
+  Badges de SO y dificultad. Uso: {% include hx-badges.html post=post %}
+  Front matter del post: `os: Linux|Windows` y `difficulty: Easy|Medium|Hard|Insane`
+{%- endcomment -%}
+{%- if include.post.os or include.post.difficulty -%}
+  <span class="hx-badges">
+    {%- if include.post.os -%}
+      {%- assign os_down = include.post.os | downcase -%}
+      <span class="hx-os">
+        <i class="fab fa-{% if os_down contains 'windows' %}windows{% else %}linux{% endif %}"></i>
+        {{ include.post.os }}
+      </span>
+    {%- endif -%}
+    {%- if include.post.difficulty -%}
+      <span class="hx-badge hx-diff-{{ include.post.difficulty | downcase }}">{{ include.post.difficulty }}</span>
+    {%- endif -%}
+  </span>
+{%- endif -%}
