@@ -198,7 +198,6 @@
       '.content > div.highlighter-rouge',
       '.content > table',
       '.hx-rm-hero',
-      '.hx-rm-platform',
       '.post-preview'
     ];
     const items = document.querySelectorAll(selectors.join(','));
@@ -252,33 +251,94 @@
     update();
   }
 
-  /* --- Filtros de la sección Write-ups --- */
-  function initFilters() {
-    document.querySelectorAll('.hx-filters').forEach((group) => {
-      const grid = document.getElementById(group.dataset.target);
-      if (!grid) return;
-      const cards = Array.from(grid.querySelectorAll('[data-keys]'));
-      const empty = document.getElementById(group.dataset.empty);
+  /* --- Panel de filtros de máquinas: dificultad + SO + plataforma + nombre --- */
+  const normalize = (t) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-      group.addEventListener('click', (e) => {
-        const btn = e.target.closest('.hx-filter');
-        if (!btn) return;
+  function initFilterBars() {
+    document.querySelectorAll('.hx-fbar').forEach((bar) => {
+      const container = document.getElementById(bar.dataset.target);
+      if (!container) return;
+      const items = Array.from(container.querySelectorAll('[data-name]'));
+      const sections = Array.from(container.querySelectorAll('section'));
+      const empty = document.getElementById(bar.dataset.empty);
+      const count = bar.querySelector('.hx-fbar-count b');
+      const input = bar.querySelector('.hx-search input');
+      const reset = bar.querySelector('.hx-fbar-reset');
+      const state = { diff: 'all', os: 'all', platform: 'all', q: '' };
 
-        group.querySelectorAll('.hx-filter').forEach((b) => {
-          b.classList.toggle('is-active', b === btn);
-          b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
-        });
-
-        const f = btn.dataset.filter;
+      function apply() {
         let visible = 0;
-        cards.forEach((card) => {
-          const keys = (card.dataset.keys || '').toLowerCase().split(' ');
-          const show = f === 'all' || keys.includes(f);
-          card.hidden = !show;
-          if (show) visible++;
+        items.forEach((el) => {
+          const ok =
+            (state.diff === 'all' || el.dataset.diff === state.diff) &&
+            (state.os === 'all' || el.dataset.os === state.os) &&
+            (state.platform === 'all' || el.dataset.platform === state.platform) &&
+            (!state.q || normalize(el.dataset.name).includes(state.q));
+          el.hidden = !ok;
+          if (ok) visible++;
         });
-        if (empty) empty.classList.toggle('is-visible', cards.length > 0 && visible === 0);
+        // Secciones del roadmap sin filas visibles se ocultan
+        sections.forEach((sec) => {
+          sec.hidden = !sec.querySelector('[data-name]:not([hidden])');
+        });
+        if (count) {
+          count.textContent = visible;
+          count.classList.remove('hx-bump');
+          void count.offsetWidth; // reinicia la animación
+          count.classList.add('hx-bump');
+        }
+        if (empty) empty.classList.toggle('is-visible', items.length > 0 && visible === 0);
+        const dirty = state.diff !== 'all' || state.os !== 'all' || state.platform !== 'all' || state.q;
+        if (reset) reset.hidden = !dirty;
+      }
+
+      function select(group, value) {
+        state[group.dataset.group] = value;
+        group.querySelectorAll('.hx-opt').forEach((b) => {
+          const on = b.dataset.value === value;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+      }
+
+      bar.querySelectorAll('.hx-seg').forEach((group) => {
+        group.addEventListener('click', (e) => {
+          const btn = e.target.closest('.hx-opt');
+          if (!btn) return;
+          select(group, btn.dataset.value);
+          apply();
+        });
       });
+
+      input.addEventListener('input', () => {
+        state.q = normalize(input.value.trim());
+        apply();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          input.value = '';
+          state.q = '';
+          apply();
+          input.blur();
+        }
+      });
+
+      reset.addEventListener('click', () => {
+        bar.querySelectorAll('.hx-seg').forEach((g) => select(g, 'all'));
+        input.value = '';
+        state.q = '';
+        apply();
+      });
+    });
+
+    // Atajo: "/" enfoca el buscador
+    document.addEventListener('keydown', (e) => {
+      const input = document.querySelector('.hx-fbar .hx-search input');
+      if (!input || e.key !== '/' || e.ctrlKey || e.metaKey) return;
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+      e.preventDefault();
+      input.focus();
     });
   }
 
@@ -312,7 +372,7 @@
     initReveal();
     initCardGlow();
     initProgress();
-    initFilters();
+    initFilterBars();
   }
 
   if (document.readyState === 'loading') {
