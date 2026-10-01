@@ -3481,17 +3481,25 @@ article:has(.hx-wu) > .post-desc { display: none; }
 /* ==========================================================================
    Tarjeta de máquina en la lista de Write-ups (imagen + nombre + SO + fecha)
    ========================================================================== */
+.hx-mlist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 1.2rem 0 2rem;
+}
+
 .content a.hx-mcard,
 .hx-mcard {
   --os: 125 139 153;
   --diff: 159 239 0;
   display: flex;
   align-items: center;
-  gap: 0.9rem;
-  padding: 0.9rem;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.9rem 1.1rem;
   border: 1px solid var(--hx-border);
   border-radius: 12px;
-  background: linear-gradient(150deg, rgb(var(--os) / 14%), var(--hx-bg-2) 60%);
+  background: linear-gradient(120deg, rgb(var(--os) / 14%), var(--hx-bg-2) 55%);
   text-decoration: none;
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.3, 1), border-color 0.25s, box-shadow 0.25s;
 }
@@ -3504,20 +3512,21 @@ article:has(.hx-wu) > .post-desc { display: none; }
 .hx-mcard[data-diff='insane'] { --diff: 193 108 255; }
 
 .hx-mcard-img {
-  width: 62px;
-  height: 62px;
+  width: 64px;
+  height: 64px;
   flex-shrink: 0;
   border-radius: 12px;
   border: 1px solid rgb(var(--os) / 40%);
-  object-fit: cover;
-  background: #05070a;
+  background-color: #05070a;
+  background-size: cover;
+  background-position: center;
 }
 
 .hx-mcard-ph {
   display: grid;
   place-items: center;
   color: rgb(var(--os));
-  font-size: 1.6rem;
+  font-size: 1.7rem;
 }
 
 .hx-mcard-body { min-width: 0; display: flex; flex-direction: column; gap: 0.25rem; }
