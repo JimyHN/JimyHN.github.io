@@ -14,7 +14,7 @@ order: 3
 
   <div class="hx-certs">
     {% for c in obtenidas %}
-      <article class="hx-cert is-done">
+      <article class="hx-cert is-done" style="--c: 159 239 0">
         <div class="hx-cert-head">
           <i class="{{ c.icono | default: 'fas fa-certificate' }}" aria-hidden="true"></i>
           <div>
@@ -47,7 +47,7 @@ order: 3
 
   <div class="hx-certs">
     {% for c in en_progreso %}
-      <article class="hx-cert is-wip">
+      <article class="hx-cert is-wip" style="--c: 255 175 0">
         <div class="hx-cert-head">
           <i class="{{ c.icono | default: 'fas fa-certificate' }}" aria-hidden="true"></i>
           <div>

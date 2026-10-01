@@ -872,36 +872,116 @@ footer a { color: var(--hx-green) !important; }
 /* ==========================================================================
    Contenido de posts
    ========================================================================== */
-.content h2::before,
-.content h3::before {
+/* Secciones plegables (acordeón) de los write-ups */
+article[data-toc] .content h3::before {
+  content: '#';
   color: var(--hx-green);
-  font-weight: 400;
+  opacity: 0.5;
   margin-right: 0.4rem;
-  opacity: 0.8;
+  font-weight: 400;
 }
 
-.content h2::before { content: '##'; }
-.content h3::before { content: '###'; }
-
-.content h2 {
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid var(--hx-border);
+.hx-acc-head {
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 1.6rem 0 0 !important;
+  padding: 0.7rem 0.9rem !important;
+  border: 1px solid var(--hx-border);
+  border-left: 3px solid var(--hx-green);
+  border-radius: 8px;
+  background: linear-gradient(100deg, var(--hx-green-soft), transparent 70%);
+  font-size: 1.15rem !important;
+  list-style: none;
+  user-select: none;
+  transition: background 0.25s, border-color 0.25s, box-shadow 0.25s, transform 0.1s;
 }
 
+.hx-acc-head::-webkit-details-marker { display: none; }
+
+.hx-acc-head::before {
+  content: '>';
+  font-family: var(--hx-mono);
+  color: var(--hx-green);
+  font-weight: 700;
+  transition: transform 0.25s;
+}
+
+.hx-acc-head:hover {
+  background: linear-gradient(100deg, rgb(159 239 0 / 16%), transparent 70%);
+  border-color: rgb(159 239 0 / 45%);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 30%);
+}
+
+.hx-acc-head .hx-acc-chevron {
+  margin-left: auto;
+  color: var(--hx-muted);
+  transition: transform 0.3s, color 0.25s;
+}
+
+.hx-acc-head:hover .hx-acc-chevron { color: var(--hx-green); }
+
+/* Cerrado */
+.hx-acc-head.is-closed::before { transform: rotate(0deg); }
+.hx-acc-head.is-open::before { transform: rotate(90deg); }
+.hx-acc-head.is-closed .hx-acc-chevron { transform: rotate(-90deg); }
+
+.hx-acc-body {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.35s ease;
+}
+
+.hx-acc-body.is-closed { grid-template-rows: 0fr; }
+
+.hx-acc-inner {
+  overflow: hidden;
+  padding: 0 0.3rem;
+}
+
+.hx-acc-body.is-open .hx-acc-inner {
+  animation: hx-acc-reveal 0.5s ease;
+}
+
+@keyframes hx-acc-reveal {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Bloques de código */
 div[class^='language-'],
 div.highlighter-rouge {
   border: 1px solid var(--hx-border);
   border-radius: 8px !important;
   box-shadow: 0 6px 20px rgb(0 0 0 / 35%);
+  transition: border-color 0.25s, box-shadow 0.25s;
 }
 
-.code-header {
-  border-bottom: 1px solid var(--hx-border);
+div[class^='language-']:hover,
+div.highlighter-rouge:hover {
+  border-color: rgb(159 239 0 / 35%);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 45%), 0 0 16px rgb(159 239 0 / 10%);
 }
 
-.content blockquote {
+.code-header { border-bottom: 1px solid var(--hx-border); }
+
+/* Avisos (prompts): corrijo el solapamiento del icono con el texto */
+.content .prompt-tip,
+.content .prompt-info,
+.content .prompt-warning,
+.content .prompt-danger {
+  border-radius: 8px;
+  padding: 0.8rem 1rem 0.8rem 3rem !important;
+  background-position: 1rem center !important;
+  border: 1px solid var(--hx-border);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 25%);
+}
+
+.content blockquote:not([class]) {
   background: var(--hx-green-soft);
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 8px 8px 0;
   padding: 0.6rem 1rem;
 }
 
@@ -910,14 +990,39 @@ div.highlighter-rouge {
   border: 1px solid var(--hx-border);
 }
 
+/* Tablas con estilo y filas que reaccionan */
 .content table {
   font-size: 0.9rem;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .content table thead th {
   font-family: var(--hx-mono);
+  color: #05070a;
+  background: linear-gradient(180deg, var(--hx-green), rgb(159 239 0 / 80%));
+  border-bottom: none !important;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+.content table tbody tr {
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.content table tbody tr:hover {
+  background: var(--hx-green-soft) !important;
+  box-shadow: inset 2px 0 0 var(--hx-green);
+}
+
+/* Código en línea con un toque de color */
+.content :not(pre) > code {
   color: var(--hx-green);
-  border-bottom: 1px solid var(--hx-green) !important;
+  background: rgb(159 239 0 / 8%);
+  border: 1px solid rgb(159 239 0 / 15%);
+  border-radius: 4px;
+  padding: 0.05rem 0.35rem;
 }
 
 .post-tag {
@@ -1373,6 +1478,8 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
 }
 
 .hx-kv {
+  --c: 159 239 0;
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -1381,17 +1488,18 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   padding: 0.55rem 0.8rem;
   border: 1px solid var(--hx-border);
   border-radius: 8px;
-  background: rgb(255 255 255 / 2%);
+  background: linear-gradient(160deg, rgb(var(--c) / 6%), rgb(255 255 255 / 1%));
   text-decoration: none !important;
   border-bottom: 1px solid var(--hx-border) !important;
+  overflow: hidden;
   transition: border-color 0.25s, background 0.25s, transform 0.25s, box-shadow 0.25s;
 }
 
 a.hx-kv:hover {
-  border-color: rgb(159 239 0 / 45%);
-  background: var(--hx-green-soft);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgb(0 0 0 / 30%);
+  border-color: rgb(var(--c) / 55%);
+  background: linear-gradient(160deg, rgb(var(--c) / 16%), rgb(var(--c) / 3%));
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 35%), 0 0 16px rgb(var(--c) / 18%);
 }
 
 .hx-kv-label {
@@ -1406,8 +1514,7 @@ a.hx-kv:hover {
   white-space: nowrap;
 }
 
-.hx-kv-label i { color: var(--hx-cyan); }
-a.hx-kv:hover .hx-kv-label i { color: var(--hx-green); }
+.hx-kv-label i { color: rgb(var(--c)); }
 
 .hx-kv-value {
   font-family: var(--hx-mono);
@@ -1416,7 +1523,7 @@ a.hx-kv:hover .hx-kv-label i { color: var(--hx-green); }
   color: #e6edf3;
 }
 
-a.hx-kv:hover .hx-kv-value { color: var(--hx-green); }
+a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
 
 /* --- Bienvenida --- */
 .hx-intro {
@@ -2391,3 +2498,313 @@ a.hx-kv:hover .hx-kv-value { color: var(--hx-green); }
 
 .hx-cert-issuer i { color: var(--hx-cyan); margin-right: 0.3rem; }
 .hx-cert-foot .hx-btn { margin-left: auto; padding: 0.35rem 0.8rem; font-size: 0.75rem; }
+
+/* ==========================================================================
+   Destello (aura) al pulsar botones + rebote al clicar
+   ========================================================================== */
+.hx-aura-flash {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(159 239 0 / 55%), transparent 70%);
+  pointer-events: none;
+  transform: scale(0);
+  animation: hx-aura-flash 0.6s ease-out forwards;
+  z-index: 5;
+}
+
+@keyframes hx-aura-flash {
+  to { transform: scale(26); opacity: 0; }
+}
+
+.hx-btn:active,
+.hx-opt:active,
+.hx-filter:active,
+.hx-tile:active,
+.hx-search-btn:active,
+.hx-tool-toggle:active { transform: scale(0.95); }
+
+a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
+
+/* ==========================================================================
+   Etiquetas unificadas (panel derecho + página /tags/ + tags de posts)
+   ========================================================================== */
+#tags .tag,
+.hx-chip {
+  --c: 159 239 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin: 0 0.45rem 0.5rem 0 !important;
+  padding: 0.28rem 0.4rem 0.28rem 0.6rem !important;
+  border: 1px solid rgb(var(--c) / 30%) !important;
+  border-radius: 6px !important;
+  background: rgb(var(--c) / 8%) !important;
+  color: rgb(var(--c)) !important;
+  font-family: var(--hx-mono) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.3 !important;
+  text-decoration: none !important;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s !important;
+}
+
+#tags .tag::before,
+.hx-chip .hx-chip-hash { content: '#'; opacity: 0.6; }
+
+#tags .tag .text-muted,
+.hx-chip .hx-chip-n {
+  margin-left: 0.35rem;
+  padding: 0 0.35rem !important;
+  border-radius: 4px;
+  background: rgb(var(--c) / 18%);
+  color: rgb(var(--c)) !important;
+  font-size: 0.68rem;
+}
+
+#tags .tag:hover,
+.hx-chip:hover {
+  background: rgb(var(--c) / 16%) !important;
+  transform: translateY(-2px) rotate(-1deg);
+  box-shadow: 0 0 14px rgb(var(--c) / 30%);
+}
+
+/* Mismos colores cíclicos en los dos sitios */
+#tags .tag:nth-child(5n+1), .hx-chips .hx-chip:nth-child(5n+1) { --c: 159 239 0; }
+#tags .tag:nth-child(5n+2), .hx-chips .hx-chip:nth-child(5n+2) { --c: 46 230 214; }
+#tags .tag:nth-child(5n+3), .hx-chips .hx-chip:nth-child(5n+3) { --c: 193 108 255; }
+#tags .tag:nth-child(5n+4), .hx-chips .hx-chip:nth-child(5n+4) { --c: 255 175 0; }
+#tags .tag:nth-child(5n+5), .hx-chips .hx-chip:nth-child(5n+5) { --c: 94 180 248; }
+
+/* ==========================================================================
+   Tarjetas de máquina (Write-ups): degradado por SO, borde por dificultad
+   ========================================================================== */
+.content a.hx-card,
+.hx-card {
+  --os: 125 139 153;       /* gris por defecto */
+  --diff: 159 239 0;
+  background: linear-gradient(155deg, rgb(var(--os) / 12%), var(--hx-bg-2) 55%) !important;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.3, 1), border-color 0.25s, box-shadow 0.25s !important;
+}
+
+.hx-card[data-os='windows'] { --os: 46 230 214; }
+.hx-card[data-os='linux'] { --os: 255 175 0; }
+.hx-card[data-diff='easy'] { --diff: 159 239 0; }
+.hx-card[data-diff='medium'] { --diff: 255 175 0; }
+.hx-card[data-diff='hard'] { --diff: 255 62 62; }
+.hx-card[data-diff='insane'] { --diff: 193 108 255; }
+
+.content a.hx-card:hover,
+.hx-card:hover {
+  transform: translateY(-6px) scale(1.02) !important;
+  border-color: rgb(var(--diff)) !important;
+  box-shadow: 0 14px 34px rgb(0 0 0 / 50%), 0 0 22px rgb(var(--diff) / 30%) !important;
+}
+
+.content a.hx-card:active,
+.hx-card:active {
+  transform: translateY(-1px) scale(0.99) !important;
+  box-shadow: 0 6px 16px rgb(0 0 0 / 50%), 0 0 12px rgb(var(--diff) / 25%) !important;
+  transition-duration: 0.08s !important;
+}
+
+/* ==========================================================================
+   Lecturas adicionales (posts relacionados): color al pasar el ratón
+   ========================================================================== */
+#related-posts .card {
+  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s !important;
+  border: 1px solid var(--hx-border) !important;
+}
+
+#related-posts a:hover .card,
+#related-posts .card:hover {
+  transform: translateY(-4px);
+  border-color: rgb(159 239 0 / 50%) !important;
+  box-shadow: 0 10px 26px rgb(0 0 0 / 45%), 0 0 18px rgb(159 239 0 / 15%) !important;
+}
+
+#related-posts .card:hover .card-title {
+  color: var(--hx-green) !important;
+}
+
+/* Paginador anterior/siguiente del post */
+#post-nav a:hover { color: var(--hx-green) !important; }
+
+/* ==========================================================================
+   Filtros: color propio para cada grupo (sistema y plataforma)
+   ========================================================================== */
+.hx-seg[data-group='os'] .hx-opt { --c: 46 230 214; }
+.hx-seg[data-group='platform'] .hx-opt { --c: 193 108 255; }
+.hx-seg[data-group='os'] .hx-opt.is-active,
+.hx-seg[data-group='platform'] .hx-opt.is-active { color: #05070a; }
+
+.hx-fbar-label { color: var(--hx-cyan); }
+.hx-fbar-row:nth-child(1) .hx-fbar-label { color: var(--hx-green); }
+.hx-fbar-row:nth-child(2) .hx-fbar-label { color: var(--hx-cyan); }
+.hx-fbar-row:nth-child(3) .hx-fbar-label { color: var(--hx-insane); }
+.hx-fbar-row:nth-child(4) .hx-fbar-label { color: var(--hx-medium); }
+
+/* ==========================================================================
+   Herramientas (acordeón)
+   ========================================================================== */
+.hx-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin: 1.2rem 0 2rem;
+}
+
+.hx-tool {
+  --c: 159 239 0;
+  border: 1px solid var(--hx-border);
+  border-left: 3px solid rgb(var(--c));
+  border-radius: 10px;
+  background: linear-gradient(150deg, rgb(var(--c) / 6%), var(--hx-bg-2) 60%);
+  overflow: hidden;
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+}
+
+.hx-tool:hover {
+  border-color: rgb(var(--c) / 45%);
+  border-left-color: rgb(var(--c));
+  box-shadow: 0 10px 26px rgb(0 0 0 / 40%), 0 0 18px rgb(var(--c) / 12%);
+}
+
+.hx-tool-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  padding: 1rem 1.1rem;
+  border: none;
+  background: none;
+  color: var(--hx-text);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.hx-tool-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 9px;
+  background: rgb(var(--c) / 14%);
+  color: rgb(var(--c));
+  font-size: 1.1rem;
+  transition: transform 0.3s;
+}
+
+.hx-tool.is-open .hx-tool-icon,
+.hx-tool-toggle:hover .hx-tool-icon { transform: rotate(-8deg) scale(1.08); }
+
+.hx-tool-head { display: flex; flex-direction: column; }
+.hx-tool-head b { font-family: var(--hx-mono); font-size: 1.05rem; color: #e6edf3; }
+.hx-tool-head small { font-size: 0.72rem; color: rgb(var(--c)); font-family: var(--hx-mono); }
+
+.hx-tool-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-left: auto;
+}
+
+.hx-tool-tags span {
+  font-family: var(--hx-mono);
+  font-size: 0.66rem;
+  color: var(--hx-muted);
+  background: rgb(255 255 255 / 4%);
+  border-radius: 4px;
+  padding: 0.05rem 0.4rem;
+}
+
+.hx-tool-chevron {
+  margin-left: 0.4rem;
+  color: var(--hx-muted);
+  transition: transform 0.3s, color 0.25s;
+}
+
+.hx-tool.is-open .hx-tool-chevron { transform: rotate(180deg); color: rgb(var(--c)); }
+
+.hx-tool-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+}
+
+.hx-tool.is-open .hx-tool-body { grid-template-rows: 1fr; }
+
+.hx-tool-inner {
+  overflow: hidden;
+  padding: 0 1.1rem;
+}
+
+.hx-tool.is-open .hx-tool-inner { padding: 0 1.1rem 1.1rem; }
+
+.hx-tool-resumen {
+  margin: 0 0 1rem;
+  padding-top: 0.3rem;
+  border-top: 1px dashed rgb(var(--c) / 25%);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--hx-text);
+}
+
+.hx-tool-cta { text-align: center; }
+
+.hx-tool-cta .hx-btn {
+  border-color: rgb(var(--c));
+  border-bottom-color: rgb(var(--c)) !important;
+  color: rgb(var(--c)) !important;
+}
+
+.hx-tool-cta .hx-btn::before { background: rgb(var(--c)); }
+.hx-tool-cta .hx-btn:hover { color: #05070a !important; box-shadow: 0 0 20px rgb(var(--c) / 45%); }
+
+@media (max-width: 576px) {
+  .hx-tool-tags { display: none; }
+}
+
+/* ==========================================================================
+   Certificaciones: más color y animación (usa --c por tarjeta)
+   ========================================================================== */
+.content .hx-cert {
+  --c: 159 239 0;
+  background: linear-gradient(160deg, rgb(var(--c) / 8%), var(--hx-bg-2) 55%);
+}
+
+.content .hx-cert::before {
+  background: linear-gradient(90deg, rgb(var(--c)), transparent) !important;
+  background-size: 200% 100% !important;
+  animation: hx-shine 4s linear infinite;
+}
+
+.content .hx-cert:hover {
+  transform: translateY(-5px) !important;
+  border-color: rgb(var(--c) / 55%) !important;
+  box-shadow: 0 14px 32px rgb(0 0 0 / 45%), 0 0 24px rgb(var(--c) / 18%) !important;
+}
+
+.hx-cert .hx-cert-head > i {
+  background: rgb(var(--c) / 14%) !important;
+  color: rgb(var(--c)) !important;
+  transition: transform 0.3s;
+}
+
+.hx-cert:hover .hx-cert-head > i { transform: rotate(-8deg) scale(1.08); }
+
+.content .hx-cert .hx-cert-name {
+  background: linear-gradient(90deg, rgb(var(--c)), #e6edf3);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hx-cert .hx-cert-topics li::before { color: rgb(var(--c)) !important; }
+
+/* La insignia de estado toma el color de la tarjeta */
+.hx-cert .hx-status { color: rgb(var(--c)); }
+.hx-cert .hx-status::before { background: rgb(var(--c)); box-shadow: 0 0 8px rgb(var(--c)); }

@@ -30,23 +30,23 @@
           </div>
 
           <div class="hx-stats">
-            <div class="hx-kv">
+            <div class="hx-kv" style="--c: 255 175 0">
               <span class="hx-kv-label"><i class="fas fa-crosshairs" aria-hidden="true"></i> Objetivo</span>
               <span class="hx-kv-value">OSCP</span>
             </div>
-            <a class="hx-kv" href="{{ '/writeups/' | relative_url }}">
-              <span class="hx-kv-label"><i class="fas fa-terminal" aria-hidden="true"></i> Write-ups</span>
-              <span class="hx-kv-value">{{ hx_writeups.size }}</span>
-            </a>
-            <a class="hx-kv" href="{{ '/herramientas/' | relative_url }}">
-              <span class="hx-kv-label"><i class="fas fa-toolbox" aria-hidden="true"></i> Herramientas</span>
-              <span class="hx-kv-value">{{ hx_tools.size }}</span>
-            </a>
-            <a class="hx-kv" href="{{ '/certificaciones/' | relative_url }}">
+            <a class="hx-kv" style="--c: 193 108 255" href="{{ '/certificaciones/' | relative_url }}">
               <span class="hx-kv-label"><i class="fas fa-certificate" aria-hidden="true"></i> Certificaciones</span>
               <span class="hx-kv-value">{{ hx_certs.size }}</span>
             </a>
-            <a class="hx-kv" href="https://github.com/{{ site.github.username }}">
+            <a class="hx-kv" style="--c: 159 239 0" href="{{ '/writeups/' | relative_url }}">
+              <span class="hx-kv-label"><i class="fas fa-terminal" aria-hidden="true"></i> Write-ups</span>
+              <span class="hx-kv-value">{{ hx_writeups.size }}</span>
+            </a>
+            <a class="hx-kv" style="--c: 46 230 214" href="{{ '/herramientas/' | relative_url }}">
+              <span class="hx-kv-label"><i class="fas fa-toolbox" aria-hidden="true"></i> Herramientas</span>
+              <span class="hx-kv-value">{{ hx_tools.size }}</span>
+            </a>
+            <a class="hx-kv" style="--c: 240 246 252" href="https://github.com/{{ site.github.username }}">
               <span class="hx-kv-label"><i class="fab fa-github" aria-hidden="true"></i> GitHub</span>
               <span class="hx-kv-value">{{ site.github.username }}</span>
             </a>
