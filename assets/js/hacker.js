@@ -293,8 +293,47 @@
     update();
   }
 
-  /* --- Panel de filtros de máquinas: dificultad + SO + plataforma + nombre --- */
+  /* --- Filtros de máquinas (dificultad + SO + plataforma) y botón de búsqueda --- */
   const normalize = (t) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  // Pantalla "rayada" + ventana emergente de 4 s
+  function notFound(query) {
+    const root = document.documentElement;
+    if (!reduceMotion) {
+      let overlay = document.getElementById('hx-glitch-overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'hx-glitch-overlay';
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.append(overlay);
+      }
+      root.classList.remove('hx-screen-glitch');
+      void root.offsetWidth;
+      root.classList.add('hx-screen-glitch');
+      setTimeout(() => root.classList.remove('hx-screen-glitch'), 900);
+    }
+
+    let modal = document.getElementById('hx-notfound');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'hx-notfound';
+      modal.setAttribute('role', 'alert');
+      modal.innerHTML =
+        '<div class="hx-nf-box">' +
+        '<i class="fas fa-skull-crossbones" aria-hidden="true"></i>' +
+        '<p class="hx-nf-title">Máquina no encontrada</p>' +
+        '<p class="hx-nf-sub"></p>' +
+        '<span class="hx-nf-bar" aria-hidden="true"></span>' +
+        '</div>';
+      document.body.append(modal);
+    }
+    modal.querySelector('.hx-nf-sub').textContent = '"' + query + '" no está en la lista';
+    clearTimeout(modal._t);
+    modal.classList.remove('is-open');
+    void modal.offsetWidth;
+    modal.classList.add('is-open');
+    modal._t = setTimeout(() => modal.classList.remove('is-open'), 4000);
+  }
 
   function initFilterBars() {
     document.querySelectorAll('.hx-fbar').forEach((bar) => {
@@ -304,9 +343,10 @@
       const sections = Array.from(container.querySelectorAll('section'));
       const empty = document.getElementById(bar.dataset.empty);
       const count = bar.querySelector('.hx-fbar-count b');
-      const input = bar.querySelector('.hx-search input');
+      const form = bar.querySelector('.hx-search');
+      const input = form.querySelector('input');
       const reset = bar.querySelector('.hx-fbar-reset');
-      const state = { diff: 'all', os: 'all', platform: 'all', q: '' };
+      const state = { diff: 'all', os: 'all', platform: 'all' };
 
       function apply() {
         let visible = 0;
@@ -314,24 +354,16 @@
           const ok =
             (state.diff === 'all' || el.dataset.diff === state.diff) &&
             (state.os === 'all' || el.dataset.os === state.os) &&
-            (state.platform === 'all' || el.dataset.platform === state.platform) &&
-            (!state.q || normalize(el.dataset.name).includes(state.q));
+            (state.platform === 'all' || el.dataset.platform === state.platform);
           el.hidden = !ok;
           if (ok) visible++;
         });
-        // Secciones del roadmap sin filas visibles se ocultan
         sections.forEach((sec) => {
           sec.hidden = !sec.querySelector('[data-name]:not([hidden])');
         });
-        if (count) {
-          count.textContent = visible;
-          count.classList.remove('hx-bump');
-          void count.offsetWidth; // reinicia la animación
-          count.classList.add('hx-bump');
-        }
+        count.textContent = visible;
         if (empty) empty.classList.toggle('is-visible', items.length > 0 && visible === 0);
-        const dirty = state.diff !== 'all' || state.os !== 'all' || state.platform !== 'all' || state.q;
-        if (reset) reset.hidden = !dirty;
+        reset.hidden = state.diff === 'all' && state.os === 'all' && state.platform === 'all';
       }
 
       function select(group, value) {
@@ -343,7 +375,8 @@
         });
       }
 
-      bar.querySelectorAll('.hx-seg').forEach((group) => {
+      const groups = bar.querySelectorAll('.hx-seg[data-group]');
+      groups.forEach((group) => {
         group.addEventListener('click', (e) => {
           const btn = e.target.closest('.hx-opt');
           if (!btn) return;
@@ -352,25 +385,41 @@
         });
       });
 
-      input.addEventListener('input', () => {
-        state.q = normalize(input.value.trim());
-        apply();
-      });
-
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          input.value = '';
-          state.q = '';
-          apply();
-          input.blur();
-        }
-      });
-
       reset.addEventListener('click', () => {
-        bar.querySelectorAll('.hx-seg').forEach((g) => select(g, 'all'));
-        input.value = '';
-        state.q = '';
+        groups.forEach((g) => select(g, 'all'));
         apply();
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const raw = input.value.trim();
+        if (!raw) {
+          input.focus();
+          return;
+        }
+        const q = normalize(raw);
+        // Primero coincidencia exacta; si no, las que contengan el texto
+        let found = items.filter((el) => normalize(el.dataset.name) === q);
+        if (!found.length) found = items.filter((el) => normalize(el.dataset.name).includes(q));
+
+        if (!found.length) {
+          notFound(raw);
+          return;
+        }
+
+        // Si los filtros la ocultan, se quitan para poder enseñarla
+        if (found.every((el) => el.hidden)) {
+          groups.forEach((g) => select(g, 'all'));
+          apply();
+        }
+        const shown = found.filter((el) => !el.hidden);
+        items.forEach((el) => el.classList.remove('hx-found'));
+        shown.forEach((el) => {
+          void el.offsetWidth;
+          el.classList.add('hx-found');
+        });
+        shown[0].scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+        setTimeout(() => shown.forEach((el) => el.classList.remove('hx-found')), 4200);
       });
     });
 
