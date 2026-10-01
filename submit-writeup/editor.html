@@ -244,10 +244,10 @@ function buildBody() {
 
   let h = `<div class="hx-wu" data-os="${osClass}">`;
   // Cabecera: nombre a la izquierda, imagen pequeña a la derecha
-  h += `<header class="hx-wu-head"><div class="hx-wu-headtext">`;
-  h += `<h1 class="hx-wu-title">${esc(name)}</h1>`;
-  h += `<p class="hx-wu-meta">Publicado por <b>Jaime Hereza</b> · ${read} min de lectura</p></div>`;
+  h += `<header class="hx-wu-head">`;
   if (avatar) h += `<span class="hx-wu-img" style="background-image:url('${avatar}')" role="img" aria-label="${esc(name)}"></span>`;
+  h += `<div class="hx-wu-headtext"><h1 class="hx-wu-title">${esc(name)}</h1>`;
+  h += `<p class="hx-wu-meta">Publicado por <b>Jaime Hereza</b> · ${read} min de lectura</p></div>`;
   h += `</header>`;
   // Tabla
   h += `<table class="hx-wu-table"><thead><tr><th>Máquina</th><th>SO</th><th>Dificultad</th><th>IP</th></tr></thead>`;
