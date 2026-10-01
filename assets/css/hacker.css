@@ -2851,24 +2851,20 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
 .hx-cred {
   --c: 159 239 0;
   perspective: 1600px;
-  min-height: 380px;
 }
 
 .hx-cred-flip {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: inherit;
   transform-style: preserve-3d;
   transition: transform 0.75s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .hx-cred.is-flipped .hx-cred-flip { transform: rotateY(180deg); }
 
-/* Las dos caras se superponen; backface-visibility evita ver la de detrás */
+/* backface-visibility evita ver la cara de detrás al girar */
 .hx-cred-face {
-  position: absolute;
-  inset: 0;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
@@ -2878,12 +2874,14 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
   background: linear-gradient(160deg, rgb(var(--c) / 10%), var(--hx-bg-2) 60%);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  overflow: hidden;
 }
 
 .hx-cred.has-doc .hx-cred-front { cursor: pointer; }
 
+/* La cara frontal va en el flujo y define la altura de la tarjeta */
 .hx-cred-front {
+  position: relative;
+  height: 100%;
   border-top: 3px solid rgb(var(--c));
   box-shadow: 0 10px 26px rgb(0 0 0 / 40%);
   transition: box-shadow 0.3s;
@@ -2893,7 +2891,10 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
   box-shadow: 0 16px 36px rgb(0 0 0 / 50%), 0 0 26px rgb(var(--c) / 22%);
 }
 
+/* La cara trasera se superpone a la frontal con su misma altura */
 .hx-cred-back {
+  position: absolute;
+  inset: 0;
   transform: rotateY(180deg);
   align-items: center;
   text-align: center;
