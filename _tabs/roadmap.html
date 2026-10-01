@@ -1,0 +1,108 @@
+---
+title: Roadmap
+icon: fas fa-map
+order: 6
+---
+
+{%- comment -%}
+  Los datos salen de _data/oscp.yml. Un post con `machine: <Nombre>` y
+  `platform: <Plataforma>` en su front matter se enlaza automáticamente.
+{%- endcomment -%}
+
+{%- assign total = 0 -%}
+{%- assign solved = 0 -%}
+{%- assign doing = 0 -%}
+
+{%- capture tables -%}
+  {%- for p in site.data.oscp -%}
+    <section class="hx-rm-platform" data-keys="{{ p.id }}">
+      <h2 id="{{ p.id }}">{{ p.platform }}</h2>
+      {%- for s in p.sections -%}
+        <h3 id="{{ p.id }}-{{ s.title | slugify }}">{{ s.title }}</h3>
+        <table class="hx-rm-table">
+          <thead>
+            <tr>
+              <th>Máquina</th>
+              <th>SO</th>
+              <th>Dificultad</th>
+              <th>Estado</th>
+              <th>Write-up</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%- for m in s.machines -%}
+              {%- assign total = total | plus: 1 -%}
+              {%- assign wp = site.posts | where: 'machine', m.name | where: 'platform', p.platform | first -%}
+              {%- if wp -%}
+                {%- assign status = wp.status | default: 'Resuelta' -%}
+              {%- else -%}
+                {%- assign status = m.status | default: 'Pendiente' -%}
+              {%- endif -%}
+              {%- if status == 'Resuelta' -%}{%- assign solved = solved | plus: 1 -%}{%- endif -%}
+              {%- if status == 'En curso' -%}{%- assign doing = doing | plus: 1 -%}{%- endif -%}
+              {%- assign os_down = m.os | downcase -%}
+              <tr>
+                <td class="hx-rm-name">
+                  {{ m.name }}
+                  {%- if m.note %} <span class="hx-rm-note">{{ m.note }}</span>{% endif -%}
+                </td>
+                <td class="hx-rm-os">
+                  {%- if os_down contains 'windows' %}<i class="fab fa-windows" aria-hidden="true"></i>{% endif -%}
+                  {%- if os_down contains 'linux' %}<i class="fab fa-linux" aria-hidden="true"></i>{% endif %}
+                  {{ m.os }}
+                </td>
+                <td>
+                  {%- if m.difficulty == '—' -%}
+                    <span class="hx-rm-muted">—</span>
+                  {%- else -%}
+                    <span class="hx-badge hx-diff-{{ m.difficulty | downcase | replace: ' ', '-' }}">{{ m.difficulty }}</span>
+                  {%- endif -%}
+                </td>
+                <td><span class="hx-status hx-status-{{ status | downcase | replace: ' ', '-' }}">{{ status }}</span></td>
+                <td>
+                  {%- if wp -%}
+                    <a class="hx-rm-link" href="{{ wp.url | relative_url }}">Leer <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                  {%- else -%}
+                    <span class="hx-rm-muted">—</span>
+                  {%- endif -%}
+                </td>
+              </tr>
+            {%- endfor -%}
+          </tbody>
+        </table>
+      {%- endfor -%}
+    </section>
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- assign pct = solved | times: 100.0 | divided_by: total | round: 1 -%}
+
+<div class="hx-roadmap">
+  <header class="hx-rm-hero">
+    <p class="hx-rm-path">~/roadmap $ cat oscp.md</p>
+    <p class="hx-rm-title" data-text="Preparación OSCP — TJnull">Preparación OSCP — TJnull</p>
+    <p class="hx-rm-sub">NetSecFocus Trophy Room · PWK V3 (PEN-200) · lista actualizada el 18/07/2026</p>
+
+    <div class="hx-rm-stats">
+      <div><span class="hx-rm-num">{{ solved }}</span><span>resueltas</span></div>
+      <div><span class="hx-rm-num">{{ doing }}</span><span>en curso</span></div>
+      <div><span class="hx-rm-num">{{ total }}</span><span>máquinas</span></div>
+    </div>
+
+    <div class="hx-rm-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ pct }}" aria-label="Progreso">
+      <span style="--hx-pct: {{ pct }}%"></span>
+    </div>
+    <p class="hx-rm-pct">{{ pct }}% completado</p>
+  </header>
+
+  <div class="hx-filters hx-rm-filters" role="group" aria-label="Filtrar por plataforma" data-target="hx-rm-list">
+    <button type="button" class="hx-filter is-active" data-filter="all" aria-pressed="true">Todas</button>
+    {%- for p in site.data.oscp %}
+      <button type="button" class="hx-filter" data-filter="{{ p.id }}" aria-pressed="false">{{ p.platform }}</button>
+    {%- endfor %}
+  </div>
+
+  <div id="hx-rm-list">
+    {{ tables }}
+  </div>
+</div>

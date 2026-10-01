@@ -56,15 +56,16 @@
 
   /* --- Glitch periódico en el título --- */
   function initGlitch() {
-    const title = document.querySelector('#sidebar .site-title');
-    if (!title) return;
-    title.setAttribute('data-text', title.textContent.trim());
+    const sidebarTitle = document.querySelector('#sidebar .site-title');
+    if (sidebarTitle) sidebarTitle.setAttribute('data-text', sidebarTitle.textContent.trim());
     if (reduceMotion) return;
 
-    setInterval(() => {
-      title.classList.add('hx-glitching');
-      setTimeout(() => title.classList.remove('hx-glitching'), 650);
-    }, 7000);
+    document.querySelectorAll('#sidebar .site-title, .hx-rm-title').forEach((title) => {
+      setInterval(() => {
+        title.classList.add('hx-glitching');
+        setTimeout(() => title.classList.remove('hx-glitching'), 650);
+      }, 7000);
+    });
   }
 
   /* --- Escribe un texto carácter a carácter --- */
@@ -150,6 +151,8 @@
       '.content > h2',
       '.content > div.highlighter-rouge',
       '.content > table',
+      '.hx-rm-hero',
+      '.hx-rm-platform',
       '.post-preview'
     ];
     const items = document.querySelectorAll(selectors.join(','));
@@ -208,7 +211,7 @@
     document.querySelectorAll('.hx-filters').forEach((group) => {
       const grid = document.getElementById(group.dataset.target);
       if (!grid) return;
-      const cards = Array.from(grid.querySelectorAll('.hx-card'));
+      const cards = Array.from(grid.querySelectorAll('[data-keys]'));
       const empty = document.getElementById(group.dataset.empty);
 
       group.addEventListener('click', (e) => {
