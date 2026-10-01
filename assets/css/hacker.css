@@ -2121,3 +2121,17 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
     transform: perspective(700px) translateY(0) rotateY(1080deg);
   }
 }
+
+/* Icono de HackTheBox (cubo hexagonal) para la barra de redes */
+.hx-icon-htb {
+  display: inline-block;
+  width: 1.05em;
+  height: 1.05em;
+  background: currentcolor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M12 2 21 7v10l-9 5-9-5V7z'/%3E%3Cpath d='M3 7l9 5 9-5M12 12v10'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M12 2 21 7v10l-9 5-9-5V7z'/%3E%3Cpath d='M3 7l9 5 9-5M12 12v10'/%3E%3C/svg%3E") center / contain no-repeat;
+  vertical-align: -0.12em;
+}
+
+#sidebar .sidebar-bottom > a[aria-label='hackthebox'] { --b: 159 239 0; }
+#sidebar .sidebar-bottom > a[aria-label='hackthebox']:hover { color: #9fef00 !important; }
