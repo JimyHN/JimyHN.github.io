@@ -14,31 +14,35 @@
       <div class="hx-step">
         <span class="hx-prompt"><b>jaime@kali</b>:~$</span>
         <span class="hx-cmd">whoami</span>
-        <p class="hx-out"><span class="hx-hl">{{ site.social.name }}</span> — {{ site.tagline }}</p>
-      </div>
-
-      <div class="hx-step">
-        <span class="hx-prompt"><b>jaime@kali</b>:~$</span>
-        <span class="hx-cmd">cat mision.txt</span>
-        <p class="hx-out">{{ site.description | strip | escape }}</p>
-      </div>
-
-      <div class="hx-step">
-        <span class="hx-prompt"><b>jaime@kali</b>:~$</span>
-        <span class="hx-cmd">ls ./blog</span>
-        <div class="hx-out hx-ls">
-          <a href="{{ '/writeups/' | relative_url }}">writeups/ <span class="hx-count">[{{ hx_writeups.size }}]</span></a>
-          <a href="{{ '/herramientas/' | relative_url }}">herramientas/ <span class="hx-count">[{{ hx_tools.size }}]</span></a>
-          <a href="{{ '/tags/' | relative_url }}">tags/ <span class="hx-count">[{{ site.tags.size }}]</span></a>
-          <a href="{{ '/roadmap/' | relative_url }}">roadmap.md</a>
+        <div class="hx-out hx-fetch">
+          <pre class="hx-ascii" aria-hidden="true">{% include hx-ascii.txt %}</pre>
+          <div class="hx-info">
+            <p class="hx-info-name">{{ site.social.name }}</p>
+            <p class="hx-info-rule" aria-hidden="true">─────────────────────</p>
+            <dl>
+              <dt>Objetivo</dt><dd>OSCP</dd>
+              <dt>Write-ups</dt><dd>{{ hx_writeups.size }}</dd>
+              <dt>Herramientas</dt><dd>{{ hx_tools.size }}</dd>
+              <dt>GitHub</dt><dd><a href="https://github.com/{{ site.github.username }}">{{ site.github.username }}</a></dd>
+            </dl>
+            <p class="hx-info-colors" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="hx-cta">
-    <a class="hx-btn" href="{{ '/writeups/' | relative_url }}"><i class="fas fa-terminal"></i> Ver write-ups</a>
-    <a class="hx-btn" href="{{ '/herramientas/' | relative_url }}"><i class="fas fa-toolbox"></i> Herramientas</a>
-    <a class="hx-btn hx-ghost" href="{{ '/roadmap/' | relative_url }}"><i class="fas fa-map"></i> Roadmap OSCP</a>
-  </div>
+  <p class="hx-intro">
+    Este es mi blog personal donde subo mis herramientas y write-ups de máquinas que resuelvo.
+  </p>
+
+  <nav class="hx-links" aria-label="Secciones">
+    <a href="{{ '/writeups/' | relative_url }}">Write-ups <span>{{ hx_writeups.size }}</span></a>
+    <a href="{{ '/herramientas/' | relative_url }}">Herramientas <span>{{ hx_tools.size }}</span></a>
+    <a href="{{ '/roadmap/' | relative_url }}">Roadmap OSCP</a>
+    <a href="{{ '/tags/' | relative_url }}">Etiquetas <span>{{ site.tags.size }}</span></a>
+    <a href="{{ '/categories/' | relative_url }}">Categorías</a>
+  </nav>
 </section>
