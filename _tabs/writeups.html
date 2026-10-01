@@ -1,0 +1,56 @@
+---
+title: Write-ups
+icon: fas fa-terminal
+order: 1
+---
+
+{% assign writeups = site.posts | where_exp: 'p', "p.categories contains 'Writeups'" %}
+
+<p class="hx-lead">Resolución paso a paso de máquinas: enumeración, explotación y escalada de privilegios.</p>
+
+{% if writeups.size > 0 %}
+  <div class="hx-filters" role="group" aria-label="Filtrar write-ups" data-target="hx-writeups" data-empty="hx-writeups-empty">
+    <button type="button" class="hx-filter is-active" data-filter="all" aria-pressed="true">Todas</button>
+    <button type="button" class="hx-filter" data-filter="linux" aria-pressed="false"><i class="fab fa-linux"></i> Linux</button>
+    <button type="button" class="hx-filter" data-filter="windows" aria-pressed="false"><i class="fab fa-windows"></i> Windows</button>
+    <button type="button" class="hx-filter" data-filter="easy" aria-pressed="false">Easy</button>
+    <button type="button" class="hx-filter" data-filter="medium" aria-pressed="false">Medium</button>
+    <button type="button" class="hx-filter" data-filter="hard" aria-pressed="false">Hard</button>
+    <button type="button" class="hx-filter" data-filter="insane" aria-pressed="false">Insane</button>
+  </div>
+
+  <div class="hx-grid" id="hx-writeups">
+    {% for post in writeups %}
+      {% assign os_down = post.os | default: '' | downcase %}
+      <a class="hx-card" href="{{ post.url | relative_url }}" data-keys="{{ os_down }} {{ post.difficulty | default: '' | downcase }} {{ post.platform | default: '' | downcase }}">
+        <div class="hx-card-top">
+          {% if os_down contains 'windows' %}
+            <i class="fab fa-windows" aria-hidden="true"></i>
+          {% elsif os_down != '' %}
+            <i class="fab fa-linux" aria-hidden="true"></i>
+          {% else %}
+            <i class="fas fa-server" aria-hidden="true"></i>
+          {% endif %}
+          {% if post.difficulty %}
+            <span class="hx-badge hx-diff-{{ post.difficulty | downcase }}">{{ post.difficulty }}</span>
+          {% endif %}
+        </div>
+        <p class="hx-card-title">{{ post.title }}</p>
+        <p class="hx-card-desc">{{ post.description | default: post.excerpt | strip_html | truncate: 140 }}</p>
+        <span class="hx-card-meta">
+          {{ post.date | date: '%d/%m/%Y' }}{% if post.platform %} · {{ post.platform }}{% endif %}{% if post.os %} · {{ post.os }}{% endif %}
+        </span>
+      </a>
+    {% endfor %}
+  </div>
+
+  <div class="hx-empty hx-no-results" id="hx-writeups-empty">
+    <i class="fas fa-filter"></i>
+    Ninguna máquina coincide con ese filtro.
+  </div>
+{% else %}
+  <div class="hx-empty">
+    <i class="fas fa-terminal"></i>
+    Todavía no hay write-ups publicados. Pronto habrá máquinas por aquí.
+  </div>
+{% endif %}

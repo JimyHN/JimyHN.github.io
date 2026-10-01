@@ -1,0 +1,44 @@
+---
+title: Herramientas
+icon: fas fa-toolbox
+order: 2
+---
+
+{% assign tools = site.posts | where_exp: 'p', "p.categories contains 'Herramientas'" %}
+
+<p class="hx-lead">Scripts y herramientas que desarrollo para automatizar pentesting y CTFs.</p>
+
+{% if tools.size > 0 %}
+  <div class="hx-grid">
+    {% for post in tools %}
+      <div class="hx-card">
+        <div class="hx-card-top">
+          <i class="fas fa-{{ post.icon | default: 'code' }}" aria-hidden="true"></i>
+          {% if post.language %}
+            <span class="hx-badge hx-diff-easy">{{ post.language }}</span>
+          {% endif %}
+        </div>
+        <p class="hx-card-title">{{ post.title }}</p>
+        <p class="hx-card-desc">{{ post.description | default: post.excerpt | strip_html | truncate: 160 }}</p>
+        {% if post.tags.size > 0 %}
+          <div class="hx-tags">
+            {% for tag in post.tags limit: 5 %}<span>#{{ tag }}</span>{% endfor %}
+          </div>
+        {% endif %}
+        <div class="hx-card-links">
+          <a class="hx-btn" href="{{ post.url | relative_url }}"><i class="fas fa-book-open"></i> Leer</a>
+          {% if post.repo %}
+            <a class="hx-btn hx-ghost" href="{{ post.repo }}" target="_blank" rel="noopener"><i class="fab fa-github"></i> Repo</a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="hx-empty">
+    <i class="fas fa-toolbox"></i>
+    Aquí aparecerán las herramientas que vaya desarrollando.
+    <br>
+    Mientras tanto, echa un vistazo a <a href="https://github.com/{{ site.github.username }}">mi GitHub</a>.
+  </div>
+{% endif %}
