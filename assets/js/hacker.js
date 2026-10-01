@@ -851,9 +851,93 @@
     document.title = document.title.replace(name, toMono(name));
   }
 
+  /* --- Secciones plegables en los write-ups ---
+     Cada h2 del post se vuelve una cabecera clicable que despliega su contenido. */
+  function initPostSections() {
+    const content = document.querySelector('article[data-toc] .content');
+    if (!content) return;
+
+    const heads = Array.from(content.children).filter((el) => el.tagName === 'H2');
+    if (!heads.length) return;
+
+    heads.forEach((h2) => {
+      // Reúne los hermanos hasta el siguiente h2
+      const body = document.createElement('div');
+      body.className = 'hx-acc-body is-open';
+      const inner = document.createElement('div');
+      inner.className = 'hx-acc-inner';
+      body.append(inner);
+
+      let node = h2.nextElementSibling;
+      while (node && node.tagName !== 'H2') {
+        const next = node.nextElementSibling;
+        inner.append(node);
+        node = next;
+      }
+      h2.after(body);
+
+      h2.classList.add('hx-acc-head', 'is-open');
+      const chevron = document.createElement('i');
+      chevron.className = 'fas fa-chevron-down hx-acc-chevron';
+      chevron.setAttribute('aria-hidden', 'true');
+      h2.append(chevron);
+
+      const toggle = (open) => {
+        h2.classList.toggle('is-open', open);
+        h2.classList.toggle('is-closed', !open);
+        body.classList.toggle('is-open', open);
+        body.classList.toggle('is-closed', !open);
+      };
+
+      h2.addEventListener('click', () => toggle(h2.classList.contains('is-closed')));
+    });
+
+    // Si se llega a una sección por el índice (TOC), se abre sola
+    const openByHash = () => {
+      const id = decodeURIComponent(location.hash.slice(1));
+      if (!id) return;
+      const h2 = document.getElementById(id);
+      if (h2 && h2.classList.contains('is-closed')) h2.click();
+    };
+    window.addEventListener('hashchange', openByHash);
+    openByHash();
+  }
+
+  /* --- Destello al pulsar botones y enlaces de acción --- */
+  function initButtonAura() {
+    const sel = '.hx-btn, .hx-opt, .hx-filter, .hx-tile, .hx-kv, .hx-tool-toggle, .hx-search-btn, .hx-fbar-reset, #sidebar .nav-link';
+    document.addEventListener('pointerdown', (e) => {
+      const btn = e.target.closest(sel);
+      if (!btn) return;
+      const r = btn.getBoundingClientRect();
+      const aura = document.createElement('span');
+      aura.className = 'hx-aura-flash';
+      aura.style.left = e.clientX - r.left + 'px';
+      aura.style.top = e.clientY - r.top + 'px';
+      const pos = getComputedStyle(btn).position;
+      if (pos === 'static') btn.style.position = 'relative';
+      btn.append(aura);
+      aura.addEventListener('animationend', () => aura.remove());
+    });
+  }
+
+  /* --- Acordeón de herramientas --- */
+  function initTools() {
+    document.querySelectorAll('.hx-tool').forEach((tool) => {
+      const btn = tool.querySelector('.hx-tool-toggle');
+      const body = tool.querySelector('.hx-tool-body');
+      if (!btn || !body) return;
+      btn.addEventListener('click', () => {
+        const open = tool.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    });
+  }
+
   function init() {
     initMatrix();
     initAvatarFx();
+    initTools();
     initGlitch();
     initSubtitle();
     initTabTitle();
@@ -863,6 +947,8 @@
     initCardGlow();
     initProgress();
     initFilterBars();
+    initPostSections();
+    initButtonAura();
   }
 
   if (document.readyState === 'loading') {
