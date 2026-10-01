@@ -2118,16 +2118,6 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   height: 100%;
 }
 
-/* Aura verde al "colocarse" tras la moneda o el estallido */
-#sidebar #avatar.fx-settled {
-  animation: hx-settled 1.3s ease-out;
-}
-
-@keyframes hx-settled {
-  0% { box-shadow: 0 0 0 0 rgb(159 239 0 / 70%), 0 0 24px rgb(159 239 0 / 25%); }
-  100% { box-shadow: 0 0 0 16px rgb(159 239 0 / 0%), 0 0 24px rgb(159 239 0 / 25%); }
-}
-
 /* Imagen que se raya */
 #sidebar #avatar.fx-glitch img {
   animation: hx-av-glitch 0.65s steps(7) both;
@@ -2162,33 +2152,21 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   will-change: transform;
 }
 
-#sidebar #avatar.fx-shatter::before { opacity: 0.25; transition: opacity 0.3s; }
-
-/* Aura de energía */
-#sidebar #avatar.fx-aura {
-  animation: hx-aura-glow 4.2s ease-in-out;
-}
-
-@keyframes hx-aura-glow {
-  0%, 100% { box-shadow: 0 0 24px rgb(159 239 0 / 25%); }
-  20%, 60% { box-shadow: 0 0 30px 6px rgb(159 239 0 / 55%), 0 0 70px 14px rgb(46 230 214 / 25%); }
-  40%, 80% { box-shadow: 0 0 18px 2px rgb(159 239 0 / 40%), 0 0 50px 8px rgb(46 230 214 / 18%); }
-}
-
-#sidebar #avatar.fx-aura::before {
-  inset: -10px;
-  animation: hx-spin 0.9s linear infinite, hx-aura-pulse 0.7s ease-in-out infinite alternate;
-  filter: blur(2px);
-}
-
-@keyframes hx-aura-pulse {
-  to { inset: -16px; opacity: 0.7; }
+/* Aura de energía: anillo y partículas (animados desde JS) */
+.hx-aura-ring {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--hx-green), transparent 25%, var(--hx-cyan) 50%, transparent 75%, var(--hx-green));
+  -webkit-mask: radial-gradient(circle, transparent 62%, #000 64%);
+  mask: radial-gradient(circle, transparent 62%, #000 64%);
+  filter: blur(2px) drop-shadow(0 0 6px var(--hx-green));
+  opacity: 0;
 }
 
 .hx-orbit {
   position: absolute;
   inset: -18px;
-  animation: hx-spin 2.2s linear infinite;
 }
 
 .hx-orbit b {
@@ -2201,44 +2179,14 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   border-radius: 50%;
   background: #d6ff8a;
   box-shadow: 0 0 10px var(--hx-green), 0 0 18px var(--hx-green);
-  animation: hx-orbit-in 4.2s ease-in-out both;
+  opacity: 0;
 }
 
-.hx-orbit b:nth-child(1) { --a: 0deg; }
-.hx-orbit b:nth-child(2) { --a: 60deg; }
-.hx-orbit b:nth-child(3) { --a: 120deg; }
-.hx-orbit b:nth-child(4) { --a: 180deg; }
-.hx-orbit b:nth-child(5) { --a: 240deg; }
-.hx-orbit b:nth-child(6) { --a: 300deg; }
-
-@keyframes hx-orbit-in {
-  0% { transform: rotate(var(--a)) translateX(30px); opacity: 0; }
-  15%, 85% { transform: rotate(var(--a)) translateX(74px); opacity: 1; }
-  100% { transform: rotate(var(--a)) translateX(90px); opacity: 0; }
-}
-
-/* Holograma futurista */
-#sidebar #avatar.fx-holo img {
-  animation: hx-holo-img 4.8s ease-in-out both;
-}
-
-@keyframes hx-holo-img {
-  0%, 100% { filter: none; opacity: 1; }
-  10%, 90% { filter: grayscale(1) sepia(1) hue-rotate(130deg) saturate(3) brightness(1.1); opacity: 0.8; }
-  30%, 70% { opacity: 0.65; }
-  32%, 52%, 68% { opacity: 0.95; }
-  34%, 54% { opacity: 0.4; }
-}
-
-#sidebar #avatar.fx-holo .hx-fx {
+/* Holograma (animado desde JS) */
+.hx-fx.is-holo {
   border-radius: 50%;
   background: repeating-linear-gradient(to bottom, rgb(46 230 214 / 22%) 0 1px, transparent 1px 4px);
-  animation: hx-fade-in-out 4.8s ease-in-out both;
-}
-
-@keyframes hx-fade-in-out {
-  0%, 100% { opacity: 0; }
-  10%, 90% { opacity: 1; }
+  opacity: 0;
 }
 
 .hx-hud {
@@ -2255,14 +2203,7 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
     linear-gradient(var(--hx-cyan), var(--hx-cyan)) bottom right / 2px 16px;
   background-repeat: no-repeat;
   filter: drop-shadow(0 0 4px var(--hx-cyan));
-  animation: hx-hud-lock 4.8s ease-in-out both;
-}
-
-@keyframes hx-hud-lock {
-  0% { transform: scale(1.5) rotate(45deg); opacity: 0; }
-  15% { transform: scale(1) rotate(0); opacity: 1; }
-  85% { transform: scale(1) rotate(0); opacity: 1; }
-  100% { transform: scale(1.3); opacity: 0; }
+  opacity: 0;
 }
 
 .hx-hud-ring {
