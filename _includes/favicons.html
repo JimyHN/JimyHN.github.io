@@ -4,11 +4,12 @@
 -->
 
 {% assign fav_style = site.favicon_style | default: 'circulo' %}
+{% assign fav_v = site.favicon_version | default: 1 %}
 {% capture favicon_path %}{{ '/assets/img/favicons/' | append: fav_style | relative_url }}{% endcapture %}
 
-<link rel="icon" type="image/png" href="{{ favicon_path }}/favicon-96x96.png" sizes="96x96">
-<link rel="shortcut icon" href="{{ favicon_path }}/favicon.ico">
-<link rel="apple-touch-icon" sizes="180x180" href="{{ favicon_path }}/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="{{ favicon_path }}/favicon-96x96.png?v={{ fav_v }}" sizes="96x96">
+<link rel="shortcut icon" href="{{ favicon_path }}/favicon.ico?v={{ fav_v }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ favicon_path }}/apple-touch-icon.png?v={{ fav_v }}">
 {% if site.pwa.enabled %}
   <link rel="manifest" href="{{ '/assets/img/favicons/site.webmanifest' | relative_url }}">
 {% endif %}
