@@ -1,0 +1,82 @@
+---
+title: Certificaciones
+icon: fas fa-certificate
+order: 3
+---
+
+{% assign obtenidas = site.data.certificaciones | where: 'estado', 'obtenida' %}
+{% assign en_progreso = site.data.certificaciones | where: 'estado', 'en progreso' %}
+
+<p class="hx-lead">Certificaciones que he sacado y las que tengo entre ceja y ceja.</p>
+
+{% if obtenidas.size > 0 %}
+  <h2 id="obtenidas">Obtenidas <span class="hx-rm-count">{{ obtenidas.size }}</span></h2>
+
+  <div class="hx-certs">
+    {% for c in obtenidas %}
+      <article class="hx-cert is-done">
+        <div class="hx-cert-head">
+          <i class="{{ c.icono | default: 'fas fa-certificate' }}" aria-hidden="true"></i>
+          <div>
+            <h3 class="hx-cert-name">{{ c.nombre }}</h3>
+            <p class="hx-cert-full">{{ c.completo }}</p>
+          </div>
+          <span class="hx-status hx-status-resuelta">Obtenida</span>
+        </div>
+
+        <p class="hx-cert-desc">{{ c.descripcion }}</p>
+
+        {% if c.temario %}
+          <ul class="hx-cert-topics">
+            {% for t in c.temario %}<li>{{ t }}</li>{% endfor %}
+          </ul>
+        {% endif %}
+
+        <footer class="hx-cert-foot">
+          <span class="hx-cert-issuer"><i class="fas fa-building-columns" aria-hidden="true"></i> {{ c.entidad }}</span>
+          {% if c.fecha %}<span><i class="far fa-calendar" aria-hidden="true"></i> {{ c.fecha }}</span>{% endif %}
+          {% if c.url %}<a class="hx-btn" href="{{ c.url }}" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> Verificar</a>{% endif %}
+        </footer>
+      </article>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if en_progreso.size > 0 %}
+  <h2 id="en-progreso">En progreso <span class="hx-rm-count">{{ en_progreso.size }}</span></h2>
+
+  <div class="hx-certs">
+    {% for c in en_progreso %}
+      <article class="hx-cert is-wip">
+        <div class="hx-cert-head">
+          <i class="{{ c.icono | default: 'fas fa-certificate' }}" aria-hidden="true"></i>
+          <div>
+            <h3 class="hx-cert-name">{{ c.nombre }}</h3>
+            <p class="hx-cert-full">{{ c.completo }}</p>
+          </div>
+          <span class="hx-status hx-status-en-curso">En progreso</span>
+        </div>
+
+        <p class="hx-cert-desc">{{ c.descripcion }}</p>
+
+        {% if c.temario %}
+          <ul class="hx-cert-topics">
+            {% for t in c.temario %}<li>{{ t }}</li>{% endfor %}
+          </ul>
+        {% endif %}
+
+        <footer class="hx-cert-foot">
+          <span class="hx-cert-issuer"><i class="fas fa-building-columns" aria-hidden="true"></i> {{ c.entidad }}</span>
+          <a class="hx-btn hx-ghost" href="{{ '/roadmap/' | relative_url }}"><i class="fas fa-map"></i> Ver mi preparación</a>
+        </footer>
+      </article>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% if site.data.certificaciones.size == 0 %}
+  <div class="hx-empty">
+    <i class="fas fa-certificate"></i>
+    Todavía no hay certificaciones publicadas.
+  </div>
+{% endif %}
