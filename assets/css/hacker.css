@@ -3290,7 +3290,7 @@ article:has(.hx-wu) > .post-desc { display: none; }
 .hx-wu-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 1.1rem;
   margin-bottom: 0.3rem;
 }
