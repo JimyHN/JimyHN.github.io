@@ -100,6 +100,8 @@ cdn:
 
 # Favicon: "circulo" (calavera sobre círculo blanco) o "transparente" (sin fondo)
 favicon_style: transparente
+# Súbelo cada vez que cambies el favicon para que los navegadores no usen el viejo
+favicon_version: 2
 
 # the avatar on sidebar, support local or CORS resources
 avatar: /assets/img/avatar.jpg
