@@ -46,9 +46,9 @@ layout: default
   {% endfor %}
 {% endif %}
 
-{% if paginator.page == 1 %}
+{% unless paginator.page > 1 %}
   {% include hx-hero.html %}
-{% endif %}
+{% endunless %}
 
 <h2 class="hx-section-title"><span>$</span> ls -lt ./posts</h2>
 
