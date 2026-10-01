@@ -4,5 +4,31 @@ icon: fas fa-user-graduate
 order: 4
 ---
 
-{% assign t = site.data.titulos.oficiales %}
-<p>{{ t.size }} oficiales</p>
+<p class="hx-lead">Mi formación reglada y los cursos que voy haciendo. Desliza o usa las flechas para ver más.</p>
+
+{% assign secciones = "oficiales,no_oficiales,en_progreso" | split: "," %}
+{% assign nombres = "Oficiales,No oficiales,En curso" | split: "," %}
+
+{% for sid in secciones %}
+  {% assign items = site.data.titulos[sid] %}
+  {% if items.size > 0 %}
+    {% assign idx = forloop.index0 %}
+    <section class="hx-carousel-sec">
+      <div class="hx-carousel-head">
+        <h2 id="{{ sid }}">{{ nombres[idx] }} <span class="hx-rm-count">{{ items.size }}</span></h2>
+        <div class="hx-carousel-nav" aria-hidden="true">
+          <button type="button" class="hx-car-btn hx-car-prev" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
+          <button type="button" class="hx-car-btn hx-car-next" aria-label="Siguiente"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="hx-carousel">
+        <div class="hx-carousel-track">
+          {% for c in items %}
+            {% include hx-credential.html item=c estado=sid %}
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+{% endfor %}
