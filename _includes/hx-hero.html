@@ -1,6 +1,6 @@
 {%- assign hx_writeups = site.posts | where_exp: 'p', "p.categories contains 'Writeups'" -%}
 {%- assign hx_tools = site.posts | where_exp: 'p', "p.categories contains 'Herramientas'" -%}
-{%- assign hx_certs = site.data.certificaciones | where: 'estado', 'obtenida' -%}
+{%- assign hx_certs = site.data.certificaciones.obtenidas -%}
 
 <section class="hx-hero" aria-label="Presentación">
   <div class="hx-term">
