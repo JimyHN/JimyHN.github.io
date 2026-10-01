@@ -106,19 +106,50 @@
     if (!reduceMotion) typeText(span, text, 35);
   }
 
-  /* --- ASCII de la portada: una línea por span para animar la onda --- */
+  /* --- ASCII de la portada: efecto de imagen rayada a ráfagas --- */
   function initAscii() {
     const pre = document.querySelector('.hx-ascii');
     if (!pre) return;
-    const lines = pre.textContent.replace(/\n+$/, '').split('\n');
+    const text = pre.textContent.replace(/\n+$/, '');
+    pre.dataset.text = text;
     pre.textContent = '';
-    lines.forEach((line, i) => {
+    const lines = text.split('\n').map((line) => {
       const span = document.createElement('span');
       span.className = 'hx-al';
-      span.style.setProperty('--i', i);
       span.textContent = line || ' ';
       pre.append(span);
+      return span;
     });
+    if (reduceMotion) return;
+
+    const scan = document.createElement('span');
+    scan.className = 'hx-scanline';
+    scan.setAttribute('aria-hidden', 'true');
+    pre.append(scan);
+
+    function burst() {
+      pre.classList.add('hx-glitch');
+      // 2-4 franjas de 1-3 líneas desplazadas
+      const torn = [];
+      const strips = 2 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < strips; i++) {
+        const start = Math.floor(Math.random() * lines.length);
+        const height = 1 + Math.floor(Math.random() * 3);
+        const dx = (Math.random() < 0.5 ? -1 : 1) * (3 + Math.random() * 10) + 'px';
+        for (let j = start; j < Math.min(start + height, lines.length); j++) {
+          lines[j].style.setProperty('--dx', dx);
+          lines[j].classList.add('hx-tear');
+          torn.push(lines[j]);
+        }
+      }
+      setTimeout(() => {
+        pre.classList.remove('hx-glitch');
+        torn.forEach((l) => l.classList.remove('hx-tear'));
+      }, 120 + Math.random() * 200);
+      // a veces dos rayadas seguidas
+      setTimeout(burst, Math.random() < 0.3 ? 250 : 1800 + Math.random() * 2600);
+    }
+    setTimeout(burst, 1500);
   }
 
   /* --- Terminal de la portada --- */
