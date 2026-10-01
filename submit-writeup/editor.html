@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor de write-ups</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="/hacker.css">
+<style>
+  :root { --ed-bg:#0a0e14; --ed-panel:#111822; --ed-border:#1e2b3a; --ed-green:#9fef00; --ed-cyan:#2ee6d6; --ed-mut:#7d8b99; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--ed-bg); color:#c5d1de; font-family:'JetBrains Mono',monospace; }
+  .ed-wrap { display:grid; grid-template-columns:1fr 1fr; gap:0; height:100vh; }
+  .ed-col { overflow-y:auto; padding:1.2rem; }
+  .ed-left { border-right:1px solid var(--ed-border); }
+  .ed-right { background:#070a0f; }
+  h1.ed-h { font-size:1.1rem; color:var(--ed-green); margin:0 0 1rem; }
+  .ed-row { display:flex; flex-wrap:wrap; gap:0.6rem; margin-bottom:0.8rem; }
+  .ed-field { display:flex; flex-direction:column; gap:0.2rem; flex:1; min-width:120px; }
+  .ed-field label { font-size:0.7rem; color:var(--ed-mut); text-transform:uppercase; letter-spacing:0.05em; }
+  input, select, textarea { background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:6px; color:#e6edf3; font-family:inherit; font-size:0.85rem; padding:0.4rem 0.6rem; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--ed-green); }
+  textarea { width:100%; min-height:120px; resize:vertical; line-height:1.5; }
+  .ed-sec { border:1px solid var(--ed-border); border-radius:8px; margin-bottom:0.7rem; overflow:hidden; }
+  .ed-sec-h { display:flex; align-items:center; gap:0.5rem; padding:0.6rem 0.8rem; cursor:pointer; background:var(--ed-panel); font-weight:600; user-select:none; }
+  .ed-sec-h .dot { width:9px; height:9px; border-radius:50%; background:var(--ac,#9fef00); }
+  .ed-sec-h .chev { margin-left:auto; transition:transform .2s; color:var(--ed-mut); }
+  .ed-sec.open .chev { transform:rotate(180deg); }
+  .ed-sec-b { display:none; padding:0.7rem; }
+  .ed-sec.open .ed-sec-b { display:block; }
+  .ed-tools { display:flex; flex-wrap:wrap; gap:0.3rem; margin-bottom:0.5rem; }
+  .ed-tools button { background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:5px; color:#c5d1de; font-family:inherit; font-size:0.72rem; padding:0.25rem 0.5rem; cursor:pointer; }
+  .ed-tools button:hover { border-color:var(--c,var(--ed-green)); color:var(--c,var(--ed-green)); }
+  .ed-pub { display:flex; gap:0.6rem; margin-top:1rem; }
+  .ed-pub button { flex:1; padding:0.7rem; border:none; border-radius:8px; font-family:inherit; font-weight:700; font-size:0.9rem; cursor:pointer; }
+  .ed-pub .pub { background:var(--ed-green); color:#05070a; }
+  .ed-pub .dl { background:var(--ed-panel); border:1px solid var(--ed-border); color:#c5d1de; }
+  .ed-hint { font-size:0.7rem; color:var(--ed-mut); line-height:1.5; margin:0.3rem 0 0; }
+  .ed-img-prev { display:flex; gap:0.6rem; align-items:center; margin-top:0.4rem; }
+  .ed-img-prev img { height:54px; border-radius:8px; border:1px solid var(--ed-border); }
+  .ed-status { font-size:0.75rem; color:var(--ed-cyan); min-height:1.2em; }
+  .ed-right .content { max-width:none; }
+  .ed-prev-note { font-size:0.7rem; color:var(--ed-mut); margin:0 0 0.8rem; }
+  code.k { color:var(--ed-cyan); }
+</style>
+</head>
+<body>
+<div class="ed-wrap">
+  <!-- ======================= IZQUIERDA: EDITOR ======================= -->
+  <div class="ed-col ed-left">
+    <h1 class="ed-h">▚ Editor de write-up</h1>
+
+    <div class="ed-row">
+      <div class="ed-field"><label>Máquina *</label><input id="f-name" placeholder="Blue"></div>
+      <div class="ed-field" style="flex:0 0 130px"><label>IP</label><input id="f-ip" placeholder="10.10.10.10"></div>
+    </div>
+    <div class="ed-row">
+      <div class="ed-field"><label>SO</label><select id="f-os"><option>Linux</option><option>Windows</option><option>Otros</option></select></div>
+      <div class="ed-field"><label>Dificultad</label><select id="f-diff"><option>Easy</option><option>Medium</option><option>Hard</option><option>Insane</option></select></div>
+      <div class="ed-field"><label>Plataforma</label><input id="f-plat" value="HackTheBox"></div>
+    </div>
+    <div class="ed-row">
+      <div class="ed-field"><label>Fecha</label><input id="f-date" type="date"></div>
+      <div class="ed-field" style="flex:0 0 110px"><label>Lectura (min)</label><input id="f-read" value="3"></div>
+    </div>
+    <div class="ed-field" style="margin-bottom:0.5rem"><label>Descripción (resumen de 1 línea)</label><input id="f-desc" placeholder="..."></div>
+    <div class="ed-field"><label>URL del logro de HackTheBox (imagen + prueba)</label><input id="f-url" placeholder="https://labs.hackthebox.com/achievement/machine/..."></div>
+    <div class="ed-img-prev">
+      <button class="ed-tools" style="padding:0.4rem 0.7rem;background:var(--ed-panel);border:1px solid var(--ed-border);border-radius:6px;color:#c5d1de;cursor:pointer" onclick="traerImagen()">Traer imagen</button>
+      <span id="img-box"></span>
+    </div>
+    <p class="ed-status" id="img-status"></p>
+
+    <p class="ed-hint">
+      En las terminales: <code class="k">{ comando }</code> entrada, <code class="k">[ salida ]</code> salida.
+      Puedes anidar <code class="k">{ cmd [ salida ] }</code>. Resalte: <code class="k">&lt;b&gt;verde&lt;/b&gt;</code>,
+      <code class="k">&lt;bc&gt;cian&lt;/bc&gt;</code>, y también bm (morado), br (rojo), by (amarillo), bo (naranja),
+      bw (blanco), ba (azul). En entrada el texto por defecto va naranja; en salida, blanco.
+    </p>
+
+    <div id="ed-sections"></div>
+
+    <div class="ed-sec" id="sec-tags-wrap">
+      <div class="ed-sec-h" style="--ac:#2ee6d6"><span class="dot"></span> Etiquetas <span class="chev">▾</span></div>
+      <div class="ed-sec-b">
+        <textarea id="f-tags" placeholder="#windows #smb #eternalblue" style="min-height:60px"></textarea>
+      </div>
+    </div>
+
+    <div class="ed-pub">
+      <button class="pub" onclick="publicar()">Publicar</button>
+      <button class="dl" onclick="descargar()">Descargar .html</button>
+    </div>
+    <p class="ed-status" id="pub-status"></p>
+  </div>
+
+  <!-- ======================= DERECHA: VISTA PREVIA ======================= -->
+  <div class="ed-col ed-right">
+    <p class="ed-prev-note">Vista previa — así se verá el write-up</p>
+    <div class="content"><div id="preview"></div></div>
+  </div>
+</div>
+
+<script>
+// ---------- Secciones ----------
+const SECTIONS = [
+  { id:'resumen', nom:'Resumen', color:'159 239 0' },
+  { id:'vulnerabilidad', nom:'Vulnerabilidad', color:'255 62 62' },
+  { id:'reconocimiento', nom:'Reconocimiento', color:'46 230 214' },
+  { id:'enumeracion', nom:'Enumeración', color:'94 180 248' },
+  { id:'explotacion', nom:'Explotación', color:'255 175 0' },
+  { id:'escalada', nom:'Escalada de privilegios', color:'193 108 255' },
+  { id:'flags', nom:'Flags', color:'255 214 10' },
+  { id:'arreglo', nom:'Cómo se arregla', color:'46 230 214' },
+  { id:'conclusiones', nom:'Conclusiones', color:'200 210 220' },
+];
+
+const cont = document.getElementById('ed-sections');
+SECTIONS.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'ed-sec' + (i === 0 ? ' open' : '');
+  d.innerHTML = `
+    <div class="ed-sec-h" style="--ac:rgb(${s.color})"><span class="dot"></span> ${s.nom} <span class="chev">▾</span></div>
+    <div class="ed-sec-b">
+      <div class="ed-tools">
+        <button onclick="ins('${s.id}','{\\n','\\n}')" style="--c:#9fef00">{ } entrada</button>
+        <button onclick="ins('${s.id}','[\\n','\\n]')" style="--c:#ffffff">[ ] salida</button>
+        <button onclick="wrap('${s.id}','b')" style="--c:#9fef00">b</button>
+        <button onclick="wrap('${s.id}','bc')" style="--c:#2ee6d6">bc</button>
+        <button onclick="wrap('${s.id}','bm')" style="--c:#c16cff">bm</button>
+        <button onclick="wrap('${s.id}','br')" style="--c:#ff3e3e">br</button>
+        <button onclick="wrap('${s.id}','by')" style="--c:#ffd60a">by</button>
+        <button onclick="wrap('${s.id}','bo')" style="--c:#ffaf00">bo</button>
+        <button onclick="wrap('${s.id}','bw')" style="--c:#ffffff">bw</button>
+        <button onclick="wrap('${s.id}','ba')" style="--c:#5eb4f8">ba</button>
+      </div>
+      <textarea id="t-${s.id}" data-sec="${s.id}" placeholder="Escribe aquí ${s.nom}..."></textarea>
+    </div>`;
+  cont.appendChild(d);
+});
+
+document.querySelectorAll('.ed-sec-h').forEach(h => h.addEventListener('click', () => h.parentElement.classList.toggle('open')));
+
+// ---------- Utilidades de edición ----------
+function ins(sec, pre, post) {
+  const ta = document.getElementById('t-' + sec);
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.slice(s, e);
+  ta.value = ta.value.slice(0, s) + pre + sel + post + ta.value.slice(e);
+  ta.focus(); render();
+}
+function wrap(sec, tag) {
+  const ta = document.getElementById('t-' + sec);
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.slice(s, e) || 'texto';
+  ta.value = ta.value.slice(0, s) + `<${tag}>` + sel + `</${tag}>` + ta.value.slice(e);
+  ta.focus(); render();
+}
+// Ctrl+B -> negrita verde
+document.addEventListener('keydown', (ev) => {
+  if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'b') {
+    const ta = document.activeElement;
+    if (ta && ta.dataset && ta.dataset.sec) { ev.preventDefault(); wrap(ta.dataset.sec, 'b'); }
+  }
+});
+
+// ---------- Parser de marcado ----------
+const COLORS = { b:'hx-cg', bc:'hx-cc', bm:'hx-cm', br:'hx-cr', by:'hx-cy', bo:'hx-co', bw:'hx-cw', ba:'hx-ca' };
+function esc(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function colorize(t) {
+  t = t.replace(/<(\/?)(bc|bm|br|by|bo|bw|ba|b)>/g, (m, sl, tag) => `\u0000${sl ? '/' : ''}${tag}\u0001`);
+  t = esc(t);
+  t = t.replace(/\u0000\/(?:bc|bm|br|by|bo|bw|ba|b)\u0001/g, '</span>');
+  t = t.replace(/\u0000(bc|bm|br|by|bo|bw|ba|b)\u0001/g, (m, tag) => `<span class="${COLORS[tag]}">`);
+  return t;
+}
+function cmdLines(txt, cls) {
+  return txt.split('\n').filter(l => l.trim() !== '').map(l =>
+    `<div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="${cls}">${colorize(l)}</span></div>`
+  ).join('');
+}
+function outLines(txt) {
+  return `<div class="hx-t-out">${colorize(txt.replace(/^\n+|\n+$/g, ''))}</div>`;
+}
+// Terminal de entrada: contenido puede tener [ salida ] intercalado
+function renderInputTerm(content) {
+  let html = '<div class="hx-term2">';
+  const re = /\[([\s\S]*?)\]/g; let last = 0, m;
+  while ((m = re.exec(content)) !== null) {
+    const before = content.slice(last, m.index);
+    if (before.trim()) html += cmdLines(before, 'hx-t-in');
+    html += outLines(m[1]);
+    last = re.lastIndex;
+  }
+  const rest = content.slice(last);
+  if (rest.trim()) html += cmdLines(rest, 'hx-t-in');
+  return html + '</div>';
+}
+function renderOutputTerm(content) {
+  return `<div class="hx-term2">${outLines(content)}</div>`;
+}
+function prose(txt) {
+  return txt.split(/\n{2,}/).filter(p => p.trim()).map(p =>
+    `<p>${colorize(p).replace(/\n/g, '<br>')}</p>`
+  ).join('');
+}
+// Convierte el texto de una sección en HTML
+function renderSection(text) {
+  let out = '', i = 0;
+  while (i < text.length) {
+    const c = text[i];
+    if (c === '{') {
+      let depth = 1, j = i + 1;
+      while (j < text.length && depth > 0) { if (text[j] === '{') depth++; else if (text[j] === '}') depth--; j++; }
+      out += renderInputTerm(text.slice(i + 1, j - 1));
+      i = j;
+    } else if (c === '[') {
+      let j = i + 1; while (j < text.length && text[j] !== ']') j++;
+      out += renderOutputTerm(text.slice(i + 1, j));
+      i = j + 1;
+    } else {
+      let j = i; while (j < text.length && text[j] !== '{' && text[j] !== '[') j++;
+      const chunk = text.slice(i, j);
+      if (chunk.trim()) out += prose(chunk);
+      i = j;
+    }
+  }
+  return out;
+}
+
+// ---------- Construcción del post ----------
+function val(id) { return document.getElementById(id).value.trim(); }
+function slugify(s) { return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+
+function buildBody() {
+  const name = val('f-name') || 'Máquina';
+  const slug = slugify(name);
+  const ip = val('f-ip') || '10.10.10.10';
+  const os = val('f-os'), diff = val('f-diff'), plat = val('f-plat');
+  const read = val('f-read') || '3';
+  const avatar = window._img ? window._img.avatar : '';
+  const osl = os.toLowerCase();
+  const osClass = osl.indexOf('win') >= 0 ? 'win' : (osl.indexOf('lin') >= 0 ? 'lin' : 'otros');
+
+  let h = `<div class="hx-wu" data-os="${osClass}">`;
+  // Cabecera: imagen + nombre
+  h += `<header class="hx-wu-head">`;
+  if (avatar) h += `<img class="hx-wu-img" src="${avatar}" alt="${name}">`;
+  h += `<div><h1 class="hx-wu-title">${esc(name)}</h1>`;
+  h += `<p class="hx-wu-meta">Publicado por <b>Jaime Hereza</b> · ${read} min de lectura</p></div></header>`;
+  // Tabla
+  h += `<table class="hx-wu-table"><thead><tr><th>Máquina</th><th>SO</th><th>Dificultad</th><th>IP</th></tr></thead>`;
+  h += `<tbody><tr><td class="wu-name">${esc(name)}</td><td class="wu-os wu-os-${osClass}">${esc(os)}</td>`;
+  h += `<td><span class="hx-badge hx-diff-${diff.toLowerCase()}">${esc(diff)}</span></td><td class="wu-ip">${esc(ip)}</td></tr></tbody></table>`;
+  // Terminal de hosts
+  h += renderInputTerm(`sudo nano /etc/hosts\n[${ip}   ${slug}]`);
+  // Índice de contenido
+  h += `<nav class="hx-wu-index">`;
+  SECTIONS.forEach(s => {
+    if (val('t-' + s.id)) h += `<a href="#${s.id}" style="--c:${s.color}">${s.nom}</a>`;
+  });
+  h += `</nav>`;
+  // Secciones
+  SECTIONS.forEach(s => {
+    const txt = val('t-' + s.id);
+    if (!txt) return;
+    h += `<section class="hx-wu-sec" id="${s.id}" style="--c:${s.color}"><h2>${s.nom}</h2>${renderSection(txt)}</section>`;
+  });
+  // Tarjeta de máquina (prueba)
+  if (window._img) {
+    h += `<a class="hx-wu-card" data-os="${osClass}" href="${window._img.proof}" target="_blank" rel="noopener">`;
+    h += `<img src="${avatar}" alt="${name}"><div><b>${esc(name)}</b><small>${esc(os)} · ${read} min</small></div>`;
+    h += `<span class="hx-wu-verify"><i class="fas fa-shield-halved"></i> Verificar</span></a>`;
+  }
+  h += `</div>`;
+  return h;
+}
+
+function frontMatter() {
+  const name = val('f-name') || 'Máquina';
+  const date = val('f-date') || new Date().toISOString().slice(0, 10);
+  const tags = (val('f-tags').match(/#?[\w\-áéíóúñ]+/gi) || []).map(t => t.replace(/^#/, '').toLowerCase());
+  const fm = {
+    layout: 'post', title: name, date: date + ' 18:00:00 +0200',
+    categories: ['Writeups', val('f-plat') || 'HackTheBox'],
+    tags, machine: name, platform: val('f-plat') || 'HackTheBox',
+    os: val('f-os'), difficulty: val('f-diff'),
+    image: window._img ? window._img.avatar : '',
+    proof: window._img ? window._img.proof : '',
+    banner: window._img ? window._img.banner : '',
+    description: val('f-desc'), toc: false,
+  };
+  let y = '---\n';
+  for (const k in fm) {
+    const v = fm[k];
+    if (Array.isArray(v)) y += `${k}: [${v.map(x => `"${x}"`).join(', ')}]\n`;
+    else if (v) y += `${k}: "${String(v).replace(/"/g, '\\"')}"\n`;
+  }
+  y += '---\n';
+  return y;
+}
+
+function render() {
+  document.getElementById('preview').innerHTML = buildBody();
+}
+document.querySelectorAll('input,select,textarea').forEach(el => el.addEventListener('input', render));
+
+// ---------- Imagen ----------
+async function traerImagen() {
+  const url = val('f-url'), name = val('f-name');
+  const st = document.getElementById('img-status');
+  if (!url || !name) { st.textContent = 'Pon el nombre de la máquina y la URL.'; return; }
+  st.textContent = 'Trayendo imagen...';
+  try {
+    const r = await fetch(`/api/image?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}`);
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    window._img = d;
+    document.getElementById('img-box').innerHTML = `<img src="${d.avatar}" alt="avatar"><img src="${d.banner}" alt="banner">`;
+    st.textContent = 'Imagen lista.';
+    render();
+  } catch (e) { st.textContent = 'Error: ' + e.message; }
+}
+
+// ---------- Publicar / Descargar ----------
+async function publicar() {
+  const st = document.getElementById('pub-status');
+  const content = frontMatter() + buildBody() + '\n';
+  st.textContent = 'Publicando...';
+  try {
+    const r = await fetch('/api/publish', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name: val('f-name'), date: val('f-date'), content }) });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    st.textContent = 'Publicado en ' + d.path + ' — haz commit y push para subirlo.';
+  } catch (e) { st.textContent = 'Error: ' + e.message; }
+}
+function descargar() {
+  const content = frontMatter() + buildBody() + '\n';
+  const slug = slugify(val('f-name') || 'maquina');
+  const date = val('f-date') || new Date().toISOString().slice(0, 10);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type:'text/html' }));
+  a.download = `${date}-${slug}.html`;
+  a.click();
+}
+
+// ---------- Prefill desde la URL ----------
+const qp = new URLSearchParams(location.search);
+if (qp.get('name')) document.getElementById('f-name').value = qp.get('name');
+if (qp.get('ip')) document.getElementById('f-ip').value = qp.get('ip');
+if (qp.get('url')) document.getElementById('f-url').value = qp.get('url');
+document.getElementById('f-date').value = new Date().toISOString().slice(0, 10);
+render();
+</script>
+</body>
+</html>

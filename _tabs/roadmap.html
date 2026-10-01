@@ -53,7 +53,13 @@ order: 8
                 {{ m.os }}
               </td>
               <td><span class="hx-badge hx-diff-{{ m.difficulty | downcase }}">{{ m.difficulty }}</span></td>
-              <td><span class="hx-status hx-status-{{ status | downcase | replace: ' ', '-' }}">{{ status }}</span></td>
+              <td>
+                {%- if wp.proof -%}
+                  <a class="hx-status hx-status-{{ status | downcase | replace: ' ', '-' }} hx-status-proof" href="{{ wp.proof }}" target="_blank" rel="noopener" title="Comprobar máquina comprometida">{{ status }} <i class="fas fa-shield-halved" aria-hidden="true"></i></a>
+                {%- else -%}
+                  <span class="hx-status hx-status-{{ status | downcase | replace: ' ', '-' }}">{{ status }}</span>
+                {%- endif -%}
+              </td>
               <td>
                 {%- if wp -%}
                   <a class="hx-rm-link" href="{{ wp.url | relative_url }}">Leer <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
