@@ -2062,3 +2062,41 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   from { transform: scaleX(1); }
   to { transform: scaleX(0); }
 }
+
+/* ==========================================================================
+   Sidebar: cursor de las frases, texto "rayado" y avatar que gira como moneda
+   ========================================================================== */
+.hx-caret.hx-caret-busy { animation: none; opacity: 1; }
+
+#sidebar .site-subtitle.hx-sub-glitch span {
+  display: inline-block;
+  animation: hx-sub-glitch 0.18s steps(2) infinite;
+  text-shadow: -2px 0 #ff2e88, 2px 0 #2ee6d6;
+}
+
+#sidebar .site-subtitle.hx-sub-glitch .hx-caret {
+  background: #ff2e88;
+  animation: hx-blink 0.12s steps(1) infinite;
+}
+
+@keyframes hx-sub-glitch {
+  0% { transform: translate(0, 0) skewX(0); clip-path: inset(0 0 0 0); }
+  25% { transform: translate(-3px, 1px) skewX(-8deg); clip-path: inset(0 0 45% 0); }
+  50% { transform: translate(3px, -1px) skewX(6deg); clip-path: inset(40% 0 0 0); }
+  75% { transform: translate(-1px, 0) skewX(-3deg); clip-path: inset(20% 0 30% 0); }
+  100% { transform: translate(2px, 1px); clip-path: inset(0 0 0 0); }
+}
+
+/* Avatar: cada 20 s se eleva, gira sobre su eje vertical como una moneda y baja */
+#sidebar #avatar {
+  animation: hx-coin 20s ease-in-out infinite;
+  animation-delay: 5s;
+  transform-style: preserve-3d;
+}
+
+@keyframes hx-coin {
+  0%, 88% { transform: perspective(700px) translateY(0) rotateY(0deg); }
+  90.5% { transform: perspective(700px) translateY(-12px) rotateY(0deg); }
+  96.5% { transform: perspective(700px) translateY(-12px) rotateY(360deg); }
+  99%, 100% { transform: perspective(700px) translateY(0) rotateY(360deg); }
+}
