@@ -6,7 +6,7 @@ categories: [Writeups, HackTheBox]   # la primera DEBE ser "Writeups" para salir
 tags: [linux, web, privesc]
 os: Linux                            # Linux | Windows
 difficulty: Easy                     # Easy | Medium | Hard | Insane
-platform: HackTheBox                 # HackTheBox | Proving Grounds Practice | Proving Grounds Play | Vulnlab
+platform: HackTheBox                 # HackTheBox | TryHackMe | VulnHub | Proving Grounds
 machine: NombreMáquina               # mismo nombre que en _data/oscp.yml -> se enlaza en el Roadmap
 # status: En curso                   # opcional; sin él, el Roadmap la marca como "Resuelta"
 description: "Resumen de una línea: vector de entrada y escalada."
