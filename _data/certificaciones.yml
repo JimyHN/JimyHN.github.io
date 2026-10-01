@@ -1,0 +1,33 @@
+# Certificaciones. "estado" puede ser: obtenida | en progreso | pendiente
+# Solo las que están "obtenida" cuentan en el contador de la portada.
+
+- nombre: "eJPT"
+  completo: "eLearnSecurity Junior Penetration Tester"
+  entidad: "INE Security"
+  estado: obtenida
+  fecha:                 # formato AAAA-MM, por ejemplo 2025-06
+  url:                   # enlace para verificar el certificado
+  icono: "fas fa-user-secret"
+  descripcion: >-
+    Certificación práctica de pentesting. El examen es un laboratorio real de 48 horas
+    en el que hay que comprometer una red y responder a preguntas sobre lo encontrado.
+  temario:
+    - Fundamentos de redes y protocolos
+    - Reconocimiento y enumeración
+    - Auditoría de aplicaciones web
+    - Explotación de sistemas y uso de Metasploit
+    - Pivoting y movimiento lateral
+
+- nombre: "OSCP"
+  completo: "Offensive Security Certified Professional"
+  entidad: "OffSec"
+  estado: en progreso
+  icono: "fas fa-crosshairs"
+  descripcion: >-
+    El objetivo actual. Examen práctico de 24 horas en el que hay que comprometer varias
+    máquinas y entregar un informe profesional.
+  temario:
+    - Explotación manual sin apoyarse en herramientas automáticas
+    - Active Directory y movimiento lateral
+    - Escalada de privilegios en Linux y Windows
+    - Redacción de informes

@@ -1356,47 +1356,67 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   border-radius: 2px;
 }
 
-.hx-info dl {
-  grid-template-columns: 1fr 1fr;
+.hx-info-bio {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--hx-text);
+  max-width: 48ch;
+}
+
+/* Datos en una sola fila (Objetivo · Write-ups · Herramientas · Certificaciones · GitHub) */
+.hx-stats {
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.6rem;
+  margin: 1.1rem 0 0;
 }
 
 .hx-kv {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  padding: 0.55rem 0.75rem;
+  flex: 1 1 auto;
+  min-width: 7rem;
+  padding: 0.55rem 0.8rem;
   border: 1px solid var(--hx-border);
   border-radius: 8px;
   background: rgb(255 255 255 / 2%);
-  transition: border-color 0.25s, background 0.25s, transform 0.25s;
+  text-decoration: none !important;
+  border-bottom: 1px solid var(--hx-border) !important;
+  transition: border-color 0.25s, background 0.25s, transform 0.25s, box-shadow 0.25s;
 }
 
-.hx-kv:hover {
+a.hx-kv:hover {
   border-color: rgb(159 239 0 / 45%);
   background: var(--hx-green-soft);
   transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 30%);
 }
 
-.hx-kv dt {
+.hx-kv-label {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.68rem;
-  font-weight: 400;
+  font-family: var(--hx-mono);
+  font-size: 0.66rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--hx-muted);
+  white-space: nowrap;
 }
 
-.hx-kv dt::after { content: none; }
-.hx-kv dt i { color: var(--hx-cyan); }
+.hx-kv-label i { color: var(--hx-cyan); }
+a.hx-kv:hover .hx-kv-label i { color: var(--hx-green); }
 
-.hx-kv dd {
-  font-size: 1rem;
-  font-weight: 600;
+.hx-kv-value {
+  font-family: var(--hx-mono);
+  font-size: 1.05rem;
+  font-weight: 700;
   color: #e6edf3;
 }
+
+a.hx-kv:hover .hx-kv-value { color: var(--hx-green); }
 
 /* --- Bienvenida --- */
 .hx-intro {
@@ -1756,7 +1776,7 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
 .post-tag::before { content: '#'; opacity: 0.6; }
 
 @media (max-width: 576px) {
-  .hx-info dl { grid-template-columns: 1fr; }
+  .hx-stats .hx-kv { flex-basis: calc(50% - 0.3rem); }
 }
 
 /* ==========================================================================
@@ -2236,3 +2256,138 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   from { top: -20%; }
   to { top: 100%; }
 }
+
+/* ==========================================================================
+   Página de certificaciones
+   ========================================================================== */
+.hx-certs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 2rem;
+}
+
+.content .hx-cert {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.2rem;
+  border: 1px solid var(--hx-border);
+  border-radius: 12px;
+  background: linear-gradient(160deg, var(--hx-panel), var(--hx-bg-2));
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.content .hx-cert::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+}
+
+.hx-cert.is-done::before { background: linear-gradient(90deg, var(--hx-green), transparent); }
+.hx-cert.is-wip::before { background: linear-gradient(90deg, var(--hx-medium), transparent); }
+
+.content .hx-cert:hover {
+  transform: translateY(-4px);
+  border-color: rgb(159 239 0 / 45%);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 45%), 0 0 22px rgb(159 239 0 / 12%);
+}
+
+.hx-cert.is-wip:hover {
+  border-color: rgb(255 175 0 / 45%);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 45%), 0 0 22px rgb(255 175 0 / 12%);
+}
+
+.hx-cert-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.hx-cert-head > i {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 10px;
+  background: var(--hx-green-soft);
+  color: var(--hx-green);
+  font-size: 1.2rem;
+}
+
+.hx-cert.is-wip .hx-cert-head > i {
+  background: rgb(255 175 0 / 14%);
+  color: var(--hx-medium);
+}
+
+.content .hx-cert-name {
+  margin: 0;
+  font-family: var(--hx-mono);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #e6edf3;
+}
+
+.hx-cert-full {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--hx-muted);
+}
+
+.hx-cert-head .hx-status {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.hx-cert-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--hx-text);
+}
+
+.hx-cert-topics {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.content .hx-cert-topics li {
+  position: relative;
+  padding-left: 1.3rem;
+  font-size: 0.85rem;
+  color: var(--hx-text);
+}
+
+.hx-cert-topics li::before {
+  content: '>';
+  position: absolute;
+  left: 0.2rem;
+  color: var(--hx-green);
+  font-family: var(--hx-mono);
+}
+
+.hx-cert.is-wip .hx-cert-topics li::before { color: var(--hx-medium); }
+
+.hx-cert-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  margin-top: auto;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--hx-border);
+  font-family: var(--hx-mono);
+  font-size: 0.75rem;
+  color: var(--hx-muted);
+}
+
+.hx-cert-issuer i { color: var(--hx-cyan); margin-right: 0.3rem; }
+.hx-cert-foot .hx-btn { margin-left: auto; padding: 0.35rem 0.8rem; font-size: 0.75rem; }

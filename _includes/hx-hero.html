@@ -1,5 +1,6 @@
 {%- assign hx_writeups = site.posts | where_exp: 'p', "p.categories contains 'Writeups'" -%}
 {%- assign hx_tools = site.posts | where_exp: 'p', "p.categories contains 'Herramientas'" -%}
+{%- assign hx_certs = site.data.certificaciones | where: 'estado', 'obtenida' -%}
 
 <section class="hx-hero" aria-label="Presentación">
   <div class="hx-term">
@@ -14,17 +15,41 @@
       <div class="hx-step">
         <span class="hx-prompt"><b>jaime@kali</b>:~$</span>
         <span class="hx-cmd">whoami</span>
-        <div class="hx-out hx-fetch">
-          <pre class="hx-ascii" aria-hidden="true">{% include hx-ascii.txt %}</pre>
-          <div class="hx-info">
-            <p class="hx-info-name">{{ site.social.name }}</p>
-            <p class="hx-info-rule" aria-hidden="true"></p>
-            <dl>
-              <div class="hx-kv"><dt><i class="fas fa-crosshairs" aria-hidden="true"></i> Objetivo</dt><dd>OSCP</dd></div>
-              <div class="hx-kv"><dt><i class="fas fa-terminal" aria-hidden="true"></i> Write-ups</dt><dd>{{ hx_writeups.size }}</dd></div>
-              <div class="hx-kv"><dt><i class="fas fa-toolbox" aria-hidden="true"></i> Herramientas</dt><dd>{{ hx_tools.size }}</dd></div>
-              <div class="hx-kv"><dt><i class="fab fa-github" aria-hidden="true"></i> GitHub</dt><dd><a href="https://github.com/{{ site.github.username }}">{{ site.github.username }}</a></dd></div>
-            </dl>
+        <div class="hx-out hx-whoami">
+          <div class="hx-fetch">
+            <pre class="hx-ascii" aria-hidden="true">{% include hx-ascii.txt %}</pre>
+            <div class="hx-info">
+              <p class="hx-info-name">{{ site.social.name }}</p>
+              <p class="hx-info-rule" aria-hidden="true"></p>
+              <p class="hx-info-bio">
+                Soy Jaime Hereza, me flipa hacer pentesting (o hacking, como se diga) y tengo la
+                suerte de actualmente estar trabajando de ello a nivel profesional. Aparte, también
+                me dedico a crear herramientas de automatización que también subiré por aquí.
+              </p>
+            </div>
+          </div>
+
+          <div class="hx-stats">
+            <div class="hx-kv">
+              <span class="hx-kv-label"><i class="fas fa-crosshairs" aria-hidden="true"></i> Objetivo</span>
+              <span class="hx-kv-value">OSCP</span>
+            </div>
+            <a class="hx-kv" href="{{ '/writeups/' | relative_url }}">
+              <span class="hx-kv-label"><i class="fas fa-terminal" aria-hidden="true"></i> Write-ups</span>
+              <span class="hx-kv-value">{{ hx_writeups.size }}</span>
+            </a>
+            <a class="hx-kv" href="{{ '/herramientas/' | relative_url }}">
+              <span class="hx-kv-label"><i class="fas fa-toolbox" aria-hidden="true"></i> Herramientas</span>
+              <span class="hx-kv-value">{{ hx_tools.size }}</span>
+            </a>
+            <a class="hx-kv" href="{{ '/certificaciones/' | relative_url }}">
+              <span class="hx-kv-label"><i class="fas fa-certificate" aria-hidden="true"></i> Certificaciones</span>
+              <span class="hx-kv-value">{{ hx_certs.size }}</span>
+            </a>
+            <a class="hx-kv" href="https://github.com/{{ site.github.username }}">
+              <span class="hx-kv-label"><i class="fab fa-github" aria-hidden="true"></i> GitHub</span>
+              <span class="hx-kv-value">{{ site.github.username }}</span>
+            </a>
           </div>
         </div>
       </div>
@@ -45,6 +70,11 @@
     <a class="hx-tile" style="--c: 46 230 214" href="{{ '/herramientas/' | relative_url }}">
       <i class="fas fa-toolbox" aria-hidden="true"></i>
       <span class="hx-tile-txt"><b>Herramientas</b><small>{{ hx_tools.size }} publicadas</small></span>
+      <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
+    </a>
+    <a class="hx-tile" style="--c: 46 230 214" href="{{ '/certificaciones/' | relative_url }}">
+      <i class="fas fa-certificate" aria-hidden="true"></i>
+      <span class="hx-tile-txt"><b>Certificaciones</b><small>{{ hx_certs.size }} obtenida{% if hx_certs.size != 1 %}s{% endif %}</small></span>
       <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
     </a>
     <a class="hx-tile" style="--c: 255 175 0" href="{{ '/roadmap/' | relative_url }}">
