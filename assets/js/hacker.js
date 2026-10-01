@@ -905,7 +905,7 @@
 
   /* --- Destello al pulsar botones y enlaces de acción --- */
   function initButtonAura() {
-    const sel = '.hx-btn, .hx-opt, .hx-filter, .hx-tile, .hx-kv, .hx-tool-toggle, .hx-search-btn, .hx-fbar-reset, #sidebar .nav-link';
+    const sel = '.hx-btn, .hx-opt, .hx-filter, .hx-tile, .hx-kv, .hx-tool-toggle, .hx-search-btn, .hx-fbar-reset, .hx-cred-flipbtn, .hx-car-btn, #sidebar .nav-link';
     document.addEventListener('pointerdown', (e) => {
       const btn = e.target.closest(sel);
       if (!btn) return;
@@ -918,6 +918,87 @@
       if (pos === 'static') btn.style.position = 'relative';
       btn.append(aura);
       aura.addEventListener('animationend', () => aura.remove());
+    });
+  }
+
+  /* --- Tarjetas de credencial: giro + visor de documento --- */
+  function docModal() {
+    let modal = document.getElementById('hx-doc-modal');
+    if (modal) return modal;
+    modal = document.createElement('div');
+    modal.id = 'hx-doc-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML =
+      '<div class="hx-doc-box">' +
+      '<button type="button" class="hx-doc-close" aria-label="Cerrar"><i class="fas fa-xmark"></i></button>' +
+      '<div class="hx-doc-content"></div>' +
+      '</div>';
+    document.body.append(modal);
+
+    const close = () => {
+      modal.classList.remove('is-open');
+      modal.querySelector('.hx-doc-content').innerHTML = '';
+      document.body.style.overflow = '';
+    };
+    modal.querySelector('.hx-doc-close').addEventListener('click', close);
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    return modal;
+  }
+
+  function openDoc(url, type, title) {
+    const modal = docModal();
+    const content = modal.querySelector('.hx-doc-content');
+    if (type === 'img') {
+      content.innerHTML = '<img src="' + url + '" alt="' + (title || 'Documento') + '">';
+    } else {
+      content.innerHTML = '<iframe src="' + url + '#view=FitH" title="' + (title || 'Documento') + '"></iframe>';
+    }
+    modal.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function initCredentials() {
+    document.querySelectorAll('.hx-cred').forEach((card) => {
+      const flipBtn = card.querySelector('.hx-cred-flipbtn');
+      const backBtn = card.querySelector('.hx-cred-flipback');
+      const doc = card.querySelector('.hx-cred-doc');
+      if (flipBtn) flipBtn.addEventListener('click', () => card.classList.add('is-flipped'));
+      if (backBtn) backBtn.addEventListener('click', () => card.classList.remove('is-flipped'));
+      if (doc) {
+        doc.addEventListener('click', () =>
+          openDoc(card.dataset.doc, card.dataset.doctype, card.dataset.title)
+        );
+      }
+    });
+  }
+
+  /* --- Carrusel de títulos --- */
+  function initCarousels() {
+    document.querySelectorAll('.hx-carousel-sec').forEach((sec) => {
+      const car = sec.querySelector('.hx-carousel');
+      const prev = sec.querySelector('.hx-car-prev');
+      const next = sec.querySelector('.hx-car-next');
+      if (!car) return;
+
+      const step = () => {
+        const card = car.querySelector('.hx-cred');
+        return card ? card.getBoundingClientRect().width + 18 : car.clientWidth;
+      };
+      const update = () => {
+        const max = car.scrollWidth - car.clientWidth - 2;
+        if (prev) prev.disabled = car.scrollLeft <= 2;
+        if (next) next.disabled = car.scrollLeft >= max;
+        const hide = car.scrollWidth <= car.clientWidth + 4;
+        sec.querySelector('.hx-carousel-nav').style.display = hide ? 'none' : '';
+      };
+
+      if (prev) prev.addEventListener('click', () => car.scrollBy({ left: -step(), behavior: 'smooth' }));
+      if (next) next.addEventListener('click', () => car.scrollBy({ left: step(), behavior: 'smooth' }));
+      car.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      update();
     });
   }
 
@@ -938,6 +1019,8 @@
     initMatrix();
     initAvatarFx();
     initTools();
+    initCredentials();
+    initCarousels();
     initGlitch();
     initSubtitle();
     initTabTitle();

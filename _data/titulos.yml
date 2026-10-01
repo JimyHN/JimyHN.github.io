@@ -1,0 +1,78 @@
+# Titulaciones y cursos. Cada sección es un carrusel (más nuevo a la izquierda).
+oficiales:
+  - nombre: "Máster en Ciberseguridad"
+    icono: "fas fa-user-graduate"
+    color: "220 48 73"
+    estado_label: "Oficial"
+    que_es: "Título propio de 60 ECTS (1.500 h)."
+    emisor: "IMF · Título propio UCAV"
+    logos: ["/assets/img/logos/imf.png", "/assets/img/logos/ucav.png"]
+    fecha: "2025 – 2026"
+    documento: "/assets/docs/master-ciberseguridad.pdf"
+    resumen: >-
+      Un máster muy completo que toca casi todas las ramas de la ciberseguridad. Me ha
+      servido para construir una base sólida antes de centrarme en lo ofensivo, mezclando
+      la teoría que hace falta para entender el porqué de las cosas con mucha parte práctica.
+    temario:
+      - "Hacking ético y pentesting"
+      - "Hacking de aplicaciones móviles"
+      - "Análisis forense"
+      - "Ciberinteligencia"
+      - "SIEM y monitorización"
+      - "Fundamentos teóricos de la seguridad"
+
+  - nombre: "Iniciación a Python"
+    icono: "fab fa-python"
+    color: "77 166 255"
+    estado_label: "Oficial"
+    que_es: "Curso de 150 h de programación en Python."
+    emisor: "IMF Business School"
+    logos: ["/assets/img/logos/imf.png"]
+    fecha: "2026"
+    documento: "/assets/docs/python.pdf"
+    resumen: >-
+      Python es mi navaja suiza para automatizar cosas y montar herramientas rápidas. En
+      este curso repasé desde lo básico del lenguaje hasta scripting más aplicado, que es
+      justo lo que acabo usando para las utilidades que subo al blog.
+
+no_oficiales:
+  - nombre: "Personalización de entorno en Linux"
+    icono: "fas fa-palette"
+    color: "255 62 62"
+    estado_label: "Curso"
+    que_es: "Montar un entorno de trabajo pro en Linux."
+    emisor: "Hack4u · s4vitar"
+    logos: ["/assets/img/logos/hack4u.jpeg"]
+    fecha: "Octubre 2025"
+    documento: "/assets/docs/s4vitar-personalizacion-entorno.jpg"
+    resumen: >-
+      Curso de s4vitar para dejar un Linux personalizado desde cero y convertirlo en un
+      entorno de trabajo profesional: terminal, multiplexores, atajos y todo lo que hace
+      que trabajar en una máquina sea rápido y cómodo.
+
+  - nombre: "Introducción a Linux"
+    icono: "fab fa-linux"
+    color: "255 62 62"
+    estado_label: "Curso"
+    que_es: "Fundamentos de Linux desde cero."
+    emisor: "Hack4u · s4vitar"
+    logos: ["/assets/img/logos/hack4u.jpeg"]
+    fecha: "2025"
+    documento: "/assets/docs/s4vitar-introduccion-linux.jpg"
+    resumen: >-
+      Las bases de Linux que todo el que quiera dedicarse a esto necesita tener bien
+      asentadas: sistema de archivos, permisos, procesos y manejo de la terminal. El punto
+      de partida de todo lo demás.
+
+en_progreso:
+  - nombre: "Preparatoria para OSCP"
+    icono: "fas fa-crosshairs"
+    color: "120 200 160"
+    estado_label: "En curso"
+    que_es: "Formación enfocada a preparar la OSCP."
+    emisor: "Securo"
+    logos: ["/assets/img/logos/securo.jpeg"]
+    nota: "En marcha"
+    resumen: >-
+      Formación de Securo centrada en llegar a la OSCP con una metodología clara, repasando
+      las técnicas y el tipo de máquinas que me voy a encontrar en el examen.

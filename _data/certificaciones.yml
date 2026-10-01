@@ -1,33 +1,30 @@
-# Certificaciones. "estado" puede ser: obtenida | en progreso | pendiente
-# Solo las que están "obtenida" cuentan en el contador de la portada.
+# Certificaciones. estado: obtenida | en-progreso
+obtenidas:
+  - nombre: "eJPT"
+    icono: "fas fa-user-secret"
+    color: "94 180 248"          # azul clarito
+    estado_label: "Obtenida"
+    que_es: "Certificación práctica de pentesting de nivel junior."
+    emisor: "INE Security"
+    logos: ["/assets/img/logos/ine.png"]
+    fecha: "Agosto 2026"
+    documento: "/assets/docs/ejpt.pdf"
+    resumen: >-
+      Mi primera certificación ofensiva. El examen es un laboratorio real en el que hay
+      que comprometer una red entera y responder a preguntas sobre lo que vas encontrando,
+      así que no vale con memorizar: tienes que saber enumerar, explotar y moverte de
+      verdad. Un buen empujón para coger soltura antes de ir a por la OSCP.
 
-- nombre: "eJPT"
-  completo: "eLearnSecurity Junior Penetration Tester"
-  entidad: "INE Security"
-  estado: obtenida
-  fecha:                 # formato AAAA-MM, por ejemplo 2025-06
-  url:                   # enlace para verificar el certificado
-  icono: "fas fa-user-secret"
-  descripcion: >-
-    Certificación práctica de pentesting. El examen es un laboratorio real de 48 horas
-    en el que hay que comprometer una red y responder a preguntas sobre lo encontrado.
-  temario:
-    - Fundamentos de redes y protocolos
-    - Reconocimiento y enumeración
-    - Auditoría de aplicaciones web
-    - Explotación de sistemas y uso de Metasploit
-    - Pivoting y movimiento lateral
-
-- nombre: "OSCP"
-  completo: "Offensive Security Certified Professional"
-  entidad: "OffSec"
-  estado: en progreso
-  icono: "fas fa-crosshairs"
-  descripcion: >-
-    El objetivo actual. Examen práctico de 24 horas en el que hay que comprometer varias
-    máquinas y entregar un informe profesional.
-  temario:
-    - Explotación manual sin apoyarse en herramientas automáticas
-    - Active Directory y movimiento lateral
-    - Escalada de privilegios en Linux y Windows
-    - Redacción de informes
+en_progreso:
+  - nombre: "OSCP"
+    icono: "fas fa-crosshairs"
+    color: "130 140 255"
+    estado_label: "En progreso"
+    que_es: "La certificación ofensiva de referencia."
+    emisor: "OffSec"
+    logos: ["/assets/img/logos/offsec.jpeg"]
+    nota: "Preparándola con la lista de TJnull"
+    resumen: >-
+      El objetivo que tengo ahora mismo entre ceja y ceja. Examen práctico de 24 horas
+      en el que hay que comprometer varias máquinas y entregar después un informe en
+      condiciones. Todo lo que subo al Roadmap es parte de esta preparación.
