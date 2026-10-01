@@ -174,11 +174,14 @@
       }
     }
 
-    let last = -1;
+    // Aleatorio, pero una frase no puede repetirse hasta que hayan salido otras 3
+    const recent = [];
+    const COOLDOWN = Math.min(3, phrases.length - 1);
     function next() {
-      let i;
-      do { i = Math.floor(Math.random() * phrases.length); } while (phrases.length > 1 && i === last);
-      last = i;
+      const pool = phrases.map((_, i) => i).filter((i) => !recent.includes(i));
+      const i = pool[Math.floor(Math.random() * pool.length)];
+      recent.push(i);
+      if (recent.length > COOLDOWN) recent.shift();
       return phrases[i];
     }
 
