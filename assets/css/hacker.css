@@ -1373,6 +1373,15 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   .hx-ascii { font-size: 6.5px; }
 }
 
+/* Temblor del ASCII (efecto "split") */
+.hx-ascii.hx-fx-shake { animation: hx-ascii-shake 0.12s steps(2) infinite; }
+
+@keyframes hx-ascii-shake {
+  0% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  100% { transform: translate(-1px, 0); }
+}
+
 /* --- ASCII con efecto de imagen rayada (glitch) --- */
 .hx-ascii {
   position: relative;

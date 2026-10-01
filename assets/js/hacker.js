@@ -559,29 +559,112 @@
     scan.setAttribute('aria-hidden', 'true');
     pre.append(scan);
 
-    function burst() {
+    const originals = lines.map((l) => l.textContent);
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const SYM = '!<>-_\\/[]{}=+*^?#$%&@01';
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    const clear = () => {
+      pre.className = 'hx-ascii';
+      lines.forEach((l, i) => {
+        l.className = 'hx-al';
+        l.style.transform = '';
+        l.style.color = '';
+        l.style.opacity = '';
+        l.textContent = originals[i];
+      });
+    };
+
+    // 1. Franjas desplazadas + aberración de color
+    async function tear() {
       pre.classList.add('hx-glitch');
-      // 2-4 franjas de 1-3 líneas desplazadas
-      const torn = [];
       const strips = 2 + Math.floor(Math.random() * 3);
       for (let i = 0; i < strips; i++) {
         const start = Math.floor(Math.random() * lines.length);
-        const height = 1 + Math.floor(Math.random() * 3);
-        const dx = (Math.random() < 0.5 ? -1 : 1) * (3 + Math.random() * 10) + 'px';
-        for (let j = start; j < Math.min(start + height, lines.length); j++) {
+        const h = 1 + Math.floor(Math.random() * 3);
+        const dx = (Math.random() < 0.5 ? -1 : 1) * rnd(3, 13) + 'px';
+        for (let j = start; j < Math.min(start + h, lines.length); j++) {
           lines[j].style.setProperty('--dx', dx);
           lines[j].classList.add('hx-tear');
-          torn.push(lines[j]);
         }
       }
-      setTimeout(() => {
-        pre.classList.remove('hx-glitch');
-        torn.forEach((l) => l.classList.remove('hx-tear'));
-      }, 120 + Math.random() * 200);
-      // a veces dos rayadas seguidas
-      setTimeout(burst, Math.random() < 0.3 ? 250 : 1800 + Math.random() * 2600);
+      await wait(rnd(140, 320));
     }
-    setTimeout(burst, 1500);
+
+    // 2. Onda horizontal recorriendo las líneas
+    async function wave() {
+      const start = performance.now();
+      const dur = 900;
+      await new Promise((res) => {
+        (function step(now) {
+          const t = (now - start) / dur;
+          lines.forEach((l, i) => {
+            l.style.transform = 'translateX(' + Math.sin(t * Math.PI * 2 + i * 0.5) * 6 + 'px)';
+            l.style.color = '#d6ff8a';
+          });
+          if (t < 1) requestAnimationFrame(step);
+          else res();
+        })(start);
+      });
+    }
+
+    // 3. Ruido: cambia caracteres por símbolos y los recupera
+    async function scramble() {
+      const end = Date.now() + 650;
+      while (Date.now() < end) {
+        lines.forEach((l, i) => {
+          l.textContent = originals[i].replace(/\S/g, (ch) =>
+            Math.random() < 0.3 ? SYM[Math.floor(Math.random() * SYM.length)] : ch
+          );
+        });
+        await wait(55);
+      }
+    }
+
+    // 4. Aberración RGB fuerte con temblor, sin romper líneas
+    async function split() {
+      pre.classList.add('hx-glitch', 'hx-fx-shake');
+      await wait(rnd(350, 600));
+    }
+
+    // 5. Parpadeo de señal
+    async function flicker() {
+      for (let i = 0; i < 6; i++) {
+        pre.style.opacity = Math.random() < 0.5 ? '0.25' : '1';
+        pre.style.filter = 'brightness(' + rnd(0.6, 1.8).toFixed(2) + ')';
+        await wait(rnd(50, 110));
+      }
+      pre.style.opacity = '';
+      pre.style.filter = '';
+    }
+
+    // 6. Sacudida/inclinación de toda la imagen
+    async function jitter() {
+      pre.classList.add('hx-glitch');
+      for (let i = 0; i < 7; i++) {
+        pre.style.transform =
+          'translate(' + rnd(-4, 4).toFixed(1) + 'px,' + rnd(-3, 3).toFixed(1) + 'px) skewX(' + rnd(-6, 6).toFixed(1) + 'deg)';
+        await wait(45);
+      }
+      pre.style.transform = '';
+    }
+
+    const effects = [tear, wave, scramble, split, flicker, jitter];
+    const recent = [];
+
+    (async function loop() {
+      await wait(1500);
+      for (;;) {
+        if (!document.hidden) {
+          const pool = effects.map((_, i) => i).filter((i) => !recent.includes(i));
+          const i = pool[Math.floor(Math.random() * pool.length)];
+          recent.push(i);
+          if (recent.length > 3) recent.shift();
+          try { await effects[i](); } catch (e) { /* un efecto no debe parar el resto */ }
+          clear();
+        }
+        await wait(rnd(1600, 3200));
+      }
+    })();
   }
 
   /* --- Terminal de la portada --- */
