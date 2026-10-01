@@ -63,7 +63,7 @@
     const img = avatar && avatar.querySelector('img');
     if (!img || reduceMotion || !avatar.animate) return;
 
-    const ICON = '/assets/img/favicons/circulo/web-app-manifest-512x512.png';
+    const ICON = '/assets/img/avatar-icono.png'; // calavera de icono1MB_sinfondo
     const PHOTO = img.src;
     new Image().src = ICON; // precarga
     const BASE_GLOW = '0 0 24px rgba(159, 239, 0, 0.25)';
@@ -700,7 +700,8 @@
       root.classList.remove('hx-screen-glitch');
       void root.offsetWidth;
       root.classList.add('hx-screen-glitch');
-      setTimeout(() => root.classList.remove('hx-screen-glitch'), 900);
+      clearTimeout(root._glitchT);
+      root._glitchT = setTimeout(() => root.classList.remove('hx-screen-glitch'), 900);
     }
 
     let modal = document.getElementById('hx-notfound');
@@ -716,6 +717,13 @@
         '<span class="hx-nf-bar" aria-hidden="true"></span>' +
         '</div>';
       document.body.append(modal);
+      // Un clic en cualquier parte corta la animación y cierra la ventana con un fundido
+      modal.addEventListener('click', () => {
+        clearTimeout(modal._t);
+        clearTimeout(root._glitchT);
+        root.classList.remove('hx-screen-glitch');
+        modal.classList.remove('is-open');
+      });
     }
     modal.querySelector('.hx-nf-sub').textContent = '"' + query + '" no está en la lista';
     clearTimeout(modal._t);
