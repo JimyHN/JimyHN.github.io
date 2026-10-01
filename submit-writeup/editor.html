@@ -243,11 +243,12 @@ function buildBody() {
   const osClass = osl.indexOf('win') >= 0 ? 'win' : (osl.indexOf('lin') >= 0 ? 'lin' : 'otros');
 
   let h = `<div class="hx-wu" data-os="${osClass}">`;
-  // Cabecera: imagen + nombre
-  h += `<header class="hx-wu-head">`;
-  if (avatar) h += `<img class="hx-wu-img" src="${avatar}" alt="${name}">`;
-  h += `<div><h1 class="hx-wu-title">${esc(name)}</h1>`;
-  h += `<p class="hx-wu-meta">Publicado por <b>Jaime Hereza</b> · ${read} min de lectura</p></div></header>`;
+  // Cabecera: nombre a la izquierda, imagen pequeña a la derecha
+  h += `<header class="hx-wu-head"><div class="hx-wu-headtext">`;
+  h += `<h1 class="hx-wu-title">${esc(name)}</h1>`;
+  h += `<p class="hx-wu-meta">Publicado por <b>Jaime Hereza</b> · ${read} min de lectura</p></div>`;
+  if (avatar) h += `<span class="hx-wu-img" style="background-image:url('${avatar}')" role="img" aria-label="${esc(name)}"></span>`;
+  h += `</header>`;
   // Tabla
   h += `<table class="hx-wu-table"><thead><tr><th>Máquina</th><th>SO</th><th>Dificultad</th><th>IP</th></tr></thead>`;
   h += `<tbody><tr><td class="wu-name">${esc(name)}</td><td class="wu-os wu-os-${osClass}">${esc(os)}</td>`;
@@ -269,7 +270,7 @@ function buildBody() {
   // Tarjeta de máquina (prueba)
   if (window._img) {
     h += `<a class="hx-wu-card" data-os="${osClass}" href="${window._img.proof}" target="_blank" rel="noopener">`;
-    h += `<img src="${avatar}" alt="${name}"><div><b>${esc(name)}</b><small>${esc(os)} · ${read} min</small></div>`;
+    h += `<span class="hx-wu-cardimg" style="background-image:url('${avatar}')"></span><div><b>${esc(name)}</b><small>${esc(os)} · ${read} min</small></div>`;
     h += `<span class="hx-wu-verify"><i class="fas fa-shield-halved"></i> Verificar</span></a>`;
   }
   h += `</div>`;
@@ -285,7 +286,7 @@ function frontMatter() {
     categories: ['Writeups', val('f-plat') || 'HackTheBox'],
     tags, machine: name, platform: val('f-plat') || 'HackTheBox',
     os: val('f-os'), difficulty: val('f-diff'),
-    image: window._img ? window._img.avatar : '',
+    thumb: window._img ? window._img.avatar : '',
     proof: window._img ? window._img.proof : '',
     banner: window._img ? window._img.banner : '',
     description: val('f-desc'), toc: false,

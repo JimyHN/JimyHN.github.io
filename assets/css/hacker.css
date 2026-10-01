@@ -3290,17 +3290,22 @@ article:has(.hx-wu) > .post-desc { display: none; }
 .hx-wu-head {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1.1rem;
   margin-bottom: 0.3rem;
 }
 
 .hx-wu-img {
-  width: 88px;
-  height: 88px;
-  border-radius: 16px;
+  display: block;
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
   border: 1px solid var(--hx-border);
   flex-shrink: 0;
   box-shadow: 0 6px 20px rgb(0 0 0 / 45%);
+  background-size: cover;
+  background-position: center;
+  background-color: #05070a;
 }
 
 .content .hx-wu-title {
@@ -3457,7 +3462,17 @@ article:has(.hx-wu) > .post-desc { display: none; }
 .hx-wu-card[data-os='win'] { --os: 94 180 248; }
 .hx-wu-card[data-os='lin'] { --os: 255 175 0; }
 
-.hx-wu-card img { width: 54px; height: 54px; border-radius: 10px; }
+.hx-wu-card img,
+.hx-wu-cardimg {
+  display: block;
+  width: 54px;
+  height: 54px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: #05070a;
+}
 .hx-wu-card b { display: block; font-family: var(--hx-mono); color: #e6edf3; }
 .hx-wu-card small { color: var(--hx-muted); font-family: var(--hx-mono); font-size: 0.72rem; }
 .hx-wu-verify {
