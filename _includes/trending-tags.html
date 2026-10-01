@@ -1,0 +1,49 @@
+{%- comment -%}
+  Panel derecho: etiquetas más usadas (sustituye al include del tema)
+{%- endcomment -%}
+
+{% assign MAX = 12 %}
+{% assign size_list = '' | split: '' %}
+{% assign tag_list = '' | split: '' %}
+
+{% for tag in site.tags %}
+  {% assign size = tag | last | size %}
+  {% assign size_list = size_list | push: size %}
+  {% assign tag_str = tag | first | append: '::' | append: size %}
+  {% assign tag_list = tag_list | push: tag_str %}
+{% endfor %}
+
+{% assign size_list = size_list | sort | reverse %}
+{% assign tag_list = tag_list | sort_natural %}
+{% assign trending = '' | split: '' %}
+
+{% for size in size_list limit: MAX %}
+  {% for tag_str in tag_list %}
+    {% assign tag = tag_str | split: '::' %}
+    {% assign tag_name = tag | first %}
+    {% assign tag_size = tag | last | plus: 0 %}
+    {% if tag_size == size %}
+      {% unless trending contains tag_str %}
+        {% assign trending = trending | push: tag_str %}
+        {% break %}
+      {% endunless %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+
+{% if trending.size > 0 %}
+  <section class="hx-widget">
+    <h2 class="panel-heading hx-widget-title"><i class="fas fa-hashtag" aria-hidden="true"></i> Etiquetas populares</h2>
+    <div class="hx-chips">
+      {% for tag_str in trending %}
+        {% assign tag = tag_str | split: '::' %}
+        {% assign tag_name = tag | first %}
+        {% assign url = tag_name | slugify | url_encode | prepend: '/tags/' | append: '/' %}
+        <a class="hx-chip hx-chip-{{ forloop.index0 | modulo: 4 }}" href="{{ url | relative_url }}">
+          <span class="hx-chip-hash">#</span>{{ tag_name }}<span class="hx-chip-n">{{ tag | last }}</span>
+        </a>
+      {% endfor %}
+    </div>
+    <a class="hx-widget-more" href="{{ '/tags/' | relative_url }}">Todas las etiquetas <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+  </section>
+{% endif %}
