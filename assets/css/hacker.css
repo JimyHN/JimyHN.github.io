@@ -402,7 +402,7 @@ body::after {
 #sidebar .sidebar-bottom > a[aria-label='github'] { --b: 240 246 252; }
 #sidebar .sidebar-bottom > a[aria-label='linkedin'] { --b: 10 102 194; }
 #sidebar .sidebar-bottom > a[aria-label='instagram'] { --b: 225 48 108; }
-#sidebar .sidebar-bottom > a[aria-label='email'] { --b: 159 239 0; }
+#sidebar .sidebar-bottom > a[aria-label='email'] { --b: 242 101 34; }
 #sidebar .sidebar-bottom > a[aria-label='rss'] { --b: 242 101 34; }
 
 #sidebar .sidebar-bottom > a i {
