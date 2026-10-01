@@ -2121,4 +2121,3 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
     transform: perspective(700px) translateY(0) rotateY(1080deg);
   }
 }
-}
