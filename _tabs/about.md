@@ -23,6 +23,8 @@ Me estoy formando en seguridad ofensiva y preparando la **OSCP**. Este blog es m
 
 - GitHub: [JimyHN](https://github.com/JimyHN)
 - LinkedIn: [Jaime Hereza Niño](https://www.linkedin.com/in/jaime-hereza-ni%C3%B1o-948102201)
+- Instagram: [@jimy_hereza](https://www.instagram.com/jimy_hereza)
+- Email: [jaime.hereza@gmail.com](mailto:jaime.hereza@gmail.com)
 
 > Todo el contenido de este blog tiene fines educativos. Las técnicas descritas se aplican únicamente en entornos de laboratorio autorizados.
 {: .prompt-warning }
