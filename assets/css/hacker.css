@@ -369,8 +369,9 @@ body::after {
 
 /* Redes sociales: cuadrados con color de marca, tooltip y saltito periódico */
 #sidebar .sidebar-bottom {
-  gap: 0.45rem;
-  justify-content: center;
+  gap: 0.5rem;
+  justify-content: center !important;
+  width: 100%;
 }
 
 #sidebar .sidebar-bottom > a {
