@@ -1900,7 +1900,7 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
 
 /* --- Máquina encontrada: se ilumina --- */
 .content .hx-rm-table tbody tr.hx-found {
-  animation: hx-found-row 1.4s ease-in-out 3;
+  animation: hx-found-row 1s ease-in-out 3;
 }
 
 @keyframes hx-found-row {
@@ -1917,7 +1917,7 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
 }
 
 .hx-card.hx-found {
-  animation: hx-found-card 1.4s ease-in-out 3;
+  animation: hx-found-card 1s ease-in-out 3;
 }
 
 @keyframes hx-found-card {

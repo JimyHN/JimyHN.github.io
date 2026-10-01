@@ -419,7 +419,7 @@
           el.classList.add('hx-found');
         });
         shown[0].scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
-        setTimeout(() => shown.forEach((el) => el.classList.remove('hx-found')), 4200);
+        setTimeout(() => shown.forEach((el) => el.classList.remove('hx-found')), 3000);
       });
     });
 
