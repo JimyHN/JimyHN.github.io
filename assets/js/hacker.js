@@ -54,6 +54,218 @@
     requestAnimationFrame(draw);
   }
 
+  /* --- Efectos de la foto de perfil ---
+     Se ejecuta un efecto, se esperan 20 s y sale otro al azar.
+     Un efecto no puede repetirse hasta que hayan salido otros 3. */
+  function initAvatarFx() {
+    const avatar = document.querySelector('#sidebar #avatar');
+    const img = avatar && avatar.querySelector('img');
+    if (!img || reduceMotion || !avatar.animate) return;
+
+    const ICON = '/assets/img/favicons/circulo/web-app-manifest-512x512.png';
+    const PHOTO = img.src;
+    new Image().src = ICON; // precarga
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const size = () => avatar.getBoundingClientRect().width || 112;
+
+    const fx = document.createElement('div');
+    fx.className = 'hx-fx';
+    fx.setAttribute('aria-hidden', 'true');
+    avatar.append(fx);
+
+    const P = 'perspective(700px) ';
+
+    // 1. Moneda: se eleva, anticipa, gira rápido, frena pasándose, vuelve, cae y "se coloca"
+    async function coin() {
+      await avatar.animate(
+        [
+          { transform: P + 'translateY(0) rotateY(0deg)', easing: 'ease-out' },
+          { transform: P + 'translateY(-14px) rotateY(0deg)', offset: 0.07, easing: 'cubic-bezier(0.35, 0, 0.35, 1)' },
+          { transform: P + 'translateY(-14px) rotateY(-70deg)', offset: 0.25, easing: 'cubic-bezier(0.5, 0, 1, 0.6)' },
+          { transform: P + 'translateY(-14px) rotateY(990deg)', offset: 0.57, easing: 'cubic-bezier(0, 0.6, 0.4, 1)' },
+          { transform: P + 'translateY(-14px) rotateY(1200deg)', offset: 0.75, easing: 'cubic-bezier(0.45, 0, 0.55, 1)' },
+          { transform: P + 'translateY(-14px) rotateY(1080deg)', offset: 0.93, easing: 'cubic-bezier(0.5, 0, 0.9, 0.5)' },
+          { transform: P + 'translateY(0) rotateY(1080deg)' }
+        ],
+        { duration: 5600 }
+      ).finished;
+      avatar.classList.add('fx-settled');
+      await wait(1300);
+      avatar.classList.remove('fx-settled');
+    }
+
+    // 2. Se raya, aparece el icono 3 s, se vuelve a rayar y vuelve la foto
+    async function glitchSwap(src) {
+      avatar.classList.add('fx-glitch');
+      await wait(300);
+      img.src = src;
+      await wait(350);
+      avatar.classList.remove('fx-glitch');
+    }
+
+    async function glitchIcon() {
+      await glitchSwap(ICON);
+      await wait(3000);
+      await glitchSwap(PHOTO);
+    }
+
+    // 3. Lluvia de bits que convierte la foto en 0 y 1
+    async function bits() {
+      const S = size();
+      const dpr = window.devicePixelRatio || 1;
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = S * dpr;
+      fx.append(canvas);
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      // Brillo de la foto en una rejilla de celdas
+      const cell = 6;
+      const n = Math.ceil(S / cell);
+      const sample = document.createElement('canvas');
+      sample.width = sample.height = n;
+      const sctx = sample.getContext('2d');
+      let lum = null;
+      try {
+        sctx.drawImage(img, 0, 0, n, n);
+        const d = sctx.getImageData(0, 0, n, n).data;
+        lum = [];
+        for (let i = 0; i < d.length; i += 4) lum.push((d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11) / 255);
+      } catch (e) { /* sin acceso a los píxeles: solo lluvia */ }
+
+      const drops = Array.from({ length: n }, () => -Math.random() * n);
+      const start = performance.now();
+      const TOTAL = 5200;
+      ctx.font = `${cell + 1}px "JetBrains Mono", monospace`;
+      ctx.textBaseline = 'top';
+
+      await new Promise((resolve) => {
+        function frame(now) {
+          const t = now - start;
+          // 0-1,3 s: cae la lluvia y se va la foto · 1,3-3,9 s: foto en bits · 3,9-5,2 s: vuelve
+          const bitsAlpha = t < 1300 ? t / 1300 : t > 3900 ? Math.max(0, 1 - (t - 3900) / 1300) : 1;
+          img.style.opacity = String(1 - bitsAlpha);
+          ctx.clearRect(0, 0, S, S);
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(S / 2, S / 2, S / 2, 0, Math.PI * 2);
+          ctx.clip();
+          if (lum) {
+            for (let y = 0; y < n; y++) {
+              for (let x = 0; x < n; x++) {
+                const l = lum[y * n + x];
+                ctx.fillStyle = `rgba(159, 239, 0, ${(0.15 + l * 0.85) * bitsAlpha})`;
+                ctx.fillText(l > 0.45 ? '1' : '0', x * cell, y * cell);
+              }
+            }
+          }
+          const rain = t < 4600 ? 1 : Math.max(0, 1 - (t - 4600) / 600);
+          drops.forEach((y, i) => {
+            for (let k = 0; k < 6; k++) {
+              ctx.fillStyle = `rgba(${k === 0 ? '230, 255, 200' : '159, 239, 0'}, ${(1 - k / 6) * rain})`;
+              ctx.fillText(Math.random() < 0.5 ? '0' : '1', i * cell, (y - k) * cell);
+            }
+            drops[i] = y > n + 6 ? -Math.random() * 8 : y + 0.5;
+          });
+          ctx.restore();
+          if (t < TOTAL) requestAnimationFrame(frame);
+          else resolve();
+        }
+        requestAnimationFrame(frame);
+      });
+      img.style.opacity = '';
+      canvas.remove();
+    }
+
+    // 4. Se rompe en mil pedazos y se recompone
+    async function shatter() {
+      const S = size();
+      const round = document.createElement('canvas');
+      round.width = round.height = S * 2;
+      const rctx = round.getContext('2d');
+      rctx.beginPath();
+      rctx.arc(S, S, S, 0, Math.PI * 2);
+      rctx.clip();
+      rctx.drawImage(img, 0, 0, S * 2, S * 2);
+      let url;
+      try { url = round.toDataURL(); } catch (e) { return; }
+
+      const G = 9;
+      const t = S / G;
+      const pieces = [];
+      for (let y = 0; y < G; y++) {
+        for (let x = 0; x < G; x++) {
+          const p = document.createElement('span');
+          p.className = 'hx-shard';
+          Object.assign(p.style, {
+            left: x * t + 'px', top: y * t + 'px', width: t + 0.5 + 'px', height: t + 0.5 + 'px',
+            backgroundImage: `url(${url})`, backgroundSize: `${S}px ${S}px`,
+            backgroundPosition: `${-x * t}px ${-y * t}px`
+          });
+          fx.append(p);
+          pieces.push({ p, x: x - G / 2 + 0.5, y: y - G / 2 + 0.5 });
+        }
+      }
+      img.style.opacity = '0';
+      avatar.classList.add('fx-shatter');
+      await Promise.all(pieces.map(({ p, x, y }) => {
+        const dist = 40 + Math.random() * 70;
+        const len = Math.hypot(x, y) || 1;
+        const dx = (x / len) * dist + (Math.random() - 0.5) * 30;
+        const dy = (y / len) * dist + (Math.random() - 0.5) * 30;
+        const rot = (Math.random() - 0.5) * 540;
+        const out = `translate(${dx}px, ${dy}px) rotate(${rot}deg) scale(${0.4 + Math.random() * 0.5})`;
+        return p.animate(
+          [
+            { transform: 'none', opacity: 1, easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)' },
+            { transform: out, opacity: 0.85, offset: 0.35 },
+            { transform: out, opacity: 0.85, offset: 0.5, easing: 'cubic-bezier(0.7, 0, 0.3, 1)' },
+            { transform: 'none', opacity: 1 }
+          ],
+          { duration: 2600, delay: Math.random() * 120 }
+        ).finished;
+      }));
+      img.style.opacity = '';
+      pieces.forEach(({ p }) => p.remove());
+      avatar.classList.remove('fx-shatter');
+      avatar.classList.add('fx-settled');
+      await wait(1300);
+      avatar.classList.remove('fx-settled');
+    }
+
+    // 5. Aura de energía y 6. Holograma: efectos CSS con duración fija
+    async function cssFx(name, ms, html) {
+      if (html) fx.innerHTML = html;
+      avatar.classList.add(name);
+      await wait(ms);
+      avatar.classList.remove(name);
+      fx.innerHTML = '';
+    }
+
+    const aura = () =>
+      cssFx('fx-aura', 4200, '<i class="hx-orbit"><b></b><b></b><b></b><b></b><b></b><b></b></i>');
+
+    const holo = () =>
+      cssFx('fx-holo', 4800, '<i class="hx-hud"></i><i class="hx-hud-ring"></i><i class="hx-hud-scan"></i>');
+
+    const effects = [coin, glitchIcon, bits, shatter, aura, holo];
+    const recent = [];
+
+    (async function loop() {
+      await wait(4000);
+      for (;;) {
+        if (!document.hidden) {
+          const pool = effects.map((_, i) => i).filter((i) => !recent.includes(i));
+          const i = pool[Math.floor(Math.random() * pool.length)];
+          recent.push(i);
+          if (recent.length > 3) recent.shift();
+          try { await effects[i](); } catch (e) { /* un efecto fallido no para el resto */ }
+        }
+        await wait(20000);
+      }
+    })();
+  }
+
   /* --- Glitch periódico en el título --- */
   function initGlitch() {
     const sidebarTitle = document.querySelector('#sidebar .site-title');
@@ -504,6 +716,7 @@
 
   function init() {
     initMatrix();
+    initAvatarFx();
     initGlitch();
     initSubtitle();
     initTabTitle();
