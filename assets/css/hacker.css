@@ -278,55 +278,182 @@ body::after {
   50% { opacity: 0; }
 }
 
-/* Navegación */
+/* Navegación: cada sección con su color, icono en chip y número hexadecimal */
+#sidebar .nav { counter-reset: hx-nav; }
+
+#sidebar .nav-item { counter-increment: hx-nav; --c: 159 239 0; }
+#sidebar .nav-item:nth-child(4n + 2) { --c: 46 230 214; }
+#sidebar .nav-item:nth-child(4n + 3) { --c: 255 175 0; }
+#sidebar .nav-item:nth-child(4n + 4) { --c: 193 108 255; }
+
 #sidebar .nav-item .nav-link {
   position: relative;
-  border-radius: 6px;
-  transition: background 0.25s, color 0.25s, padding-left 0.25s;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: background 0.25s, color 0.25s, letter-spacing 0.25s;
 }
 
+#sidebar .nav-item .nav-link i {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  margin-right: 0.85rem;
+  border: 1px solid rgb(var(--c) / 25%);
+  border-radius: 7px;
+  background: rgb(var(--c) / 7%);
+  color: rgb(var(--c) / 75%);
+  font-size: 0.85rem;
+  transition: transform 0.3s, background 0.25s, color 0.25s, box-shadow 0.25s;
+}
+
+/* Número 0x01, 0x02... a la derecha */
+#sidebar .nav-item .nav-link::after {
+  content: '0x0' counter(hx-nav);
+  margin-left: auto;
+  padding-left: 0.5rem;
+  font-family: var(--hx-mono);
+  font-size: 0.65rem;
+  color: rgb(var(--c) / 0%);
+  transition: color 0.25s;
+}
+
+/* Barrido de luz al pasar el ratón */
 #sidebar .nav-item .nav-link::before {
-  content: '>';
+  content: '';
   position: absolute;
-  left: 0.35rem;
-  opacity: 0;
-  color: var(--hx-green);
-  transform: translateX(-6px);
-  transition: opacity 0.25s, transform 0.25s;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgb(var(--c) / 12%), transparent 80%);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+  pointer-events: none;
 }
 
 #sidebar .nav-item:not(.active) .nav-link:hover {
-  padding-left: 1.6rem;
-  color: var(--hx-green);
+  color: rgb(var(--c));
+  letter-spacing: 0.06em;
 }
 
-#sidebar .nav-item .nav-link:hover::before,
-#sidebar .nav-item.active .nav-link::before {
-  opacity: 1;
-  transform: none;
+#sidebar .nav-item .nav-link:hover::before { transform: translateX(100%); }
+#sidebar .nav-item .nav-link:hover::after { color: rgb(var(--c) / 70%); }
+
+#sidebar .nav-item .nav-link:hover i {
+  transform: rotate(-8deg) scale(1.08);
+  background: rgb(var(--c) / 16%);
+  color: rgb(var(--c));
+  box-shadow: 0 0 12px rgb(var(--c) / 35%);
 }
 
 #sidebar .nav-item.active .nav-link {
-  background: var(--hx-green-soft);
-  box-shadow: inset 2px 0 0 var(--hx-green);
-  text-shadow: 0 0 10px var(--hx-green-glow);
+  color: rgb(var(--c)) !important;
+  background: linear-gradient(90deg, rgb(var(--c) / 14%), transparent 85%);
+  box-shadow: inset 2px 0 0 rgb(var(--c));
+  text-shadow: 0 0 10px rgb(var(--c) / 45%);
 }
 
-#sidebar .nav-item .nav-link:hover i,
 #sidebar .nav-item.active .nav-link i {
-  color: var(--hx-green);
-  filter: drop-shadow(0 0 6px var(--hx-green-glow));
+  background: rgb(var(--c));
+  border-color: rgb(var(--c));
+  color: #05070a;
+  box-shadow: 0 0 16px rgb(var(--c) / 55%);
+  animation: hx-chip-pulse 2.4s ease-in-out infinite;
 }
 
-#sidebar .sidebar-bottom a,
-#sidebar .sidebar-bottom button {
-  transition: transform 0.25s, color 0.25s, box-shadow 0.25s;
+#sidebar .nav-item.active .nav-link::after { color: rgb(var(--c) / 80%); }
+
+@keyframes hx-chip-pulse {
+  50% { box-shadow: 0 0 4px rgb(var(--c) / 30%); }
 }
 
-#sidebar .sidebar-bottom a:hover {
-  color: var(--hx-green) !important;
-  transform: translateY(-3px);
-  box-shadow: 0 0 12px var(--hx-green-glow);
+/* Redes sociales: cuadrados con color de marca, tooltip y saltito periódico */
+#sidebar .sidebar-bottom {
+  gap: 0.45rem;
+  justify-content: center;
+}
+
+#sidebar .sidebar-bottom > a {
+  --b: 159 239 0;
+  position: relative;
+  width: 2.3rem !important;
+  height: 2.3rem !important;
+  margin: 0 !important;
+  border: 1px solid var(--hx-border);
+  border-radius: 9px !important;
+  background: linear-gradient(145deg, var(--hx-panel-2), var(--hx-bg)) !important;
+  color: var(--hx-muted) !important;
+  overflow: visible !important;
+  transition: transform 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s, background 0.25s !important;
+  animation: hx-hop 6s ease-in-out infinite;
+}
+
+#sidebar .sidebar-bottom > a:nth-of-type(2) { animation-delay: 0.15s; }
+#sidebar .sidebar-bottom > a:nth-of-type(3) { animation-delay: 0.3s; }
+#sidebar .sidebar-bottom > a:nth-of-type(4) { animation-delay: 0.45s; }
+#sidebar .sidebar-bottom > a:nth-of-type(5) { animation-delay: 0.6s; }
+
+@keyframes hx-hop {
+  0%, 88%, 100% { transform: none; }
+  92% { transform: translateY(-5px); }
+  96% { transform: translateY(1px); }
+}
+
+#sidebar .sidebar-bottom > a[aria-label='github'] { --b: 240 246 252; }
+#sidebar .sidebar-bottom > a[aria-label='linkedin'] { --b: 10 102 194; }
+#sidebar .sidebar-bottom > a[aria-label='instagram'] { --b: 225 48 108; }
+#sidebar .sidebar-bottom > a[aria-label='email'] { --b: 159 239 0; }
+#sidebar .sidebar-bottom > a[aria-label='rss'] { --b: 242 101 34; }
+
+#sidebar .sidebar-bottom > a i {
+  transition: transform 0.35s;
+}
+
+#sidebar .sidebar-bottom > a:hover {
+  animation: none;
+  transform: translateY(-4px) !important;
+  color: #fff !important;
+  border-color: rgb(var(--b) / 80%);
+  background: rgb(var(--b) / 22%) !important;
+  box-shadow: 0 6px 18px rgb(var(--b) / 35%), 0 0 0 1px rgb(var(--b) / 40%) !important;
+}
+
+#sidebar .sidebar-bottom > a[aria-label='instagram']:hover {
+  background: linear-gradient(45deg, #feda75 0%, #fa7e1e 25%, #d62976 50%, #962fbf 75%, #4f5bd5 100%) !important;
+}
+
+#sidebar .sidebar-bottom > a:hover i { transform: rotate(-12deg) scale(1.15); }
+
+/* Tooltip con el nombre de la red */
+#sidebar .sidebar-bottom > a::after {
+  content: attr(aria-label);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid rgb(var(--b) / 60%);
+  border-radius: 5px;
+  background: #05070a;
+  color: rgb(var(--b));
+  font-family: var(--hx-mono);
+  font-size: 0.65rem;
+  white-space: nowrap;
+  text-transform: lowercase;
+  opacity: 0;
+  transform: translate(-50%, 4px);
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+
+#sidebar .sidebar-bottom > a:hover::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Subtítulo con frases rotatorias: altura fija para que el menú no salte */
+#sidebar .site-subtitle {
+  min-height: 3.9em;
+  line-height: 1.3;
 }
 
 /* ==========================================================================

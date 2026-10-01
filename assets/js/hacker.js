@@ -91,19 +91,61 @@
     return c;
   }
 
-  /* --- Subtítulo del sidebar tecleado --- */
+  /* --- Frases rotatorias bajo el nombre del sidebar ---
+     Cada 10 s se borra la frase y se escribe otra, letra a letra (0,1 s por letra). */
   function initSubtitle() {
     const sub = document.querySelector('#sidebar .site-subtitle');
     if (!sub) return;
-    const text = sub.textContent.trim();
-    sub.setAttribute('aria-label', text);
+
+    let phrases = [];
+    try {
+      phrases = JSON.parse(document.getElementById('hx-frases').textContent) || [];
+    } catch (e) { /* sin frases: se queda el subtítulo del sitio */ }
+    if (!phrases.length) phrases = [sub.textContent.trim()];
 
     const span = document.createElement('span');
-    span.textContent = text;
     sub.textContent = '';
+    sub.setAttribute('aria-live', 'polite');
     sub.append(span, caret());
 
-    if (!reduceMotion) typeText(span, text, 35);
+    if (reduceMotion) {
+      span.textContent = phrases[0];
+      return;
+    }
+
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    let last = -1;
+
+    function next() {
+      let i;
+      do { i = Math.floor(Math.random() * phrases.length); } while (phrases.length > 1 && i === last);
+      last = i;
+      return phrases[i];
+    }
+
+    async function erase() {
+      while (span.textContent.length) {
+        span.textContent = Array.from(span.textContent).slice(0, -1).join('');
+        await wait(35);
+      }
+    }
+
+    async function write(text) {
+      const chars = Array.from(text); // respeta los emojis
+      for (let i = 1; i <= chars.length; i++) {
+        span.textContent = chars.slice(0, i).join('');
+        await wait(100);
+      }
+    }
+
+    (async function loop() {
+      for (;;) {
+        const started = Date.now();
+        await erase();
+        await write(next());
+        await wait(Math.max(0, 10000 - (Date.now() - started)));
+      }
+    })();
   }
 
   /* --- ASCII de la portada: efecto de imagen rayada a ráfagas --- */
