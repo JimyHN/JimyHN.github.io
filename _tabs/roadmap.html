@@ -16,7 +16,7 @@ order: 6
 {%- capture tables -%}
   {%- assign p = site.data.oscp -%}
   {%- for s in p.sections -%}
-    <section class="hx-rm-platform" data-keys="{{ s.id }}">
+    <section class="hx-rm-platform">
       <h2 id="{{ s.id }}">{{ s.title }} <span class="hx-rm-count">{{ s.machines.size }}</span></h2>
       <table class="hx-rm-table">
         <thead>
@@ -40,7 +40,10 @@ order: 6
             {%- if status == 'Resuelta' -%}{%- assign solved = solved | plus: 1 -%}{%- endif -%}
             {%- if status == 'En curso' -%}{%- assign doing = doing | plus: 1 -%}{%- endif -%}
             {%- assign os_down = m.os | downcase -%}
-            <tr>
+            {%- if os_down contains 'windows' -%}{%- assign os_key = 'windows' -%}
+            {%- elsif os_down contains 'linux' -%}{%- assign os_key = 'linux' -%}
+            {%- else -%}{%- assign os_key = 'otros' -%}{%- endif -%}
+            <tr data-name="{{ m.name | downcase }}" data-diff="{{ m.difficulty | downcase }}" data-os="{{ os_key }}" data-platform="{{ p.platform | downcase | remove: ' ' }}">
               <td class="hx-rm-name">{{ m.name }}</td>
               <td class="hx-rm-os">
                 {%- if os_down contains 'windows' %}<i class="fab fa-windows" aria-hidden="true"></i>{% endif -%}
@@ -86,14 +89,14 @@ order: 6
     <p class="hx-rm-pct">{{ pct }}% completado</p>
   </header>
 
-  <div class="hx-filters hx-rm-filters" role="group" aria-label="Filtrar por dificultad" data-target="hx-rm-list">
-    <button type="button" class="hx-filter is-active" data-filter="all" aria-pressed="true">Todas</button>
-    {%- for s in site.data.oscp.sections %}
-      <button type="button" class="hx-filter" data-filter="{{ s.id }}" aria-pressed="false">{{ s.title }}</button>
-    {%- endfor %}
-  </div>
+  {% include hx-filterbar.html target="hx-rm-list" empty="hx-rm-empty" total=total %}
 
   <div id="hx-rm-list">
     {{ tables }}
+  </div>
+
+  <div class="hx-empty hx-no-results" id="hx-rm-empty">
+    <i class="fas fa-ghost"></i>
+    Ninguna máquina coincide con la búsqueda.
   </div>
 </div>
