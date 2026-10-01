@@ -1,0 +1,72 @@
+{%- comment -%}
+  Panel derecho: progreso OSCP + últimas subidas (sustituye al include del tema)
+{%- endcomment -%}
+
+{%- assign rm_total = 0 -%}
+{%- assign rm_solved = 0 -%}
+{%- for s in site.data.oscp.sections -%}
+  {%- for m in s.machines -%}
+    {%- assign rm_total = rm_total | plus: 1 -%}
+    {%- assign wp = site.posts | where: 'machine', m.name | where: 'platform', site.data.oscp.platform | first -%}
+    {%- if wp -%}
+      {%- assign st = wp.status | default: 'Resuelta' -%}
+    {%- else -%}
+      {%- assign st = m.status | default: 'Pendiente' -%}
+    {%- endif -%}
+    {%- if st == 'Resuelta' -%}{%- assign rm_solved = rm_solved | plus: 1 -%}{%- endif -%}
+  {%- endfor -%}
+{%- endfor -%}
+
+{%- if rm_total > 0 -%}
+  {%- assign rm_pct = rm_solved | times: 100.0 | divided_by: rm_total | round: 1 -%}
+  <section class="hx-widget">
+    <h2 class="panel-heading hx-widget-title"><i class="fas fa-flag-checkered" aria-hidden="true"></i> Progreso OSCP</h2>
+    <a class="hx-ring-wrap" href="{{ '/roadmap/' | relative_url }}">
+      <span class="hx-ring" style="--p: {{ rm_pct }}" aria-hidden="true"><b>{{ rm_pct | round }}%</b></span>
+      <span class="hx-ring-txt">
+        <b>{{ rm_solved }}<small>/{{ rm_total }}</small></b>
+        máquinas resueltas
+        <em>Ver roadmap <i class="fas fa-arrow-right" aria-hidden="true"></i></em>
+      </span>
+    </a>
+  </section>
+{%- endif -%}
+
+{% assign MAX_SIZE = 5 %}
+{% assign all_list = '' | split: '' %}
+{% for post in site.posts %}
+  {% assign datetime = post.last_modified_at | default: post.date %}
+  {% capture elem %}
+    {{- datetime | date: "%Y%m%d%H%M%S" -}}::{{- forloop.index0 -}}
+  {% endcapture %}
+  {% assign all_list = all_list | push: elem %}
+{% endfor %}
+{% assign all_list = all_list | sort | reverse %}
+
+{% if all_list.size > 0 %}
+  <section id="access-lastmod" class="hx-widget">
+    <h2 class="panel-heading hx-widget-title">
+      <i class="fas fa-satellite-dish" aria-hidden="true"></i> Últimas subidas
+      <span class="hx-live" aria-hidden="true"></span>
+    </h2>
+    <ul class="hx-recent list-unstyled">
+      {% for item in all_list limit: MAX_SIZE %}
+        {% assign index = item | split: '::' | last | plus: 0 %}
+        {% assign post = site.posts[index] %}
+        <li>
+          <a href="{{ post.url | relative_url }}">
+            <i class="fas fa-{% if post.categories contains 'Herramientas' %}toolbox{% else %}terminal{% endif %}" aria-hidden="true"></i>
+            <span>
+              <b>{{ post.title }}</b>
+              <small>
+                {{ post.last_modified_at | default: post.date | date: '%d/%m/%Y' }}
+                {%- if post.difficulty %} · <em class="hx-diff-{{ post.difficulty | downcase }}">{{ post.difficulty }}</em>{% endif -%}
+                {%- if post.status %} · {{ post.status }}{% endif -%}
+              </small>
+            </span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endif %}

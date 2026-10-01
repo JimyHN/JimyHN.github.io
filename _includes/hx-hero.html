@@ -18,31 +18,44 @@
           <pre class="hx-ascii" aria-hidden="true">{% include hx-ascii.txt %}</pre>
           <div class="hx-info">
             <p class="hx-info-name">{{ site.social.name }}</p>
-            <p class="hx-info-rule" aria-hidden="true">─────────────────────</p>
+            <p class="hx-info-rule" aria-hidden="true"></p>
             <dl>
-              <dt>Objetivo</dt><dd>OSCP</dd>
-              <dt>Write-ups</dt><dd>{{ hx_writeups.size }}</dd>
-              <dt>Herramientas</dt><dd>{{ hx_tools.size }}</dd>
-              <dt>GitHub</dt><dd><a href="https://github.com/{{ site.github.username }}">{{ site.github.username }}</a></dd>
+              <div class="hx-kv"><dt><i class="fas fa-crosshairs" aria-hidden="true"></i> Objetivo</dt><dd>OSCP</dd></div>
+              <div class="hx-kv"><dt><i class="fas fa-terminal" aria-hidden="true"></i> Write-ups</dt><dd>{{ hx_writeups.size }}</dd></div>
+              <div class="hx-kv"><dt><i class="fas fa-toolbox" aria-hidden="true"></i> Herramientas</dt><dd>{{ hx_tools.size }}</dd></div>
+              <div class="hx-kv"><dt><i class="fab fa-github" aria-hidden="true"></i> GitHub</dt><dd><a href="https://github.com/{{ site.github.username }}">{{ site.github.username }}</a></dd></div>
             </dl>
-            <p class="hx-info-colors" aria-hidden="true">
-              <span></span><span></span><span></span><span></span><span></span><span></span>
-            </p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <p class="hx-intro">
-    Este es mi blog personal donde subo mis herramientas y write-ups de máquinas que resuelvo.
-  </p>
+  <div class="hx-intro">
+    <p>¡Bienvenido a mi blog! Aquí dentro me dedico a resolver máquinas que me dejan la cabeza como un bombo y a subir herramientas guapardas que vaya creando.</p>
+    <p>¡Cualquier tipo de consejo o recomendación escríbeme directamente como prefieras! Tengo los enlaces debajo de la foto de perfil jeje.</p>
+  </div>
 
-  <nav class="hx-links" aria-label="Secciones">
-    <a href="{{ '/writeups/' | relative_url }}">Write-ups <span>{{ hx_writeups.size }}</span></a>
-    <a href="{{ '/herramientas/' | relative_url }}">Herramientas <span>{{ hx_tools.size }}</span></a>
-    <a href="{{ '/roadmap/' | relative_url }}">Roadmap OSCP</a>
-    <a href="{{ '/tags/' | relative_url }}">Etiquetas <span>{{ site.tags.size }}</span></a>
-    <a href="{{ '/categories/' | relative_url }}">Categorías</a>
+  <nav class="hx-tiles" aria-label="Secciones">
+    <a class="hx-tile" style="--c: 159 239 0" href="{{ '/writeups/' | relative_url }}">
+      <i class="fas fa-terminal" aria-hidden="true"></i>
+      <span class="hx-tile-txt"><b>Write-ups</b><small>{{ hx_writeups.size }} publicados</small></span>
+      <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
+    </a>
+    <a class="hx-tile" style="--c: 46 230 214" href="{{ '/herramientas/' | relative_url }}">
+      <i class="fas fa-toolbox" aria-hidden="true"></i>
+      <span class="hx-tile-txt"><b>Herramientas</b><small>{{ hx_tools.size }} publicadas</small></span>
+      <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
+    </a>
+    <a class="hx-tile" style="--c: 255 175 0" href="{{ '/roadmap/' | relative_url }}">
+      <i class="fas fa-map" aria-hidden="true"></i>
+      <span class="hx-tile-txt"><b>Roadmap OSCP</b><small>Lista de TJnull</small></span>
+      <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
+    </a>
+    <a class="hx-tile" style="--c: 193 108 255" href="{{ '/tags/' | relative_url }}">
+      <i class="fas fa-hashtag" aria-hidden="true"></i>
+      <span class="hx-tile-txt"><b>Etiquetas</b><small>{{ site.tags.size }} temas</small></span>
+      <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
+    </a>
   </nav>
 </section>

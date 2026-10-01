@@ -106,6 +106,21 @@
     if (!reduceMotion) typeText(span, text, 35);
   }
 
+  /* --- ASCII de la portada: una línea por span para animar la onda --- */
+  function initAscii() {
+    const pre = document.querySelector('.hx-ascii');
+    if (!pre) return;
+    const lines = pre.textContent.replace(/\n+$/, '').split('\n');
+    pre.textContent = '';
+    lines.forEach((line, i) => {
+      const span = document.createElement('span');
+      span.className = 'hx-al';
+      span.style.setProperty('--i', i);
+      span.textContent = line || ' ';
+      pre.append(span);
+    });
+  }
+
   /* --- Terminal de la portada --- */
   async function initTerminal() {
     const term = document.querySelector('.hx-term-body');
@@ -240,6 +255,7 @@
     initMatrix();
     initGlitch();
     initSubtitle();
+    initAscii();
     initTerminal();
     initReveal();
     initCardGlow();
