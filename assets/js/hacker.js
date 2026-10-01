@@ -92,7 +92,7 @@
   }
 
   /* --- Frases rotatorias bajo el nombre del sidebar ---
-     Cada frase se borra con retroceso y se escribe la siguiente letra a letra (0,1 s).
+     La frase anterior desaparece de golpe y la siguiente se escribe letra a letra (0,1 s).
      Una frase puede ser un texto o un guion de pasos (ver _data/frases.yml).
      Los 10 s hasta la siguiente cuentan desde que termina de escribirse. */
   function initSubtitle() {
@@ -188,9 +188,8 @@
     (async function loop() {
       for (;;) {
         if (span.textContent) {
-          await wait(400);
-          await erase('todo');
-          await wait(350);
+          span.textContent = ''; // la frase anterior desaparece entera de golpe
+          await wait(300);
         }
         await play(next());
         await wait(10000);
