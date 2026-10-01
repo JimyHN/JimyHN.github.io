@@ -960,17 +960,22 @@
   }
 
   function initCredentials() {
-    document.querySelectorAll('.hx-cred').forEach((card) => {
-      const flipBtn = card.querySelector('.hx-cred-flipbtn');
-      const backBtn = card.querySelector('.hx-cred-flipback');
+    document.querySelectorAll('.hx-cred.has-doc').forEach((card) => {
+      const front = card.querySelector('.hx-cred-front');
+      const back = card.querySelector('.hx-cred-back');
       const doc = card.querySelector('.hx-cred-doc');
-      if (flipBtn) flipBtn.addEventListener('click', () => card.classList.add('is-flipped'));
-      if (backBtn) backBtn.addEventListener('click', () => card.classList.remove('is-flipped'));
+
+      // Clic en cualquier parte de la cara frontal -> voltea
+      if (front) front.addEventListener('click', () => card.classList.add('is-flipped'));
+
+      // En la trasera: el documento abre el visor; el resto vuelve a la cara frontal
       if (doc) {
-        doc.addEventListener('click', () =>
-          openDoc(card.dataset.doc, card.dataset.doctype, card.dataset.title)
-        );
+        doc.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openDoc(card.dataset.doc, card.dataset.doctype, card.dataset.title);
+        });
       }
+      if (back) back.addEventListener('click', () => card.classList.remove('is-flipped'));
     });
   }
 

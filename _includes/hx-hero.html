@@ -78,6 +78,12 @@
       <span class="hx-tile-txt"><b>Certificaciones</b><small>{{ hx_certs.size }} obtenida{% if hx_certs.size != 1 %}s{% endif %}</small></span>
       <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
     </a>
+    {%- assign hx_titulos = site.data.titulos.oficiales | concat: site.data.titulos.no_oficiales -%}
+    <a class="hx-tile" style="--c: 94 180 248" href="{{ '/titulos/' | relative_url }}">
+      <i class="fas fa-user-graduate" aria-hidden="true"></i>
+      <span class="hx-tile-txt"><b>Títulos</b><small>{{ hx_titulos.size }} formaciones</small></span>
+      <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
+    </a>
     <a class="hx-tile" style="--c: 255 175 0" href="{{ '/roadmap/' | relative_url }}">
       <i class="fas fa-map" aria-hidden="true"></i>
       <span class="hx-tile-txt"><b>Roadmap OSCP</b><small>Lista de TJnull</small></span>
