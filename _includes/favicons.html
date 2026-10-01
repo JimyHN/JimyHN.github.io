@@ -1,0 +1,14 @@
+<!--
+  Favicons propios (sustituye al include del tema).
+  Variante en _config.yml -> favicon_style: circulo | transparente
+-->
+
+{% assign fav_style = site.favicon_style | default: 'circulo' %}
+{% capture favicon_path %}{{ '/assets/img/favicons/' | append: fav_style | relative_url }}{% endcapture %}
+
+<link rel="icon" type="image/png" href="{{ favicon_path }}/favicon-96x96.png" sizes="96x96">
+<link rel="shortcut icon" href="{{ favicon_path }}/favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ favicon_path }}/apple-touch-icon.png">
+{% if site.pwa.enabled %}
+  <link rel="manifest" href="{{ '/assets/img/favicons/site.webmanifest' | relative_url }}">
+{% endif %}

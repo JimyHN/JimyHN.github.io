@@ -98,6 +98,9 @@ theme_mode: dark # [light | dark]
 # e.g. 'https://cdn.com'
 cdn:
 
+# Favicon: "circulo" (calavera sobre círculo blanco) o "transparente" (sin fondo)
+favicon_style: transparente
+
 # the avatar on sidebar, support local or CORS resources
 avatar: /assets/img/avatar.jpg
 
