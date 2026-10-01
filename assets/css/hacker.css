@@ -3329,20 +3329,42 @@ article:has(.hx-wu) > .post-desc { display: none; }
 
 .hx-wu-meta b { color: var(--hx-text); }
 
-/* Tabla de ficha, centrada y con color */
+/* Tabla de ficha, centrada y con un color por columna */
 .content .hx-wu-table {
   width: auto;
   min-width: 60%;
   margin: 1.4rem auto;
+  border: 1px solid var(--hx-border);
+  border-radius: 10px;
   border-collapse: separate;
   border-spacing: 0;
+  overflow: hidden;
 }
 
-.content .hx-wu-table td { text-align: center; }
-.hx-wu-table .wu-name { font-family: var(--hx-mono); font-weight: 700; color: var(--hx-green); }
-.hx-wu-table .wu-os-win { color: var(--hx-cyan); }
-.hx-wu-table .wu-os-lin { color: var(--hx-medium); }
-.hx-wu-table .wu-ip { font-family: var(--hx-mono); color: var(--hx-text); }
+.content .hx-wu-table thead th {
+  text-align: center;
+  background: #0e1520 !important;
+  border-bottom: 2px solid var(--hx-border) !important;
+  font-family: var(--hx-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+}
+
+.content .hx-wu-table thead th:nth-child(1) { color: var(--hx-green) !important; border-bottom-color: var(--hx-green) !important; }
+.content .hx-wu-table thead th:nth-child(2) { color: var(--hx-cyan) !important; border-bottom-color: var(--hx-cyan) !important; }
+.content .hx-wu-table thead th:nth-child(3) { color: #c16cff !important; border-bottom-color: #c16cff !important; }
+.content .hx-wu-table thead th:nth-child(4) { color: #5eb4f8 !important; border-bottom-color: #5eb4f8 !important; }
+
+.content .hx-wu-table td { text-align: center; font-family: var(--hx-mono); border: none; }
+.content .hx-wu-table td:nth-child(1) { background: rgb(159 239 0 / 7%); }
+.content .hx-wu-table td:nth-child(2) { background: rgb(46 230 214 / 7%); }
+.content .hx-wu-table td:nth-child(3) { background: rgb(193 108 255 / 7%); }
+.content .hx-wu-table td:nth-child(4) { background: rgb(94 180 248 / 7%); }
+
+.hx-wu-table .wu-name { font-weight: 700; color: var(--hx-green); }
+.hx-wu-table .wu-os-win { color: var(--hx-cyan); font-weight: 700; }
+.hx-wu-table .wu-os-lin { color: var(--hx-medium); font-weight: 700; }
+.hx-wu-table .wu-ip { color: #5eb4f8; }
 
 /* Índice de contenido horizontal */
 .hx-wu-index {
@@ -3398,7 +3420,16 @@ article:has(.hx-wu) > .post-desc { display: none; }
   color: #e6edf3;
 }
 
-.content .hx-wu-sec > h2::before { content: '#'; color: rgb(var(--c)); font-weight: 800; }
+.content .hx-wu-sec > h2::before { content: '▹'; color: rgb(var(--c)); font-weight: 800; }
+.content .hx-wu-sec[id='resumen'] > h2::before { content: '📝'; }
+.content .hx-wu-sec[id='vulnerabilidad'] > h2::before { content: '🐞'; }
+.content .hx-wu-sec[id='reconocimiento'] > h2::before { content: '🔍'; }
+.content .hx-wu-sec[id='enumeracion'] > h2::before { content: '🗂️'; }
+.content .hx-wu-sec[id='explotacion'] > h2::before { content: '💥'; }
+.content .hx-wu-sec[id='escalada'] > h2::before { content: '🔺'; }
+.content .hx-wu-sec[id='flags'] > h2::before { content: '🚩'; }
+.content .hx-wu-sec[id='arreglo'] > h2::before { content: '🛠️'; }
+.content .hx-wu-sec[id='conclusiones'] > h2::before { content: '🧠'; }
 
 /* Colores de resalte */
 .hx-cg { color: var(--hx-green); font-weight: 700; }
