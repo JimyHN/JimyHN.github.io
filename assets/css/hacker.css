@@ -1137,32 +1137,69 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
     gap: 1rem;
   }
 
-  .hx-ascii { font-size: 5.5px; }
+  .hx-ascii { font-size: 6.5px; }
 }
 
-/* --- ASCII con onda --- */
+/* --- ASCII con efecto de imagen rayada (glitch) --- */
 .hx-ascii {
   position: relative;
+  font-size: 8px;
+  line-height: 1.1;
+  padding: 0.8rem 0.9rem;
 }
 
 .hx-ascii .hx-al {
   display: block;
-  animation: hx-wave 3.2s ease-in-out infinite;
-  animation-delay: calc(var(--i) * -0.12s);
+  transition: none;
 }
 
-@keyframes hx-wave {
-  0%, 100% { transform: translateX(-2px); color: var(--hx-green); }
-  50% { transform: translateX(2px); color: #d6ff8a; text-shadow: 0 0 8px var(--hx-green); }
-}
-
+/* Copias desplazadas que aparecen en cada "rayada" */
+.hx-ascii::before,
 .hx-ascii::after {
-  content: '';
+  content: attr(data-text);
   position: absolute;
   inset: 0;
+  padding: inherit;
+  white-space: pre;
   pointer-events: none;
-  background: linear-gradient(to bottom, transparent 0%, rgb(46 230 214 / 18%) 50%, transparent 100%);
-  height: 35%;
+  opacity: 0;
+}
+
+.hx-ascii::before { color: #2ee6d6; text-shadow: none; }
+.hx-ascii::after { color: #ff2e88; text-shadow: none; }
+
+.hx-ascii.hx-glitch::before {
+  opacity: 0.75;
+  animation: hx-glitch-a 0.35s steps(2) both;
+}
+
+.hx-ascii.hx-glitch::after {
+  opacity: 0.75;
+  animation: hx-glitch-b 0.35s steps(2) both;
+}
+
+.hx-ascii.hx-glitch { animation: hx-flicker 0.35s steps(3); }
+
+@keyframes hx-flicker {
+  0%, 100% { opacity: 1; }
+  33% { opacity: 0.6; }
+  66% { opacity: 0.9; }
+}
+
+/* Franjas que se desplazan */
+.hx-ascii .hx-al.hx-tear {
+  transform: translateX(var(--dx));
+  color: #d6ff8a;
+  text-shadow: 0 0 8px var(--hx-green);
+}
+
+/* Línea de escaneo */
+.hx-ascii .hx-scanline {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 30%;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgb(159 239 0 / 14%), transparent);
   animation: hx-scan 3.5s linear infinite;
 }
 
