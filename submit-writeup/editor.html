@@ -443,9 +443,13 @@ function tbdSwatches(colors, cur, fn) {
   }).join('');
 }
 function tbdCellColorSw() {
-  return ['', 'g','c','m','r','y','o','w','a'].map(k => {
-    const bg = k ? TBD_TXT[k] : 'repeating-linear-gradient(45deg,#333,#333 3px,#111 3px,#111 6px)';
-    return `<button class="tbd-sw" style="background:${bg}" title="${k||'ninguno'}" onclick="tbdCellColor('${k}')"></button>`;
+  return ['', 'p', 'g','c','m','r','y','o','w','a'].map(k => {
+    let bg;
+    if (!k) bg = 'repeating-linear-gradient(45deg,#333,#333 3px,#111 3px,#111 6px)';
+    else if (k === 'p') bg = `rgb(${window._accent || '159 239 0'})`;
+    else bg = TBD_TXT[k];
+    const title = k === 'p' ? 'color de la página' : (k || 'ninguno');
+    return `<button class="tbd-sw" style="background:${bg}${k==='p'?';outline:1px dashed #fff;outline-offset:1px':''}" title="${title}" onclick="tbdCellColor('${k}')"></button>`;
   }).join('');
 }
 function tbdBars() {
@@ -495,13 +499,14 @@ function tbdStage() {
       if (r===R-1) st.push('border-bottom:'+tbdSepCss(m.h[R]));
       if (c===C-1) st.push('border-right:'+tbdSepCss(m.v[C]));
       if (cell.b) st.push('font-weight:700');
-      if (cell.c) st.push('color:'+TBD_TXT[cell.c]);
+      if (cell.c) st.push('color:'+(cell.c==='p'?'rgb(var(--page,159 239 0))':TBD_TXT[cell.c]));
       if (cell.bg) st.push('background:'+cell.bg);
       const sel = TBD.selCells.has(r+','+c) ? ' class="sel"' : '';
       html += `<td${sel} data-r="${r}" data-c="${c}" style="${st.join(';')}">${tbdEsc(cell.t)}</td>`;
     } html += '</tr>'; }
   html += '</table>';
   stage.innerHTML = html;
+  stage.style.setProperty('--page', window._accent || '159 239 0');
   stage.querySelectorAll('td').forEach(td => {
     td.addEventListener('click', tbdCellClick);
     td.addEventListener('dblclick', tbdCellEdit);

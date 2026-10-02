@@ -3641,6 +3641,11 @@ article:has(.hx-wu) > .post-desc { display: none; }
 }
 .content .hx-wu-list li b { color: #e6edf3; }
 
+/* En un write-up, el verde por defecto toma el color de la máquina (--page):
+   negritas, usuario del prompt y cabecera de tabla */
+.hx-wu .hx-cg { color: rgb(var(--page, 159 239 0)); }
+.hx-wu .hx-t-ps1 b { color: rgb(var(--page, 159 239 0)); }
+
 /* Colores de resalte */
 .hx-cg { color: var(--hx-green); font-weight: 700; }
 .hx-cc { color: var(--hx-cyan); font-weight: 700; }
