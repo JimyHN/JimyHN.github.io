@@ -50,6 +50,27 @@
   #preview { font-family:'Source Sans Pro','Helvetica Neue',Arial,sans-serif; color:var(--hx-text, #c5d1de); line-height:1.7; }
   .ed-prev-note { font-size:0.7rem; color:var(--ed-mut); margin:0 0 0.8rem; }
 
+  /* Paleta de color de la máquina */
+  .ed-pal { display:flex; flex-wrap:wrap; gap:0.35rem; }
+  .ed-pal button { width:1.5rem; height:1.5rem; border-radius:6px; border:1px solid #2a3a4d; cursor:pointer; padding:0; transition:transform .12s; }
+  .ed-pal button:hover { transform:scale(1.15); }
+  .ed-pal button.sel { outline:2px solid #fff; outline-offset:1px; }
+  .ed-pal-cur { font-size:0.72rem; color:var(--ed-mut); margin-left:0.3rem; align-self:center; }
+
+  /* Modal "máquinas anteriores" */
+  .prev-ov { position:fixed; inset:0; z-index:9998; display:none; align-items:center; justify-content:center; padding:1.2rem; background:rgb(3 5 8 / 82%); backdrop-filter:blur(3px); }
+  .prev-ov.open { display:flex; }
+  .prev-modal { width:min(560px,96vw); max-height:86vh; overflow:auto; background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:12px; padding:1rem 1.1rem; }
+  .prev-modal h2 { font-size:1rem; color:var(--ed-green); margin:0 0 0.8rem; display:flex; align-items:center; gap:0.5rem; }
+  .prev-modal h2 button { margin-left:auto; background:none; border:1px solid var(--ed-border); color:var(--ed-mut); border-radius:6px; cursor:pointer; padding:0.1rem 0.5rem; }
+  .prev-row { display:flex; align-items:center; gap:0.7rem; padding:0.5rem 0.6rem; border:1px solid var(--ed-border); border-radius:9px; margin-bottom:0.5rem; cursor:pointer; text-decoration:none; transition:border-color .2s, background .2s, transform .15s; }
+  .prev-row:hover { border-color:rgb(var(--m,159 239 0)); background:rgb(var(--m,159 239 0) / 8%); transform:translateX(3px); }
+  .prev-img { width:40px; height:40px; border-radius:50%; flex-shrink:0; background-size:cover; background-position:center; background-color:#05070a; border:1px solid rgb(var(--m,159 239 0) / 55%); display:grid; place-items:center; color:rgb(var(--m,159 239 0)); }
+  .prev-info { display:flex; flex-direction:column; min-width:0; }
+  .prev-info b { color:#e6edf3; font-size:0.9rem; }
+  .prev-info small { color:var(--ed-mut); font-size:0.72rem; }
+  .prev-info .acc { color:rgb(var(--m,159 239 0)); }
+
   /* ---------------- Diseñador de tablas ---------------- */
   .tbd-ov { position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; padding:1.2rem; background:rgb(3 5 8 / 82%); backdrop-filter:blur(3px); }
   .tbd-ov.open { display:flex; }
@@ -115,6 +136,15 @@
     </div>
     <p class="ed-status" id="img-status"></p>
 
+    <div class="ed-field" style="margin-bottom:0.6rem">
+      <label>Color de la máquina <span class="ed-pal-cur" id="pal-cur"></span></label>
+      <div class="ed-pal" id="ed-palette"></div>
+    </div>
+
+    <div class="ed-img-prev" style="margin-bottom:0.6rem">
+      <button type="button" onclick="verAnteriores()">📚 Ver máquinas anteriores</button>
+    </div>
+
     <p class="ed-hint">
       <b>Terminales:</b> bloque <code>```term</code> … <code>```</code>; dentro, las líneas que empiezan por <code>$&nbsp;</code> o <code>#&nbsp;</code> son comandos (prompt de Kali) y el resto es salida. <code>```out</code> = todo salida.<br>
       <b>Listas:</b> líneas que empiezan por <code>-&nbsp;</code>. &nbsp; <b>Tablas:</b> <code>| A | B |</code> + fila <code>| --- | --- |</code>. &nbsp; <b>Avisos:</b> <code>::tip</code> … <code>::</code> (tip/info/warn/danger).<br>
@@ -140,6 +170,14 @@
   <div class="ed-col ed-right">
     <p class="ed-prev-note">Vista previa — así se verá el write-up publicado</p>
     <div class="content"><div id="preview"></div></div>
+  </div>
+</div>
+
+<!-- ======================= MÁQUINAS ANTERIORES ======================= -->
+<div class="prev-ov" id="prev-ov">
+  <div class="prev-modal">
+    <h2>📚 Máquinas anteriores <button type="button" onclick="cerrarAnteriores()">✕</button></h2>
+    <div id="prev-list"></div>
   </div>
 </div>
 
@@ -244,6 +282,7 @@ function collectData() {
     url: val('f-url'), sections,
   };
   if (val('f-status')) d.status = val('f-status');
+  if (window._accent) d.accent = window._accent;
   if (window._img) d.img = window._img;
   return d;
 }
@@ -254,7 +293,9 @@ async function render() {
   try {
     const r = await fetch('/api/render', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(collectData()) });
     const d = await r.json();
-    document.getElementById('preview').innerHTML = d.html || ('<p style="color:#ff3e3e">' + (d.error || 'error') + '</p>');
+    const pv = document.getElementById('preview');
+    pv.innerHTML = d.html || ('<p style="color:#ff3e3e">' + (d.error || 'error') + '</p>');
+    pv.style.setProperty('--page', window._accent || '159 239 0');
   } catch (e) { /* servidor no disponible */ }
 }
 document.querySelectorAll('input,select,textarea').forEach(el => el.addEventListener('input', scheduleRender));
@@ -301,6 +342,47 @@ async function publicar() {
     st.textContent = (MODE === 'edit' ? '✓ Write-up editado: ' : '✓ Write-up publicado: ') + d.path + ' — haz commit y push para subirlo.';
   } catch (e) { st.textContent = 'Error: ' + e.message; }
 }
+
+// ================= Color de la máquina + máquinas anteriores =================
+const PALETTE = [
+  ['Verde','159 239 0'], ['Verde lima','182 255 106'], ['Cian','46 230 214'], ['Turquesa','0 214 170'],
+  ['Azul','94 180 248'], ['Azul claro','125 211 252'], ['Azul marino','59 130 246'], ['Índigo','129 140 248'],
+  ['Morado','193 108 255'], ['Lavanda','180 130 255'], ['Rosa','255 94 135'], ['Fucsia','240 100 200'],
+  ['Rojo','255 62 62'], ['Coral','255 120 60'], ['Naranja','255 175 0'], ['Ámbar','255 196 0'],
+  ['Amarillo','255 214 10'], ['Oliva','163 190 60'], ['Blanco','240 246 252'], ['Gris','148 163 184'],
+];
+(function buildPalette() {
+  document.getElementById('ed-palette').innerHTML = PALETTE.map(
+    ([n, rgb]) => `<button type="button" title="${n}" data-rgb="${rgb}" style="background:rgb(${rgb})" onclick="setAccent('${rgb}')"></button>`
+  ).join('');
+})();
+function setAccent(rgb) {
+  window._accent = rgb;
+  document.querySelectorAll('#ed-palette button').forEach(b => b.classList.toggle('sel', b.dataset.rgb === rgb));
+  const name = (PALETTE.find(p => p[1] === rgb) || [])[0] || '';
+  document.getElementById('pal-cur').textContent = name ? '· ' + name : '';
+  render();
+}
+async function verAnteriores() {
+  const ov = document.getElementById('prev-ov'), list = document.getElementById('prev-list');
+  list.innerHTML = '<p style="color:#7d8b99">Cargando…</p>';
+  ov.classList.add('open');
+  try {
+    const arr = await (await fetch('/api/list')).json();
+    if (!arr.length) { list.innerHTML = '<p style="color:#7d8b99">No hay máquinas guardadas todavía.</p>'; return; }
+    list.innerHTML = arr.map(m => {
+      const rgb = m.accent || '159 239 0';
+      const img = m.thumb ? `style="background-image:url('${m.thumb}')"` : '';
+      const ph = m.thumb ? '' : (m.name || '?').slice(0, 1).toUpperCase();
+      return `<a class="prev-row" style="--m:${rgb}" href="?mode=edit&slug=${encodeURIComponent(m.slug)}">
+        <span class="prev-img" ${img}>${ph}</span>
+        <span class="prev-info"><b>${m.name}</b><small>${m.os || ''}${m.diff ? ' · ' + m.diff : ''}${m.date ? ' · ' + m.date : ''} <span class="acc">●</span></small></span>
+      </a>`;
+    }).join('');
+  } catch (e) { list.innerHTML = '<p style="color:#ff3e3e">Error: ' + e.message + '</p>'; }
+}
+function cerrarAnteriores() { document.getElementById('prev-ov').classList.remove('open'); }
+document.getElementById('prev-ov').addEventListener('click', (e) => { if (e.target.id === 'prev-ov') cerrarAnteriores(); });
 
 // ================= Diseñador visual de tablas =================
 const TBD_TENUE = '#243244', TBD_GREEN = '#b6ff6a';
@@ -518,6 +600,7 @@ function fillFrom(d) {
   document.getElementById('f-desc').value = d.desc || '';
   document.getElementById('f-url').value = (d.img && d.img.proof) || d.url || '';
   document.getElementById('f-tags').value = d.tags || '';
+  if (d.accent) setAccent(d.accent);
   (d.sections && Object.keys(d.sections) || []).forEach(k => {
     const ta = document.getElementById('t-' + k);
     if (ta) ta.value = d.sections[k];

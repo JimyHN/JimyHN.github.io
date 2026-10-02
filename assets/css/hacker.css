@@ -3380,9 +3380,9 @@ article:has(.hx-wu) > .post-desc { display: none; }
   width: 76px;
   height: 76px;
   border-radius: 50%;
-  border: 2px solid var(--hx-green);
+  border: 2px solid rgb(var(--page, 159 239 0));
   flex-shrink: 0;
-  box-shadow: 0 0 0 3px rgb(159 239 0 / 18%), 0 6px 20px rgb(0 0 0 / 45%), 0 0 18px rgb(159 239 0 / 25%);
+  box-shadow: 0 0 0 3px rgb(var(--page, 159 239 0) / 18%), 0 6px 20px rgb(0 0 0 / 45%), 0 0 18px rgb(var(--page, 159 239 0) / 25%);
   background-size: cover;
   background-position: center;
   background-color: #05070a;
@@ -3394,10 +3394,12 @@ article:has(.hx-wu) > .post-desc { display: none; }
   font-size: clamp(1.8rem, 5vw, 2.6rem);
   font-weight: 800;
   line-height: 1.1;
-  background: linear-gradient(90deg, var(--hx-green), var(--hx-cyan));
+  /* Degradado del color de la máquina (su página prioriza su color) */
+  background: linear-gradient(90deg, rgb(var(--page, 159 239 0)), color-mix(in srgb, rgb(var(--page, 159 239 0)) 45%, #ffffff));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  text-shadow: none;
 }
 
 .hx-wu-meta {
