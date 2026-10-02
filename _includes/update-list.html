@@ -62,6 +62,7 @@
           {% when 4 %}{% assign icol = '94 180 248' %}
           {% when 5 %}{% assign icol = '255 214 10' %}
         {% endcase %}
+        {% if post.accent %}{% assign icol = post.accent %}{% endif %}
         {% assign os_down = post.os | default: '' | downcase %}
         <li>
           <a href="{{ post.url | relative_url }}" style="--ic: {{ icol }}">

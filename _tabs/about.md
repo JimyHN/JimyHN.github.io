@@ -11,13 +11,13 @@ Jaime Hereza Niño
 
 ## Quién soy
 
-Me estoy formando en seguridad ofensiva y preparando la **OSCP**. Este blog es mi cuaderno de bitácora: aquí documento las máquinas que resuelvo y las herramientas que voy desarrollando por el camino.
+Soy **Jaime Hereza**, tengo **<span class="hx-age" data-dob="2001-01-29">25</span> años**, me encanta hacer **pentesting** y crear **herramientas de automatización**. En este blog encontrarás todas las **máquinas** que voy resolviendo y las **herramientas** que creo.
 
 ## Qué vas a encontrar
 
-- **[Write-ups](/writeups/)**: resolución paso a paso de máquinas de HackTheBox y otras plataformas, desde la enumeración hasta la escalada de privilegios.
-- **[Herramientas](/herramientas/)**: scripts y utilidades propias para automatizar partes del pentesting.
-- **[Roadmap](/roadmap/)**: mi progreso con la lista de TJnull para la OSCP.
+- **[Write-ups](/writeups/){: .hx-c-cyan}**: resolución paso a paso de máquinas de HackTheBox y otras plataformas, desde la enumeración hasta la escalada de privilegios.
+- **[Herramientas](/herramientas/){: .hx-c-orange}**: scripts y utilidades propias para automatizar partes del pentesting.
+- **[Roadmap](/roadmap/){: .hx-c-coral}**: mi progreso con la lista de TJnull para la OSCP.
 
 ## Contacto
 

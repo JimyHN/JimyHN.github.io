@@ -20,5 +20,6 @@
     "avatar": "/assets/img/machines/devel.png",
     "banner": "/assets/img/machines/devel-banner.png",
     "proof": "https://labs.hackthebox.com/achievement/machine/2772097/3"
-  }
+  },
+  "accent": "94 180 248"
 }

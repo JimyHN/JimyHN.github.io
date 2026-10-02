@@ -65,7 +65,7 @@ layout: default
     {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
     {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
     {% else %}{% assign os_key = 'otros' %}{% endif %}
-    <a class="hx-mcard" data-os="{{ os_key }}" data-diff="{{ post.difficulty | default: '' | downcase }}" href="{{ post.url | relative_url }}" data-name="{{ post.machine | default: post.title | downcase }}" data-platform="{{ post.platform | default: '' | downcase | remove: ' ' }}">
+    <a class="hx-mcard" data-os="{{ os_key }}" data-diff="{{ post.difficulty | default: '' | downcase }}" href="{{ post.url | relative_url }}" data-name="{{ post.machine | default: post.title | downcase }}" data-platform="{{ post.platform | default: '' | downcase | remove: ' ' }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
       <span class="hx-mcard-img{% unless post.thumb %} hx-mcard-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
         {% unless post.thumb %}{% if os_down contains 'windows' %}<i class="fab fa-windows"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
       </span>
