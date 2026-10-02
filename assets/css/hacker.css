@@ -357,15 +357,14 @@ a { transition: color 0.2s, text-shadow 0.2s; }
 
 /* Redes sociales: cuadrados con color de marca, tooltip y saltito periódico */
 #sidebar .sidebar-bottom {
-  display: grid !important;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  justify-items: center;
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: center !important;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
   width: 100%;
-  padding-left: 1.8rem !important;
-  padding-right: 1.8rem !important;
+  padding-left: 2.2rem !important;
+  padding-right: 2.2rem !important;
 }
 
 #sidebar .sidebar-bottom > a {
