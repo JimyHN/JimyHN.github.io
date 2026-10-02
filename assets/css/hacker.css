@@ -3025,10 +3025,12 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
 .hx-cert:hover .hx-cert-head > i { transform: rotate(-8deg) scale(1.08); }
 
 .content .hx-cert .hx-cert-name {
-  background: linear-gradient(90deg, rgb(var(--c)), #e6edf3);
+  background: linear-gradient(90deg, rgb(var(--c)) 0%, #e6edf3 50%, rgb(var(--c)) 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: hx-title-scroll 8s linear infinite;
 }
 
 .hx-cert .hx-cert-topics li::before { color: rgb(var(--c)) !important; }
@@ -3143,11 +3145,25 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
   font-size: 1.25rem;
   font-weight: 800;
   line-height: 1.2;
-  background: linear-gradient(90deg, rgb(var(--c)), #e6edf3);
+  background: linear-gradient(90deg, rgb(var(--c)) 0%, #e6edf3 50%, rgb(var(--c)) 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  animation: hx-title-scroll 8s linear infinite;
 }
+
+/* Degradado del título avanzando en bucle, cada tarjeta a su ritmo */
+@keyframes hx-title-scroll {
+  to { background-position: 200% center; }
+}
+
+.hx-cred:nth-child(6n+1) .hx-cred-name, .hx-cert:nth-child(6n+1) .hx-cert-name { animation-duration: 8s;    animation-delay: 0s; }
+.hx-cred:nth-child(6n+2) .hx-cred-name, .hx-cert:nth-child(6n+2) .hx-cert-name { animation-duration: 10.5s; animation-delay: -2.5s; }
+.hx-cred:nth-child(6n+3) .hx-cred-name, .hx-cert:nth-child(6n+3) .hx-cert-name { animation-duration: 7s;    animation-delay: -4.2s; }
+.hx-cred:nth-child(6n+4) .hx-cred-name, .hx-cert:nth-child(6n+4) .hx-cert-name { animation-duration: 11.5s; animation-delay: -1.6s; }
+.hx-cred:nth-child(6n+5) .hx-cred-name, .hx-cert:nth-child(6n+5) .hx-cert-name { animation-duration: 9s;    animation-delay: -6s; }
+.hx-cred:nth-child(6n+6) .hx-cred-name, .hx-cert:nth-child(6n+6) .hx-cert-name { animation-duration: 8.5s;  animation-delay: -3.3s; }
 
 .hx-cred-issuer {
   margin: 0;
