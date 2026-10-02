@@ -538,49 +538,95 @@
     })();
   }
 
-  /* --- Retrato de la portada: glitch de imagen a ráfagas --- */
+  /* --- ASCII de la portada: efecto de imagen rayada a ráfagas --- */
   function initAscii() {
-    const pre = document.querySelector('.hx-ava');
-    if (!pre || reduceMotion) return;
+    const pre = document.querySelector('.hx-ascii');
+    if (!pre) return;
+    const text = pre.textContent.replace(/\n+$/, '');
+    pre.dataset.text = text;
+    pre.textContent = '';
+    const lines = text.split('\n').map((line) => {
+      const span = document.createElement('span');
+      span.className = 'hx-al';
+      span.textContent = line || ' ';
+      pre.append(span);
+      return span;
+    });
+    if (reduceMotion) return;
 
-    const base = pre.querySelector('.hx-ava-l-base');
+    const scan = document.createElement('span');
+    scan.className = 'hx-scanline';
+    scan.setAttribute('aria-hidden', 'true');
+    pre.append(scan);
+
+    const originals = lines.map((l) => l.textContent);
     const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const SYM = '!<>-_\\/[]{}=+*^?#$%&@01';
     const rnd = (a, b) => a + Math.random() * (b - a);
     const clear = () => {
-      pre.className = 'hx-ava';
-      pre.style.opacity = '';
-      pre.style.filter = '';
-      pre.style.transform = '';
-      if (base) base.style.transform = '';
+      pre.className = 'hx-ascii';
+      lines.forEach((l, i) => {
+        l.className = 'hx-al';
+        l.style.transform = '';
+        l.style.color = '';
+        l.style.opacity = '';
+        l.textContent = originals[i];
+      });
     };
 
     // 1. Franjas desplazadas + aberración de color
     async function tear() {
-      pre.classList.add('hx-glitch', 'hx-tear');
-      await wait(rnd(180, 340));
+      pre.classList.add('hx-glitch');
+      const strips = 2 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < strips; i++) {
+        const start = Math.floor(Math.random() * lines.length);
+        const h = 1 + Math.floor(Math.random() * 3);
+        const dx = (Math.random() < 0.5 ? -1 : 1) * rnd(3, 13) + 'px';
+        for (let j = start; j < Math.min(start + h, lines.length); j++) {
+          lines[j].style.setProperty('--dx', dx);
+          lines[j].classList.add('hx-tear');
+        }
+      }
+      await wait(rnd(140, 320));
     }
 
-    // 2. Onda: ligero vaivén horizontal del retrato
+    // 2. Onda horizontal recorriendo las líneas
     async function wave() {
       const start = performance.now();
       const dur = 900;
       await new Promise((res) => {
         (function step(now) {
           const t = (now - start) / dur;
-          if (base) base.style.transform = 'translateX(' + Math.sin(t * Math.PI * 2) * 6 + 'px)';
+          lines.forEach((l, i) => {
+            l.style.transform = 'translateX(' + Math.sin(t * Math.PI * 2 + i * 0.5) * 6 + 'px)';
+            l.style.color = '#d6ff8a';
+          });
           if (t < 1) requestAnimationFrame(step);
           else res();
         })(start);
       });
     }
 
-    // 3. Aberración RGB fuerte con temblor
+    // 3. Ruido: cambia caracteres por símbolos y los recupera
+    async function scramble() {
+      const end = Date.now() + 650;
+      while (Date.now() < end) {
+        lines.forEach((l, i) => {
+          l.textContent = originals[i].replace(/\S/g, (ch) =>
+            Math.random() < 0.3 ? SYM[Math.floor(Math.random() * SYM.length)] : ch
+          );
+        });
+        await wait(55);
+      }
+    }
+
+    // 4. Aberración RGB fuerte con temblor, sin romper líneas
     async function split() {
       pre.classList.add('hx-glitch', 'hx-fx-shake');
       await wait(rnd(350, 600));
     }
 
-    // 4. Parpadeo de señal
+    // 5. Parpadeo de señal
     async function flicker() {
       for (let i = 0; i < 6; i++) {
         pre.style.opacity = Math.random() < 0.5 ? '0.25' : '1';
@@ -591,7 +637,7 @@
       pre.style.filter = '';
     }
 
-    // 5. Sacudida/inclinación de toda la imagen
+    // 6. Sacudida/inclinación de toda la imagen
     async function jitter() {
       pre.classList.add('hx-glitch');
       for (let i = 0; i < 7; i++) {
@@ -602,7 +648,7 @@
       pre.style.transform = '';
     }
 
-    const effects = [tear, wave, split, flicker, jitter];
+    const effects = [tear, wave, scramble, split, flicker, jitter];
     const recent = [];
 
     (async function loop() {
