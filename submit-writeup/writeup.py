@@ -297,11 +297,60 @@ def render_prose(chunk: str) -> str:
     return "".join(out)
 
 
+_TBL_TXT = {"g": "#9fef00", "c": "#2ee6d6", "m": "#c16cff", "r": "#ff3e3e",
+            "y": "#ffd60a", "o": "#ffaf00", "w": "#ffffff", "a": "#5eb4f8"}
+_TBL_ALIGN = {"l": "left", "c": "center", "r": "right"}
+
+
+def render_table_block(block_text: str) -> str:
+    """Renderiza una tabla de diseño (bloque ```table con JSON)."""
+    try:
+        d = json.loads(block_text)
+    except Exception:
+        return '<p class="hx-tbl-err">Tabla con formato inválido.</p>'
+    cells = d.get("cells") or []
+    R = len(cells)
+    C = len(cells[0]) if R else 0
+    v = d.get("v") or []
+    h = d.get("h") or []
+
+    def sep(arr, i):
+        s = arr[i] if 0 <= i < len(arr) else None
+        if not s or not s.get("on"):
+            return "0"
+        return f"{s.get('w', 1)}px solid {s.get('color', '#243244')}"
+
+    rad = "12px" if d.get("corners", "round") == "round" else "0"
+    rows_html = []
+    for r in range(R):
+        tds = []
+        for c in range(C):
+            cell = cells[r][c] or {}
+            st = [
+                f"border-top:{sep(h, r)}",
+                f"border-left:{sep(v, c)}",
+                f"text-align:{_TBL_ALIGN.get(cell.get('a', 'l'), 'left')}",
+            ]
+            if r == R - 1:
+                st.append(f"border-bottom:{sep(h, R)}")
+            if c == C - 1:
+                st.append(f"border-right:{sep(v, C)}")
+            if cell.get("b"):
+                st.append("font-weight:700")
+            if cell.get("c"):
+                st.append(f"color:{_TBL_TXT.get(cell['c'], 'inherit')}")
+            if cell.get("bg"):
+                st.append(f"background:{cell['bg']}")
+            tds.append(f'<td style="{";".join(st)}">{render_inline(cell.get("t", ""))}</td>')
+        rows_html.append("<tr>" + "".join(tds) + "</tr>")
+    return f'<table class="hx-tbl" style="border-radius:{rad}"><tbody>{"".join(rows_html)}</tbody></table>'
+
+
 def render_section(text: str) -> str:
     """Convierte el texto de una sección (marcado) en HTML.
 
-    Los terminales van en bloques cercados:  ```term ... ```  (o ```out / ```in).
-    El resto es prosa (párrafos, listas, tablas, avisos).
+    Bloques cercados:  ```term / ```out / ```in  (terminales)  y  ```table  (tabla
+    de diseño con JSON). El resto es prosa (párrafos, listas, tablas Markdown, avisos).
     """
     lines = text.split("\n")
     out = []
@@ -324,7 +373,10 @@ def render_section(text: str) -> str:
                 block.append(lines[j])
                 j += 1
             i = j + 1
-            out.append(render_term(lang, block))
+            if lang == "table":
+                out.append(render_table_block("\n".join(block)))
+            else:
+                out.append(render_term(lang, block))
             continue
         buf.append(lines[i])
         i += 1

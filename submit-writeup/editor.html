@@ -49,6 +49,42 @@
   .ed-right .content { max-width:none; }
   #preview { font-family:'Source Sans Pro','Helvetica Neue',Arial,sans-serif; color:var(--hx-text, #c5d1de); line-height:1.7; }
   .ed-prev-note { font-size:0.7rem; color:var(--ed-mut); margin:0 0 0.8rem; }
+
+  /* ---------------- Diseñador de tablas ---------------- */
+  .tbd-ov { position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; padding:1.2rem; background:rgb(3 5 8 / 82%); backdrop-filter:blur(3px); }
+  .tbd-ov.open { display:flex; }
+  .tbd-modal { width:min(1000px,96vw); max-height:92vh; overflow:auto; background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:12px; padding:1rem 1.2rem; }
+  .tbd-top { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.8rem; }
+  .tbd-top h2 { font-size:1rem; color:var(--ed-green); margin:0; }
+  .tbd-top .sp { margin-left:auto; }
+  .tbd-btn { background:#0d1420; border:1px solid var(--ed-border); border-radius:6px; color:#c5d1de; font-family:inherit; font-size:0.78rem; padding:0.4rem 0.7rem; cursor:pointer; }
+  .tbd-btn:hover { border-color:var(--ed-green); color:var(--ed-green); }
+  .tbd-btn.save { background:var(--ed-green); color:#05070a; border:none; font-weight:700; }
+  .tbd-btn.sel { border-color:var(--ed-cyan); color:var(--ed-cyan); }
+  .tbd-bar { display:flex; flex-wrap:wrap; align-items:center; gap:0.4rem; padding:0.5rem; border:1px solid var(--ed-border); border-radius:8px; margin-bottom:0.6rem; }
+  .tbd-bar .lbl { font-size:0.72rem; color:var(--ed-mut); margin:0 0.15rem 0 0.4rem; }
+  .tbd-bar .div { width:1px; align-self:stretch; background:var(--ed-border); margin:0 0.25rem; }
+  .tbd-sw { width:1.25rem; height:1.25rem; border-radius:5px; border:1px solid #2a3a4d; cursor:pointer; padding:0; }
+  .tbd-sw.sel { outline:2px solid #fff; outline-offset:1px; }
+  .tbd-hint { font-size:0.74rem; color:var(--ed-mut); padding:0.2rem 0; }
+  .tbd-stage { position:relative; padding:30px 30px 10px; overflow:auto; }
+  .tbd-tbl { border-collapse:separate; border-spacing:0; margin:0 auto; font-family:'JetBrains Mono',monospace; font-size:0.85rem; }
+  .tbd-tbl td { padding:0.5rem 1rem; color:#e6edf3; min-width:52px; cursor:pointer; user-select:none; }
+  .tbd-tbl td[contenteditable="true"] { cursor:text; outline:2px solid var(--ed-green); outline-offset:-2px; }
+  .tbd-tbl td.sel { box-shadow:inset 0 0 0 2px var(--ed-cyan); }
+  .tbd-line { position:absolute; z-index:5; }
+  .tbd-line .seg { position:absolute; background:transparent; }
+  .tbd-line.v { width:12px; }
+  .tbd-line.h { height:12px; }
+  .tbd-line.v .seg { top:0; bottom:0; left:50%; transform:translateX(-50%); width:var(--w,2px); }
+  .tbd-line.h .seg { left:0; right:0; top:50%; transform:translateY(-50%); height:var(--w,2px); }
+  .tbd-line.on .seg { background:var(--c,#243244); }
+  .tbd-line:not(.on):hover .seg { background:rgba(255,255,255,.8); }
+  .tbd-line.sel .seg { box-shadow:0 0 0 2px var(--ed-cyan); }
+  .tbd-plus { position:absolute; width:18px; height:18px; border-radius:50%; background:#fff; color:#05070a; font-weight:800; font-size:14px; line-height:18px; text-align:center; display:none; pointer-events:none; }
+  .tbd-line.v .tbd-plus { top:4px; left:50%; transform:translateX(-50%); }
+  .tbd-line.h .tbd-plus { left:4px; top:50%; transform:translateY(-50%); }
+  .tbd-line:not(.on):hover .tbd-plus { display:block; }
 </style>
 </head>
 <body>
@@ -107,6 +143,21 @@
   </div>
 </div>
 
+<!-- ======================= DISEÑADOR DE TABLAS ======================= -->
+<div class="tbd-ov" id="tbd-ov">
+  <div class="tbd-modal">
+    <div class="tbd-top">
+      <h2>▦ Diseñador de tabla</h2>
+      <span class="sp"></span>
+      <button class="tbd-btn" onclick="tbdClose()">Cancelar</button>
+      <button class="tbd-btn save" onclick="tbdSave()">Insertar tabla</button>
+    </div>
+    <div class="tbd-bar" id="tbd-struct"></div>
+    <div class="tbd-bar" id="tbd-ctx"></div>
+    <div class="tbd-stage" id="tbd-stage"></div>
+  </div>
+</div>
+
 <script>
 const SECTIONS = [
   { id:'resumen', nom:'Resumen', color:'#9fef00' },
@@ -132,7 +183,7 @@ SECTIONS.forEach((s, i) => {
         <button onclick="tpl('${s.id}','term')" style="--c:#9fef00">$ terminal</button>
         <button onclick="tpl('${s.id}','out')" style="--c:#ffffff">salida</button>
         <button onclick="tpl('${s.id}','list')" style="--c:#2ee6d6">- lista</button>
-        <button onclick="tpl('${s.id}','table')" style="--c:#5eb4f8">tabla</button>
+        <button onclick="openDesigner('${s.id}')" style="--c:#5eb4f8">tabla</button>
         <button onclick="tpl('${s.id}','note')" style="--c:#ffd60a">aviso</button>
         <span class="sep"></span>
         <button onclick="wrap('${s.id}','b')" style="--c:#9fef00">b</button>
@@ -250,6 +301,206 @@ async function publicar() {
     st.textContent = (MODE === 'edit' ? '✓ Write-up editado: ' : '✓ Write-up publicado: ') + d.path + ' — haz commit y push para subirlo.';
   } catch (e) { st.textContent = 'Error: ' + e.message; }
 }
+
+// ================= Diseñador visual de tablas =================
+const TBD_TENUE = '#243244', TBD_GREEN = '#b6ff6a';
+const TBD_TXT = { g:'#9fef00', c:'#2ee6d6', m:'#c16cff', r:'#ff3e3e', y:'#ffd60a', o:'#ffaf00', w:'#ffffff', a:'#5eb4f8' };
+const TBD_LINE_SW = ['#243244','#b6ff6a','#9fef00','#2ee6d6','#c16cff','#ff3e3e','#ffd60a','#ffaf00','#5eb4f8','#c5d1de'];
+const TBD_BG_SW = ['', '#0e1520','#15200f','#1a1222','#201414','#0f1a22'];
+let TBD = null;
+
+function tbdEsc(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function tbdSepCss(s) { return (s && s.on) ? `${s.w || 1}px solid ${s.color || TBD_TENUE}` : '0'; }
+
+function tbdDefault(R, C) {
+  const cells = [];
+  for (let r=0;r<R;r++){ const row=[]; for(let c=0;c<C;c++){ row.push(r===0?{t:'',b:true,a:'c'}:{t:'',a:'l'}); } cells.push(row); }
+  const v=[]; for(let c=0;c<=C;c++){ v.push((c===0||c===C)?{on:true,color:TBD_TENUE,w:1}:{on:false}); }
+  const h=[]; for(let r=0;r<=R;r++){ if(r===0||r===R) h.push({on:true,color:TBD_TENUE,w:1}); else if(r===1) h.push({on:true,color:TBD_GREEN,w:3}); else h.push({on:false}); }
+  return { corners:'round', cells, v, h };
+}
+
+function tbdFindBlock(ta) {
+  const txt = ta.value, pos = ta.selectionStart;
+  const re = /```table\s*\n([\s\S]*?)\n```/g; let m;
+  while ((m = re.exec(txt))) { if (pos >= m.index && pos <= m.index + m[0].length) return { start:m.index, end:m.index+m[0].length, json:m[1] }; }
+  return null;
+}
+
+function openDesigner(sec) {
+  const ta = document.getElementById('t-' + sec);
+  const blk = tbdFindBlock(ta);
+  let model, start, end;
+  if (blk) { try { model = JSON.parse(blk.json); } catch(e) { model = tbdDefault(3,3); } start = blk.start; end = blk.end; }
+  else { model = tbdDefault(3,3); start = ta.selectionStart; end = ta.selectionStart; }
+  TBD = { ta, start, end, model, selCells:new Set(), selLines:new Set(), lineColor:TBD_GREEN, lineWidth:2 };
+  document.getElementById('tbd-ov').classList.add('open');
+  tbdRender();
+}
+function tbdClose() { document.getElementById('tbd-ov').classList.remove('open'); TBD = null; }
+
+function tbdSave() {
+  const block = '```table\n' + JSON.stringify(TBD.model) + '\n```';
+  const ta = TBD.ta, before = ta.value.slice(0, TBD.start), after = ta.value.slice(TBD.end);
+  let ins = block;
+  if (before && !before.endsWith('\n')) ins = '\n\n' + ins;
+  if (after && !after.startsWith('\n')) ins = ins + '\n\n';
+  ta.value = before + ins + after;
+  tbdClose();
+  scheduleRender();
+}
+
+function tbdRender() { if (TBD) { tbdBars(); tbdStage(); } }
+
+// ---- Barras de herramientas ----
+function tbdSwatches(colors, cur, fn) {
+  return colors.map(c => {
+    const none = (c === '');
+    const bg = none ? 'repeating-linear-gradient(45deg,#333,#333 3px,#111 3px,#111 6px)' : c;
+    return `<button class="tbd-sw${c===cur?' sel':''}" style="background:${bg}" title="${none?'ninguno':c}" onclick="${fn}('${c}')"></button>`;
+  }).join('');
+}
+function tbdCellColorSw() {
+  return ['', 'g','c','m','r','y','o','w','a'].map(k => {
+    const bg = k ? TBD_TXT[k] : 'repeating-linear-gradient(45deg,#333,#333 3px,#111 3px,#111 6px)';
+    return `<button class="tbd-sw" style="background:${bg}" title="${k||'ninguno'}" onclick="tbdCellColor('${k}')"></button>`;
+  }).join('');
+}
+function tbdBars() {
+  const m = TBD.model;
+  document.getElementById('tbd-struct').innerHTML =
+    '<button class="tbd-btn" onclick="tbdAddRow()">+ Fila</button>' +
+    '<button class="tbd-btn" onclick="tbdDelRow()">− Fila</button>' +
+    '<button class="tbd-btn" onclick="tbdAddCol()">+ Columna</button>' +
+    '<button class="tbd-btn" onclick="tbdDelCol()">− Columna</button>' +
+    '<span class="div"></span><span class="lbl">Esquinas</span>' +
+    `<button class="tbd-btn${m.corners==='round'?' sel':''}" onclick="tbdCorners('round')">Redondas</button>` +
+    `<button class="tbd-btn${m.corners==='square'?' sel':''}" onclick="tbdCorners('square')">Cuadradas</button>` +
+    '<span class="div"></span><span class="lbl">Color línea</span>' + tbdSwatches(TBD_LINE_SW, TBD.lineColor, 'tbdLineColor') +
+    '<span class="lbl">Grosor</span><button class="tbd-btn" onclick="tbdLineWidth(-1)">−</button>' +
+    `<span class="lbl">${TBD.lineWidth}px</span><button class="tbd-btn" onclick="tbdLineWidth(1)">+</button>`;
+
+  let ctx;
+  if (TBD.selLines.size > 0) {
+    ctx = `<span class="lbl">Líneas: ${TBD.selLines.size} seleccionada(s)</span>` +
+      '<button class="tbd-btn" onclick="tbdRemoveLines()">− Quitar línea</button>' +
+      '<span class="tbd-hint">Usa «Color línea» y «Grosor» de arriba para cambiarlas.</span>';
+  } else if (TBD.selCells.size > 0) {
+    ctx = `<span class="lbl">Texto (${TBD.selCells.size})</span>` +
+      '<button class="tbd-btn" onclick="tbdCellBold()"><b>B</b> negrita</button>' +
+      '<span class="lbl">Color</span>' + tbdCellColorSw() +
+      '<span class="lbl">Alinear</span>' +
+      '<button class="tbd-btn" onclick="tbdCellAlign(\'l\')">izq</button>' +
+      '<button class="tbd-btn" onclick="tbdCellAlign(\'c\')">centro</button>' +
+      '<button class="tbd-btn" onclick="tbdCellAlign(\'r\')">der</button>' +
+      '<span class="div"></span><span class="lbl">Fondo celda</span>' + tbdSwatches(TBD_BG_SW, '', 'tbdCellBg');
+  } else {
+    ctx = '<span class="tbd-hint">Clic en una celda o línea para seleccionar (Mayús/Ctrl para varias) · doble clic en celda para escribir · pasa el ratón por un hueco y pulsa <b>+</b> para añadir línea.</span>';
+  }
+  document.getElementById('tbd-ctx').innerHTML = ctx;
+}
+
+// ---- Render de la tabla + líneas ----
+function tbdStage() {
+  const m = TBD.model, R = m.cells.length, C = m.cells[0].length;
+  const stage = document.getElementById('tbd-stage');
+  const rad = m.corners === 'round' ? '12px' : '0';
+  let html = `<table class="tbd-tbl" style="border-radius:${rad};overflow:hidden">`;
+  for (let r=0;r<R;r++){ html += '<tr>';
+    for (let c=0;c<C;c++){ const cell = m.cells[r][c] || {};
+      const st = ['border-top:'+tbdSepCss(m.h[r]), 'border-left:'+tbdSepCss(m.v[c]),
+        'text-align:'+({l:'left',c:'center',r:'right'}[cell.a||'l'])];
+      if (r===R-1) st.push('border-bottom:'+tbdSepCss(m.h[R]));
+      if (c===C-1) st.push('border-right:'+tbdSepCss(m.v[C]));
+      if (cell.b) st.push('font-weight:700');
+      if (cell.c) st.push('color:'+TBD_TXT[cell.c]);
+      if (cell.bg) st.push('background:'+cell.bg);
+      const sel = TBD.selCells.has(r+','+c) ? ' class="sel"' : '';
+      html += `<td${sel} data-r="${r}" data-c="${c}" style="${st.join(';')}">${tbdEsc(cell.t)}</td>`;
+    } html += '</tr>'; }
+  html += '</table>';
+  stage.innerHTML = html;
+  stage.querySelectorAll('td').forEach(td => {
+    td.addEventListener('click', tbdCellClick);
+    td.addEventListener('dblclick', tbdCellEdit);
+  });
+  tbdLayoutLines();
+}
+
+function tbdLayoutLines() {
+  const stage = document.getElementById('tbd-stage');
+  const tbl = stage.querySelector('.tbd-tbl'); if (!tbl) return;
+  const m = TBD.model, R = m.cells.length, C = m.cells[0].length;
+  const sr = stage.getBoundingClientRect();
+  const q = (r,c) => tbl.querySelector(`td[data-r="${r}"][data-c="${c}"]`);
+  const xs = []; for (let c=0;c<C;c++) xs.push(q(0,c).getBoundingClientRect().left - sr.left);
+  xs.push(q(0,C-1).getBoundingClientRect().right - sr.left);
+  const ys = []; for (let r=0;r<R;r++) ys.push(q(r,0).getBoundingClientRect().top - sr.top);
+  ys.push(q(R-1,0).getBoundingClientRect().bottom - sr.top);
+  const tr = tbl.getBoundingClientRect();
+  const tLeft = tr.left - sr.left, tTop = tr.top - sr.top, tW = tr.width, tH = tr.height;
+  stage.querySelectorAll('.tbd-line').forEach(e => e.remove());
+  for (let c=0;c<=C;c++) tbdMakeLine('v', c, xs[c], tTop, tH);
+  for (let r=0;r<=R;r++) tbdMakeLine('h', r, tLeft, ys[r], tW);
+}
+
+function tbdMakeLine(kind, idx, x, y, size) {
+  const m = TBD.model, sep = (kind==='v' ? m.v : m.h)[idx], key = kind + idx;
+  const el = document.createElement('div');
+  el.className = 'tbd-line ' + kind + (sep && sep.on ? ' on' : '') + (TBD.selLines.has(key) ? ' sel' : '');
+  el.style.setProperty('--w', ((sep && sep.w) || 2) + 'px');
+  if (sep && sep.on) el.style.setProperty('--c', sep.color || TBD_TENUE);
+  if (kind === 'v') { el.style.left = (x-6)+'px'; el.style.top = y+'px'; el.style.height = size+'px'; }
+  else { el.style.left = x+'px'; el.style.top = (y-6)+'px'; el.style.width = size+'px'; }
+  el.innerHTML = '<span class="seg"></span><span class="tbd-plus">+</span>';
+  el.addEventListener('click', (e) => { e.stopPropagation(); tbdLineClick(kind, idx, e); });
+  document.getElementById('tbd-stage').appendChild(el);
+}
+
+// ---- Interacción ----
+function tbdCellClick(e) {
+  const td = e.currentTarget; if (td.isContentEditable) return;
+  const key = td.dataset.r + ',' + td.dataset.c;
+  TBD.selLines.clear();
+  if (e.shiftKey || e.ctrlKey || e.metaKey) { TBD.selCells.has(key) ? TBD.selCells.delete(key) : TBD.selCells.add(key); }
+  else { TBD.selCells.clear(); TBD.selCells.add(key); }
+  tbdRender();
+}
+function tbdCellEdit(e) {
+  const td = e.currentTarget, r = +td.dataset.r, c = +td.dataset.c;
+  td.contentEditable = 'true'; td.textContent = TBD.model.cells[r][c].t || ''; td.focus();
+  const range = document.createRange(); range.selectNodeContents(td);
+  const s = getSelection(); s.removeAllRanges(); s.addRange(range);
+  td.addEventListener('blur', () => { TBD.model.cells[r][c].t = td.textContent.trim(); td.contentEditable = 'false'; tbdRender(); }, { once:true });
+  td.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && !ev.shiftKey) { ev.preventDefault(); td.blur(); } });
+}
+function tbdLineClick(kind, idx, e) {
+  const arr = kind === 'v' ? TBD.model.v : TBD.model.h;
+  const sep = arr[idx] || (arr[idx] = { on:false });
+  const key = kind + idx;
+  TBD.selCells.clear();
+  if (!sep.on) { arr[idx] = { on:true, color:TBD.lineColor, w:TBD.lineWidth }; TBD.selLines.clear(); TBD.selLines.add(key); }
+  else if (e.shiftKey || e.ctrlKey || e.metaKey) { TBD.selLines.has(key) ? TBD.selLines.delete(key) : TBD.selLines.add(key); }
+  else { TBD.selLines.clear(); TBD.selLines.add(key); }
+  tbdRender();
+}
+
+// ---- Acciones ----
+function tbdForSelCells(fn) { TBD.selCells.forEach(k => { const [r,c] = k.split(',').map(Number); fn(TBD.model.cells[r][c]); }); tbdRender(); }
+function tbdForSelLines(fn) { TBD.selLines.forEach(k => { const arr = k[0]==='v'?TBD.model.v:TBD.model.h, i=+k.slice(1); if(!arr[i])arr[i]={on:true}; fn(arr[i]); }); tbdRender(); }
+function tbdCellBold() { let all=true; TBD.selCells.forEach(k=>{const[r,c]=k.split(',').map(Number); if(!TBD.model.cells[r][c].b) all=false;}); tbdForSelCells(x=>{ x.b = !all; }); }
+function tbdCellColor(k) { tbdForSelCells(x => { if (k) x.c = k; else delete x.c; }); }
+function tbdCellAlign(a) { tbdForSelCells(x => { x.a = a; }); }
+function tbdCellBg(c) { tbdForSelCells(x => { if (c) x.bg = c; else delete x.bg; }); }
+function tbdLineColor(hex) { TBD.lineColor = hex; if (TBD.selLines.size) tbdForSelLines(s => { s.color = hex; s.on = true; }); else tbdRender(); }
+function tbdLineWidth(d) { TBD.lineWidth = Math.max(1, Math.min(8, TBD.lineWidth + d)); if (TBD.selLines.size) tbdForSelLines(s => { s.w = TBD.lineWidth; s.on = true; }); else tbdRender(); }
+function tbdRemoveLines() { TBD.selLines.forEach(k => { const arr = k[0]==='v'?TBD.model.v:TBD.model.h; arr[+k.slice(1)] = { on:false }; }); TBD.selLines.clear(); tbdRender(); }
+function tbdCorners(v) { TBD.model.corners = v; tbdRender(); }
+function tbdAddRow() { const C = TBD.model.cells[0].length; const row=[]; for(let c=0;c<C;c++) row.push({t:'',a:'l'}); TBD.model.cells.push(row); TBD.model.h.splice(TBD.model.h.length-1,0,{on:false}); tbdRender(); }
+function tbdDelRow() { if (TBD.model.cells.length>1){ TBD.model.cells.pop(); TBD.model.h.splice(TBD.model.h.length-2,1); TBD.selCells.clear(); tbdRender(); } }
+function tbdAddCol() { TBD.model.cells.forEach(row => row.push({t:'',a:'l'})); TBD.model.v.splice(TBD.model.v.length-1,0,{on:false}); tbdRender(); }
+function tbdDelCol() { if (TBD.model.cells[0].length>1){ TBD.model.cells.forEach(row => row.pop()); TBD.model.v.splice(TBD.model.v.length-2,1); TBD.selCells.clear(); tbdRender(); } }
+document.getElementById('tbd-ov').addEventListener('click', (e) => { if (e.target.id === 'tbd-ov') tbdClose(); });
 
 // ---------- Arranque / carga ----------
 const qp = new URLSearchParams(location.search);
