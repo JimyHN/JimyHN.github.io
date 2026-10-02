@@ -3614,7 +3614,7 @@ article:has(.hx-wu) > .post-desc { display: none; }
 
 .hx-cert-ov.hx-open .hx-cert-box { transform: none; }
 
-.hx-cert-head {
+.hx-certmod-head {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -3624,6 +3624,8 @@ article:has(.hx-wu) > .post-desc { display: none; }
   color: #c16cff;
   font-weight: 700;
 }
+
+.hx-certmod-head > i { color: #c16cff; background: none; }
 
 .hx-cert-close {
   margin-left: auto;
