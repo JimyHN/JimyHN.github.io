@@ -33,8 +33,8 @@ html:root[data-bs-theme='dark'] {
   --label-color: var(--hx-muted);
   --blockquote-border-color: var(--hx-green);
   --blockquote-text-color: #9aa7b4;
-  --link-color: var(--hx-green);
-  --link-underline-color: rgb(159 239 0 / 40%);
+  --link-color: rgb(var(--page, 159 239 0));
+  --link-underline-color: rgb(var(--page, 159 239 0) / 40%);
   --button-bg: var(--hx-panel);
   --btn-border-color: var(--hx-border);
   --card-header-bg: var(--hx-panel-2);
@@ -112,7 +112,7 @@ a { transition: color 0.2s, text-shadow 0.2s; }
 
 .content a:not(.img-link):hover,
 .post-tail-wrapper a:hover {
-  text-shadow: 0 0 8px var(--hx-green-glow);
+  text-shadow: 0 0 8px rgb(var(--page, 159 239 0) / 45%);
 }
 
 /* Barra de progreso de lectura */
@@ -468,10 +468,13 @@ a { transition: color 0.2s, text-shadow 0.2s; }
   backdrop-filter: blur(10px);
 }
 
+#breadcrumb { color: rgb(var(--page, 159 239 0)); }
 #breadcrumb span:first-child::before {
   content: '~/';
-  color: var(--hx-green);
+  color: rgb(var(--page, 159 239 0));
 }
+/* el último (página actual) en claro, no coloreado */
+#breadcrumb span:last-child { color: var(--hx-muted); }
 
 #search {
   transition: border-color 0.25s, box-shadow 0.25s;
@@ -486,7 +489,7 @@ footer {
   font-size: 0.75rem;
 }
 
-footer a { color: var(--hx-green) !important; }
+footer a { color: rgb(var(--page, 159 239 0)) !important; }
 
 /* ==========================================================================
    Portada: terminal
@@ -2838,7 +2841,8 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
 }
 
 /* Paginador anterior/siguiente del post */
-#post-nav a:hover { color: var(--hx-green) !important; }
+#post-nav a { color: rgb(var(--page, 159 239 0)); }
+#post-nav a:hover { color: rgb(var(--page, 159 239 0)) !important; }
 
 /* ==========================================================================
    Filtros: color propio para cada grupo (sistema y plataforma)
