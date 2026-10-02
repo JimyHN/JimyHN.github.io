@@ -1,0 +1,19 @@
+{
+  "name": "Active",
+  "ip": "10.10.10.100",
+  "os": "Windows",
+  "diff": "Easy",
+  "plat": "HackTheBox",
+  "date": "2026-10-01",
+  "desc": "Write-up de Active (HackTheBox, Windows, Easy).",
+  "tags": "#windows #active-directory #smb #kerberos",
+  "sections": {
+    "resumen": "::info\nWrite-up en construcción.\n::"
+  },
+  "status": "En curso",
+  "img": {
+    "avatar": "/assets/img/machines/active.png",
+    "banner": "/assets/img/machines/active-banner.png",
+    "proof": "https://labs.hackthebox.com/achievement/machine/2772097/148"
+  }
+}

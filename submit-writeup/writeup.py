@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
-"""Editor de write-ups del blog.
-
-Arranca un servidor local y abre el editor en el navegador. Desde el editor
-escribes cada sección, pegas la URL de la máquina y al pulsar "Publicar" se
-genera el post en _posts/ y se guardan las imágenes de la máquina.
+"""Editor y gestor de write-ups del blog.
 
 Uso:
-    python3 submit-writeup/writeup.py            # abre el editor
-    python3 submit-writeup/writeup.py -u https://labs.hackthebox.com/achievement/machine/2772097/51
-    python3 submit-writeup/writeup.py -h
+    python3 submit-writeup/writeup.py --add
+        Abre el editor en el navegador para redactar un write-up nuevo.
 
-El nombre, la IP y lo demás se escriben en el editor. La URL es opcional (solo
-rellena el campo al abrir); también puedes pegarla en el editor y pulsar "Traer imagen".
+    python3 submit-writeup/writeup.py --edit /writeups/blue
+        Abre el editor cargado con el write-up de Blue para editarlo.
+
+    python3 submit-writeup/writeup.py --remove /writeups/blue
+        Borra el write-up de Blue del blog (pide confirmación).
 
 Flags:
-    -u/--url    URL del logro de HackTheBox (opcional, rellena el campo).
-    -p/--port   Puerto del servidor (por defecto 8099).
-    --no-open   No abrir el navegador automáticamente.
+    --add              Redactar un write-up nuevo.
+    --edit  RUTA       Editar un write-up ya publicado (p. ej. /writeups/blue).
+    --remove RUTA      Borrar un write-up ya publicado.
+    -p/--port PUERTO   Puerto del servidor (por defecto 8099).
+    --no-open          No abrir el navegador automáticamente.
+
+Cada write-up guarda su fuente editable en submit-writeup/write-ups/<slug>.json,
+que es lo que se recarga al usar --edit.
 """
 
 import argparse
@@ -28,33 +31,470 @@ import urllib.parse
 import urllib.request
 import webbrowser
 from datetime import datetime
+from html import escape as _html_escape
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 POSTS = ROOT / "_posts"
+SOURCES = HERE / "write-ups"
 MACHINES_DIR = ROOT / "assets" / "img" / "machines"
 DEFAULT_IP = "10.10.10.10"
+AUTHOR = "Jaime Hereza Niño"
 UA = {"User-Agent": "Mozilla/5.0"}
 
+# Secciones disponibles (id, nombre, color RGB). El editor usa esta misma lista.
+SECTIONS = [
+    ("resumen", "Resumen", "159 239 0"),
+    ("vulnerabilidad", "Vulnerabilidad", "255 62 62"),
+    ("reconocimiento", "Reconocimiento", "46 230 214"),
+    ("enumeracion", "Enumeración", "94 180 248"),
+    ("explotacion", "Explotación", "255 175 0"),
+    ("movimiento", "Movimiento lateral", "46 230 214"),
+    ("escalada", "Escalada de privilegios", "193 108 255"),
+    ("flags", "Flags", "255 214 10"),
+    ("arreglo", "Cómo se arregla", "46 230 214"),
+    ("conclusiones", "Conclusiones", "200 210 220"),
+]
+SEC_NOM = {s[0]: s[1] for s in SECTIONS}
+SEC_COL = {s[0]: s[2] for s in SECTIONS}
 
+# ==========================================================================
+#  Consola con color
+# ==========================================================================
+_TTY = sys.stdout.isatty()
+
+
+class Col:
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
+    GREEN = "\033[38;2;159;239;0m"
+    CYAN = "\033[38;2;46;230;214m"
+    RED = "\033[38;2;255;62;62m"
+    YELLOW = "\033[38;2;255;214;10m"
+    ORANGE = "\033[38;2;255;175;0m"
+    MAGENTA = "\033[38;2;193;108;255m"
+    BLUE = "\033[38;2;94;180;248m"
+    GREY = "\033[38;2;125;139;153m"
+
+
+def _c(txt, color):
+    return f"{color}{txt}{Col.RESET}" if _TTY else txt
+
+
+def banner():
+    print()
+    print(_c("  ╔═══════════════════════════════════╗", Col.GREEN))
+    print(_c("  ║", Col.GREEN) + _c("   ▚ writeup · gestor de write-ups  ", Col.BOLD + Col.GREEN) + _c("║", Col.GREEN))
+    print(_c("  ╚═══════════════════════════════════╝", Col.GREEN))
+    print()
+
+
+def step(msg):
+    print(_c("  ▸ ", Col.CYAN) + msg)
+
+
+def ok(msg):
+    print(_c("  ✓ ", Col.GREEN) + _c(msg, Col.GREEN))
+
+
+def warn(msg):
+    print(_c("  ! ", Col.YELLOW) + _c(msg, Col.YELLOW))
+
+
+def err(msg):
+    print(_c("  ✗ ", Col.RED) + _c(msg, Col.RED))
+
+
+def ask(msg):
+    return input(_c("  ? ", Col.MAGENTA) + msg).strip()
+
+
+# ==========================================================================
+#  Utilidades
+# ==========================================================================
 def slugify(name: str) -> str:
-    s = name.strip().lower()
-    s = s.replace("á", "a").replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u").replace("ñ", "n")
+    s = (name or "").strip().lower()
+    for a, b in zip("áéíóúñ", "aeioun"):
+        s = s.replace(a, b)
     s = re.sub(r"[^a-z0-9]+", "-", s).strip("-")
     return s or "maquina"
 
 
-def fetch_machine_images(url: str, slug: str):
-    """Descarga el banner del logro de HTB y recorta el avatar de la máquina.
+def resolve_slug(raw: str) -> str:
+    """De '/writeups/blue', '/posts/blue/', 'blue' -> 'blue'."""
+    raw = (raw or "").strip().strip("/")
+    if "/" in raw:
+        raw = raw.rstrip("/").split("/")[-1]
+    return slugify(raw)
 
-    Devuelve {'avatar': ruta_web, 'banner': ruta_web, 'proof': url}.
+
+def esc(t: str) -> str:
+    return _html_escape(t, quote=False)
+
+
+# ==========================================================================
+#  Resaltado y marcado en línea
+# ==========================================================================
+COLORS = {
+    "b": "hx-cg", "bc": "hx-cc", "bm": "hx-cm", "br": "hx-cr",
+    "by": "hx-cy", "bo": "hx-co", "bw": "hx-cw", "ba": "hx-ca",
+}
+_TAG_RE = re.compile(r"<(/?)(bc|bm|br|by|bo|bw|ba|b)>")
+
+
+def colorize(t: str) -> str:
+    """Convierte <b>..</b>, <bc>.. etc. en spans de color; escapa el resto."""
+    t = _TAG_RE.sub(lambda m: f"\x00{'/' if m.group(1) else ''}{m.group(2)}\x01", t)
+    t = esc(t)
+    t = re.sub(r"\x00/(?:bc|bm|br|by|bo|bw|ba|b)\x01", "</span>", t)
+    t = re.sub(r"\x00(bc|bm|br|by|bo|bw|ba|b)\x01", lambda m: f'<span class="{COLORS[m.group(1)]}">', t)
+    return t
+
+
+def render_inline(t: str) -> str:
+    """Marcado en línea: `código`, [texto](url), **negrita**, <b>verde</b>, etc."""
+    store = []
+
+    def stash(html_):
+        store.append(html_)
+        return f"\x02{len(store) - 1}\x03"
+
+    # código en línea
+    t = re.sub(r"`([^`]+)`", lambda m: stash(f"<code>{esc(m.group(1))}</code>"), t)
+    # enlaces [texto](url)
+    t = re.sub(
+        r"\[([^\]]+)\]\(([^)]+)\)",
+        lambda m: stash(f'<a href="{esc(m.group(2))}" target="_blank" rel="noopener">{esc(m.group(1))}</a>'),
+        t,
+    )
+    # *cursiva* -> <i> (protegida del escapado)
+    t = re.sub(r"(?<!\*)\*([^*\n]+)\*(?!\*)", lambda m: stash(f"<i>{esc(m.group(1))}</i>"), t)
+    # **negrita** -> verde (<b> lo procesa colorize)
+    t = re.sub(r"\*\*([^*]+)\*\*", lambda m: f"<b>{m.group(1)}</b>", t)
+    t = colorize(t)
+    t = re.sub(r"\x02(\d+)\x03", lambda m: store[int(m.group(1))], t)
+    return t
+
+
+# ==========================================================================
+#  Terminales
+# ==========================================================================
+PS1 = '<span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span>'
+
+
+def _out_block(txt: str) -> str:
+    return f'<div class="hx-t-out">{colorize(txt.strip(chr(10)))}</div>'
+
+
+def _term_cmd(line: str) -> str:
+    return f'<div class="hx-t-cmd">{PS1} <span class="hx-t-in">{colorize(line)}</span></div>'
+
+
+_IS_CMD = re.compile(r"^\s*[$#]\s+")
+
+
+def render_term(lang: str, block) -> str:
+    """Renderiza un bloque de terminal.
+
+    lang 'term'/'console' (por defecto): mezcla. Las líneas que empiezan por
+    '$ ' o '# ' son comandos (prompt de Kali, naranja); el resto, salida.
+    lang 'out'/'salida': todo salida.  lang 'in'/'entrada': todo comandos.
     """
+    html_ = '<div class="hx-term2">'
+    if lang in ("out", "output", "salida"):
+        html_ += _out_block("\n".join(block))
+    elif lang in ("in", "input", "entrada"):
+        for l in block:
+            if l.strip():
+                html_ += _term_cmd(_IS_CMD.sub("", l))
+    else:
+        k, nb = 0, len(block)
+        while k < nb:
+            if _IS_CMD.match(block[k]):
+                html_ += _term_cmd(_IS_CMD.sub("", block[k]))
+                k += 1
+            else:
+                outs = []
+                while k < nb and not _IS_CMD.match(block[k]):
+                    outs.append(block[k])
+                    k += 1
+                html_ += _out_block("\n".join(outs))
+    return html_ + "</div>"
+
+
+# ==========================================================================
+#  Bloques de prosa (párrafos, listas, tablas, avisos)
+# ==========================================================================
+_CALLOUT_TYPES = {"tip": "tip", "info": "info", "note": "info", "warn": "warning",
+                  "warning": "warning", "danger": "danger"}
+
+
+def _render_table(rows):
+    def cells(r):
+        return [c.strip() for c in r.strip().strip("|").split("|")]
+
+    header = cells(rows[0])
+    body = rows[2:]
+    h = "<table><thead><tr>" + "".join(f"<th>{render_inline(x)}</th>" for x in header) + "</tr></thead><tbody>"
+    for r in body:
+        h += "<tr>" + "".join(f"<td>{render_inline(x)}</td>" for x in cells(r)) + "</tr>"
+    return h + "</tbody></table>"
+
+
+def _render_callout(typ, body):
+    cls = _CALLOUT_TYPES.get(typ, "info")
+    return f'<blockquote class="prompt-{cls}">{render_prose(body)}</blockquote>'
+
+
+def render_prose(chunk: str) -> str:
+    lines = chunk.split("\n")
+    out = []
+    i, n = 0, len(lines)
+    while i < n:
+        s = lines[i].strip()
+        if not s:
+            i += 1
+            continue
+        # aviso ::tip ... ::
+        if s.startswith("::"):
+            m = re.match(r"^::\s*(\w*)\s*(.*)$", s)
+            typ = (m.group(1) or "info").lower()
+            body = []
+            if m.group(2):
+                body.append(m.group(2))
+            i += 1
+            while i < n and lines[i].strip() != "::":
+                body.append(lines[i])
+                i += 1
+            i += 1
+            out.append(_render_callout(typ, "\n".join(body)))
+            continue
+        # tabla
+        if s.startswith("|") and i + 1 < n and re.match(r"^\s*\|[\s:|-]+\|\s*$", lines[i + 1]) and "-" in lines[i + 1]:
+            rows = []
+            while i < n and lines[i].strip().startswith("|"):
+                rows.append(lines[i].strip())
+                i += 1
+            out.append(_render_table(rows))
+            continue
+        # lista
+        if s.startswith("- "):
+            items = []
+            while i < n and lines[i].strip().startswith("- "):
+                items.append(lines[i].strip()[2:])
+                i += 1
+            out.append('<ul class="hx-wu-list">' + "".join(f"<li>{render_inline(x)}</li>" for x in items) + "</ul>")
+            continue
+        # párrafo
+        para = []
+        while i < n and lines[i].strip() and not lines[i].strip().startswith(("- ", "|", "::")):
+            para.append(lines[i].strip())
+            i += 1
+        out.append("<p>" + "<br>".join(render_inline(p) for p in para) + "</p>")
+    return "".join(out)
+
+
+def render_section(text: str) -> str:
+    """Convierte el texto de una sección (marcado) en HTML.
+
+    Los terminales van en bloques cercados:  ```term ... ```  (o ```out / ```in).
+    El resto es prosa (párrafos, listas, tablas, avisos).
+    """
+    lines = text.split("\n")
+    out = []
+    buf = []
+    i, n = 0, len(lines)
+
+    def flush():
+        if any(x.strip() for x in buf):
+            out.append(render_prose("\n".join(buf)))
+        buf.clear()
+
+    while i < n:
+        st = lines[i].strip()
+        if st.startswith("```"):
+            flush()
+            lang = st[3:].strip().lower()
+            j = i + 1
+            block = []
+            while j < n and lines[j].strip() != "```":
+                block.append(lines[j])
+                j += 1
+            i = j + 1
+            out.append(render_term(lang, block))
+            continue
+        buf.append(lines[i])
+        i += 1
+    flush()
+    return "".join(out)
+
+
+# ==========================================================================
+#  Construcción del write-up (cuerpo + front matter)
+# ==========================================================================
+def _os_class(os_name: str) -> str:
+    o = (os_name or "").lower()
+    if "win" in o:
+        return "win"
+    if "lin" in o:
+        return "lin"
+    return "otros"
+
+
+def render_body(data: dict) -> str:
+    name = (data.get("name") or "Máquina").strip()
+    slug = slugify(name)
+    ip = (data.get("ip") or DEFAULT_IP).strip()
+    os_name = data.get("os") or ""
+    diff = data.get("diff") or ""
+    osc = _os_class(os_name)
+    img = data.get("img") or {}
+    avatar = img.get("avatar") or data.get("thumb") or ""
+    banner_img = img.get("banner") or data.get("banner") or ""
+    proof = img.get("proof") or data.get("url") or data.get("proof") or ""
+    secs = data.get("sections") or {}
+
+    h = f'<div class="hx-wu" data-os="{osc}">'
+    # Cabecera: avatar + nombre + autor, y botón de certificado a la derecha
+    h += '<header class="hx-wu-head">'
+    if avatar:
+        h += f'<span class="hx-wu-img" style="background-image:url(\'{avatar}\')" role="img" aria-label="{esc(name)}"></span>'
+    h += '<div class="hx-wu-headtext">'
+    h += f'<h1 class="hx-wu-title">{esc(name)}</h1>'
+    h += f'<p class="hx-wu-meta">Publicado por <b>{esc(AUTHOR)}</b></p>'
+    h += "</div>"
+    if proof:
+        h += (f'<button type="button" class="hx-wu-cert" data-cert="{esc(proof)}" '
+              f'data-img="{esc(banner_img or avatar)}" data-name="{esc(name)}">'
+              f'<i class="fas fa-certificate" aria-hidden="true"></i> Mostrar certificado</button>')
+    h += "</header>"
+    # Tabla ficha
+    h += ('<table class="hx-wu-table"><thead><tr><th>Máquina</th><th>SO</th>'
+          '<th>Dificultad</th><th>IP</th></tr></thead><tbody><tr>')
+    h += f'<td class="wu-name">{esc(name)}</td>'
+    h += f'<td class="wu-os wu-os-{osc}">{esc(os_name)}</td>'
+    h += f'<td><span class="hx-badge hx-diff-{diff.lower()}">{esc(diff)}</span></td>'
+    h += f'<td class="wu-ip">{esc(ip)}</td></tr></tbody></table>'
+    # Terminal de hosts
+    h += render_term("term", ["$ sudo nano /etc/hosts", f"{ip}   {slug}"])
+    # Índice (solo secciones con contenido)
+    present = [s for s in SECTIONS if (secs.get(s[0]) or "").strip()]
+    if present:
+        h += '<nav class="hx-wu-index">'
+        for sid, nom, col in present:
+            h += f'<a href="#{sid}" style="--c:{col}">{esc(nom)}</a>'
+        h += "</nav>"
+    # Secciones
+    for sid, nom, col in present:
+        h += f'<section class="hx-wu-sec" id="{sid}" style="--c:{col}"><h2>{esc(nom)}</h2>'
+        h += render_section(secs[sid])
+        h += "</section>"
+    # Tarjeta de verificación
+    if proof:
+        h += (f'<a class="hx-wu-card" data-os="{osc}" href="{esc(proof)}" target="_blank" rel="noopener">'
+              f'<span class="hx-wu-cardimg" style="background-image:url(\'{avatar}\')"></span>'
+              f'<div><b>{esc(name)}</b><small>{esc(os_name)} · {esc(diff)}</small></div>'
+              f'<span class="hx-wu-verify"><i class="fas fa-shield-halved"></i> Verificar</span></a>')
+    h += "</div>"
+    return h
+
+
+def front_matter(data: dict) -> str:
+    name = (data.get("name") or "Máquina").strip()
+    date = (data.get("date") or datetime.now().strftime("%Y-%m-%d")).strip()
+    tags = re.findall(r"#?[\wáéíóúñ-]+", (data.get("tags") or ""), re.IGNORECASE)
+    tags = [t.lstrip("#").lower() for t in tags if t.strip("#")]
+    img = data.get("img") or {}
+    fm = {
+        "layout": "post",
+        "title": name,
+        "date": date + " 18:00:00 +0200",
+        "categories": ["Writeups", data.get("plat") or "HackTheBox"],
+        "tags": tags,
+        "machine": name,
+        "platform": data.get("plat") or "HackTheBox",
+        "os": data.get("os") or "",
+        "difficulty": data.get("diff") or "",
+        "thumb": img.get("avatar") or data.get("thumb") or "",
+        "proof": img.get("proof") or data.get("url") or data.get("proof") or "",
+        "banner": img.get("banner") or data.get("banner") or "",
+        "description": data.get("desc") or "",
+        "toc": False,
+    }
+    if data.get("status"):
+        fm["status"] = data["status"]
+    y = "---\n"
+    for k, v in fm.items():
+        if isinstance(v, list):
+            y += f"{k}: [{', '.join('\"%s\"' % x for x in v)}]\n"
+        elif isinstance(v, bool):
+            y += f"{k}: {str(v).lower()}\n"
+        elif v != "" and v is not None:
+            y += f'{k}: "{str(v).replace(chr(34), chr(92) + chr(34))}"\n'
+    y += "---\n"
+    return y
+
+
+def build_post(data: dict) -> str:
+    return front_matter(data) + render_body(data) + "\n"
+
+
+# ==========================================================================
+#  Fuentes editables (JSON)
+# ==========================================================================
+def source_path(slug: str) -> Path:
+    return SOURCES / f"{slug}.json"
+
+
+def save_source(data: dict) -> Path:
+    SOURCES.mkdir(parents=True, exist_ok=True)
+    slug = slugify(data.get("name") or "")
+    p = source_path(slug)
+    p.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    return p
+
+
+def load_source(slug: str):
+    p = source_path(slug)
+    if p.is_file():
+        return json.loads(p.read_text(encoding="utf-8"))
+    return None
+
+
+def post_files(slug: str, date: str = ""):
+    """Devuelve los ficheros de _posts que correspondan a ese slug."""
+    hits = []
+    for f in POSTS.glob(f"*-{slug}.html"):
+        hits.append(f)
+    for f in POSTS.glob(f"*-{slug}.md"):
+        hits.append(f)
+    return hits
+
+
+def publish(data: dict, mode: str = "add") -> str:
+    slug = slugify(data.get("name") or "")
+    date = (data.get("date") or datetime.now().strftime("%Y-%m-%d")).strip()
+    # Borra cualquier versión previa del mismo slug (p. ej. un .md antiguo)
+    for old in post_files(slug):
+        old.unlink()
+    POSTS.mkdir(exist_ok=True)
+    path = POSTS / f"{date}-{slug}.html"
+    path.write_text(build_post(data), encoding="utf-8")
+    save_source(data)
+    return str(path.relative_to(ROOT))
+
+
+# ==========================================================================
+#  Imagen de la máquina (logro de HackTheBox)
+# ==========================================================================
+def fetch_machine_images(url: str, slug: str):
     from PIL import Image, ImageDraw
 
-    html = urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=20).read().decode("utf-8", "ignore")
-    m = re.search(r'og:image"\s+content="([^"]+)"', html)
+    html_ = urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=20).read().decode("utf-8", "ignore")
+    m = re.search(r'og:image"\s+content="([^"]+)"', html_)
     if not m:
         raise RuntimeError("No se encontró la imagen (og:image) en esa URL.")
     banner_url = m.group(1)
@@ -65,7 +505,6 @@ def fetch_machine_images(url: str, slug: str):
     banner_path = MACHINES_DIR / f"{slug}-banner.png"
     banner.save(banner_path)
 
-    # El avatar circular está centrado arriba; coordenadas sobre el banner 700x360.
     w, h = banner.size
     sx, sy = w / 700.0, h / 360.0
     cx, cy, r = int(350 * sx), int(70 * sy), int(41 * min(sx, sy))
@@ -74,8 +513,7 @@ def fetch_machine_images(url: str, slug: str):
     ImageDraw.Draw(mask).ellipse((0, 0, 255, 255), fill=255)
     avatar = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
     avatar.paste(crop, (0, 0), mask)
-    avatar_path = MACHINES_DIR / f"{slug}.png"
-    avatar.save(avatar_path)
+    avatar.save(MACHINES_DIR / f"{slug}.png")
 
     return {
         "avatar": f"/assets/img/machines/{slug}.png",
@@ -84,13 +522,18 @@ def fetch_machine_images(url: str, slug: str):
     }
 
 
+# ==========================================================================
+#  Servidor HTTP del editor
+# ==========================================================================
 class Handler(BaseHTTPRequestHandler):
+    mode = "add"
+
     def log_message(self, *a):
         pass
 
     def _send(self, code, body, ctype="application/json; charset=utf-8"):
         if isinstance(body, (dict, list)):
-            body = json.dumps(body).encode()
+            body = json.dumps(body, ensure_ascii=False).encode()
         elif isinstance(body, str):
             body = body.encode()
         self.send_response(code)
@@ -118,6 +561,15 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 self._send(404, {"error": "not found"})
             return
+        if u.path == "/api/load":
+            q = urllib.parse.parse_qs(u.query)
+            slug = resolve_slug((q.get("slug") or [""])[0])
+            src = load_source(slug)
+            if src is None:
+                self._send(404, {"error": f"No hay fuente para '{slug}'."})
+            else:
+                self._send(200, src)
+            return
         if u.path == "/api/image":
             q = urllib.parse.parse_qs(u.query)
             url = (q.get("url") or [""])[0]
@@ -126,45 +578,151 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(400, {"error": "Faltan 'url' y 'name'."})
                 return
             try:
-                self._send(200, fetch_machine_images(url, slugify(name)))
+                step(f"Trayendo la imagen de {_c(name, Col.BOLD)}…")
+                res = fetch_machine_images(url, slugify(name))
+                ok("Imagen descargada y recortada.")
+                self._send(200, res)
             except Exception as e:  # noqa: BLE001
+                err(f"No se pudo traer la imagen: {e}")
                 self._send(500, {"error": str(e)})
             return
         self._send(404, {"error": "not found"})
 
     def do_POST(self):
-        if urllib.parse.urlparse(self.path).path != "/api/publish":
-            self._send(404, {"error": "not found"})
-            return
+        u = urllib.parse.urlparse(self.path)
         n = int(self.headers.get("Content-Length", 0))
         data = json.loads(self.rfile.read(n) or b"{}")
-        slug = slugify(data.get("name", ""))
-        date = data.get("date") or datetime.now().strftime("%Y-%m-%d")
-        content = data.get("content", "")
-        POSTS.mkdir(exist_ok=True)
-        path = POSTS / f"{date}-{slug}.html"
-        path.write_text(content, encoding="utf-8")
-        self._send(200, {"path": str(path.relative_to(ROOT))})
+        if u.path == "/api/render":
+            try:
+                self._send(200, {"html": render_body(data)}, "application/json; charset=utf-8")
+            except Exception as e:  # noqa: BLE001
+                self._send(500, {"error": str(e)})
+            return
+        if u.path == "/api/publish":
+            mode = data.get("mode") or self.mode
+            try:
+                rel = publish(data, mode)
+                if mode == "edit":
+                    ok(f"Write-up editado: {_c(rel, Col.BOLD)}")
+                else:
+                    ok(f"Write-up publicado: {_c(rel, Col.BOLD)}")
+                step("Haz " + _c("git add -A && git commit && git push", Col.CYAN) + " para subirlo al blog.")
+                self._send(200, {"path": rel})
+            except Exception as e:  # noqa: BLE001
+                err(f"Error al publicar: {e}")
+                self._send(500, {"error": str(e)})
+            return
+        self._send(404, {"error": "not found"})
 
 
-def main():
-    p = argparse.ArgumentParser(description="Editor de write-ups del blog.")
-    p.add_argument("-u", "--url", default="", help="URL del logro de HackTheBox (opcional, rellena el campo)")
-    p.add_argument("-p", "--port", type=int, default=8099, help="Puerto del servidor")
-    p.add_argument("--no-open", action="store_true", help="No abrir el navegador")
-    args = p.parse_args()
-
-    qs = urllib.parse.urlencode({k: v for k, v in {"url": args.url}.items() if v})
-    editor_url = f"http://localhost:{args.port}/editor.html" + (f"?{qs}" if qs else "")
-
-    srv = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
-    print(f"\n  Editor de write-ups en marcha:\n    {editor_url}\n\n  Ctrl+C para parar.\n")
-    if not args.no_open:
+def serve(mode, slug, port, no_open):
+    Handler.mode = mode
+    qs = {"mode": mode}
+    if slug:
+        qs["slug"] = slug
+    editor_url = f"http://localhost:{port}/editor.html?{urllib.parse.urlencode(qs)}"
+    srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    step("Servidor en marcha: " + _c(editor_url, Col.CYAN))
+    print(_c("    (Ctrl+C para parar)\n", Col.DIM))
+    if not no_open:
         webbrowser.open(editor_url)
     try:
         srv.serve_forever()
     except KeyboardInterrupt:
-        print("\n  Parado.\n")
+        print()
+        step("Servidor parado.")
+
+
+# ==========================================================================
+#  Acciones de la CLI
+# ==========================================================================
+def cmd_add(args):
+    banner()
+    step("Modo " + _c("añadir", Col.BOLD) + ": comienza la redacción de un write-up nuevo.")
+    serve("add", "", args.port, args.no_open)
+
+
+def cmd_edit(args):
+    banner()
+    slug = resolve_slug(args.edit)
+    if load_source(slug) is None:
+        err(f"No existe la fuente editable de '{slug}' en {SOURCES.relative_to(ROOT)}/.")
+        warn("Solo se pueden editar write-ups que tengan su fuente .json.")
+        sys.exit(1)
+    step("Modo " + _c("editar", Col.BOLD) + f": cargando el write-up de {_c(slug, Col.BOLD)}.")
+    serve("edit", slug, args.port, args.no_open)
+
+
+def cmd_remove(args):
+    banner()
+    slug = resolve_slug(args.remove)
+    src = load_source(slug)
+    name = (src or {}).get("name") or slug.capitalize()
+    files = post_files(slug)
+    if not files and src is None:
+        err(f"No se encontró ningún write-up con el nombre '{slug}'.")
+        sys.exit(1)
+
+    step(f"Vas a borrar el write-up {_c(name, Col.BOLD)}.")
+    for f in files:
+        print(_c("      · ", Col.GREY) + str(f.relative_to(ROOT)))
+    r = ask(f"¿Seguro que quieres borrar el WriteUp {_c(name, Col.BOLD)}? [Y/n] ").lower()
+    if r not in ("", "y", "s", "yes", "si", "sí"):
+        warn("Cancelado. No se ha borrado nada.")
+        return
+    conf = ask(f'Escribe "{_c(name, Col.BOLD)}" para confirmarlo: ')
+    if slugify(conf) != slugify(name):
+        err("El nombre no coincide. Cancelado, no se ha borrado nada.")
+        return
+
+    step("Borrando…")
+    for f in files:
+        f.unlink()
+        print(_c("      - ", Col.RED) + str(f.relative_to(ROOT)))
+    sp = source_path(slug)
+    if sp.is_file():
+        sp.unlink()
+        print(_c("      - ", Col.RED) + str(sp.relative_to(ROOT)))
+    for suf in (f"{slug}.png", f"{slug}-banner.png"):
+        img = MACHINES_DIR / suf
+        if img.is_file():
+            img.unlink()
+            print(_c("      - ", Col.RED) + str(img.relative_to(ROOT)))
+    ok(f"Write-up {name} borrado del blog.")
+    step("Haz " + _c("git add -A && git commit && git push", Col.CYAN) + " para reflejarlo en el blog.")
+
+
+def main():
+    p = argparse.ArgumentParser(
+        prog="writeup",
+        description="Editor y gestor de write-ups del blog.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    g = p.add_mutually_exclusive_group()
+    g.add_argument("--add", action="store_true", help="Redactar un write-up nuevo (abre el editor).")
+    g.add_argument("--edit", metavar="RUTA", help="Editar un write-up publicado (p. ej. /writeups/blue).")
+    g.add_argument("--remove", metavar="RUTA", help="Borrar un write-up publicado (p. ej. /writeups/blue).")
+    p.add_argument("-p", "--port", type=int, default=8099, help="Puerto del servidor (por defecto 8099).")
+    p.add_argument("--no-open", action="store_true", help="No abrir el navegador automáticamente.")
+    args = p.parse_args()
+
+    if args.add:
+        cmd_add(args)
+    elif args.edit:
+        cmd_edit(args)
+    elif args.remove:
+        cmd_remove(args)
+    else:
+        banner()
+        warn("No has indicado ninguna acción.")
+        print()
+        print("  Usa una de estas:")
+        print(_c("    python3 submit-writeup/writeup.py --add", Col.GREEN) + "                 redactar uno nuevo")
+        print(_c("    python3 submit-writeup/writeup.py --edit /writeups/blue", Col.CYAN) + "   editar Blue")
+        print(_c("    python3 submit-writeup/writeup.py --remove /writeups/blue", Col.RED) + " borrar Blue")
+        print()
+        print(_c("    -h / --help", Col.DIM) + " para ver todas las opciones.")
+        print()
 
 
 if __name__ == "__main__":
