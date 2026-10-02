@@ -1,0 +1,33 @@
+{%- comment -%}
+  Lecturas adicionales con el estilo de tarjetas de máquina (.hx-mcard),
+  igual que la lista de /writeups/. Sustituye al include del tema.
+{%- endcomment -%}
+
+{% assign related = site.posts | where_exp: "p", "p.url != page.url and p.categories contains 'Writeups'" %}
+
+{% if related.size > 0 %}
+  <section id="related-posts" class="hx-related" aria-labelledby="related-label">
+    <h2 class="hx-related-title" id="related-label">Lecturas adicionales</h2>
+    <div class="hx-mlist">
+      {% for post in related limit: 3 %}
+        {% assign os_down = post.os | default: '' | downcase %}
+        {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
+        {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
+        {% else %}{% assign os_key = 'otros' %}{% endif %}
+        <a class="hx-mcard" data-os="{{ os_key }}" data-diff="{{ post.difficulty | default: '' | downcase }}" href="{{ post.url | relative_url }}">
+          <span class="hx-mcard-img{% unless post.thumb %} hx-mcard-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
+            {% unless post.thumb %}{% if os_down contains 'windows' %}<i class="fab fa-windows"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
+          </span>
+          <div class="hx-mcard-body">
+            <h3 class="hx-mcard-name">{{ post.title }}</h3>
+            <p class="hx-mcard-meta">
+              {% if os_down contains 'windows' %}<i class="fab fa-windows"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-microchip"></i>{% endif %}
+              {{ post.os }} · {{ post.date | date: '%d/%m/%Y' }}
+            </p>
+            {% if post.difficulty %}<span class="hx-badge hx-diff-{{ post.difficulty | downcase }}">{{ post.difficulty }}</span>{% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}

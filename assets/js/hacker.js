@@ -1103,6 +1103,56 @@
     });
   }
 
+  /* --- Modal "Mostrar certificado" --- */
+  function initCert() {
+    let ov = null;
+
+    function build() {
+      ov = document.createElement('div');
+      ov.className = 'hx-cert-ov';
+      ov.innerHTML =
+        '<div class="hx-cert-box" role="dialog" aria-modal="true">' +
+        '<div class="hx-cert-head"><i class="fas fa-certificate" aria-hidden="true"></i>' +
+        '<span class="hx-cert-title">Certificado</span>' +
+        '<button type="button" class="hx-cert-close" aria-label="Cerrar">✕</button></div>' +
+        '<img class="hx-cert-img" alt="Certificado de la máquina">' +
+        '<div class="hx-cert-foot">' +
+        '<a class="hx-cert-link" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square" aria-hidden="true"></i> Ver en HackTheBox</a>' +
+        '<small>Pulsa fuera o ✕ para cerrar</small></div></div>';
+      document.body.appendChild(ov);
+      ov.addEventListener('click', (e) => {
+        if (e.target === ov || e.target.closest('.hx-cert-close')) close();
+      });
+    }
+
+    function open(cert, img, name) {
+      if (!ov) build();
+      ov.querySelector('.hx-cert-title').textContent = name ? 'Certificado · ' + name : 'Certificado';
+      const im = ov.querySelector('.hx-cert-img');
+      if (img) { im.src = img; im.style.display = ''; } else { im.style.display = 'none'; }
+      ov.querySelector('.hx-cert-link').href = cert || '#';
+      ov.classList.add('hx-open');
+      document.body.classList.add('hx-cert-locked');
+    }
+
+    function close() {
+      if (ov) {
+        ov.classList.remove('hx-open');
+        document.body.classList.remove('hx-cert-locked');
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      const b = e.target.closest('.hx-wu-cert');
+      if (!b) return;
+      e.preventDefault();
+      open(b.dataset.cert, b.dataset.img, b.dataset.name);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+  }
+
   function init() {
     initMatrix();
     initAvatarFx();
@@ -1120,6 +1170,7 @@
     initFilterBars();
     initPostSections();
     initButtonAura();
+    initCert();
   }
 
   if (document.readyState === 'loading') {

