@@ -621,6 +621,21 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 self._send(404, {"error": "not found"})
             return
+        if u.path == "/api/list":
+            out = []
+            for p in sorted(SOURCES.glob("*.json")):
+                try:
+                    d = json.loads(p.read_text(encoding="utf-8"))
+                except Exception:  # noqa: BLE001
+                    continue
+                out.append({
+                    "slug": p.stem, "name": d.get("name", p.stem), "os": d.get("os", ""),
+                    "diff": d.get("diff", ""), "date": (d.get("date") or "")[:10],
+                    "accent": d.get("accent", ""), "thumb": (d.get("img") or {}).get("avatar", ""),
+                })
+            out.sort(key=lambda x: x["date"], reverse=True)
+            self._send(200, out)
+            return
         if u.path == "/api/load":
             q = urllib.parse.parse_qs(u.query)
             slug = resolve_slug((q.get("slug") or [""])[0])
