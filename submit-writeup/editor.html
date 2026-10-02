@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Editor de write-ups</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap">
+<!-- Mismas fuentes e iconos que el sitio, para que la vista previa sea idéntica a la publicación -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&family=Source+Sans+Pro:wght@400;600;700;900&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/all.min.css">
 <link rel="stylesheet" href="/hacker.css">
 <style>
   :root { --ed-bg:#0a0e14; --ed-panel:#111822; --ed-border:#1e2b3a; --ed-green:#9fef00; --ed-cyan:#2ee6d6; --ed-mut:#7d8b99; }
@@ -13,7 +16,7 @@
   .ed-wrap { display:grid; grid-template-columns:1fr 1fr; gap:0; height:100vh; }
   .ed-col { overflow-y:auto; padding:1.2rem; }
   .ed-left { border-right:1px solid var(--ed-border); }
-  .ed-right { background:#070a0f; }
+  .ed-right { background:var(--hx-bg, #070a0f); }
   h1.ed-h { font-size:1.1rem; color:var(--ed-green); margin:0 0 1rem; }
   .ed-row { display:flex; flex-wrap:wrap; gap:0.6rem; margin-bottom:0.8rem; }
   .ed-field { display:flex; flex-direction:column; gap:0.2rem; flex:1; min-width:120px; }
@@ -40,6 +43,9 @@
   .ed-img-prev img { height:54px; border-radius:8px; border:1px solid var(--ed-border); }
   .ed-status { font-size:0.75rem; color:var(--ed-cyan); min-height:1.2em; }
   .ed-right .content { max-width:none; }
+  /* Prosa del write-up con la misma fuente que el sitio (Chirpy) */
+  #preview { font-family:'Source Sans Pro','Helvetica Neue',Arial,sans-serif; color:var(--hx-text, #c5d1de); line-height:1.7; }
+  #preview .hx-wu-empty { color:var(--ed-mut); font-family:'JetBrains Mono',monospace; font-size:0.8rem; text-align:center; padding:2rem 0; }
   .ed-prev-note { font-size:0.7rem; color:var(--ed-mut); margin:0 0 0.8rem; }
   code.k { color:var(--ed-cyan); }
 </style>
@@ -270,7 +276,7 @@ function buildBody() {
   // Tarjeta de máquina (prueba)
   if (window._img) {
     h += `<a class="hx-wu-card" data-os="${osClass}" href="${window._img.proof}" target="_blank" rel="noopener">`;
-    h += `<span class="hx-wu-cardimg" style="background-image:url('${avatar}')"></span><div><b>${esc(name)}</b><small>${esc(os)} · ${read} min</small></div>`;
+    h += `<span class="hx-wu-cardimg" style="background-image:url('${avatar}')"></span><div><b>${esc(name)}</b><small>${esc(os)} · ${esc(diff)}</small></div>`;
     h += `<span class="hx-wu-verify"><i class="fas fa-shield-halved"></i> Verificar</span></a>`;
   }
   h += `</div>`;
@@ -307,21 +313,34 @@ function render() {
 document.querySelectorAll('input,select,textarea').forEach(el => el.addEventListener('input', render));
 
 // ---------- Imagen ----------
-async function traerImagen() {
+async function traerImagen(silent) {
   const url = val('f-url'), name = val('f-name');
   const st = document.getElementById('img-status');
-  if (!url || !name) { st.textContent = 'Pon el nombre de la máquina y la URL.'; return; }
+  if (!url || !name) { if (!silent) st.textContent = 'Pon el nombre de la máquina y la URL.'; return; }
   st.textContent = 'Trayendo imagen...';
   try {
     const r = await fetch(`/api/image?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}`);
     const d = await r.json();
     if (d.error) throw new Error(d.error);
     window._img = d;
+    window._imgKey = url + '|' + name;
     document.getElementById('img-box').innerHTML = `<img src="${d.avatar}" alt="avatar"><img src="${d.banner}" alt="banner">`;
     st.textContent = 'Imagen lista.';
     render();
-  } catch (e) { st.textContent = 'Error: ' + e.message; }
+  } catch (e) { st.textContent = silent ? ('Error al traer la imagen: ' + e.message) : ('Error: ' + e.message); }
 }
+
+// Trae la imagen sola al pegar/escribir la URL (y cuando se completa el nombre).
+let _imgTimer = null;
+function autoImagen() {
+  const url = val('f-url'), name = val('f-name');
+  if (!url || !name) return;
+  if (window._imgKey === url + '|' + name || window._imgBusyKey === url + '|' + name) return;
+  clearTimeout(_imgTimer);
+  _imgTimer = setTimeout(() => { window._imgBusyKey = url + '|' + name; traerImagen(true); }, 600);
+}
+document.getElementById('f-url').addEventListener('input', autoImagen);
+document.getElementById('f-name').addEventListener('input', autoImagen);
 
 // ---------- Publicar / Descargar ----------
 async function publicar() {

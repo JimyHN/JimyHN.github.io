@@ -703,7 +703,7 @@
   /* --- Revelado de elementos al hacer scroll --- */
   function initReveal() {
     const selectors = [
-      '#post-list .card-wrapper',
+      '#post-list .hx-mcard',
       '.hx-card',
       '.hx-hero',
       '#archives li',
