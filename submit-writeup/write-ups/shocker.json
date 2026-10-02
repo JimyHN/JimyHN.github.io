@@ -20,5 +20,6 @@
     "avatar": "/assets/img/machines/shocker.png",
     "banner": "/assets/img/machines/shocker-banner.png",
     "proof": "https://labs.hackthebox.com/achievement/machine/2772097/108"
-  }
+  },
+  "accent": "255 175 0"
 }

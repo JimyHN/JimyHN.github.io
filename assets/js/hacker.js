@@ -1156,8 +1156,10 @@
   /* --- Color por página: el menú activo tiñe la página y su título --- */
   function initPageTheme() {
     const active = document.querySelector('#sidebar .nav-item.active');
-    if (!active) return;
-    const c = getComputedStyle(active).getPropertyValue('--c').trim();
+    let c = active ? getComputedStyle(active).getPropertyValue('--c').trim() : '';
+    // En un write-up, prioriza el color de la máquina
+    const wu = document.querySelector('.hx-wu[data-accent]');
+    if (wu && wu.dataset.accent) c = wu.dataset.accent;
     if (c) document.documentElement.style.setProperty('--page', c);
 
     const title = document.querySelector('h1.dynamic-title');
@@ -1170,8 +1172,23 @@
     }
   }
 
+  /* --- Edad calculada al vuelo --- */
+  function initAge() {
+    document.querySelectorAll('.hx-age').forEach((el) => {
+      const dob = el.getAttribute('data-dob');
+      if (!dob) return;
+      const d = new Date(dob);
+      const now = new Date();
+      let age = now.getFullYear() - d.getFullYear();
+      const m = now.getMonth() - d.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+      el.textContent = age;
+    });
+  }
+
   function init() {
     initPageTheme();
+    initAge();
     initMatrix();
     initAvatarFx();
     initTools();

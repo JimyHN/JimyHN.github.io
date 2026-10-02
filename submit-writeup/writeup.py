@@ -409,7 +409,8 @@ def render_body(data: dict) -> str:
     proof = img.get("proof") or data.get("url") or data.get("proof") or ""
     secs = data.get("sections") or {}
 
-    h = f'<div class="hx-wu" data-os="{osc}">'
+    _acc = data.get("accent", "")
+    h = f'<div class="hx-wu" data-os="{osc}"{f" data-accent=\"{_acc}\"" if _acc else ""}>'
     # Cabecera: avatar + nombre + autor, y botón de certificado a la derecha
     h += '<header class="hx-wu-head">'
     if avatar:
@@ -448,8 +449,10 @@ def render_body(data: dict) -> str:
         h += render_section(secs[sid])
         h += "</section>"
     # Tarjeta de verificación
+    accent = data.get("accent", "")
+    _m = f' style="--m:{accent}"' if accent else ""
     if proof:
-        h += (f'<a class="hx-wu-card" data-os="{osc}" href="{esc(proof)}" target="_blank" rel="noopener">'
+        h += (f'<a class="hx-wu-card" data-os="{osc}"{_m} href="{esc(proof)}" target="_blank" rel="noopener">'
               f'<span class="hx-wu-cardimg" style="background-image:url(\'{avatar}\')"></span>'
               f'<div><b>{esc(name)}</b><small>{esc(os_name)} · {esc(diff)}</small></div>'
               f'<span class="hx-wu-verify"><i class="fas fa-shield-halved"></i> Verificar</span></a>')
@@ -481,6 +484,8 @@ def front_matter(data: dict) -> str:
     }
     if data.get("status"):
         fm["status"] = data["status"]
+    if data.get("accent"):
+        fm["accent"] = data["accent"]
     y = "---\n"
     for k, v in fm.items():
         if isinstance(v, list):

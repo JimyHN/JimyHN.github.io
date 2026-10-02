@@ -39,7 +39,7 @@
         {% assign tag = tag_str | split: '::' %}
         {% assign tag_name = tag | first %}
         {% assign url = tag_name | slugify | url_encode | prepend: '/tags/' | append: '/' %}
-        <a class="hx-chip hx-chip-{{ forloop.index0 | modulo: 4 }}" href="{{ url | relative_url }}">
+        <a class="hx-chip hx-chip-{{ forloop.index0 | modulo: 6 }}" href="{{ url | relative_url }}">
           <span class="hx-chip-hash">#</span>{{ tag_name }}<span class="hx-chip-n">{{ tag | last }}</span>
         </a>
       {% endfor %}
