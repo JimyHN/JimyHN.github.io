@@ -1,0 +1,35 @@
+---
+layout: page
+---
+
+{% include lang.html %}
+
+<div id="archives" class="hx-archive">
+  {% assign last_year = '' %}
+  {% for post in site.posts %}
+    {% assign y = post.date | date: '%Y' %}
+    {% if y != last_year %}
+      {% unless forloop.first %}</ul>{% endunless %}
+      <time class="hx-ar-year">{{ y }}</time>
+      <ul class="hx-ar-list">
+      {% assign last_year = y %}
+    {% endif %}
+    {% assign os_down = post.os | default: '' | downcase %}
+    {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
+    {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
+    {% else %}{% assign os_key = 'otros' %}{% endif %}
+    <li class="hx-ar-item" data-os="{{ os_key }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
+      <a href="{{ post.url | relative_url }}">
+        <span class="hx-ar-date"><b>{{ post.date | date: '%d' }}</b><small>/{{ post.date | date: '%m' }}</small></span>
+        <span class="hx-ar-node" aria-hidden="true"></span>
+        <span class="hx-ar-img{% unless post.thumb %} hx-ar-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
+          {% unless post.thumb %}{% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
+        </span>
+        <span class="hx-ar-name">{{ post.title }}</span>
+        {% if post.os %}<span class="hx-ar-os">{% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% endif %} {{ post.os }}</span>{% endif %}
+        {% if post.difficulty %}<span class="hx-badge hx-diff-{{ post.difficulty | downcase }} hx-ar-badge">{{ post.difficulty }}</span>{% endif %}
+      </a>
+    </li>
+    {% if forloop.last %}</ul>{% endif %}
+  {% endfor %}
+</div>
