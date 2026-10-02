@@ -1285,20 +1285,68 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   margin-top: 0.9rem !important;
 }
 
-.hx-ascii {
+/* --- Retrato (imagen) con estilo ciber + glitch --- */
+.hx-ava {
+  position: relative;
   flex-shrink: 0;
+  width: 168px;
+  height: 168px;
   margin: 0;
-  padding: 0.6rem;
   border: 1px solid var(--hx-border);
   border-radius: 6px;
   background: #05070a;
-  color: var(--hx-green);
-  font-family: var(--hx-mono);
-  font-size: 7px;
-  line-height: 1.05;
-  letter-spacing: 0.5px;
-  text-shadow: 0 0 6px rgb(159 239 0 / 35%);
   overflow: hidden;
+  isolation: isolate;
+  box-shadow: inset 0 0 28px rgb(159 239 0 / 10%), 0 0 16px rgb(159 239 0 / 20%);
+}
+
+.hx-ava-l {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 12px;
+}
+
+/* Capa base: invertida (fondo oscuro, pingüino claro) */
+.hx-ava-l-base {
+  filter: invert(1) contrast(1.08) brightness(1.05);
+  animation: hx-ava-bob 7s ease-in-out infinite;
+}
+
+/* Tinte verde ciber sobre la base */
+.hx-ava-tint {
+  position: absolute;
+  inset: 0;
+  background: var(--hx-green);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* Copias de aberración cromática (ocultas salvo en glitch) */
+.hx-ava-l-c,
+.hx-ava-l-m {
+  mix-blend-mode: screen;
+  opacity: 0;
+}
+
+.hx-ava-l-c { filter: invert(1) sepia(1) hue-rotate(120deg) saturate(8) brightness(1.1); }
+.hx-ava-l-m { filter: invert(1) sepia(1) hue-rotate(290deg) saturate(8) brightness(1.1); }
+
+/* Línea de escaneo */
+.hx-ava-scan {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 34%;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgb(159 239 0 / 16%), transparent);
+  animation: hx-scan 3.5s linear infinite;
+}
+
+@keyframes hx-ava-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 .hx-info { min-width: 0; }
@@ -1360,57 +1408,35 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
     gap: 1rem;
   }
 
-  .hx-ascii { font-size: 6.5px; }
+  .hx-ava {
+    width: 140px;
+    height: 140px;
+  }
 }
 
-/* Temblor del ASCII (efecto "split") */
-.hx-ascii.hx-fx-shake { animation: hx-ascii-shake 0.12s steps(2) infinite; }
+/* --- Glitch de imagen a ráfagas --- */
+/* Temblor de toda la imagen durante el "split" */
+.hx-ava.hx-fx-shake { animation: hx-ava-shake 0.12s steps(2) infinite; }
 
-@keyframes hx-ascii-shake {
+@keyframes hx-ava-shake {
   0% { transform: translate(-2px, 1px); }
   50% { transform: translate(2px, -1px); }
   100% { transform: translate(-1px, 0); }
 }
 
-/* --- ASCII con efecto de imagen rayada (glitch) --- */
-.hx-ascii {
-  position: relative;
-  font-size: 8px;
-  line-height: 1.1;
-  padding: 0.8rem 0.9rem;
-}
-
-.hx-ascii .hx-al {
-  display: block;
-  transition: none;
-}
-
-/* Copias desplazadas que aparecen en cada "rayada" */
-.hx-ascii::before,
-.hx-ascii::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  padding: inherit;
-  white-space: pre;
-  pointer-events: none;
-  opacity: 0;
-}
-
-.hx-ascii::before { color: #2ee6d6; text-shadow: none; }
-.hx-ascii::after { color: #ff2e88; text-shadow: none; }
-
-.hx-ascii.hx-glitch::before {
-  opacity: 0.75;
+/* Aberración cromática: las copias cian/magenta se desplazan y se ven */
+.hx-ava.hx-glitch .hx-ava-l-c {
+  opacity: 0.8;
   animation: hx-glitch-a 0.35s steps(2) both;
 }
 
-.hx-ascii.hx-glitch::after {
-  opacity: 0.75;
+.hx-ava.hx-glitch .hx-ava-l-m {
+  opacity: 0.8;
   animation: hx-glitch-b 0.35s steps(2) both;
 }
 
-.hx-ascii.hx-glitch { animation: hx-flicker 0.35s steps(3); }
+/* Parpadeo de señal del conjunto */
+.hx-ava.hx-glitch { animation: hx-flicker 0.35s steps(3); }
 
 @keyframes hx-flicker {
   0%, 100% { opacity: 1; }
@@ -1418,24 +1444,19 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   66% { opacity: 0.9; }
 }
 
-/* Franjas que se desplazan */
-.hx-ascii .hx-al.hx-tear {
-  transform: translateX(var(--dx));
-  color: #d6ff8a;
-  text-shadow: 0 0 8px var(--hx-green);
+/* Franja "rayada": recorte horizontal desplazado sobre la base */
+.hx-ava.hx-tear .hx-ava-l-base {
+  animation: hx-ava-tear 0.26s steps(3) both;
 }
 
-/* Línea de escaneo */
-.hx-ascii .hx-scanline {
-  position: absolute;
-  inset: 0 0 auto;
-  height: 30%;
-  pointer-events: none;
-  background: linear-gradient(to bottom, transparent, rgb(159 239 0 / 14%), transparent);
-  animation: hx-scan 3.5s linear infinite;
+@keyframes hx-ava-tear {
+  0% { clip-path: inset(10% 0 78% 0); transform: translateX(-10px); }
+  30% { clip-path: inset(44% 0 40% 0); transform: translateX(9px); }
+  60% { clip-path: inset(70% 0 14% 0); transform: translateX(-7px); }
+  100% { clip-path: inset(0 0 0 0); transform: translateX(0); }
 }
 
-/* --- Info a la derecha del ASCII --- */
+/* --- Info a la derecha de la imagen --- */
 .hx-info { flex-grow: 1; }
 
 .hx-info-name {
