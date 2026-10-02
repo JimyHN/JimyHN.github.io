@@ -1112,7 +1112,7 @@
       ov.className = 'hx-cert-ov';
       ov.innerHTML =
         '<div class="hx-cert-box" role="dialog" aria-modal="true">' +
-        '<div class="hx-cert-head"><i class="fas fa-certificate" aria-hidden="true"></i>' +
+        '<div class="hx-certmod-head"><i class="fas fa-certificate" aria-hidden="true"></i>' +
         '<span class="hx-cert-title">Certificado</span>' +
         '<button type="button" class="hx-cert-close" aria-label="Cerrar">✕</button></div>' +
         '<img class="hx-cert-img" alt="Certificado de la máquina">' +
