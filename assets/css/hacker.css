@@ -269,10 +269,21 @@ a { transition: color 0.2s, text-shadow 0.2s; }
 /* Navegación: cada sección con su color, icono en chip y número hexadecimal */
 #sidebar .nav { counter-reset: hx-nav; }
 
-#sidebar .nav-item { counter-increment: hx-nav; --c: 159 239 0; }
-#sidebar .nav-item:nth-child(4n + 2) { --c: 46 230 214; }
-#sidebar .nav-item:nth-child(4n + 3) { --c: 255 175 0; }
-#sidebar .nav-item:nth-child(4n + 4) { --c: 193 108 255; }
+/* Un color distinto por página (sin repetir) + el fondo del botón usa su color */
+#sidebar .nav-item { counter-increment: hx-nav; --c: 159 239 0; --sidebar-hover-bg: rgb(var(--c) / 12%); }
+#sidebar .nav-item:nth-child(1)  { --c: 159 239 0; }    /* INICIO · verde */
+#sidebar .nav-item:nth-child(2)  { --c: 46 230 214; }   /* WRITE-UPS · cian */
+#sidebar .nav-item:nth-child(3)  { --c: 255 175 0; }    /* HERRAMIENTAS · naranja */
+#sidebar .nav-item:nth-child(4)  { --c: 193 108 255; }  /* CERTIFICACIONES · morado */
+#sidebar .nav-item:nth-child(5)  { --c: 94 180 248; }   /* TÍTULOS · azul */
+#sidebar .nav-item:nth-child(6)  { --c: 255 214 10; }   /* CATEGORÍAS · amarillo */
+#sidebar .nav-item:nth-child(7)  { --c: 255 94 135; }   /* ETIQUETAS · rosa */
+#sidebar .nav-item:nth-child(8)  { --c: 0 214 170; }    /* ARCHIVO · verde azulado */
+#sidebar .nav-item:nth-child(9)  { --c: 255 120 60; }   /* ROADMAP · coral */
+#sidebar .nav-item:nth-child(10) { --c: 180 130 255; }  /* ACERCA DE · lavanda */
+
+/* Fondo al pasar el ratón: su propio color (tenue/oscuro), no verde */
+#sidebar .nav-item:not(.active) .nav-link:hover { background: rgb(var(--c) / 12%) !important; }
 
 #sidebar .nav-item .nav-link {
   position: relative;
@@ -336,15 +347,15 @@ a { transition: color 0.2s, text-shadow 0.2s; }
 
 #sidebar .nav-item.active .nav-link {
   color: rgb(var(--c)) !important;
-  background: linear-gradient(90deg, rgb(var(--c) / 14%), transparent 85%);
-  box-shadow: inset 2px 0 0 rgb(var(--c));
+  background: linear-gradient(90deg, rgb(var(--c) / 16%), transparent 85%) !important;
+  box-shadow: inset 2px 0 0 rgb(var(--c)) !important;
   text-shadow: 0 0 10px rgb(var(--c) / 45%);
 }
 
 #sidebar .nav-item.active .nav-link i {
-  background: rgb(var(--c));
-  border-color: rgb(var(--c));
-  color: #05070a;
+  background: rgb(var(--c)) !important;
+  border-color: rgb(var(--c)) !important;
+  color: #05070a !important;
   box-shadow: 0 0 16px rgb(var(--c) / 55%);
   animation: hx-chip-pulse 2.4s ease-in-out infinite;
 }
@@ -709,7 +720,33 @@ footer a { color: var(--hx-green) !important; }
   font-size: 0.9rem;
 }
 
-.hx-lead::before { content: '// '; color: var(--hx-green); }
+.hx-lead::before { content: '// '; color: rgb(var(--page, 159 239 0)); }
+
+/* Título de página: icono + más grande + color de la página + centrado */
+h1.dynamic-title {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  text-align: center;
+  font-size: clamp(2rem, 5.5vw, 3rem) !important;
+  color: rgb(var(--page, 159 239 0)) !important;
+  text-shadow: 0 0 20px rgb(var(--page, 159 239 0) / 28%);
+}
+
+h1.dynamic-title i {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1.5em;
+  height: 1.5em;
+  font-size: 0.82em;
+  color: rgb(var(--page, 159 239 0));
+  border: 1px solid rgb(var(--page, 159 239 0) / 32%);
+  border-radius: 12px;
+  background: rgb(var(--page, 159 239 0) / 9%);
+  box-shadow: 0 0 18px rgb(var(--page, 159 239 0) / 18%);
+}
 
 .hx-filters {
   display: flex;

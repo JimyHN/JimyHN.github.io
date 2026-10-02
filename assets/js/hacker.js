@@ -1153,7 +1153,25 @@
     });
   }
 
+  /* --- Color por página: el menú activo tiñe la página y su título --- */
+  function initPageTheme() {
+    const active = document.querySelector('#sidebar .nav-item.active');
+    if (!active) return;
+    const c = getComputedStyle(active).getPropertyValue('--c').trim();
+    if (c) document.documentElement.style.setProperty('--page', c);
+
+    const title = document.querySelector('h1.dynamic-title');
+    const navIcon = active.querySelector('.nav-link i');
+    if (title && navIcon && !title.querySelector('i')) {
+      const ic = document.createElement('i');
+      ic.className = navIcon.className;
+      ic.setAttribute('aria-hidden', 'true');
+      title.prepend(ic);
+    }
+  }
+
   function init() {
+    initPageTheme();
     initMatrix();
     initAvatarFx();
     initTools();
