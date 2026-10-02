@@ -46,7 +46,7 @@ UA = {"User-Agent": "Mozilla/5.0"}
 
 # Secciones disponibles (id, nombre, color RGB). El editor usa esta misma lista.
 SECTIONS = [
-    ("resumen", "Resumen", "159 239 0"),
+    ("resumen", "Resumen", "255 94 135"),
     ("vulnerabilidad", "Vulnerabilidad", "255 62 62"),
     ("reconocimiento", "Reconocimiento", "46 230 214"),
     ("enumeracion", "Enumeración", "94 180 248"),
