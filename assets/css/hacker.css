@@ -1801,14 +1801,40 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
 }
 
 #access-lastmod .hx-recent a:hover {
-  background: var(--hx-green-soft);
-  box-shadow: inset 2px 0 0 var(--hx-green);
+  background: rgb(var(--ic, 159 239 0) / 10%);
+  box-shadow: inset 2px 0 0 rgb(var(--ic, 159 239 0));
   transform: translateX(3px);
 }
 
 .hx-recent a > i {
   margin-top: 0.2rem;
   color: var(--hx-green);
+  font-size: 0.8rem;
+}
+
+/* Imagen de la máquina en cada entrada, con aro del color de la entrada */
+.hx-recent a > .hx-recent-img {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  background-color: #05070a;
+  border: 1px solid rgb(var(--ic, 159 239 0) / 55%);
+  box-shadow: 0 0 10px rgb(var(--ic, 159 239 0) / 28%);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hx-recent a:hover > .hx-recent-img {
+  transform: scale(1.08);
+  box-shadow: 0 0 14px rgb(var(--ic, 159 239 0) / 50%);
+}
+
+.hx-recent-ph {
+  display: grid;
+  place-items: center;
+  color: rgb(var(--ic, 159 239 0));
   font-size: 0.8rem;
 }
 

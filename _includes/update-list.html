@@ -46,16 +46,28 @@
 {% if all_list.size > 0 %}
   <section id="access-lastmod" class="hx-widget">
     <h2 class="panel-heading hx-widget-title">
-      <i class="fas fa-satellite-dish" aria-hidden="true"></i> Últimas subidas
+      <i class="fas fa-arrow-up" aria-hidden="true"></i> Últimas subidas
       <span class="hx-live" aria-hidden="true"></span>
     </h2>
     <ul class="hx-recent list-unstyled">
       {% for item in all_list limit: MAX_SIZE %}
         {% assign index = item | split: '::' | last | plus: 0 %}
         {% assign post = site.posts[index] %}
+        {% assign ic = forloop.index0 | modulo: 6 %}
+        {% case ic %}
+          {% when 0 %}{% assign icol = '159 239 0' %}
+          {% when 1 %}{% assign icol = '46 230 214' %}
+          {% when 2 %}{% assign icol = '255 175 0' %}
+          {% when 3 %}{% assign icol = '193 108 255' %}
+          {% when 4 %}{% assign icol = '94 180 248' %}
+          {% when 5 %}{% assign icol = '255 214 10' %}
+        {% endcase %}
+        {% assign os_down = post.os | default: '' | downcase %}
         <li>
-          <a href="{{ post.url | relative_url }}">
-            <i class="fas fa-{% if post.categories contains 'Herramientas' %}toolbox{% else %}terminal{% endif %}" aria-hidden="true"></i>
+          <a href="{{ post.url | relative_url }}" style="--ic: {{ icol }}">
+            <span class="hx-recent-img{% unless post.thumb %} hx-recent-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
+              {% unless post.thumb %}{% if post.categories contains 'Herramientas' %}<i class="fas fa-toolbox" aria-hidden="true"></i>{% elsif os_down contains 'windows' %}<i class="fab fa-windows" aria-hidden="true"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux" aria-hidden="true"></i>{% else %}<i class="fas fa-server" aria-hidden="true"></i>{% endif %}{% endunless %}
+            </span>
             <span>
               <b>{{ post.title }}</b>
               <small>
