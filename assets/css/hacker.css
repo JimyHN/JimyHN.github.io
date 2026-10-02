@@ -3817,8 +3817,8 @@ body.hx-cert-locked { overflow: hidden; }
 .content a.hx-mcard:hover,
 .hx-mcard:hover {
   transform: translateY(-4px);
-  border-color: rgb(var(--diff));
-  box-shadow: 0 12px 30px rgb(0 0 0 / 50%), 0 0 20px rgb(var(--os) / 30%);
+  border-color: color-mix(in srgb, rgb(var(--os)) 55%, #ffffff);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 50%), 0 0 22px rgb(var(--os) / 35%);
 }
 
 .hx-mcard:hover .hx-mcard-name { color: rgb(var(--os)); }
