@@ -338,7 +338,10 @@ def render_table_block(block_text: str) -> str:
             if cell.get("b"):
                 st.append("font-weight:700")
             if cell.get("c"):
-                st.append(f"color:{_TBL_TXT.get(cell['c'], 'inherit')}")
+                if cell["c"] == "p":
+                    st.append("color:rgb(var(--page, 159 239 0))")
+                else:
+                    st.append(f"color:{_TBL_TXT.get(cell['c'], 'inherit')}")
             if cell.get("bg"):
                 st.append(f"background:{cell['bg']}")
             tds.append(f'<td style="{";".join(st)}">{render_inline(cell.get("t", ""))}</td>')
