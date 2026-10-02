@@ -366,10 +366,6 @@ def render_body(data: dict) -> str:
     h += f'<h1 class="hx-wu-title">{esc(name)}</h1>'
     h += f'<p class="hx-wu-meta">Publicado por <b>{esc(AUTHOR)}</b></p>'
     h += "</div>"
-    if proof:
-        h += (f'<button type="button" class="hx-wu-cert" data-cert="{esc(proof)}" '
-              f'data-img="{esc(banner_img or avatar)}" data-name="{esc(name)}">'
-              f'<i class="fas fa-certificate" aria-hidden="true"></i> Mostrar certificado</button>')
     h += "</header>"
     # Tabla ficha
     h += ('<table class="hx-wu-table"><thead><tr><th>Máquina</th><th>SO</th>'
@@ -378,6 +374,13 @@ def render_body(data: dict) -> str:
     h += f'<td class="wu-os wu-os-{osc}">{esc(os_name)}</td>'
     h += f'<td><span class="hx-badge hx-diff-{diff.lower()}">{esc(diff)}</span></td>'
     h += f'<td class="wu-ip">{esc(ip)}</td></tr></tbody></table>'
+    # Botón del certificado, debajo de la tabla
+    if proof:
+        h += (f'<button type="button" class="hx-wu-cert" data-cert="{esc(proof)}" '
+              f'data-img="{esc(banner_img or avatar)}" data-name="{esc(name)}">'
+              f'<i class="fas fa-certificate" aria-hidden="true"></i> Mostrar certificado</button>')
+    # Aviso antes del terminal de hosts
+    h += '<p class="hx-wu-note"><b><i>A tener en cuenta...</i></b></p>'
     # Terminal de hosts
     h += render_term("term", ["$ sudo nano /etc/hosts", f"{ip}   {slug}"])
     # Índice (solo secciones con contenido)
