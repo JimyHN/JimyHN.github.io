@@ -70,6 +70,54 @@
   .ed-note-h .dot { width:9px; height:9px; border-radius:50%; background:var(--ac,#9fef00); flex-shrink:0; }
   .ed-note textarea { min-height:150px; }
 
+  /* Cabecera del editor: título + estado de publicación */
+  .ed-head { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.4rem; }
+  .ed-head .ed-h { margin:0; }
+  .ed-pubstate { margin-left:auto; font-size:0.72rem; font-weight:700; border:1px solid currentColor; border-radius:999px; padding:0.2rem 0.65rem; white-space:nowrap; }
+  .ed-pubstate.no { color:#ff5c5c; }
+  .ed-pubstate.yes { color:#9fef00; }
+
+  /* Campo de nombre bloqueado + botón Cambiar */
+  .ed-name-row { display:flex; gap:0.4rem; }
+  .ed-name-row input { flex:1; }
+  .ed-name-row input[readonly] { color:#e6edf3; cursor:default; }
+  .ed-name-btn { background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:6px; color:#c5d1de; font-family:inherit; font-size:0.78rem; padding:0 0.8rem; cursor:pointer; white-space:nowrap; }
+  .ed-name-btn:hover { border-color:var(--ed-green); color:var(--ed-green); }
+  .ed-pub .save-main { background:var(--ed-panel); color:#c5d1de; border:1px solid var(--ed-border); }
+  .ed-pub .save-main:hover { border-color:var(--ed-green); color:var(--ed-green); }
+
+  /* Ventana emergente de nombre */
+  .nm-ov { position:fixed; inset:0; z-index:10000; display:none; align-items:center; justify-content:center; padding:1.2rem; background:rgb(3 5 8 / 85%); backdrop-filter:blur(3px); }
+  .nm-ov.open { display:flex; }
+  .nm-modal { width:min(480px,96vw); max-height:88vh; display:flex; flex-direction:column; background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:12px; padding:1.1rem 1.2rem; }
+  .nm-modal h2 { font-size:1rem; color:var(--ed-green); margin:0 0 0.7rem; }
+  .nm-cur { font-size:0.8rem; color:var(--ed-mut); margin:0 0 0.6rem; }
+  .nm-cur b { color:#e6edf3; }
+  .nm-modal input { width:100%; }
+  .nm-msg { font-size:0.75rem; min-height:1.1em; margin:0.4rem 0; color:var(--ed-mut); }
+  .nm-msg.err { color:#ff5c5c; }
+  .nm-msg.ok { color:var(--ed-cyan); }
+  .nm-list { flex:1; overflow-y:auto; border:1px solid var(--ed-border); border-radius:8px; padding:0.3rem; margin-bottom:0.7rem; min-height:90px; max-height:40vh; }
+  .nm-item { display:flex; align-items:baseline; gap:0.5rem; padding:0.35rem 0.5rem; border-radius:6px; font-size:0.84rem; color:#c5d1de; }
+  .nm-item.hit { color:#ff5c5c; }
+  .nm-item .s { color:var(--ed-mut); font-size:0.72rem; margin-left:auto; }
+  .nm-item:nth-child(odd) { background:rgb(255 255 255 / 3%); }
+  .nm-empty { padding:0.6rem; color:var(--ed-mut); font-size:0.78rem; text-align:center; }
+  .nm-actions { display:flex; gap:0.6rem; justify-content:flex-end; }
+  .nm-btn { background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:7px; color:#c5d1de; font-family:inherit; font-size:0.82rem; font-weight:600; padding:0.45rem 0.9rem; cursor:pointer; }
+  .nm-btn.ok { background:var(--ed-green); color:#05070a; border:none; }
+  .nm-btn.ok:disabled { opacity:0.4; cursor:not-allowed; }
+
+  /* Ventana emergente de guardando / publicando */
+  .op-ov { position:fixed; inset:0; z-index:10001; display:none; align-items:center; justify-content:center; background:rgb(3 5 8 / 88%); backdrop-filter:blur(3px); }
+  .op-ov.open { display:flex; }
+  .op-box { display:flex; flex-direction:column; align-items:center; gap:1rem; background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:14px; padding:2rem 2.6rem; text-align:center; }
+  .op-box p { margin:0; font-size:0.95rem; color:#e6edf3; }
+  .op-box small { color:var(--ed-mut); font-size:0.78rem; }
+  .op-spin { width:34px; height:34px; border:3px solid var(--ed-border); border-top-color:var(--ed-green); border-radius:50%; animation:op-rot 0.8s linear infinite; }
+  .op-box.done .op-spin { border:3px solid var(--ed-cyan); animation:none; }
+  @keyframes op-rot { to { transform:rotate(360deg); } }
+
   /* Paleta de color de la máquina */
   .ed-pal { display:flex; flex-wrap:wrap; gap:0.35rem; }
   .ed-pal button { width:1.5rem; height:1.5rem; border-radius:6px; border:1px solid #2a3a4d; cursor:pointer; padding:0; transition:transform .12s; }
@@ -132,11 +180,19 @@
 <div class="ed-wrap">
   <!-- ======================= IZQUIERDA: EDITOR ======================= -->
   <div class="ed-col ed-left">
-    <h1 class="ed-h">▚ Editor de write-up</h1>
+    <div class="ed-head">
+      <h1 class="ed-h">▚ Editor de write-up</h1>
+      <span class="ed-pubstate no" id="pubstate">● No publicado</span>
+    </div>
     <p class="ed-mode" id="ed-mode"></p>
 
     <div class="ed-row">
-      <div class="ed-field"><label>Máquina *</label><input id="f-name" placeholder="Blue"></div>
+      <div class="ed-field"><label>Máquina *</label>
+        <div class="ed-name-row">
+          <input id="f-name" placeholder="(sin nombre)" readonly>
+          <button type="button" class="ed-name-btn" onclick="openNombre()">Cambiar</button>
+        </div>
+      </div>
       <div class="ed-field" style="flex:0 0 140px"><label>IP</label><input id="f-ip" placeholder="10.10.10.10"></div>
     </div>
     <div class="ed-row">
@@ -181,6 +237,7 @@
     </div>
 
     <div class="ed-pub">
+      <button class="save-main" id="save-btn" onclick="guardar()">Guardar</button>
       <button class="pub" id="pub-btn" onclick="publicar()">Publicar</button>
     </div>
     <p class="ed-status" id="pub-status"></p>
@@ -206,6 +263,30 @@
       </div>
       <div id="ed-notes"></div>
     </div>
+  </div>
+</div>
+
+<!-- ======================= NOMBRE DE LA MÁQUINA ======================= -->
+<div class="nm-ov" id="nm-ov">
+  <div class="nm-modal">
+    <h2 id="nm-title">Nombre de la máquina</h2>
+    <p class="nm-cur" id="nm-cur" style="display:none">Nombre actual: <b id="nm-cur-name"></b></p>
+    <input id="nm-input" placeholder="Nombre" autocomplete="off" spellcheck="false">
+    <p class="nm-msg" id="nm-msg"></p>
+    <div class="nm-list" id="nm-list"></div>
+    <div class="nm-actions">
+      <button class="nm-btn" id="nm-cancel" onclick="closeNombre()">Cancelar</button>
+      <button class="nm-btn ok" id="nm-ok" onclick="confirmNombre()" disabled>Guardar nombre</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= GUARDANDO / PUBLICANDO ======================= -->
+<div class="op-ov" id="op-ov">
+  <div class="op-box" id="op-box">
+    <div class="op-spin"></div>
+    <p id="op-text">Guardando…</p>
+    <small id="op-sub"></small>
   </div>
 </div>
 
@@ -401,35 +482,19 @@ function autoImagen() {
 document.getElementById('f-url').addEventListener('input', autoImagen);
 document.getElementById('f-name').addEventListener('input', autoImagen);
 
-// ---------- Publicar ----------
-async function publicar() {
-  const st = document.getElementById('pub-status');
-  if (!val('f-name')) { st.textContent = 'Falta el nombre de la máquina.'; return; }
-  const data = collectData();
-  data.mode = MODE;
-  st.textContent = MODE === 'edit' ? 'Guardando cambios...' : 'Publicando...';
-  try {
-    const r = await fetch('/api/publish', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
-    const d = await r.json();
-    if (d.error) throw new Error(d.error);
-    _dirty = false;
-    setSave('✓ Publicado y guardado', 'ok');
-    st.textContent = (MODE === 'edit' ? '✓ Write-up editado: ' : '✓ Write-up publicado: ') + d.path + ' — haz commit y push para subirlo.';
-  } catch (e) { st.textContent = 'Error: ' + e.message; }
-}
+// ================= Estado, nombre, guardado y publicación =================
+let _dirty = false, _saving = false, _published = false, _created = false, _slug = '';
 
-// ---------- Pestañas Máquina / Notas ----------
-function switchTab(name) {
-  const isNotas = name === 'notas';
-  document.getElementById('pane-maquina').style.display = isNotas ? 'none' : '';
-  document.getElementById('pane-notas').style.display = isNotas ? '' : 'none';
-  document.getElementById('tab-maquina').classList.toggle('active', !isNotas);
-  document.getElementById('tab-notas').classList.toggle('active', isNotas);
-  guardar(true);   // guarda al cambiar de pestaña (silencioso)
+// slugify idéntico al de writeup.py
+function slugify(name) {
+  let s = (name || '').trim().toLowerCase();
+  const a = 'áéíóúñ', b = 'aeioun';
+  for (let i = 0; i < a.length; i++) s = s.split(a[i]).join(b[i]);
+  s = s.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return s || 'maquina';
 }
+const wait = ms => new Promise(r => setTimeout(r, ms));
 
-// ---------- Guardado del borrador (JSON, sin publicar al blog) ----------
-let _dirty = false, _saving = false;
 function setSave(txt, cls) {
   const st = document.getElementById('save-status');
   if (!st) return;
@@ -440,29 +505,197 @@ function markDirty() {
   _dirty = true;
   if (val('f-name')) setSave('• sin guardar', 'dirty');
 }
-async function guardar(auto) {
-  if (!val('f-name')) { if (!auto) setSave('Falta el nombre para guardar.', 'err'); return; }
-  if (_saving || (auto && !_dirty)) return;
-  _saving = true;
-  setSave('Guardando…');
-  try {
-    const r = await fetch('/api/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(collectData()) });
-    const d = await r.json();
-    if (d.error) throw new Error(d.error);
-    _dirty = false;
-    const t = new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
-    setSave('✓ Guardado ' + t, 'ok');
-  } catch (e) { setSave('Error al guardar: ' + e.message, 'err'); }
-  finally { _saving = false; }
+function updatePubBadge() {
+  const bdg = document.getElementById('pubstate');
+  bdg.textContent = _published ? '● Publicado' : '● No publicado';
+  bdg.className = 'ed-pubstate ' + (_published ? 'yes' : 'no');
 }
-// Autoguardado cada 10 minutos (solo si hay cambios y nombre).
-setInterval(() => guardar(true), 10 * 60 * 1000);
-// Red de seguridad: intenta guardar al cerrar/recargar si quedan cambios.
+function markSaved(d) {
+  _dirty = false; _created = true; _slug = slugify(val('f-name'));
+  if (d && typeof d.published === 'boolean') { _published = d.published; updatePubBadge(); }
+  setSave('✓ Guardado ' + new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' }), 'ok');
+}
+
+// ---------- Ventana de guardando / publicando ----------
+function showOp(text) {
+  document.getElementById('op-text').textContent = text;
+  document.getElementById('op-sub').textContent = '';
+  document.getElementById('op-box').classList.remove('done');
+  document.getElementById('op-ov').classList.add('open');
+}
+function doneOp(text, sub) {
+  document.getElementById('op-text').textContent = text;
+  document.getElementById('op-sub').textContent = sub || '';
+  document.getElementById('op-box').classList.add('done');
+}
+function hideOp() { document.getElementById('op-ov').classList.remove('open'); }
+
+// ---------- Guardar (manual, con ventana ≥5 s; no publica) ----------
+async function guardar() {
+  if (!val('f-name')) { openNombre(); return; }
+  if (_saving) return;
+  _saving = true;
+  const t0 = Date.now();
+  showOp('Guardando…');
+  try {
+    const d = await (await fetch('/api/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(collectData()) })).json();
+    if (d.error) throw new Error(d.error);
+    markSaved(d);
+    doneOp('✓ Guardado', 'En el JSON. No aparece en el blog hasta pulsar «Publicar».');
+  } catch (e) { doneOp('Error al guardar', e.message); }
+  await wait(Math.max(0, 5000 - (Date.now() - t0)));
+  hideOp();
+  _saving = false;
+}
+
+// ---------- Autoguardado silencioso (solo máquinas NO publicadas) ----------
+async function autoSave() {
+  if (_published || _saving || !_dirty || !val('f-name')) return;
+  _saving = true;
+  try {
+    const d = await (await fetch('/api/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(collectData()) })).json();
+    if (!d.error) markSaved(d);
+  } catch (e) { /* servidor no disponible */ }
+  _saving = false;
+}
+
+// ---------- Publicar (ventana ≥5 s; guarda, regenera el post y cierra el editor) ----------
+async function publicar() {
+  if (!val('f-name')) { openNombre(); return; }
+  if (_saving) return;
+  _saving = true;
+  const t0 = Date.now();
+  showOp('Publicando…');
+  try {
+    const data = collectData();
+    data.mode = MODE;
+    const d = await (await fetch('/api/publish', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) })).json();
+    if (d.error) throw new Error(d.error);
+    _dirty = false; _created = true; _published = true; _slug = slugify(val('f-name'));
+    updatePubBadge();
+    setSave('✓ Publicado', 'ok');
+    await wait(Math.max(0, 5000 - (Date.now() - t0)));
+    doneOp('✓ Publicado', 'Cerrando el editor…');
+    try { await fetch('/api/shutdown', { method:'POST' }); } catch (e) { /* el servidor ya se cerró */ }
+    doneOp('✓ Publicado — editor cerrado', 'Ejecuta git add -A && git commit && git push para subirlo al blog.');
+    // Se deja la ventana abierta: el servidor ya no responde.
+  } catch (e) {
+    doneOp('Error al publicar', e.message);
+    await wait(Math.max(0, 5000 - (Date.now() - t0)));
+    hideOp();
+    _saving = false;
+  }
+}
+
+// ---------- Pestañas Máquina / Notas ----------
+function switchTab(name) {
+  const isNotas = name === 'notas';
+  document.getElementById('pane-maquina').style.display = isNotas ? 'none' : '';
+  document.getElementById('pane-notas').style.display = isNotas ? '' : 'none';
+  document.getElementById('tab-maquina').classList.toggle('active', !isNotas);
+  document.getElementById('tab-notas').classList.toggle('active', isNotas);
+  autoSave();   // autoguardado silencioso al cambiar de pestaña (solo no publicadas)
+}
+
+// Autoguardado cada 10 minutos (solo no publicadas, y si hay cambios).
+setInterval(autoSave, 10 * 60 * 1000);
+// Red de seguridad al cerrar/recargar (solo no publicadas con cambios).
 window.addEventListener('beforeunload', () => {
-  if (_dirty && val('f-name')) {
+  if (!_published && _dirty && val('f-name')) {
     try { navigator.sendBeacon('/api/save', new Blob([JSON.stringify(collectData())], { type:'application/json' })); } catch (e) { /* nada */ }
   }
 });
+
+// ================= Ventana emergente de nombre =================
+let _nmList = [];
+async function loadNmList() {
+  try { _nmList = await (await fetch('/api/list')).json(); } catch (e) { _nmList = []; }
+}
+function renderNmList(filter) {
+  const list = document.getElementById('nm-list');
+  const f = (filter || '').trim().toLowerCase();
+  const typed = slugify(filter);
+  const items = _nmList.filter(m => !f || (m.name || '').toLowerCase().includes(f) || (m.slug || '').includes(typed));
+  if (!items.length) { list.innerHTML = '<p class="nm-empty">Ninguna máquina coincide — nombre libre.</p>'; return; }
+  list.innerHTML = items.map(m => {
+    const hit = f && m.slug === typed && m.slug !== _slug;
+    return `<div class="nm-item${hit ? ' hit' : ''}"><span>${m.name || m.slug}</span><span class="s">${m.slug}${m.published ? ' · publicada' : ''}</span></div>`;
+  }).join('');
+}
+function onNmInput() {
+  const name = document.getElementById('nm-input').value;
+  renderNmList(name);
+  const slug = slugify(name);
+  const msg = document.getElementById('nm-msg');
+  const okBtn = document.getElementById('nm-ok');
+  if (!name.trim()) { msg.textContent = ''; msg.className = 'nm-msg'; okBtn.disabled = true; return; }
+  const collision = _nmList.some(m => m.slug === slug && m.slug !== _slug);
+  if (collision) { msg.textContent = 'Ya existe una máquina con ese nombre.'; msg.className = 'nm-msg err'; okBtn.disabled = true; }
+  else { msg.textContent = 'Nombre disponible.'; msg.className = 'nm-msg ok'; okBtn.disabled = false; }
+}
+async function openNombre() {
+  await loadNmList();
+  const cur = val('f-name');
+  const curEl = document.getElementById('nm-cur');
+  const input = document.getElementById('nm-input');
+  if (cur) {
+    document.getElementById('nm-title').textContent = 'Cambiar nombre';
+    curEl.style.display = '';
+    document.getElementById('nm-cur-name').textContent = cur;
+    input.placeholder = 'Nuevo nombre';
+    document.getElementById('nm-cancel').style.display = '';
+  } else {
+    document.getElementById('nm-title').textContent = 'Nombre de la máquina';
+    curEl.style.display = 'none';
+    input.placeholder = 'Nombre';
+    document.getElementById('nm-cancel').style.display = 'none';   // en --add hay que fijar un nombre
+  }
+  input.value = '';
+  onNmInput();
+  document.getElementById('nm-ov').classList.add('open');
+  input.focus();
+}
+function closeNombre() {
+  if (!val('f-name')) return;   // sin nombre fijado no se puede salir (modo --add)
+  document.getElementById('nm-ov').classList.remove('open');
+}
+async function confirmNombre() {
+  const newName = document.getElementById('nm-input').value.trim();
+  if (!newName) return;
+  const newSlug = slugify(newName);
+  if (_nmList.some(m => m.slug === newSlug && m.slug !== _slug)) return;   // colisión
+  const msg = document.getElementById('nm-msg'), okBtn = document.getElementById('nm-ok');
+  if (_created && _slug) {
+    // Máquina ya guardada: renombrar JSON (+ post + imágenes) en el servidor.
+    okBtn.disabled = true; msg.textContent = 'Renombrando…'; msg.className = 'nm-msg';
+    try {
+      const d = await (await fetch('/api/rename', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ old_slug: _slug, new_name: newName }) })).json();
+      if (d.error) throw new Error(d.error);
+      document.getElementById('f-name').value = d.name;
+      _slug = d.slug; _published = !!d.published; updatePubBadge();
+      if (d.img) {
+        window._img = d.img;
+        window._imgKey = (d.img.proof || '') + '|' + d.name;
+        document.getElementById('img-box').innerHTML = `<img src="${d.img.avatar}" alt="avatar"><img src="${d.img.banner}" alt="banner">`;
+      }
+      document.getElementById('nm-ov').classList.remove('open');
+      scheduleRender();
+    } catch (e) { msg.textContent = e.message; msg.className = 'nm-msg err'; okBtn.disabled = false; }
+  } else {
+    // Aún no existe el JSON: fija el nombre y crea el borrador en el acto.
+    document.getElementById('f-name').value = newName;
+    _slug = newSlug;
+    document.getElementById('nm-ov').classList.remove('open');
+    markDirty();
+    scheduleRender();
+    autoSave();   // crea ya el JSON (solo si no está publicada)
+  }
+}
+document.getElementById('nm-input').addEventListener('input', onNmInput);
+document.getElementById('nm-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !document.getElementById('nm-ok').disabled) { e.preventDefault(); confirmNombre(); }
+});
+document.getElementById('nm-ov').addEventListener('click', e => { if (e.target.id === 'nm-ov') closeNombre(); });
 
 // ================= Color de la máquina + máquinas anteriores =================
 const PALETTE = [
@@ -747,20 +980,29 @@ async function boot() {
   document.getElementById('f-date').value = new Date().toISOString().slice(0, 10);
   if (MODE === 'edit' && SLUG) {
     modeEl.innerHTML = 'Modo <b>editar</b>: ' + SLUG;
-    document.getElementById('pub-btn').textContent = 'Guardar cambios';
     try {
-      const r = await fetch('/api/load?slug=' + encodeURIComponent(SLUG));
-      const d = await r.json();
+      const d = await (await fetch('/api/load?slug=' + encodeURIComponent(SLUG))).json();
       if (d.error) throw new Error(d.error);
       fillFrom(d);
+      _created = true;
+      _slug = slugify(d.name || SLUG);
+      try { _published = !!(await (await fetch('/api/published?slug=' + encodeURIComponent(_slug))).json()).published; } catch (e) { /* nada */ }
     } catch (e) {
       document.getElementById('pub-status').textContent = 'No se pudo cargar: ' + e.message;
     }
   } else {
     modeEl.innerHTML = 'Modo <b>añadir</b>: comienza la redacción';
-    if (qp.get('name')) document.getElementById('f-name').value = qp.get('name');
+    _created = false; _published = false; _slug = '';
     if (qp.get('url')) document.getElementById('f-url').value = qp.get('url');
+    const qName = qp.get('name');
+    if (qName) {
+      document.getElementById('f-name').value = qName;   // nombre ya validado por la CLI
+      _slug = slugify(qName);
+    } else {
+      openNombre();   // --add a secas: hay que elegir nombre antes de nada
+    }
   }
+  updatePubBadge();
   render();
 }
 boot();
