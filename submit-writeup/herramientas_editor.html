@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor de herramientas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700;900&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7/css/all.min.css">
+<link rel="stylesheet" href="/hacker.css">
+<style>
+  :root { --ed-bg:#0a0e14; --ed-panel:#111822; --ed-border:#1e2b3a; --ed-green:#44f08a; --ed-cyan:#2ee6d6; --ed-mut:#7d8b99; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--ed-bg); color:#c5d1de; font-family:'JetBrains Mono',monospace; }
+  .ed-wrap { display:grid; grid-template-columns:1fr 1fr; gap:0; height:100vh; }
+  .ed-col { overflow-y:auto; padding:1.2rem; }
+  .ed-left { border-right:1px solid var(--ed-border); }
+  .ed-right { background:var(--hx-bg, #070a0f); }
+  h1.ed-h { font-size:1.1rem; color:var(--ed-green); margin:0 0 0.2rem; }
+  .ed-mode { font-size:0.72rem; color:var(--ed-mut); margin:0 0 1rem; }
+  .ed-mode b { color:var(--ed-cyan); }
+  .ed-field { display:flex; flex-direction:column; gap:0.25rem; margin-bottom:0.8rem; }
+  .ed-field label { font-size:0.7rem; color:var(--ed-mut); text-transform:uppercase; letter-spacing:0.05em; }
+  input, textarea { background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:6px; color:#e6edf3; font-family:inherit; font-size:0.85rem; padding:0.45rem 0.6rem; width:100%; }
+  input:focus, textarea:focus { outline:none; border-color:var(--ed-green); }
+  textarea { min-height:120px; resize:vertical; line-height:1.5; }
+  .ed-row { display:flex; gap:0.6rem; }
+  .ed-row > * { flex:1; }
+  .ed-pal { display:flex; flex-wrap:wrap; gap:0.4rem; }
+  .ed-pal button { position:relative; width:1.6rem; height:1.6rem; border-radius:6px; border:1px solid #2a3a4d; cursor:pointer; padding:0; transition:transform .12s; }
+  .ed-pal button:hover { transform:scale(1.15); }
+  .ed-pal button.sel { outline:2px solid #fff; outline-offset:1px; }
+  .ed-pal-n { position:absolute; top:-6px; right:-6px; min-width:15px; height:15px; padding:0 3px; border-radius:999px; background:#0a0e14; border:1px solid currentColor; color:#e6edf3; font-size:0.6rem; font-weight:700; line-height:13px; text-align:center; box-shadow:0 1px 3px rgb(0 0 0/55%); pointer-events:none; }
+  .ed-hint { font-size:0.7rem; color:var(--ed-mut); line-height:1.5; margin:0.2rem 0 0; }
+  .ed-status { font-size:0.75rem; color:var(--ed-cyan); min-height:1.1em; margin:0.3rem 0; }
+  .ed-pub { display:flex; gap:0.6rem; margin-top:1rem; }
+  .ed-pub button { flex:1; padding:0.7rem; border:none; border-radius:8px; font-family:inherit; font-weight:700; font-size:0.9rem; cursor:pointer; }
+  .ed-pub .pub { background:var(--ed-green); color:#05070a; }
+  .ed-pub .del { background:var(--ed-panel); border:1px solid #ff5c5c; color:#ff5c5c; flex:0 0 auto; }
+  .ed-prev-note { font-size:0.7rem; color:var(--ed-mut); margin:0 0 0.8rem; }
+  .ed-list { margin-top:1rem; }
+  .ed-list h2 { font-size:0.8rem; color:var(--ed-mut); text-transform:uppercase; letter-spacing:0.05em; }
+  .ed-list a { display:flex; align-items:center; gap:0.5rem; padding:0.4rem 0.55rem; border:1px solid var(--ed-border); border-radius:8px; margin-bottom:0.4rem; color:#c5d1de; text-decoration:none; font-size:0.82rem; }
+  .ed-list a:hover { border-color:rgb(var(--c,46 230 214)); color:rgb(var(--c,46 230 214)); }
+  .ed-list a .dot { width:9px; height:9px; border-radius:50%; background:rgb(var(--c,46 230 214)); flex-shrink:0; }
+  .ed-list a small { margin-left:auto; color:var(--ed-mut); }
+  /* Ventana publicando */
+  .op-ov { position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; background:rgb(3 5 8/88%); backdrop-filter:blur(3px); }
+  .op-ov.open { display:flex; }
+  .op-box { display:flex; flex-direction:column; align-items:center; gap:1rem; background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:14px; padding:2rem 2.6rem; text-align:center; }
+  .op-box p { margin:0; color:#e6edf3; }
+  .op-box small { color:var(--ed-mut); }
+  .op-spin { width:34px; height:34px; border:3px solid var(--ed-border); border-top-color:var(--ed-green); border-radius:50%; animation:op-rot .8s linear infinite; }
+  .op-box.done .op-spin { border:3px solid var(--ed-cyan); animation:none; }
+  @keyframes op-rot { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="ed-wrap">
+  <div class="ed-col ed-left">
+    <h1 class="ed-h">🧰 Editor de herramientas</h1>
+    <p class="ed-mode" id="ed-mode"></p>
+
+    <div class="ed-field"><label>Nombre *</label><input id="f-nombre" placeholder="Bash_Decompressor" autocomplete="off"></div>
+    <p class="ed-status" id="name-status"></p>
+
+    <div class="ed-field"><label>Enlace al repositorio de GitHub</label><input id="f-repo" placeholder="https://github.com/usuario/proyecto" autocomplete="off"></div>
+    <div class="ed-row">
+      <div class="ed-field"><label>Tipo (auto)</label><input id="f-lenguaje" placeholder="Bash / Web / Python…"></div>
+      <div class="ed-field"><label>Icono (FontAwesome)</label><input id="f-icono" placeholder="fas fa-terminal"></div>
+    </div>
+    <p class="ed-status" id="lang-status"></p>
+
+    <div class="ed-field"><label>Explicación</label><textarea id="f-resumen" placeholder="Qué hace la herramienta…"></textarea></div>
+    <div class="ed-field"><label>Etiquetas</label><input id="f-tags" placeholder="#bash #automatización #ctf"></div>
+
+    <div class="ed-field"><label>Color <span id="col-cur" style="color:var(--ed-mut)"></span></label>
+      <div class="ed-pal" id="ed-palette"></div>
+    </div>
+
+    <div class="ed-pub">
+      <button class="pub" onclick="publicar()">Publicar</button>
+      <button class="del" id="del-btn" style="display:none" onclick="borrar()">Borrar</button>
+    </div>
+    <p class="ed-status" id="pub-status"></p>
+    <p class="ed-hint">Al pegar el enlace de GitHub se detecta el tipo (Bash, Web, Python…) y el icono. Publicar escribe en <code>_data/herramientas.yml</code>, hace commit y push, y cierra el editor.</p>
+
+    <div class="ed-list"><h2>Herramientas actuales</h2><div id="ed-tools"></div></div>
+  </div>
+
+  <div class="ed-col ed-right">
+    <p class="ed-prev-note">Vista previa — así se verá la herramienta en /herramientas/</p>
+    <div class="content"><div id="preview"></div></div>
+  </div>
+</div>
+
+<div class="op-ov" id="op-ov"><div class="op-box" id="op-box"><div class="op-spin"></div><p id="op-text"></p><small id="op-sub"></small></div></div>
+
+<script>
+const qp = new URLSearchParams(location.search);
+const MODE = qp.get('mode') === 'edit' ? 'edit' : 'add';
+const NAME = qp.get('name') || '';
+const PALETTE = [
+  ['Cian','46 230 214'],['Turquesa','0 214 170'],['Azul','94 180 248'],['Azul claro','125 211 252'],
+  ['Azul marino','59 130 246'],['Índigo','129 140 248'],['Morado','193 108 255'],['Lavanda','180 130 255'],
+  ['Rosa','255 94 135'],['Fucsia','240 100 200'],['Coral','255 120 60'],['Naranja','255 175 0'],
+  ['Ámbar','255 196 0'],['Amarillo','255 214 10'],['Blanco','240 246 252'],['Gris','148 163 184'],
+];
+let _color = '46 230 214', _iconManual = false, _saving = false, _tools = [];
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function val(id){ return document.getElementById(id).value.trim(); }
+
+(function buildPalette(){
+  document.getElementById('ed-palette').innerHTML = PALETTE.map(
+    ([n,rgb]) => `<button type="button" title="${n}" data-rgb="${rgb}" style="background:rgb(${rgb})" onclick="setColor('${rgb}')"><span class="ed-pal-n" hidden></span></button>`
+  ).join('');
+})();
+function setColor(rgb){
+  _color = rgb;
+  document.querySelectorAll('#ed-palette button').forEach(b => b.classList.toggle('sel', b.dataset.rgb===rgb));
+  const n = (PALETTE.find(p=>p[1]===rgb)||[])[0] || '';
+  document.getElementById('col-cur').textContent = n ? '· '+n : '';
+  render();
+}
+function paletteCounts(){
+  const c = {};
+  _tools.forEach(t => { if (t.color) c[t.color] = (c[t.color]||0)+1; });
+  document.querySelectorAll('#ed-palette button').forEach(b => {
+    const badge = b.querySelector('.ed-pal-n'); const n = c[b.dataset.rgb]||0;
+    badge.textContent = n; badge.hidden = n===0;
+  });
+}
+
+function collect(){
+  return {
+    nombre: val('f-nombre'), repo: val('f-repo'), lenguaje: val('f-lenguaje'),
+    icono: val('f-icono') || 'fas fa-code', resumen: val('f-resumen'),
+    tags: val('f-tags'), color: _color,
+  };
+}
+let _rt=null;
+function scheduleRender(){ clearTimeout(_rt); _rt=setTimeout(render,200); }
+async function render(){
+  try{
+    const d = await (await fetch('/api/render',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(collect())})).json();
+    const pv = document.getElementById('preview');
+    pv.innerHTML = d.html || '';
+    pv.style.setProperty('--page', _color);
+  }catch(e){}
+}
+document.querySelectorAll('input,textarea').forEach(el => el.addEventListener('input', scheduleRender));
+document.getElementById('f-icono').addEventListener('input', () => { _iconManual = true; });
+
+// Nombre: aviso si ya existe (solo en modo añadir)
+document.getElementById('f-nombre').addEventListener('input', () => {
+  const st = document.getElementById('name-status');
+  if (MODE === 'edit') { st.textContent=''; return; }
+  const slug = val('f-nombre').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  const dup = _tools.some(t => (t.nombre||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') === slug && slug);
+  st.textContent = dup ? 'Ya existe una herramienta con ese nombre.' : '';
+  st.style.color = dup ? '#ff5c5c' : 'var(--ed-cyan)';
+});
+
+// Repo -> detectar tipo + icono
+let _repoTimer=null, _repoKey='';
+document.getElementById('f-repo').addEventListener('input', () => {
+  const repo = val('f-repo');
+  if (!/github\.com\//.test(repo) || repo === _repoKey) return;
+  clearTimeout(_repoTimer);
+  _repoTimer = setTimeout(async () => {
+    _repoKey = repo;
+    const st = document.getElementById('lang-status');
+    st.textContent = 'Detectando tipo…';
+    try{
+      const d = await (await fetch('/api/lang?repo='+encodeURIComponent(repo))).json();
+      if (d.lenguaje) document.getElementById('f-lenguaje').value = d.lenguaje;
+      if (d.icono && !_iconManual) document.getElementById('f-icono').value = d.icono;
+      st.textContent = d.lenguaje ? ('Detectado: '+d.lenguaje+(d.github_lang?' ('+d.github_lang+')':'')) : 'No se pudo detectar el tipo.';
+      render();
+    }catch(e){ st.textContent='No se pudo detectar el tipo.'; }
+  }, 600);
+});
+
+// --- Publicar / borrar ---
+function showOp(t){ document.getElementById('op-text').textContent=t; document.getElementById('op-sub').textContent=''; document.getElementById('op-box').classList.remove('done'); document.getElementById('op-ov').classList.add('open'); }
+function doneOp(t,s){ document.getElementById('op-text').textContent=t; document.getElementById('op-sub').textContent=s||''; document.getElementById('op-box').classList.add('done'); }
+function hideOp(){ document.getElementById('op-ov').classList.remove('open'); }
+
+async function publicar(){
+  if (!val('f-nombre')) { document.getElementById('pub-status').textContent='Falta el nombre.'; return; }
+  if (_saving) return; _saving = true;
+  const t0 = Date.now(); showOp('Publicando…');
+  try{
+    const d = await (await fetch('/api/publish',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(collect())})).json();
+    if (d.error) throw new Error(d.error);
+    await wait(Math.max(0, 5000-(Date.now()-t0)));
+    const git = d.git || {};
+    if (git.ok){
+      doneOp('✓ Publicado y subido', git.msg||'');
+      try{ await fetch('/api/shutdown',{method:'POST'}); }catch(e){}
+      doneOp('✓ Publicado — editor cerrado','Ya está en el blog. Puedes cerrar esta pestaña.');
+    } else {
+      doneOp('✓ Guardado (local)','No se pudo subir con git: '+(git.msg||'')+'. Súbelo a mano.');
+      await wait(2500); hideOp(); _saving=false;
+    }
+  }catch(e){ doneOp('Error al publicar', e.message); await wait(2500); hideOp(); _saving=false; }
+}
+async function borrar(){
+  if (!confirm('¿Borrar la herramienta "'+val('f-nombre')+'"?')) return;
+  if (_saving) return; _saving = true;
+  const t0 = Date.now(); showOp('Borrando…');
+  try{
+    const d = await (await fetch('/api/remove',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre:val('f-nombre')})})).json();
+    if (d.error) throw new Error(d.error);
+    await wait(Math.max(0, 5000-(Date.now()-t0)));
+    try{ await fetch('/api/shutdown',{method:'POST'}); }catch(e){}
+    doneOp('✓ Borrada — editor cerrado','Puedes cerrar esta pestaña.');
+  }catch(e){ doneOp('Error al borrar', e.message); await wait(2500); hideOp(); _saving=false; }
+}
+
+function fill(t){
+  document.getElementById('f-nombre').value = t.nombre || '';
+  document.getElementById('f-repo').value = t.repo || '';
+  document.getElementById('f-lenguaje').value = t.lenguaje || '';
+  document.getElementById('f-icono').value = t.icono || '';
+  document.getElementById('f-resumen').value = t.resumen || '';
+  document.getElementById('f-tags').value = (t.tags||[]).map(x=>'#'+x).join(' ');
+  if (t.color) setColor(t.color); else render();
+}
+
+async function loadTools(){
+  try{ _tools = await (await fetch('/api/tools')).json(); }catch(e){ _tools=[]; }
+  paletteCounts();
+  document.getElementById('ed-tools').innerHTML = _tools.map(t =>
+    `<a href="?mode=edit&name=${encodeURIComponent(t.nombre)}" style="--c:${t.color||'46 230 214'}"><span class="dot"></span> ${t.nombre} <small>${t.lenguaje||''}</small></a>`
+  ).join('') || '<p class="ed-hint">Todavía no hay herramientas.</p>';
+}
+
+async function boot(){
+  await loadTools();
+  if (MODE === 'edit' && NAME){
+    document.getElementById('ed-mode').innerHTML = 'Modo <b>editar</b>: '+NAME;
+    document.getElementById('del-btn').style.display = '';
+    try{
+      const t = await (await fetch('/api/tool?name='+encodeURIComponent(NAME))).json();
+      if (!t.error) fill(t);
+    }catch(e){}
+  } else {
+    document.getElementById('ed-mode').innerHTML = 'Modo <b>añadir</b>: nueva herramienta';
+    if (NAME) document.getElementById('f-nombre').value = NAME;
+    setColor(_color);
+  }
+  render();
+}
+boot();
+</script>
+</body>
+</html>
