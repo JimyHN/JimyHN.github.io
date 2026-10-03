@@ -1,5 +1,5 @@
 {%- comment -%}
-  Panel derecho: buscador de etiquetas. Al elegir una, lleva a /archives/ (Máquinas)
+  Panel derecho: buscador de etiquetas. Al elegir una, lleva a /maquinas/
   filtrada por esa etiqueta (?tag=slug).
 {%- endcomment -%}
 
@@ -12,7 +12,7 @@
       {% for tag in tags_sorted %}
         {% assign tname = tag | first %}
         {% assign slug = tname | slugify %}
-        <a class="hx-chip" data-tag="{{ tname | downcase }}" href="{{ '/archives/' | relative_url }}?tag={{ slug | url_encode }}">
+        <a class="hx-chip" data-tag="{{ tname | downcase }}" href="{{ '/maquinas/' | relative_url }}?tag={{ slug | url_encode }}">
           <span class="hx-chip-hash">#</span>{{ tname }}<span class="hx-chip-n">{{ tag | last | size }}</span>
         </a>
       {% endfor %}

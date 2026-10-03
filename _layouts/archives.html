@@ -4,44 +4,32 @@ layout: page
 
 {% include lang.html %}
 
-{% assign machines = site.posts | where_exp: 'p', "p.categories contains 'Writeups'" %}
-
-<p class="hx-lead">Todas las máquinas resueltas: busca por nombre, filtra por dificultad, sistema, plataforma o etiqueta.</p>
-
-{% if machines.size > 0 %}
-  {% include hx-filterbar.html target="hx-machines" empty="hx-machines-empty" total=machines.size %}
-
-  <div class="hx-tagfilter" id="hx-tagfilter" hidden></div>
-
-  <div class="hx-mlist" id="hx-machines">
-    {% for post in machines %}
-      {% assign os_down = post.os | default: '' | downcase %}
-      {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
-      {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
-      {% else %}{% assign os_key = 'otros' %}{% endif %}
-      <a class="hx-mcard" data-os="{{ os_key }}" data-diff="{{ post.difficulty | default: '' | downcase }}" data-name="{{ post.machine | default: post.title | downcase }}" data-platform="{{ post.platform | default: '' | downcase | remove: ' ' }}" data-tags="{{ post.tags | join: ' ' | downcase }}" href="{{ post.url | relative_url }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
-        <span class="hx-mcard-img{% unless post.thumb %} hx-mcard-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
-          {% unless post.thumb %}{% if os_down contains 'windows' %}<i class="fab fa-windows"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
+<div id="archives" class="hx-archive">
+  {% assign last_year = '' %}
+  {% for post in site.posts %}
+    {% assign y = post.date | date: '%Y' %}
+    {% if y != last_year %}
+      {% unless forloop.first %}</ul>{% endunless %}
+      <time class="hx-ar-year">{{ y }}</time>
+      <ul class="hx-ar-list">
+      {% assign last_year = y %}
+    {% endif %}
+    {% assign os_down = post.os | default: '' | downcase %}
+    {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
+    {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
+    {% else %}{% assign os_key = 'otros' %}{% endif %}
+    <li class="hx-ar-item" data-os="{{ os_key }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
+      <a href="{{ post.url | relative_url }}">
+        <span class="hx-ar-date"><b>{{ post.date | date: '%d' }}</b><small>/{{ post.date | date: '%m' }}</small></span>
+        <span class="hx-ar-node" aria-hidden="true"></span>
+        <span class="hx-ar-img{% unless post.thumb %} hx-ar-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
+          {% unless post.thumb %}{% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
         </span>
-        <div class="hx-mcard-body">
-          <h3 class="hx-mcard-name">{{ post.title }}</h3>
-          <p class="hx-mcard-meta">
-            {% if os_down contains 'windows' %}<i class="fab fa-windows"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-microchip"></i>{% endif %}
-            {{ post.os }} · {{ post.date | date: '%d/%m/%Y' }}
-          </p>
-          {% if post.difficulty %}<span class="hx-badge hx-diff-{{ post.difficulty | downcase }}">{{ post.difficulty }}</span>{% endif %}
-        </div>
+        <span class="hx-ar-name">{{ post.title }}</span>
+        {% if post.os %}<span class="hx-ar-os">{% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% endif %} {{ post.os }}</span>{% endif %}
+        {% if post.difficulty %}<span class="hx-badge hx-diff-{{ post.difficulty | downcase }} hx-ar-badge">{{ post.difficulty }}</span>{% endif %}
       </a>
-    {% endfor %}
-  </div>
-
-  <div class="hx-empty hx-no-results" id="hx-machines-empty">
-    <i class="fas fa-filter"></i>
-    Ninguna máquina coincide con la búsqueda o el filtro.
-  </div>
-{% else %}
-  <div class="hx-empty">
-    <i class="fas fa-server"></i>
-    Todavía no hay máquinas publicadas.
-  </div>
-{% endif %}
+    </li>
+    {% if forloop.last %}</ul>{% endif %}
+  {% endfor %}
+</div>
