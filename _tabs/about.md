@@ -4,10 +4,7 @@ icon: fas fa-info-circle
 order: 9
 ---
 
-```console
-jaime@kali:~$ whoami
-Jaime Hereza Niño
-```
+<div class="hx-about-ava"><img src="/assets/img/avatar.jpg" alt="Jaime Hereza Niño"></div>
 
 ## Quién soy
 
