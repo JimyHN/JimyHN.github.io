@@ -4195,3 +4195,35 @@ h1.dynamic-title i { -webkit-text-fill-color: rgb(var(--page, 68 240 138)); }
   pointer-events: none;
 }
 @media (max-width: 560px) { .hx-about-ava { float: none; display: block; margin: 0 auto 1rem; } }
+
+/* --- Nav: nombre de cada pagina con degradado en movimiento (izq->der) --- */
+#sidebar .nav-item .nav-link,
+#sidebar .nav-item .nav-link > span {
+  background: linear-gradient(90deg, rgb(var(--c)) 0%, #ffffff 50%, rgb(var(--c)) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: hx-grad-move 13s linear infinite;
+}
+#sidebar .nav-item .nav-link i { -webkit-text-fill-color: rgb(var(--c) / 75%); }
+#sidebar .nav-item .nav-link::after { -webkit-text-fill-color: currentColor; }
+/* El resaltado hover/activo pasa a box-shadow (el background lo usa ahora el texto) */
+#sidebar .nav-item:not(.active) .nav-link:hover {
+  background: linear-gradient(90deg, rgb(var(--c)) 0%, #ffffff 50%, rgb(var(--c)) 100%) !important;
+  box-shadow: inset 0 0 0 999px rgb(var(--c) / 12%);
+}
+#sidebar .nav-item.active .nav-link {
+  background: linear-gradient(90deg, rgb(var(--c)) 0%, #ffffff 55%, rgb(var(--c)) 100%) !important;
+  box-shadow: inset 2px 0 0 rgb(var(--c)), inset 0 0 0 999px rgb(var(--c) / 14%) !important;
+  text-shadow: none;
+}
+#sidebar .nav-item.active .nav-link i { -webkit-text-fill-color: #05070a; }
+
+/* --- Hover con degradado en movimiento en elementos con color --- */
+.hx-mcard:hover .hx-mcard-name {
+  background: linear-gradient(90deg, rgb(var(--m)) 0%, #ffffff 50%, rgb(var(--m)) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: hx-grad-move 2.2s linear infinite;
+}
