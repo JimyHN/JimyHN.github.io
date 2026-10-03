@@ -1,49 +1,46 @@
 {%- comment -%}
-  Panel derecho: etiquetas más usadas (sustituye al include del tema)
+  Panel derecho: buscador de etiquetas. Al elegir una, lleva a /archives/ (Máquinas)
+  filtrada por esa etiqueta (?tag=slug).
 {%- endcomment -%}
 
-{% assign MAX = 12 %}
-{% assign size_list = '' | split: '' %}
-{% assign tag_list = '' | split: '' %}
-
-{% for tag in site.tags %}
-  {% assign size = tag | last | size %}
-  {% assign size_list = size_list | push: size %}
-  {% assign tag_str = tag | first | append: '::' | append: size %}
-  {% assign tag_list = tag_list | push: tag_str %}
-{% endfor %}
-
-{% assign size_list = size_list | sort | reverse %}
-{% assign tag_list = tag_list | sort_natural %}
-{% assign trending = '' | split: '' %}
-
-{% for size in size_list limit: MAX %}
-  {% for tag_str in tag_list %}
-    {% assign tag = tag_str | split: '::' %}
-    {% assign tag_name = tag | first %}
-    {% assign tag_size = tag | last | plus: 0 %}
-    {% if tag_size == size %}
-      {% unless trending contains tag_str %}
-        {% assign trending = trending | push: tag_str %}
-        {% break %}
-      {% endunless %}
-    {% endif %}
-  {% endfor %}
-{% endfor %}
-
-{% if trending.size > 0 %}
-  <section class="hx-widget">
-    <h2 class="panel-heading hx-widget-title"><i class="fas fa-hashtag" aria-hidden="true"></i> Etiquetas populares</h2>
-    <div class="hx-chips">
-      {% for tag_str in trending %}
-        {% assign tag = tag_str | split: '::' %}
-        {% assign tag_name = tag | first %}
-        {% assign url = tag_name | slugify | url_encode | prepend: '/tags/' | append: '/' %}
-        <a class="hx-chip hx-chip-{{ forloop.index0 | modulo: 6 }}" href="{{ url | relative_url }}">
-          <span class="hx-chip-hash">#</span>{{ tag_name }}<span class="hx-chip-n">{{ tag | last }}</span>
+{% if site.tags.size > 0 %}
+  <section class="hx-widget hx-tagsearch">
+    <h2 class="panel-heading hx-widget-title"><i class="fas fa-hashtag" aria-hidden="true"></i> Buscar etiqueta</h2>
+    <input type="search" class="hx-tagsearch-input" placeholder="Filtra etiquetas…" aria-label="Filtra etiquetas" autocomplete="off" spellcheck="false">
+    <div class="hx-chips hx-tagsearch-list" id="hx-tagsearch-list">
+      {% assign tags_sorted = site.tags | sort %}
+      {% for tag in tags_sorted %}
+        {% assign tname = tag | first %}
+        {% assign slug = tname | slugify %}
+        <a class="hx-chip" data-tag="{{ tname | downcase }}" href="{{ '/archives/' | relative_url }}?tag={{ slug | url_encode }}">
+          <span class="hx-chip-hash">#</span>{{ tname }}<span class="hx-chip-n">{{ tag | last | size }}</span>
         </a>
       {% endfor %}
     </div>
-    <a class="hx-widget-more" href="{{ '/tags/' | relative_url }}">Todas las etiquetas <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+    <p class="hx-tagsearch-empty" hidden>Ninguna etiqueta coincide.</p>
   </section>
+  <script>
+  (function () {
+    var inp = document.querySelector('.hx-tagsearch-input');
+    var list = document.getElementById('hx-tagsearch-list');
+    var empty = document.querySelector('.hx-tagsearch-empty');
+    if (!inp || !list) return;
+    var chips = Array.prototype.slice.call(list.querySelectorAll('.hx-chip'));
+    inp.addEventListener('input', function () {
+      var q = inp.value.trim().toLowerCase();
+      var n = 0;
+      chips.forEach(function (c) {
+        var ok = !q || c.dataset.tag.indexOf(q) !== -1;
+        c.hidden = !ok;
+        if (ok) n++;
+      });
+      if (empty) empty.hidden = n !== 0;
+    });
+    inp.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      var first = chips.filter(function (c) { return !c.hidden; })[0];
+      if (first) { e.preventDefault(); window.location.href = first.href; }
+    });
+  })();
+  </script>
 {% endif %}

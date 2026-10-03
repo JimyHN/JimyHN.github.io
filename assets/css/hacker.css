@@ -4228,6 +4228,51 @@ h1.dynamic-title i { -webkit-text-fill-color: rgb(var(--page, 68 240 138)); }
 }
 a[href*="/tags/linux/"]   { --c: 255 214 10 !important; }   /* linux · amarillo */
 a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian */
+.hx-chip[data-tag="linux"]   { --c: 255 214 10 !important; }
+.hx-chip[data-tag="windows"] { --c: 46 230 214 !important; }
+
+/* Buscador de etiquetas (panel derecho) */
+.hx-tagsearch-input {
+  width: 100%;
+  margin-bottom: 0.7rem;
+  padding: 0.45rem 0.7rem;
+  background: rgb(255 255 255 / 4%);
+  border: 1px solid var(--hx-border);
+  border-radius: 8px;
+  color: var(--hx-text);
+  font-family: var(--hx-mono);
+  font-size: 0.8rem;
+}
+.hx-tagsearch-input:focus { outline: none; border-color: rgb(var(--wc, 68 240 138) / 60%); }
+.hx-tagsearch-list { max-height: 220px; overflow-y: auto; gap: 0.35rem; }
+.hx-tagsearch-empty { font-size: 0.78rem; color: var(--hx-muted); margin: 0.3rem 0 0; }
+
+/* Chip "Filtrando por #tag · quitar" en Máquinas */
+.hx-tagfilter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.2rem 0 0.9rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid rgb(var(--page, 68 240 138) / 45%);
+  border-radius: 999px;
+  background: rgb(var(--page, 68 240 138) / 10%);
+  font-family: var(--hx-mono);
+  font-size: 0.82rem;
+  color: var(--hx-text);
+}
+.hx-tagfilter b { color: rgb(var(--page, 68 240 138)); }
+.hx-tagfilter-x {
+  border: 1px solid rgb(var(--page, 68 240 138) / 40%);
+  background: none;
+  color: rgb(var(--page, 68 240 138));
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  font-family: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+.hx-tagfilter-x:hover { background: rgb(var(--page, 68 240 138) / 15%); }
 
 /* Quitar "Etiquetas" del menu lateral (la pagina /tags/ sigue existiendo) */
 #sidebar .nav-item:nth-child(6) { display: none; }

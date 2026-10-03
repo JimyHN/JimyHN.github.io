@@ -1,5 +1,6 @@
 ---
 layout: archives
-icon: fas fa-archive
+title: Máquinas
+icon: fas fa-server
 order: 7
 ---

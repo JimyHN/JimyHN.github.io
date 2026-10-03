@@ -827,7 +827,20 @@
       const form = bar.querySelector('.hx-search');
       const input = form.querySelector('input');
       const reset = bar.querySelector('.hx-fbar-reset');
-      const state = { diff: 'all', os: 'all', platform: 'all' };
+      const tagBox = document.getElementById('hx-tagfilter');
+      const state = { diff: 'all', os: 'all', platform: 'all', tag: 'all' };
+
+      function setTag(tag) {
+        state.tag = tag ? tag.toLowerCase() : 'all';
+        if (!tagBox) return;
+        if (state.tag === 'all') { tagBox.hidden = true; tagBox.innerHTML = ''; return; }
+        tagBox.hidden = false;
+        tagBox.innerHTML = 'Filtrando por <b>#' + state.tag + '</b> <button type="button" class="hx-tagfilter-x">✕ quitar</button>';
+        tagBox.querySelector('.hx-tagfilter-x').addEventListener('click', () => {
+          setTag(null); apply();
+          history.replaceState(null, '', location.pathname);
+        });
+      }
 
       function apply() {
         let visible = 0;
@@ -835,7 +848,8 @@
           const ok =
             (state.diff === 'all' || el.dataset.diff === state.diff) &&
             (state.os === 'all' || el.dataset.os === state.os) &&
-            (state.platform === 'all' || el.dataset.platform === state.platform);
+            (state.platform === 'all' || el.dataset.platform === state.platform) &&
+            (state.tag === 'all' || (el.dataset.tags || '').split(' ').includes(state.tag));
           el.hidden = !ok;
           if (ok) visible++;
         });
@@ -868,8 +882,15 @@
 
       reset.addEventListener('click', () => {
         groups.forEach((g) => select(g, 'all'));
+        setTag(null);
+        history.replaceState(null, '', location.pathname);
         apply();
       });
+
+      // Filtro por etiqueta desde la URL (?tag=windows), p. ej. desde el panel
+      const urlTag = new URLSearchParams(location.search).get('tag');
+      if (urlTag) setTag(urlTag);
+      apply();
 
       form.addEventListener('submit', (e) => {
         e.preventDefault();
