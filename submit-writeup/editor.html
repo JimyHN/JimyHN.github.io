@@ -120,9 +120,12 @@
 
   /* Paleta de color de la máquina */
   .ed-pal { display:flex; flex-wrap:wrap; gap:0.35rem; }
-  .ed-pal button { width:1.5rem; height:1.5rem; border-radius:6px; border:1px solid #2a3a4d; cursor:pointer; padding:0; transition:transform .12s; }
+  .ed-pal button { position:relative; width:1.6rem; height:1.6rem; border-radius:6px; border:1px solid #2a3a4d; cursor:pointer; padding:0; transition:transform .12s; }
   .ed-pal button:hover { transform:scale(1.15); }
   .ed-pal button.sel { outline:2px solid #fff; outline-offset:1px; }
+  .ed-pal-n { position:absolute; top:-6px; right:-6px; min-width:15px; height:15px; padding:0 3px; border-radius:999px;
+    background:#0a0e14; border:1px solid currentColor; color:#e6edf3; font-family:'JetBrains Mono',monospace; font-size:0.6rem;
+    font-weight:700; line-height:13px; text-align:center; box-shadow:0 1px 3px rgb(0 0 0 / 55%); pointer-events:none; }
   .ed-pal-cur { font-size:0.72rem; color:var(--ed-mut); margin-left:0.3rem; align-self:center; }
 
   /* Modal "máquinas anteriores" */
@@ -784,9 +787,24 @@ const PALETTE = [
 ];
 (function buildPalette() {
   document.getElementById('ed-palette').innerHTML = PALETTE.map(
-    ([n, rgb]) => `<button type="button" title="${n}" data-rgb="${rgb}" style="background:rgb(${rgb})" onclick="setAccent('${rgb}')"></button>`
+    ([n, rgb]) => `<button type="button" title="${n}" data-rgb="${rgb}" style="background:rgb(${rgb})" onclick="setAccent('${rgb}')"><span class="ed-pal-n" hidden></span></button>`
   ).join('');
 })();
+// Cuenta cuántas máquinas publicadas usan cada color y lo muestra en la paleta.
+async function updatePaletteCounts() {
+  try {
+    const arr = await (await fetch('/api/list')).json();
+    const counts = {};
+    arr.forEach(m => { if (m.published && m.accent) counts[m.accent] = (counts[m.accent] || 0) + 1; });
+    document.querySelectorAll('#ed-palette button').forEach(b => {
+      const badge = b.querySelector('.ed-pal-n');
+      const n = counts[b.dataset.rgb] || 0;
+      if (!badge) return;
+      badge.textContent = n;
+      badge.hidden = n === 0;
+    });
+  } catch (e) { /* servidor no disponible */ }
+}
 function setAccent(rgb) {
   window._accent = rgb;
   document.querySelectorAll('#ed-palette button').forEach(b => b.classList.toggle('sel', b.dataset.rgb === rgb));
@@ -1128,6 +1146,7 @@ async function boot() {
     }
   }
   updatePubBadge();
+  updatePaletteCounts();
   render();
 }
 boot();
