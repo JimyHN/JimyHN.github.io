@@ -26,6 +26,7 @@ import argparse
 import io
 import json
 import re
+import subprocess
 import sys
 import threading
 import urllib.parse
@@ -250,6 +251,25 @@ def _render_callout(typ, body):
     return f'<blockquote class="prompt-{cls}">{render_prose(body)}</blockquote>'
 
 
+# Listas: viñetas (-, *, •) y ordenadas (1. / a. / i.), con marcadores cortos
+# para no confundir un párrafo ("No. ", "Windows. ") con una lista.
+_UL_RE = re.compile(r"^[-*•]\s+")
+_OL_RE = re.compile(r"^(\d{1,3}|[a-z]|[ivxl]{1,4})[.)]\s+")
+
+
+def _marker_kind(mark: str) -> str:
+    if mark.isdigit():
+        return "decimal"
+    if mark and all(ch in "ivxl" for ch in mark.lower()):
+        return "lower-roman"
+    return "lower-alpha"
+
+
+def _starts_block(line: str) -> bool:
+    t = line.strip()
+    return (not t) or t.startswith(("|", "::")) or bool(_UL_RE.match(t)) or bool(_OL_RE.match(t))
+
+
 def render_prose(chunk: str) -> str:
     lines = chunk.split("\n")
     out = []
@@ -281,17 +301,29 @@ def render_prose(chunk: str) -> str:
                 i += 1
             out.append(_render_table(rows))
             continue
-        # lista
-        if s.startswith("- "):
+        # lista no ordenada (viñetas, con forma según el caracter: -, *, •)
+        if _UL_RE.match(s):
+            cls = {"*": " hx-ul-sq", "•": " hx-ul-disc"}.get(s[0], "")
             items = []
-            while i < n and lines[i].strip().startswith("- "):
-                items.append(lines[i].strip()[2:])
+            while i < n and _UL_RE.match(lines[i].strip()):
+                items.append(_UL_RE.sub("", lines[i].strip()))
                 i += 1
-            out.append('<ul class="hx-wu-list">' + "".join(f"<li>{render_inline(x)}</li>" for x in items) + "</ul>")
+            out.append(f'<ul class="hx-wu-list{cls}">' + "".join(f"<li>{render_inline(x)}</li>" for x in items) + "</ul>")
+            continue
+        # lista ordenada (1. / a. / i.)
+        mo = _OL_RE.match(s)
+        if mo:
+            kind = _marker_kind(mo.group(1))
+            items = []
+            while i < n and _OL_RE.match(lines[i].strip()):
+                items.append(_OL_RE.sub("", lines[i].strip()))
+                i += 1
+            out.append(f'<ol class="hx-wu-list hx-wu-ol" style="list-style-type:{kind}">'
+                       + "".join(f"<li>{render_inline(x)}</li>" for x in items) + "</ol>")
             continue
         # párrafo
         para = []
-        while i < n and lines[i].strip() and not lines[i].strip().startswith(("- ", "|", "::")):
+        while i < n and lines[i].strip() and not _starts_block(lines[i]):
             para.append(lines[i].strip())
             i += 1
         out.append("<p>" + "<br>".join(render_inline(p) for p in para) + "</p>")
@@ -319,7 +351,10 @@ def render_table_block(block_text: str) -> str:
         s = arr[i] if 0 <= i < len(arr) else None
         if not s or not s.get("on"):
             return "0"
-        return f"{s.get('w', 1)}px solid {s.get('color', '#243244')}"
+        color = s.get("color", "#243244")
+        if color == "page":
+            color = "rgb(var(--page, 159 239 0))"
+        return f"{s.get('w', 1)}px solid {color}"
 
     rad = "12px" if d.get("corners", "round") == "round" else "0"
     rows_html = []
@@ -486,8 +521,8 @@ def front_matter(data: dict) -> str:
         "description": data.get("desc") or "",
         "toc": False,
     }
-    if data.get("status"):
-        fm["status"] = data["status"]
+    # Un write-up publicado siempre está "Resuelta" (el roadmap lo cruza por machine+platform).
+    fm["status"] = "Resuelta"
     if data.get("accent"):
         fm["accent"] = data["accent"]
     y = "---\n"
@@ -541,6 +576,8 @@ def post_files(slug: str, date: str = ""):
 def publish(data: dict, mode: str = "add") -> str:
     slug = slugify(data.get("name") or "")
     date = (data.get("date") or datetime.now().strftime("%Y-%m-%d")).strip()
+    # Un write-up publicado siempre queda como "Resuelta".
+    data["status"] = "Resuelta"
     # Borra cualquier versión previa del mismo slug (p. ej. un .md antiguo)
     for old in post_files(slug):
         old.unlink()
@@ -549,6 +586,41 @@ def publish(data: dict, mode: str = "add") -> str:
     path.write_text(build_post(data), encoding="utf-8")
     save_source(data)
     return str(path.relative_to(ROOT))
+
+
+def git_publish(slug: str, name: str) -> dict:
+    """Hace commit y push de los ficheros del write-up (post + JSON + imágenes).
+    Devuelve {ok, pushed, msg}."""
+    files = []
+    for f in post_files(slug):
+        files.append(str(f.relative_to(ROOT)))
+    sj = source_path(slug)
+    if sj.is_file():
+        files.append(str(sj.relative_to(ROOT)))
+    for suf in (".png", "-banner.png"):
+        img = MACHINES_DIR / f"{slug}{suf}"
+        if img.is_file():
+            files.append(str(img.relative_to(ROOT)))
+    if not files:
+        return {"ok": False, "pushed": False, "msg": "No hay ficheros que subir."}
+
+    def run(*args):
+        return subprocess.run(args, cwd=str(ROOT), capture_output=True, text=True)
+
+    try:
+        run("git", "add", "--", *files)
+        c = run("git", "commit", "-m", f"Write-up: {name}")
+        combined = (c.stdout + c.stderr).lower()
+        if c.returncode != 0 and "nothing to commit" not in combined:
+            return {"ok": False, "pushed": False, "msg": (c.stderr or c.stdout).strip()}
+        nothing = "nothing to commit" in combined
+        p = run("git", "push")
+        if p.returncode != 0:
+            return {"ok": False, "pushed": False, "msg": (p.stderr or p.stdout).strip()}
+        return {"ok": True, "pushed": not nothing,
+                "msg": "Sin cambios que subir." if nothing else "Subido al blog."}
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "pushed": False, "msg": str(e)}
 
 
 def is_published(slug: str) -> bool:
@@ -776,20 +848,23 @@ class Handler(BaseHTTPRequestHandler):
         if u.path == "/api/shutdown":
             # Para el servidor del editor (se usa al publicar).
             self._send(200, {"ok": True})
-            step("Editor cerrado tras publicar. Haz "
-                 + _c("git add -A && git commit && git push", Col.CYAN) + " para subirlo al blog.")
+            step("Editor cerrado tras publicar.")
             threading.Thread(target=self.server.shutdown, daemon=True).start()
             return
         if u.path == "/api/publish":
             mode = data.get("mode") or self.mode
             try:
                 rel = publish(data, mode)
-                if mode == "edit":
-                    ok(f"Write-up editado: {_c(rel, Col.BOLD)}")
+                name = (data.get("name") or "").strip()
+                slug = slugify(name)
+                ok(f"Write-up {'editado' if mode == 'edit' else 'publicado'}: {_c(rel, Col.BOLD)}")
+                step("Subiendo al blog con git…")
+                git = git_publish(slug, name)
+                if git["ok"]:
+                    ok(f"git: {git['msg']}")
                 else:
-                    ok(f"Write-up publicado: {_c(rel, Col.BOLD)}")
-                step("Haz " + _c("git add -A && git commit && git push", Col.CYAN) + " para subirlo al blog.")
-                self._send(200, {"path": rel})
+                    err(f"git: {git['msg']}")
+                self._send(200, {"path": rel, "git": git})
             except Exception as e:  # noqa: BLE001
                 err(f"Error al publicar: {e}")
                 self._send(500, {"error": str(e)})

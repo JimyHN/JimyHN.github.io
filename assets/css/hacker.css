@@ -3660,6 +3660,24 @@ article:has(.hx-wu) > .post-desc { display: none; }
   font-weight: 800;
 }
 .content .hx-wu-list li b { color: #e6edf3; }
+/* Formas de viñeta */
+.content ul.hx-ul-sq li::before { content: '▪'; }
+.content ul.hx-ul-disc li::before { content: '•'; }
+/* Listas ordenadas (1. / a. / i.): usan el marcador nativo coloreado con --c */
+.content ol.hx-wu-ol {
+  list-style-position: outside;
+  margin: 0.4rem 0 0;
+  padding: 0 0 0 1.7rem;
+}
+.content ol.hx-wu-ol li {
+  position: relative;
+  margin: 0.55rem 0;
+  padding: 0 0 0 0.3rem;
+  line-height: 1.6;
+}
+.content ol.hx-wu-ol li::before { content: none; }
+.content ol.hx-wu-ol li::marker { color: rgb(var(--c)); font-weight: 800; }
+.content ol.hx-wu-ol li b { color: #e6edf3; }
 
 /* En un write-up, el verde por defecto toma el color de la máquina (--page):
    negritas, usuario del prompt y cabecera de tabla */
