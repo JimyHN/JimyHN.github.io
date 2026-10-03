@@ -676,6 +676,18 @@ class Handler(BaseHTTPRequestHandler):
             except Exception as e:  # noqa: BLE001
                 self._send(500, {"error": str(e)})
             return
+        if u.path == "/api/save":
+            # Guarda la fuente JSON (incluidas las notas) SIN regenerar el post del blog.
+            if not (data.get("name") or "").strip():
+                self._send(400, {"error": "Falta el nombre de la máquina."})
+                return
+            try:
+                p = save_source(data)
+                self._send(200, {"path": str(p.relative_to(ROOT))})
+            except Exception as e:  # noqa: BLE001
+                err(f"Error al guardar el borrador: {e}")
+                self._send(500, {"error": str(e)})
+            return
         if u.path == "/api/publish":
             mode = data.get("mode") or self.mode
             try:
