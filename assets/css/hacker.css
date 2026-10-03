@@ -4067,3 +4067,131 @@ body.hx-cert-locked { overflow: hidden; }
 .hx-mcard:hover .hx-mcard-img { border-color: rgb(var(--m)); }
 
 .hx-mcard[hidden] { display: none; }
+
+/* =======================================================================
+   REDISEÑO VISUAL — degradados en movimiento, roadmap, panel, acerca de
+   ======================================================================= */
+
+/* Degradado que viaja de IZQUIERDA a DERECHA, reutilizable */
+@keyframes hx-grad-move { from { background-position: 200% center; } to { background-position: 0% center; } }
+@keyframes hx-ava-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+/* --- Título de cada página: degradado animado --- */
+h1.dynamic-title {
+  background: linear-gradient(90deg, rgb(var(--page, 68 240 138)) 0%, #f2fbff 50%, rgb(var(--page, 68 240 138)) 100%) !important;
+  background-size: 200% auto !important;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent !important;
+  text-shadow: none;
+  animation: hx-grad-move 9s linear infinite;
+}
+h1.dynamic-title i { -webkit-text-fill-color: rgb(var(--page, 68 240 138)); }
+
+/* --- Título del write-up: añade movimiento al degradado --- */
+.content .hx-wu-title {
+  background: linear-gradient(90deg, rgb(var(--page, 68 240 138)) 0%, #f2fbff 50%, rgb(var(--page, 68 240 138)) 100%);
+  background-size: 200% auto;
+  animation: hx-grad-move 9s linear infinite;
+}
+
+/* --- Certis y títulos: mismo degradado pero izq->der y más lento --- */
+.content .hx-cert .hx-cert-name, .hx-cred-name { animation-name: hx-grad-move; }
+.hx-cred:nth-child(6n+1) .hx-cred-name, .hx-cert:nth-child(6n+1) .hx-cert-name { animation-duration: 15s; }
+.hx-cred:nth-child(6n+2) .hx-cred-name, .hx-cert:nth-child(6n+2) .hx-cert-name { animation-duration: 18s; }
+.hx-cred:nth-child(6n+3) .hx-cred-name, .hx-cert:nth-child(6n+3) .hx-cert-name { animation-duration: 13s; }
+.hx-cred:nth-child(6n+4) .hx-cred-name, .hx-cert:nth-child(6n+4) .hx-cert-name { animation-duration: 19s; }
+.hx-cred:nth-child(6n+5) .hx-cred-name, .hx-cert:nth-child(6n+5) .hx-cert-name { animation-duration: 16s; }
+.hx-cred:nth-child(6n+6) .hx-cred-name, .hx-cert:nth-child(6n+6) .hx-cert-name { animation-duration: 14s; }
+
+/* --- Tabla del roadmap con personalidad --- */
+.content .hx-rm-table { border-collapse: separate; border-spacing: 0; }
+.content .hx-rm-table thead th {
+  text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem;
+  color: rgb(var(--page, 68 240 138));
+  background: linear-gradient(180deg, rgb(var(--page, 68 240 138) / 12%), transparent);
+  border-bottom: 1px solid rgb(var(--page, 68 240 138) / 30%);
+}
+.content .hx-rm-table tbody tr {
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.content .hx-rm-table tbody tr:nth-child(even) { background: rgb(255 255 255 / 2.5%); }
+.content .hx-rm-table tbody tr:hover {
+  background: rgb(var(--page, 68 240 138) / 10%) !important;
+  box-shadow: inset 3px 0 0 rgb(var(--page, 68 240 138)), 0 0 18px rgb(var(--page, 68 240 138) / 14%);
+  transform: translateX(2px);
+}
+/* Badges de estado como pastillas */
+.hx-status {
+  padding: 0.14rem 0.62rem;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--hx-muted) / 30%);
+  background: rgb(255 255 255 / 3%);
+}
+.hx-status-resuelta {
+  color: #44f08a;
+  border-color: rgb(68 240 138 / 45%);
+  background: linear-gradient(90deg, rgb(68 240 138 / 16%), rgb(68 240 138 / 4%), rgb(68 240 138 / 16%));
+  background-size: 200% auto;
+}
+.content .hx-rm-table tbody tr:hover .hx-status-resuelta { animation: hx-grad-move 2.5s linear infinite; }
+.hx-status-en-curso { color: var(--hx-medium); border-color: rgb(255 175 0 / 40%); background: rgb(255 175 0 / 10%); }
+.hx-status-pendiente { color: var(--hx-muted); }
+.hx-status-proof:hover { box-shadow: 0 0 14px rgb(68 240 138 / 35%); }
+
+/* --- Panel derecho con más vida --- */
+#panel-wrapper .hx-widget {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--hx-border);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgb(255 255 255 / 3.5%), transparent 70%);
+}
+#panel-wrapper .hx-widget::after {
+  content: '';
+  position: absolute; left: 0; right: 0; top: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgb(var(--wc, 68 240 138) / 75%), transparent);
+  background-size: 200% auto;
+  animation: hx-grad-move 6s linear infinite;
+}
+#panel-wrapper .hx-widget:nth-of-type(1) { --wc: 46 230 214; }
+#panel-wrapper .hx-widget:nth-of-type(2) { --wc: 68 240 138; }
+#panel-wrapper .hx-widget:nth-of-type(3) { --wc: 193 108 255; }
+.hx-widget-title i { color: rgb(var(--wc, 68 240 138)); }
+.hx-recent li a { transition: background 0.2s, transform 0.15s; border-radius: 10px; }
+.hx-recent li a:hover { background: rgb(var(--ic, 68 240 138) / 10%); transform: translateX(3px); }
+
+/* Tarjeta "Total máquinas" */
+.hx-widget-total .hx-total { display: flex; align-items: center; gap: 0.9rem; }
+.hx-total-num {
+  font-family: var(--hx-mono); font-size: 2.4rem; font-weight: 800; line-height: 1;
+  background: linear-gradient(90deg, var(--hx-cyan), #44f08a, var(--hx-cyan));
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  animation: hx-grad-move 7s linear infinite;
+}
+.hx-total-txt { font-size: 0.82rem; color: var(--hx-muted); line-height: 1.35; }
+
+/* --- Acerca de: avatar cuadrado animado a la izquierda de la bio --- */
+.hx-about-ava {
+  float: left;
+  width: 160px; height: 160px;
+  margin: 0.2rem 1.5rem 0.8rem 0;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  border: 2px solid rgb(68 240 138 / 55%);
+  box-shadow: 0 0 0 4px rgb(68 240 138 / 8%), 0 0 30px rgb(46 230 214 / 22%);
+  animation: hx-ava-float 5s ease-in-out infinite;
+}
+.hx-about-ava img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hx-about-ava::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(120deg, transparent 35%, rgb(68 240 138 / 28%) 50%, transparent 65%);
+  background-size: 220% auto;
+  animation: hx-grad-move 4.5s linear infinite;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+@media (max-width: 560px) { .hx-about-ava { float: none; display: block; margin: 0 auto 1rem; } }

@@ -17,6 +17,18 @@
   {%- endfor -%}
 {%- endfor -%}
 
+{%- assign total_wu = 0 -%}
+{%- for post in site.posts -%}
+  {%- if post.categories contains 'Writeups' -%}{%- assign total_wu = total_wu | plus: 1 -%}{%- endif -%}
+{%- endfor -%}
+<section class="hx-widget hx-widget-total">
+  <h2 class="panel-heading hx-widget-title"><i class="fas fa-server" aria-hidden="true"></i> Total máquinas</h2>
+  <div class="hx-total">
+    <b class="hx-total-num">{{ total_wu }}</b>
+    <span class="hx-total-txt">máquinas resueltas<br>en el blog</span>
+  </div>
+</section>
+
 {%- if rm_total > 0 -%}
   {%- assign rm_pct = rm_solved | times: 100.0 | divided_by: rm_total | round: 1 -%}
   <section class="hx-widget">
