@@ -27,6 +27,7 @@ import io
 import json
 import re
 import sys
+import threading
 import urllib.parse
 import urllib.request
 import webbrowser
@@ -550,6 +551,68 @@ def publish(data: dict, mode: str = "add") -> str:
     return str(path.relative_to(ROOT))
 
 
+def is_published(slug: str) -> bool:
+    """¿Existe ya un post en el blog para este slug?"""
+    return bool(post_files(slug))
+
+
+def rename_machine(old_slug: str, new_name: str) -> dict:
+    """Renombra una máquina: su JSON, sus imágenes y, si está publicada, su post.
+    Devuelve {slug, name, published}."""
+    old_slug = resolve_slug(old_slug)
+    new_name = (new_name or "").strip()
+    if not new_name:
+        raise ValueError("El nuevo nombre está vacío.")
+    new_slug = slugify(new_name)
+    if not new_slug:
+        raise ValueError("El nuevo nombre no es válido.")
+
+    data = load_source(old_slug)
+    if data is None:
+        raise ValueError(f"No existe la fuente de '{old_slug}'.")
+
+    # Solo cambia la capitalización/acentos (mismo slug): basta con actualizar el nombre.
+    if new_slug == old_slug:
+        data["name"] = new_name
+        was_pub = is_published(old_slug)
+        if was_pub:
+            publish(data, "edit")
+        else:
+            save_source(data)
+        return {"slug": new_slug, "name": new_name, "published": was_pub, "img": data.get("img")}
+
+    # Slug distinto: no puede chocar con otra máquina existente.
+    if load_source(new_slug) is not None or is_published(new_slug):
+        raise ValueError(f"Ya existe una máquina con el nombre '{new_name}'.")
+
+    was_pub = is_published(old_slug)
+
+    # Renombra las imágenes <slug>.png y <slug>-banner.png si existen.
+    img = data.get("img") or {}
+    for key, suffix in (("avatar", ".png"), ("banner", "-banner.png")):
+        old_img = MACHINES_DIR / f"{old_slug}{suffix}"
+        new_img = MACHINES_DIR / f"{new_slug}{suffix}"
+        if old_img.is_file():
+            old_img.rename(new_img)
+            img[key] = f"/assets/img/machines/{new_slug}{suffix}"
+    if img:
+        data["img"] = img
+    data["name"] = new_name
+
+    # Borra el post y el JSON antiguos, y recrea con el nuevo slug.
+    for old in post_files(old_slug):
+        old.unlink()
+    old_json = source_path(old_slug)
+    if old_json.is_file():
+        old_json.unlink()
+
+    if was_pub:
+        publish(data, "edit")
+    else:
+        save_source(data)
+    return {"slug": new_slug, "name": new_name, "published": was_pub, "img": data.get("img")}
+
+
 # ==========================================================================
 #  Imagen de la máquina (logro de HackTheBox)
 # ==========================================================================
@@ -635,6 +698,7 @@ class Handler(BaseHTTPRequestHandler):
                     "slug": p.stem, "name": d.get("name", p.stem), "os": d.get("os", ""),
                     "diff": d.get("diff", ""), "date": (d.get("date") or "")[:10],
                     "accent": d.get("accent", ""), "thumb": (d.get("img") or {}).get("avatar", ""),
+                    "published": is_published(p.stem),
                 })
             out.sort(key=lambda x: x["date"], reverse=True)
             self._send(200, out)
@@ -647,6 +711,18 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(404, {"error": f"No hay fuente para '{slug}'."})
             else:
                 self._send(200, src)
+            return
+        if u.path == "/api/exists":
+            q = urllib.parse.parse_qs(u.query)
+            name = (q.get("name") or [""])[0]
+            slug = slugify(name)
+            exists = bool(slug) and (load_source(slug) is not None or is_published(slug))
+            self._send(200, {"slug": slug, "exists": exists, "published": is_published(slug)})
+            return
+        if u.path == "/api/published":
+            q = urllib.parse.parse_qs(u.query)
+            slug = resolve_slug((q.get("slug") or [""])[0])
+            self._send(200, {"slug": slug, "published": is_published(slug)})
             return
         if u.path == "/api/image":
             q = urllib.parse.parse_qs(u.query)
@@ -683,10 +759,26 @@ class Handler(BaseHTTPRequestHandler):
                 return
             try:
                 p = save_source(data)
-                self._send(200, {"path": str(p.relative_to(ROOT))})
+                slug = slugify(data.get("name") or "")
+                self._send(200, {"path": str(p.relative_to(ROOT)), "published": is_published(slug)})
             except Exception as e:  # noqa: BLE001
                 err(f"Error al guardar el borrador: {e}")
                 self._send(500, {"error": str(e)})
+            return
+        if u.path == "/api/rename":
+            try:
+                res = rename_machine(data.get("old_slug") or "", data.get("new_name") or "")
+                ok(f"Máquina renombrada a {_c(res['name'], Col.BOLD)} ({res['slug']}).")
+                self._send(200, res)
+            except Exception as e:  # noqa: BLE001
+                self._send(400, {"error": str(e)})
+            return
+        if u.path == "/api/shutdown":
+            # Para el servidor del editor (se usa al publicar).
+            self._send(200, {"ok": True})
+            step("Editor cerrado tras publicar. Haz "
+                 + _c("git add -A && git commit && git push", Col.CYAN) + " para subirlo al blog.")
+            threading.Thread(target=self.server.shutdown, daemon=True).start()
             return
         if u.path == "/api/publish":
             mode = data.get("mode") or self.mode
@@ -705,11 +797,13 @@ class Handler(BaseHTTPRequestHandler):
         self._send(404, {"error": "not found"})
 
 
-def serve(mode, slug, port, no_open):
+def serve(mode, slug, port, no_open, name=""):
     Handler.mode = mode
     qs = {"mode": mode}
     if slug:
         qs["slug"] = slug
+    if name:
+        qs["name"] = name
     editor_url = f"http://localhost:{port}/editor.html?{urllib.parse.urlencode(qs)}"
     srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     step("Servidor en marcha: " + _c(editor_url, Col.CYAN))
@@ -728,8 +822,18 @@ def serve(mode, slug, port, no_open):
 # ==========================================================================
 def cmd_add(args):
     banner()
-    step("Modo " + _c("añadir", Col.BOLD) + ": comienza la redacción de un write-up nuevo.")
-    serve("add", "", args.port, args.no_open)
+    name = args.add if isinstance(args.add, str) else ""
+    if name:
+        slug = slugify(name)
+        if load_source(slug) is not None or is_published(slug):
+            err(f"Ya existe una máquina con el nombre '{name}'.")
+            warn("Usa --edit para editarla, o elige otro nombre.")
+            sys.exit(1)
+        step("Modo " + _c("añadir", Col.BOLD) + f": nueva máquina {_c(name, Col.BOLD)}.")
+        serve("add", "", args.port, args.no_open, name=name)
+    else:
+        step("Modo " + _c("añadir", Col.BOLD) + ": elige el nombre de la máquina en el editor.")
+        serve("add", "", args.port, args.no_open)
 
 
 def cmd_edit(args):
@@ -789,7 +893,8 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     g = p.add_mutually_exclusive_group()
-    g.add_argument("--add", action="store_true", help="Redactar un write-up nuevo (abre el editor).")
+    g.add_argument("--add", nargs="?", const=True, default=None, metavar="NOMBRE",
+                   help="Redactar un write-up nuevo (abre el editor). Opcional: nombre de la máquina.")
     g.add_argument("--edit", metavar="RUTA", help="Editar un write-up publicado (p. ej. /writeups/blue).")
     g.add_argument("--remove", metavar="RUTA", help="Borrar un write-up publicado (p. ej. /writeups/blue).")
     p.add_argument("-p", "--port", type=int, default=8099, help="Puerto del servidor (por defecto 8099).")
