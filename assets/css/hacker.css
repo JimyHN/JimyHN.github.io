@@ -282,7 +282,7 @@ a { transition: color 0.2s, text-shadow 0.2s; }
 #sidebar .nav-item:nth-child(9) { --c: 240 246 252; }  /* ACERCA DE · blanco */
 
 /* Fondo al pasar el ratón: su propio color (tenue/oscuro), no verde */
-#sidebar .nav-item:not(.active) .nav-link:hover { background: rgb(var(--c) / 12%) !important; }
+#sidebar .nav-item:not(.active) .nav-link:hover { letter-spacing: 0.04em; }
 
 #sidebar .nav-item .nav-link {
   position: relative;
@@ -346,9 +346,7 @@ a { transition: color 0.2s, text-shadow 0.2s; }
 
 #sidebar .nav-item.active .nav-link {
   color: rgb(var(--c)) !important;
-  background: linear-gradient(90deg, rgb(var(--c) / 16%), transparent 85%) !important;
   box-shadow: inset 2px 0 0 rgb(var(--c)) !important;
-  text-shadow: 0 0 10px rgb(var(--c) / 45%);
 }
 
 #sidebar .nav-item.active .nav-link i {
@@ -4078,8 +4076,8 @@ body.hx-cert-locked { overflow: hidden; }
 
 /* --- Título de cada página: degradado animado --- */
 h1.dynamic-title {
-  background: linear-gradient(90deg, rgb(var(--page, 68 240 138)) 0%, #f2fbff 50%, rgb(var(--page, 68 240 138)) 100%) !important;
-  background-size: 200% auto !important;
+  background-image: linear-gradient(90deg, rgb(var(--page, 68 240 138)) 0%, rgb(var(--page, 68 240 138)) 44%, #ffffff 50%, rgb(var(--page, 68 240 138)) 56%, rgb(var(--page, 68 240 138)) 100%);
+  background-size: 200% auto;
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent !important;
@@ -4088,9 +4086,9 @@ h1.dynamic-title {
 }
 h1.dynamic-title i { -webkit-text-fill-color: rgb(var(--page, 68 240 138)); }
 
-/* --- Título del write-up: añade movimiento al degradado --- */
+/* --- Título del write-up: degradado SUTIL en el texto (sin fondo) --- */
 .content .hx-wu-title {
-  background: linear-gradient(90deg, rgb(var(--page, 68 240 138)) 0%, #f2fbff 50%, rgb(var(--page, 68 240 138)) 100%);
+  background-image: linear-gradient(90deg, rgb(var(--page, 68 240 138)) 0%, rgb(var(--page, 68 240 138)) 44%, #ffffff 50%, rgb(var(--page, 68 240 138)) 56%, rgb(var(--page, 68 240 138)) 100%);
   background-size: 200% auto;
   animation: hx-grad-move 9s linear infinite;
 }
@@ -4196,34 +4194,35 @@ h1.dynamic-title i { -webkit-text-fill-color: rgb(var(--page, 68 240 138)); }
 }
 @media (max-width: 560px) { .hx-about-ava { float: none; display: block; margin: 0 auto 1rem; } }
 
-/* --- Nav: nombre de cada pagina con degradado en movimiento (izq->der) --- */
+/* --- Nav: degradado SUTIL (color -> blanco leve -> color) en nombre e icono, SIN fondo de boton --- */
 #sidebar .nav-item .nav-link,
 #sidebar .nav-item .nav-link > span {
-  background: linear-gradient(90deg, rgb(var(--c)) 0%, #ffffff 50%, rgb(var(--c)) 100%);
+  background-image: linear-gradient(90deg, rgb(var(--c)) 0%, rgb(var(--c)) 43%, #ffffff 50%, rgb(var(--c)) 57%, rgb(var(--c)) 100%);
   background-size: 200% auto;
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: hx-grad-move 13s linear infinite;
 }
-#sidebar .nav-item .nav-link i { -webkit-text-fill-color: rgb(var(--c) / 75%); }
+#sidebar .nav-item .nav-link i {
+  background-image: linear-gradient(90deg, rgb(var(--c)) 0%, rgb(var(--c)) 40%, #ffffff 50%, rgb(var(--c)) 60%, rgb(var(--c)) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: hx-grad-move 13s linear infinite;
+}
 #sidebar .nav-item .nav-link::after { -webkit-text-fill-color: currentColor; }
-/* El resaltado hover/activo pasa a box-shadow (el background lo usa ahora el texto) */
-#sidebar .nav-item:not(.active) .nav-link:hover {
-  background: linear-gradient(90deg, rgb(var(--c)) 0%, #ffffff 50%, rgb(var(--c)) 100%) !important;
-  box-shadow: inset 0 0 0 999px rgb(var(--c) / 12%);
+/* Icono de la pagina activa: chip relleno (sin degradado) para marcarla */
+#sidebar .nav-item.active .nav-link i {
+  background-image: none;
+  -webkit-background-clip: border-box; background-clip: border-box;
+  -webkit-text-fill-color: #05070a;
 }
-#sidebar .nav-item.active .nav-link {
-  background: linear-gradient(90deg, rgb(var(--c)) 0%, #ffffff 55%, rgb(var(--c)) 100%) !important;
-  box-shadow: inset 2px 0 0 rgb(var(--c)), inset 0 0 0 999px rgb(var(--c) / 14%) !important;
-  text-shadow: none;
-}
-#sidebar .nav-item.active .nav-link i { -webkit-text-fill-color: #05070a; }
 
-/* --- Hover con degradado en movimiento en elementos con color --- */
+/* --- Hover: degradado sutil en movimiento en el nombre de las tarjetas de maquina --- */
 .hx-mcard:hover .hx-mcard-name {
-  background: linear-gradient(90deg, rgb(var(--m)) 0%, #ffffff 50%, rgb(var(--m)) 100%);
+  background-image: linear-gradient(90deg, rgb(var(--m)) 0%, rgb(var(--m)) 43%, #ffffff 50%, rgb(var(--m)) 57%, rgb(var(--m)) 100%);
   background-size: 200% auto;
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   color: transparent;
-  animation: hx-grad-move 2.2s linear infinite;
+  animation: hx-grad-move 2.5s linear infinite;
 }
