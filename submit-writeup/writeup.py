@@ -435,6 +435,23 @@ def _os_class(os_name: str) -> str:
     return "otros"
 
 
+def _fmt_date(iso: str) -> str:
+    """'2026-09-26' -> '26/09/2026'."""
+    m = re.match(r"(\d{4})-(\d{2})-(\d{2})", iso or "")
+    if not m:
+        return iso or ""
+    y, mo, d = m.groups()
+    return f"{d}/{mo}/{y}"
+
+
+def _reading_minutes(secs: dict) -> int:
+    text = " ".join((secs or {}).values())
+    text = re.sub(r"<[^>]+>", " ", text)          # quita etiquetas
+    text = re.sub(r"```table\s*\{.*?\}\s*```", " ", text, flags=re.S)  # tablas JSON no cuentan
+    words = len(re.findall(r"\S+", text))
+    return max(1, round(words / 200))
+
+
 def render_body(data: dict) -> str:
     name = (data.get("name") or "Máquina").strip()
     slug = slugify(name)
@@ -457,6 +474,14 @@ def render_body(data: dict) -> str:
     h += '<div class="hx-wu-headtext">'
     h += f'<h1 class="hx-wu-title">{esc(name)}</h1>'
     h += f'<p class="hx-wu-meta">Publicado por <b>{esc(AUTHOR)}</b></p>'
+    # Fila: fechas (publicado / actualizado) a la izquierda, tiempo de lectura a la derecha
+    pub = (data.get("date") or "")[:10]
+    upd = (data.get("updated") or "")[:10]
+    dates = f'<span class="hx-wu-date"><i class="fas fa-calendar-day" aria-hidden="true"></i> Publicado {_fmt_date(pub)}</span>'
+    if upd and upd != pub:
+        dates += f'<span class="hx-wu-date"><i class="fas fa-rotate" aria-hidden="true"></i> Actualizado {_fmt_date(upd)}</span>'
+    h += (f'<div class="hx-wu-sub"><div class="hx-wu-dates">{dates}</div>'
+          f'<span class="hx-wu-read"><i class="fas fa-clock" aria-hidden="true"></i> {_reading_minutes(secs)} min de lectura</span></div>')
     h += "</div>"
     h += "</header>"
     # Tabla ficha
@@ -523,6 +548,8 @@ def front_matter(data: dict) -> str:
     }
     # Un write-up publicado siempre está "Resuelta" (el roadmap lo cruza por machine+platform).
     fm["status"] = "Resuelta"
+    if data.get("updated"):
+        fm["last_modified_at"] = data["updated"][:10] + " 18:00:00 +0200"
     if data.get("accent"):
         fm["accent"] = data["accent"]
     y = "---\n"
@@ -575,7 +602,13 @@ def post_files(slug: str, date: str = ""):
 
 def publish(data: dict, mode: str = "add") -> str:
     slug = slugify(data.get("name") or "")
-    date = (data.get("date") or datetime.now().strftime("%Y-%m-%d")).strip()
+    today = datetime.now().strftime("%Y-%m-%d")
+    # La fecha de publicado se calcula sola al crear; al editar se actualiza "actualizado".
+    if mode == "add" and not (data.get("date") or "").strip():
+        data["date"] = today
+    if mode == "edit":
+        data["updated"] = today
+    date = (data.get("date") or today).strip()
     # Un write-up publicado siempre queda como "Resuelta".
     data["status"] = "Resuelta"
     # Borra cualquier versión previa del mismo slug (p. ej. un .md antiguo)

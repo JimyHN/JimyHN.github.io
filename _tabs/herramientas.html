@@ -11,7 +11,7 @@ order: 2
 {% if site.data.herramientas.size > 0 %}
   <div class="hx-tools">
     {% for t in site.data.herramientas %}
-      <article class="hx-tool" style="--c: {% cycle '159 239 0', '46 230 214', '193 108 255', '255 175 0' %}">
+      <article class="hx-tool" style="--c: {{ t.color | default: '46 230 214' }}">
         <button type="button" class="hx-tool-toggle" aria-expanded="false">
           <i class="{{ t.icono | default: 'fas fa-code' }} hx-tool-icon" aria-hidden="true"></i>
           <span class="hx-tool-head">

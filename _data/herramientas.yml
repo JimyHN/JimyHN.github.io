@@ -1,6 +1,7 @@
 # Herramientas propias. Cada una se despliega al pulsarla.
 - nombre: "Bash_Decompressor"
   lenguaje: "Bash"
+  color: "255 120 60"
   icono: "fas fa-box-open"
   repo: "https://github.com/JimyHN/Bash_Decompressor"
   resumen: >-
@@ -11,6 +12,7 @@
   tags: [bash, automatización, ctf]
 - nombre: "goto-fzf"
   lenguaje: "Bash"
+  color: "46 230 214"
   icono: "fas fa-location-crosshairs"
   repo: "https://github.com/JimyHN/goto-fzf"
   resumen: >-
@@ -20,6 +22,7 @@
   tags: [bash, fzf, productividad]
 - nombre: "Git-Dojo"
   lenguaje: "Web"
+  color: "193 108 255"
   icono: "fas fa-code-branch"
   repo: "https://github.com/JimyHN/Git-Dojo"
   resumen: >-
