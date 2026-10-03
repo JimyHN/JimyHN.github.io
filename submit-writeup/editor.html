@@ -202,7 +202,6 @@
     </div>
     <div class="ed-row">
       <div class="ed-field"><label>Fecha</label><input id="f-date" type="date"></div>
-      <div class="ed-field"><label>Estado (opcional)</label><input id="f-status" placeholder="En curso / vacío"></div>
     </div>
     <div class="ed-field" style="margin-bottom:0.5rem"><label>Descripción (resumen de 1 línea)</label><input id="f-desc" placeholder="..."></div>
     <div class="ed-field"><label>URL del logro de HackTheBox (imagen + certificado)</label><input id="f-url" placeholder="https://labs.hackthebox.com/achievement/machine/..."></div>
@@ -384,17 +383,24 @@ NOTE_SECTIONS.forEach(s => {
 });
 
 // ---------- Utilidades de edición ----------
-function _insert(ta, text) {
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  ta.value = ta.value.slice(0, s) + text + ta.value.slice(e);
-  ta.selectionStart = ta.selectionEnd = s + text.length;
+// Inserta texto conservando la pila de deshacer nativa (Ctrl+Z) vía execCommand.
+function _replaceRange(ta, start, end, text) {
   ta.focus();
+  ta.setSelectionRange(start, end);
+  let okExec = false;
+  try { okExec = document.execCommand('insertText', false, text); } catch (e) { okExec = false; }
+  if (!okExec) {
+    if (ta.setRangeText) ta.setRangeText(text, start, end, 'end');
+    else { ta.value = ta.value.slice(0, start) + text + ta.value.slice(end); ta.selectionStart = ta.selectionEnd = start + text.length; }
+  }
+}
+function _insert(ta, text) {
+  _replaceRange(ta, ta.selectionStart, ta.selectionEnd, text);
 }
 function _wrap(ta, tag) {
   const s = ta.selectionStart, e = ta.selectionEnd;
   const sel = ta.value.slice(s, e) || 'texto';
-  ta.value = ta.value.slice(0, s) + `<${tag}>` + sel + `</${tag}>` + ta.value.slice(e);
-  ta.focus();
+  _replaceRange(ta, s, e, `<${tag}>` + sel + `</${tag}>`);
 }
 const TEMPLATES = {
   term: '\n```term\n$ comando\nsalida del comando\n```\n',
@@ -418,6 +424,39 @@ document.addEventListener('keydown', (ev) => {
   }
 });
 
+// ---------- Resaltado automático al escribir ----------
+// archivo.ext -> cian (bc); vulnerabilidad/es y CVE-xxxx-yyyy -> rojo (br).
+const AUTO_EXTS = /\.(py|exe|sh|bat|ps1|psm1|dll|php|rb|pl|c|cpp|cs|java|jar|war|zip|tar|gz|tgz|7z|rar|xml|json|ya?ml|conf|cfg|ini|bak|aspx?|jsp|html?|js|ts|bin|elf|so|ko|sql|db|sqlite|csv|log|txt|md|pdf|docx?|xlsx?|pptx?|ovpn|key|pem|crt|cer|cap|pcap|pcapng|hccapx|kdbx|nse|lnk|vbs|asp)$/i;
+const AUTO_CVE = /^CVE-\d{4}-\d{3,7}$/i;
+const AUTO_VULN = /^vulnerabilidades?$/i;
+const _isSep = ch => /[\s,;:)\]}("'<>]/.test(ch);
+
+function autoHighlight(ta, e) {
+  if (!e || !e.inputType || e.inputType.indexOf('insert') !== 0) return;  // solo al insertar
+  const pos = ta.selectionStart;
+  if (pos < 1) return;
+  const boundary = ta.value[pos - 1];
+  if (!/[\s,;:)\]}]/.test(boundary)) return;            // el '.' NO cuenta como separador
+  let start = pos - 1;
+  while (start > 0 && !_isSep(ta.value[start - 1])) start--;
+  const token = ta.value.slice(start, pos - 1);
+  if (!token || /[<>]/.test(token)) return;
+  if (ta.value[start - 1] === '>') return;              // ya está dentro de un tag
+  const core = (token.match(/^(.*?)[.,;:]*$/) || [])[1] || '';
+  if (!core) return;
+  let tag = null;
+  if (AUTO_CVE.test(core) || AUTO_VULN.test(core)) tag = 'br';
+  else if (AUTO_EXTS.test(core) && /[a-z]/i.test(core.replace(/\.[^.]*$/, ''))) tag = 'bc';
+  if (!tag) return;
+  const repl = `<${tag}>${core}</${tag}>`;
+  _replaceRange(ta, start, start + core.length, repl);
+  const delta = repl.length - core.length;
+  ta.setSelectionRange(pos + delta, pos + delta);        // deja el cursor tras el separador
+}
+document.querySelectorAll('textarea[data-sec], textarea[data-note]').forEach(ta => {
+  ta.addEventListener('input', e => autoHighlight(ta, e));
+});
+
 // ---------- Recogida de datos y render ----------
 function val(id) { return document.getElementById(id).value.trim(); }
 
@@ -432,7 +471,6 @@ function collectData() {
     url: val('f-url'), sections,
   };
   if (Object.keys(notes).length) d.notes = notes;   // bloc privado: nunca llega al blog
-  if (val('f-status')) d.status = val('f-status');
   if (window._accent) d.accent = window._accent;
   if (window._img) d.img = window._img;
   return d;
@@ -447,7 +485,34 @@ async function render() {
     const pv = document.getElementById('preview');
     pv.innerHTML = d.html || ('<p style="color:#ff3e3e">' + (d.error || 'error') + '</p>');
     pv.style.setProperty('--page', window._accent || '159 239 0');
+    bindPreviewTables();
   } catch (e) { /* servidor no disponible */ }
+}
+
+// Edición de tablas desde la vista previa: clic en una tabla -> abre el diseñador.
+function tableBlocks() {
+  const res = [];
+  SECTIONS.forEach(s => {
+    const ta = document.getElementById('t-' + s.id);
+    const txt = ta.value;
+    const re = /```table\s*\n[\s\S]*?\n```/g; let m;
+    while ((m = re.exec(txt))) res.push({ sec: s.id, start: m.index });
+  });
+  return res;
+}
+function bindPreviewTables() {
+  const blocks = tableBlocks();
+  document.querySelectorAll('#preview .hx-tbl').forEach((t, idx) => {
+    const b = blocks[idx];
+    if (!b) return;
+    t.style.cursor = 'pointer';
+    t.title = 'Clic para editar esta tabla';
+    t.onclick = () => {
+      const ta = document.getElementById('t-' + b.sec);
+      ta.selectionStart = ta.selectionEnd = b.start + 8;   // dentro del bloque ```table
+      openDesigner(b.sec);
+    };
+  });
 }
 // La vista previa solo depende del panel izquierdo; las notas no se renderizan.
 document.querySelectorAll('.ed-left input, .ed-left select, .ed-left textarea').forEach(el => el.addEventListener('input', scheduleRender));
@@ -575,10 +640,18 @@ async function publicar() {
     updatePubBadge();
     setSave('✓ Publicado', 'ok');
     await wait(Math.max(0, 5000 - (Date.now() - t0)));
-    doneOp('✓ Publicado', 'Cerrando el editor…');
-    try { await fetch('/api/shutdown', { method:'POST' }); } catch (e) { /* el servidor ya se cerró */ }
-    doneOp('✓ Publicado — editor cerrado', 'Ejecuta git add -A && git commit && git push para subirlo al blog.');
-    // Se deja la ventana abierta: el servidor ya no responde.
+    const git = d.git || {};
+    if (git.ok) {
+      doneOp('✓ Publicado y subido al blog', git.msg || '');
+      try { await fetch('/api/shutdown', { method:'POST' }); } catch (e) { /* ya se cerró */ }
+      doneOp('✓ Publicado y subido — editor cerrado', 'Ya está en el blog. Puedes cerrar esta pestaña.');
+      // Se deja la ventana abierta: el servidor ya no responde.
+    } else {
+      doneOp('✓ Publicado (en local)', 'No se pudo subir con git: ' + (git.msg || 'desconocido') + '. Súbelo a mano.');
+      await wait(2500);
+      hideOp();
+      _saving = false;
+    }
   } catch (e) {
     doneOp('Error al publicar', e.message);
     await wait(Math.max(0, 5000 - (Date.now() - t0)));
@@ -682,10 +755,11 @@ async function confirmNombre() {
       scheduleRender();
     } catch (e) { msg.textContent = e.message; msg.className = 'nm-msg err'; okBtn.disabled = false; }
   } else {
-    // Aún no existe el JSON: fija el nombre y crea el borrador en el acto.
+    // Aún no existe el JSON: fija el nombre, rellena plantillas y crea el borrador.
     document.getElementById('f-name').value = newName;
     _slug = newSlug;
     document.getElementById('nm-ov').classList.remove('open');
+    if (MODE === 'add') prefillDefaults();
     markDirty();
     scheduleRender();
     autoSave();   // crea ya el JSON (solo si no está publicada)
@@ -741,18 +815,19 @@ document.getElementById('prev-ov').addEventListener('click', (e) => { if (e.targ
 // ================= Diseñador visual de tablas =================
 const TBD_TENUE = '#243244', TBD_GREEN = '#b6ff6a';
 const TBD_TXT = { g:'#9fef00', c:'#2ee6d6', m:'#c16cff', r:'#ff3e3e', y:'#ffd60a', o:'#ffaf00', w:'#ffffff', a:'#5eb4f8' };
-const TBD_LINE_SW = ['#243244','#b6ff6a','#9fef00','#2ee6d6','#c16cff','#ff3e3e','#ffd60a','#ffaf00','#5eb4f8','#c5d1de'];
+const TBD_LINE_SW = ['page','#243244','#b6ff6a','#9fef00','#2ee6d6','#c16cff','#ff3e3e','#ffd60a','#ffaf00','#5eb4f8','#c5d1de'];
 const TBD_BG_SW = ['', '#0e1520','#15200f','#1a1222','#201414','#0f1a22'];
 let TBD = null;
 
 function tbdEsc(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function tbdSepCss(s) { return (s && s.on) ? `${s.w || 1}px solid ${s.color || TBD_TENUE}` : '0'; }
+function tbdColor(c) { return c === 'page' ? 'rgb(var(--page, 159 239 0))' : (c || TBD_TENUE); }
+function tbdSepCss(s) { return (s && s.on) ? `${s.w || 1}px solid ${tbdColor(s.color)}` : '0'; }
 
 function tbdDefault(R, C) {
   const cells = [];
-  for (let r=0;r<R;r++){ const row=[]; for(let c=0;c<C;c++){ row.push(r===0?{t:'',b:true,a:'c'}:{t:'',a:'l'}); } cells.push(row); }
+  for (let r=0;r<R;r++){ const row=[]; for(let c=0;c<C;c++){ row.push(r===0?{t:'',b:true,a:'c',c:'p'}:{t:'',a:'l'}); } cells.push(row); }
   const v=[]; for(let c=0;c<=C;c++){ v.push((c===0||c===C)?{on:true,color:TBD_TENUE,w:1}:{on:false}); }
-  const h=[]; for(let r=0;r<=R;r++){ if(r===0||r===R) h.push({on:true,color:TBD_TENUE,w:1}); else if(r===1) h.push({on:true,color:TBD_GREEN,w:3}); else h.push({on:false}); }
+  const h=[]; for(let r=0;r<=R;r++){ if(r===0||r===R) h.push({on:true,color:TBD_TENUE,w:1}); else if(r===1) h.push({on:true,color:'page',w:3}); else h.push({on:false}); }
   return { corners:'round', cells, v, h };
 }
 
@@ -769,7 +844,7 @@ function openDesigner(sec) {
   let model, start, end;
   if (blk) { try { model = JSON.parse(blk.json); } catch(e) { model = tbdDefault(3,3); } start = blk.start; end = blk.end; }
   else { model = tbdDefault(3,3); start = ta.selectionStart; end = ta.selectionStart; }
-  TBD = { ta, start, end, model, selCells:new Set(), selLines:new Set(), lineColor:TBD_GREEN, lineWidth:2 };
+  TBD = { ta, start, end, model, selCells:new Set(), selLines:new Set(), lineColor:'page', lineWidth:2 };
   document.getElementById('tbd-ov').classList.add('open');
   tbdRender();
 }
@@ -781,8 +856,9 @@ function tbdSave() {
   let ins = block;
   if (before && !before.endsWith('\n')) ins = '\n\n' + ins;
   if (after && !after.startsWith('\n')) ins = ins + '\n\n';
-  ta.value = before + ins + after;
+  _replaceRange(ta, TBD.start, TBD.end, ins);
   tbdClose();
+  markDirty();
   scheduleRender();
 }
 
@@ -792,8 +868,12 @@ function tbdRender() { if (TBD) { tbdBars(); tbdStage(); } }
 function tbdSwatches(colors, cur, fn) {
   return colors.map(c => {
     const none = (c === '');
-    const bg = none ? 'repeating-linear-gradient(45deg,#333,#333 3px,#111 3px,#111 6px)' : c;
-    return `<button class="tbd-sw${c===cur?' sel':''}" style="background:${bg}" title="${none?'ninguno':c}" onclick="${fn}('${c}')"></button>`;
+    const page = (c === 'page');
+    const bg = none ? 'repeating-linear-gradient(45deg,#333,#333 3px,#111 3px,#111 6px)'
+            : page ? `rgb(${window._accent || '159 239 0'})` : c;
+    const extra = page ? ';outline:1px dashed #fff;outline-offset:1px' : '';
+    const title = none ? 'ninguno' : (page ? 'color de la página' : c);
+    return `<button class="tbd-sw${c===cur?' sel':''}" style="background:${bg}${extra}" title="${title}" onclick="${fn}('${c}')"></button>`;
   }).join('');
 }
 function tbdCellColorSw() {
@@ -943,6 +1023,48 @@ function tbdAddCol() { TBD.model.cells.forEach(row => row.push({t:'',a:'l'})); T
 function tbdDelCol() { if (TBD.model.cells[0].length>1){ TBD.model.cells.forEach(row => row.pop()); TBD.model.v.splice(TBD.model.v.length-2,1); TBD.selCells.clear(); tbdRender(); } }
 document.getElementById('tbd-ov').addEventListener('click', (e) => { if (e.target.id === 'tbd-ov') tbdClose(); });
 
+// ================= Plantillas por defecto al crear (--add) =================
+function portsTableModel() {
+  const m = tbdDefault(3, 2);        // cabecera + 2 filas, 2 columnas, color de página
+  m.cells[0][0].t = 'Puerto';
+  m.cells[0][1].t = 'Servicio';
+  return m;
+}
+function reconTemplate(host) {
+  return 'Búsqueda de puertos abiertos en la máquina víctima\n\n'
+    + '```term\n$ sudo nmap -p- -Pn -sS -n --max-retries 1 <b>' + host + '</b>\n```\n\n'
+    + '```table\n' + JSON.stringify(portsTableModel()) + '\n```\n\n'
+    + 'Enumeración de versiones de los servicios encontrados\n\n'
+    + '```term\n$ sudo nmap -p PUERTOS -n -sCV --version-intensity 9 <b>' + host + '</b>\n```\n';
+}
+function flagsTemplate(os) {
+  if (os === 'Windows')
+    return '```term\n$ type C:\\Users\\USUARIO\\Desktop\\user.txt\n```\n\n'
+         + '```term\n$ type C:\\Users\\Administrator\\Desktop\\root.txt\n```\n';
+  return '```term\n$ cat /home/USUARIO/user.txt\n```\n\n'
+       + '```term\n$ cat /root/root.txt\n```\n';
+}
+function prefillDefaults() {
+  const host = _slug || slugify(val('f-name')) || 'maquina';
+  const recon = document.getElementById('t-reconocimiento');
+  if (recon && !recon.value.trim()) recon.value = reconTemplate(host);
+  const flags = document.getElementById('t-flags');
+  if (flags && !flags.value.trim()) flags.value = flagsTemplate(val('f-os'));
+  markDirty();
+  scheduleRender();
+}
+// Al cambiar el SO, si las flags siguen siendo una plantilla sin tocar, se adaptan.
+document.getElementById('f-os').addEventListener('change', () => {
+  if (MODE !== 'add') return;
+  const flags = document.getElementById('t-flags');
+  if (!flags) return;
+  const v = flags.value.trim();
+  if (v === '' || v === flagsTemplate('Windows').trim() || v === flagsTemplate('Linux').trim()) {
+    flags.value = flagsTemplate(val('f-os'));
+    markDirty(); scheduleRender();
+  }
+});
+
 // ---------- Arranque / carga ----------
 const qp = new URLSearchParams(location.search);
 const MODE = qp.get('mode') === 'edit' ? 'edit' : 'add';
@@ -955,7 +1077,6 @@ function fillFrom(d) {
   if (d.diff) document.getElementById('f-diff').value = d.diff;
   document.getElementById('f-plat').value = d.plat || 'HackTheBox';
   document.getElementById('f-date').value = (d.date || '').slice(0, 10) || new Date().toISOString().slice(0, 10);
-  document.getElementById('f-status').value = d.status || '';
   document.getElementById('f-desc').value = d.desc || '';
   document.getElementById('f-url').value = (d.img && d.img.proof) || d.url || '';
   document.getElementById('f-tags').value = d.tags || '';
@@ -998,6 +1119,7 @@ async function boot() {
     if (qName) {
       document.getElementById('f-name').value = qName;   // nombre ya validado por la CLI
       _slug = slugify(qName);
+      prefillDefaults();                                 // plantillas de recon + flags
     } else {
       openNombre();   // --add a secas: hay que elegir nombre antes de nada
     }
