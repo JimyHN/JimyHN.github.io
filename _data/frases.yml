@@ -1,25 +1,23 @@
 # Frases que se van escribiendo debajo del nombre, en la barra lateral.
 # Cambia una cada 10 segundos, en orden aleatorio. Añade o quita las que quieras.
-- "Bienvenido, friki"
-- "Qué miras, aquí no es"
+- "Bienvenido a mi rincón de la red 🕸️"
 - "¿Me estás mirando la foto? 👀"
-- "Espabila, que se te hace de noche"
-- "¿Otra vez por aquí? Búscate un hobby"
-- "Esto no es Netflix, ponte a leer"
-- "Si vienes a copiar flags, aquí no hay"
-- "Lee despacio, que se te ve perdido"
-- "¿Todavía sin user.txt? Normal"
-- "Deja de hacer scroll y aprende algo"
-- "Cierra TikTok y abre la terminal"
-- "¿Enumeraste bien? Seguro que no"
+- "Café, terminal y a por ello ☕"
 - "Root primero, preguntas después"
-- "Pulsa F5, a ver si te vuelves listo"
-- "Tu IP ya está en mi libreta 📝"
 - "¿Has probado a apagarlo y encenderlo?"
-- "Aquí se viene llorado de casa"
-- "Hoy no es tu día, pero sigue leyendo"
 - "Ese sudo -l no se va a mirar solo"
-- "Menos mirar y más hackear"
+- "Menos teoría y más terminal"
+- "Enumera, explota, repite 🔁"
+- "99 bugs en el código; arreglas uno y quedan 117 🐛"
+- "// TODO: comentar este código algún día"
+- "La curiosidad no mató al gato, lo hizo root 🐱"
+- "Toda flag empieza por un buen escaneo"
+- "Aquí se aprende rompiendo (en el laboratorio) 🧪"
+- "Modo hacker: activado"
+- "Si tiene un puerto abierto, tengo una pregunta"
+- "Ponte cómodo, esto va para largo"
+- "Hoy también se aprende algo nuevo"
+- "El mejor exploit es la paciencia"
 
 # Frases con "guion": una lista de pasos que se ejecutan en orden.
 #   escribe: "texto"   -> escribe letra a letra a continuación de lo que haya
@@ -28,17 +26,12 @@
 #   rayar: ms          -> el texto se "raya" (glitch) durante ese tiempo
 # Los 10 segundos para la siguiente frase empiezan a contar al acabar el guion.
 - pasos:
-    - escribe: "Te voy a contar algo muy"
-    - espera: 700
-    - borra: 3
-    - escribe: "importante"
-    - espera: 700
-    - borra: 15
-    - escribe: "un secreto: el root de"
+    - escribe: "Compilando ideas"
+    - espera: 600
+    - escribe: "..."
     - espera: 800
     - borra: todo
-    - espera: 400
-    - escribe: "Wuop, Wuop, que te vacilo"
+    - escribe: "Deploy a producción un viernes 😅"
 - pasos:
     - escribe: "A rayarse"
     - espera: 3000
