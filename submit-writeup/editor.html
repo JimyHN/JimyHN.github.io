@@ -50,6 +50,26 @@
   #preview { font-family:'Source Sans Pro','Helvetica Neue',Arial,sans-serif; color:var(--hx-text, #c5d1de); line-height:1.7; }
   .ed-prev-note { font-size:0.7rem; color:var(--ed-mut); margin:0 0 0.8rem; }
 
+  /* Pestañas de la vista previa: Máquina / Notas */
+  .ed-tabs { display:flex; align-items:center; gap:0.2rem; border-bottom:1px solid var(--ed-border); margin:-1.2rem -1.2rem 1rem; padding:0.5rem 1.2rem 0; position:sticky; top:0; background:var(--hx-bg, #070a0f); z-index:5; }
+  .ed-tab { background:none; border:none; border-bottom:2px solid transparent; color:var(--ed-mut); font-family:inherit; font-size:0.85rem; font-weight:600; padding:0.5rem 0.9rem; cursor:pointer; }
+  .ed-tab:hover { color:#c5d1de; }
+  .ed-tab.active { color:var(--ed-green); border-bottom-color:var(--ed-green); }
+  .ed-tab-save { margin-left:auto; font-size:0.72rem; color:var(--ed-mut); padding-bottom:0.4rem; }
+  .ed-tab-save.ok { color:var(--ed-cyan); }
+  .ed-tab-save.dirty { color:#ffd60a; }
+  .ed-tab-save.err { color:#ff5c5c; }
+
+  /* Pestaña Notas */
+  .ed-notas-head { display:flex; align-items:center; gap:0.6rem; margin-bottom:0.9rem; }
+  .ed-notas-head .ed-prev-note { margin:0; flex:1; }
+  .ed-save-btn { background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:6px; color:#c5d1de; font-family:inherit; font-size:0.78rem; font-weight:600; padding:0.4rem 0.8rem; cursor:pointer; white-space:nowrap; }
+  .ed-save-btn:hover { border-color:var(--ed-green); color:var(--ed-green); }
+  .ed-note { margin-bottom:1rem; }
+  .ed-note-h { display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; font-weight:700; color:#e6edf3; margin-bottom:0.4rem; }
+  .ed-note-h .dot { width:9px; height:9px; border-radius:50%; background:var(--ac,#9fef00); flex-shrink:0; }
+  .ed-note textarea { min-height:150px; }
+
   /* Paleta de color de la máquina */
   .ed-pal { display:flex; flex-wrap:wrap; gap:0.35rem; }
   .ed-pal button { width:1.5rem; height:1.5rem; border-radius:6px; border:1px solid #2a3a4d; cursor:pointer; padding:0; transition:transform .12s; }
@@ -166,10 +186,26 @@
     <p class="ed-status" id="pub-status"></p>
   </div>
 
-  <!-- ======================= DERECHA: VISTA PREVIA ======================= -->
+  <!-- ======================= DERECHA: VISTA PREVIA / NOTAS ======================= -->
   <div class="ed-col ed-right">
-    <p class="ed-prev-note">Vista previa — así se verá el write-up publicado</p>
-    <div class="content"><div id="preview"></div></div>
+    <div class="ed-tabs">
+      <button type="button" class="ed-tab active" id="tab-maquina" onclick="switchTab('maquina')">Máquina</button>
+      <button type="button" class="ed-tab" id="tab-notas" onclick="switchTab('notas')">Notas</button>
+      <span class="ed-tab-save" id="save-status"></span>
+    </div>
+
+    <div class="ed-pane" id="pane-maquina">
+      <p class="ed-prev-note">Vista previa — así se verá el write-up publicado</p>
+      <div class="content"><div id="preview"></div></div>
+    </div>
+
+    <div class="ed-pane" id="pane-notas" style="display:none">
+      <div class="ed-notas-head">
+        <p class="ed-prev-note">Notas de trabajo — <b style="color:#ffd60a">solo en el editor, nunca se publican en el blog</b>. Se guardan en el JSON (autoguardado cada 10 min, al cambiar de pestaña y con el botón).</p>
+        <button type="button" class="ed-save-btn" onclick="guardar()">💾 Guardar</button>
+      </div>
+      <div id="ed-notes"></div>
+    </div>
   </div>
 </div>
 
@@ -239,13 +275,45 @@ SECTIONS.forEach((s, i) => {
 });
 document.querySelectorAll('.ed-sec-h').forEach(h => h.addEventListener('click', () => h.parentElement.classList.toggle('open')));
 
+// ---------- Pestaña Notas: mismas secciones menos resumen y "cómo se arregla" ----------
+const NOTE_SECTIONS = SECTIONS.filter(s => s.id !== 'resumen' && s.id !== 'arreglo');
+const notesCont = document.getElementById('ed-notes');
+NOTE_SECTIONS.forEach(s => {
+  const d = document.createElement('div');
+  d.className = 'ed-note';
+  d.innerHTML = `
+    <div class="ed-note-h" style="--ac:${s.color}"><span class="dot"></span> ${s.nom}</div>
+    <div class="ed-tools">
+      <button onclick="tplN('${s.id}','term')" style="--c:#9fef00">$ terminal</button>
+      <button onclick="tplN('${s.id}','out')" style="--c:#ffffff">salida</button>
+      <button onclick="tplN('${s.id}','list')" style="--c:#2ee6d6">- lista</button>
+      <button onclick="tplN('${s.id}','note')" style="--c:#ffd60a">aviso</button>
+      <span class="sep"></span>
+      <button onclick="wrapN('${s.id}','b')" style="--c:#9fef00">b</button>
+      <button onclick="wrapN('${s.id}','bc')" style="--c:#2ee6d6">bc</button>
+      <button onclick="wrapN('${s.id}','bm')" style="--c:#c16cff">bm</button>
+      <button onclick="wrapN('${s.id}','br')" style="--c:#ff3e3e">br</button>
+      <button onclick="wrapN('${s.id}','by')" style="--c:#ffd60a">by</button>
+      <button onclick="wrapN('${s.id}','bo')" style="--c:#ffaf00">bo</button>
+      <button onclick="wrapN('${s.id}','bw')" style="--c:#ffffff">bw</button>
+      <button onclick="wrapN('${s.id}','ba')" style="--c:#5eb4f8">ba</button>
+    </div>
+    <textarea id="n-${s.id}" data-note="${s.id}" placeholder="Notas de ${s.nom}..."></textarea>`;
+  notesCont.appendChild(d);
+});
+
 // ---------- Utilidades de edición ----------
-function insertAt(ta, text) {
+function _insert(ta, text) {
   const s = ta.selectionStart, e = ta.selectionEnd;
   ta.value = ta.value.slice(0, s) + text + ta.value.slice(e);
   ta.selectionStart = ta.selectionEnd = s + text.length;
   ta.focus();
-  scheduleRender();
+}
+function _wrap(ta, tag) {
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.slice(s, e) || 'texto';
+  ta.value = ta.value.slice(0, s) + `<${tag}>` + sel + `</${tag}>` + ta.value.slice(e);
+  ta.focus();
 }
 const TEMPLATES = {
   term: '\n```term\n$ comando\nsalida del comando\n```\n',
@@ -254,19 +322,18 @@ const TEMPLATES = {
   table:'\n| Columna | Columna |\n| --- | --- |\n| valor | valor |\n',
   note: '\n::tip\nUn aviso útil.\n::\n',
 };
+// Secciones (afectan a la vista previa)
+function insertAt(ta, text) { _insert(ta, text); scheduleRender(); }
 function tpl(sec, kind) { insertAt(document.getElementById('t-' + sec), TEMPLATES[kind]); }
-function wrap(sec, tag) {
-  const ta = document.getElementById('t-' + sec);
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.slice(s, e) || 'texto';
-  ta.value = ta.value.slice(0, s) + `<${tag}>` + sel + `</${tag}>` + ta.value.slice(e);
-  ta.focus();
-  scheduleRender();
-}
+function wrap(sec, tag) { _wrap(document.getElementById('t-' + sec), tag); scheduleRender(); }
+// Notas (no se renderizan; solo marcan cambios sin guardar)
+function tplN(id, kind) { _insert(document.getElementById('n-' + id), TEMPLATES[kind]); markDirty(); }
+function wrapN(id, tag) { _wrap(document.getElementById('n-' + id), tag); markDirty(); }
 document.addEventListener('keydown', (ev) => {
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'b') {
     const ta = document.activeElement;
     if (ta && ta.dataset && ta.dataset.sec) { ev.preventDefault(); wrap(ta.dataset.sec, 'b'); }
+    else if (ta && ta.dataset && ta.dataset.note) { ev.preventDefault(); wrapN(ta.dataset.note, 'b'); }
   }
 });
 
@@ -276,11 +343,14 @@ function val(id) { return document.getElementById(id).value.trim(); }
 function collectData() {
   const sections = {};
   SECTIONS.forEach(s => { const v = document.getElementById('t-' + s.id).value; if (v.trim()) sections[s.id] = v; });
+  const notes = {};
+  NOTE_SECTIONS.forEach(s => { const v = document.getElementById('n-' + s.id).value; if (v.trim()) notes[s.id] = v; });
   const d = {
     name: val('f-name'), ip: val('f-ip'), os: val('f-os'), diff: val('f-diff'),
     plat: val('f-plat'), date: val('f-date'), desc: val('f-desc'), tags: val('f-tags'),
     url: val('f-url'), sections,
   };
+  if (Object.keys(notes).length) d.notes = notes;   // bloc privado: nunca llega al blog
   if (val('f-status')) d.status = val('f-status');
   if (window._accent) d.accent = window._accent;
   if (window._img) d.img = window._img;
@@ -298,7 +368,10 @@ async function render() {
     pv.style.setProperty('--page', window._accent || '159 239 0');
   } catch (e) { /* servidor no disponible */ }
 }
-document.querySelectorAll('input,select,textarea').forEach(el => el.addEventListener('input', scheduleRender));
+// La vista previa solo depende del panel izquierdo; las notas no se renderizan.
+document.querySelectorAll('.ed-left input, .ed-left select, .ed-left textarea').forEach(el => el.addEventListener('input', scheduleRender));
+// Cualquier edición (secciones o notas) marca cambios sin guardar.
+document.querySelectorAll('input,select,textarea').forEach(el => el.addEventListener('input', markDirty));
 
 // ---------- Imagen (automática al pegar la URL) ----------
 async function traerImagen(silent) {
@@ -339,9 +412,57 @@ async function publicar() {
     const r = await fetch('/api/publish', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
     const d = await r.json();
     if (d.error) throw new Error(d.error);
+    _dirty = false;
+    setSave('✓ Publicado y guardado', 'ok');
     st.textContent = (MODE === 'edit' ? '✓ Write-up editado: ' : '✓ Write-up publicado: ') + d.path + ' — haz commit y push para subirlo.';
   } catch (e) { st.textContent = 'Error: ' + e.message; }
 }
+
+// ---------- Pestañas Máquina / Notas ----------
+function switchTab(name) {
+  const isNotas = name === 'notas';
+  document.getElementById('pane-maquina').style.display = isNotas ? 'none' : '';
+  document.getElementById('pane-notas').style.display = isNotas ? '' : 'none';
+  document.getElementById('tab-maquina').classList.toggle('active', !isNotas);
+  document.getElementById('tab-notas').classList.toggle('active', isNotas);
+  guardar(true);   // guarda al cambiar de pestaña (silencioso)
+}
+
+// ---------- Guardado del borrador (JSON, sin publicar al blog) ----------
+let _dirty = false, _saving = false;
+function setSave(txt, cls) {
+  const st = document.getElementById('save-status');
+  if (!st) return;
+  st.textContent = txt;
+  st.className = 'ed-tab-save' + (cls ? ' ' + cls : '');
+}
+function markDirty() {
+  _dirty = true;
+  if (val('f-name')) setSave('• sin guardar', 'dirty');
+}
+async function guardar(auto) {
+  if (!val('f-name')) { if (!auto) setSave('Falta el nombre para guardar.', 'err'); return; }
+  if (_saving || (auto && !_dirty)) return;
+  _saving = true;
+  setSave('Guardando…');
+  try {
+    const r = await fetch('/api/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(collectData()) });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    _dirty = false;
+    const t = new Date().toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' });
+    setSave('✓ Guardado ' + t, 'ok');
+  } catch (e) { setSave('Error al guardar: ' + e.message, 'err'); }
+  finally { _saving = false; }
+}
+// Autoguardado cada 10 minutos (solo si hay cambios y nombre).
+setInterval(() => guardar(true), 10 * 60 * 1000);
+// Red de seguridad: intenta guardar al cerrar/recargar si quedan cambios.
+window.addEventListener('beforeunload', () => {
+  if (_dirty && val('f-name')) {
+    try { navigator.sendBeacon('/api/save', new Blob([JSON.stringify(collectData())], { type:'application/json' })); } catch (e) { /* nada */ }
+  }
+});
 
 // ================= Color de la máquina + máquinas anteriores =================
 const PALETTE = [
@@ -609,6 +730,10 @@ function fillFrom(d) {
   (d.sections && Object.keys(d.sections) || []).forEach(k => {
     const ta = document.getElementById('t-' + k);
     if (ta) ta.value = d.sections[k];
+  });
+  (d.notes && Object.keys(d.notes) || []).forEach(k => {
+    const ta = document.getElementById('n-' + k);
+    if (ta) ta.value = d.notes[k];
   });
   if (d.img) {
     window._img = d.img;
