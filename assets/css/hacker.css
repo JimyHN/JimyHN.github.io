@@ -4218,6 +4218,20 @@ h1.dynamic-title i { -webkit-text-fill-color: rgb(var(--page, 68 240 138)); }
   -webkit-text-fill-color: #05070a;
 }
 
+/* ====== Etiquetas: sin verde; linux amarillo, windows cian ====== */
+#tags .tag:nth-child(5n+1), .hx-chips .hx-chip:nth-child(5n+1) { --c: 255 94 135; }  /* el verde pasa a rosa */
+.hx-chip { --c: 46 230 214; }                                                        /* chip por defecto: cian, no verde */
+.post-tag:hover {
+  border-color: rgb(var(--page, 46 230 214)) !important;
+  color: rgb(var(--page, 46 230 214)) !important;
+  box-shadow: 0 0 10px rgb(var(--page, 46 230 214) / 35%);
+}
+a[href*="/tags/linux/"]   { --c: 255 214 10 !important; }   /* linux · amarillo */
+a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian */
+
+/* Quitar "Etiquetas" del menu lateral (la pagina /tags/ sigue existiendo) */
+#sidebar .nav-item:nth-child(6) { display: none; }
+
 /* --- Hover: degradado sutil en movimiento en el nombre de las tarjetas de maquina --- */
 .hx-mcard:hover .hx-mcard-name {
   background-image: linear-gradient(90deg, rgb(var(--m)) 0%, rgb(var(--m)) 43%, #ffffff 50%, rgb(var(--m)) 57%, rgb(var(--m)) 100%);
