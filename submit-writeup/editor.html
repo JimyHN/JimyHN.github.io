@@ -432,6 +432,9 @@ const AUTO_VULN = /^vulnerabilidades?$/i;
 const _isSep = ch => /[\s,;:)\]}("'<>]/.test(ch);
 
 function autoHighlight(ta, e) {
+  try { _autoHighlight(ta, e); } catch (err) { /* nunca interrumpir la escritura */ }
+}
+function _autoHighlight(ta, e) {
   if (!e || !e.inputType || e.inputType.indexOf('insert') !== 0) return;  // solo al insertar
   const pos = ta.selectionStart;
   if (pos < 1) return;
