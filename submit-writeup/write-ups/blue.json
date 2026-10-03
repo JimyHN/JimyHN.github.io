@@ -22,5 +22,6 @@
     "arreglo": "Todo parte de un sistema sin actualizar, así que el arreglo va por capas:\n\n- <b>Aplicar el parche MS17-010.</b> Microsoft lo publicó en marzo de 2017, incluso para versiones ya sin soporte como XP o Server 2003. Con el parche puesto, el desbordamiento deja de existir.\n- <b>Desactivar SMBv1.</b> Es la medida de fondo: es un protocolo obsoleto que no debería estar activo en ninguna red moderna. En Windows se quita con <bc>Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol</bc>.\n- <b>No exponer el puerto 445.</b> SMB no tiene por qué ser accesible desde fuera de la red interna; filtrarlo en el firewall reduce muchísimo la superficie de ataque.\n- <b>Activar la firma SMB.</b> El escaneo la marcaba como deshabilitada, y tenerla activa evita manipulaciones de las sesiones SMB.",
     "conclusiones": "El SMBv1 a estas alturas no debería existir: es un servicio anticuado con muchas vulnerabilidades conocidas y aquí, encima, la vulnerabilidad nos ha dado root nada más ejecutarla.\n\nEs buena práctica, al ver el puerto 445 abierto, tirar directamente <bc>nmap --script smb-vuln-*</bc>, que resuelve casi todo el reconocimiento.\n\nEl parche existía un mes antes de la filtración y casi dos antes de WannaCry. El problema casi nunca es que no haya solución, sino que no se aplica."
   },
-  "accent": "125 211 252"
+  "accent": "125 211 252",
+  "status": "Resuelta"
 }
