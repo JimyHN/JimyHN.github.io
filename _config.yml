@@ -11,6 +11,10 @@ lang: es-ES
 # Change to your timezone › https://zones.arilyn.cc
 timezone: Europe/Madrid
 
+# Publicar también posts con fecha/hora futura (evita que un write-up publicado
+# "hoy" quede oculto hasta una hora concreta).
+future: true
+
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
