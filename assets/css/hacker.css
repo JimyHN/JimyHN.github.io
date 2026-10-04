@@ -4762,3 +4762,46 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
   color: var(--hx-muted);
 }
 .hx-feat-empty i { font-size: 1.1rem; opacity: 0.45; }
+
+/* ====== Badge "nueva" (posts < 48h) en las tarjetas de Updates ====== */
+.hx-mcard { position: relative; }
+.hx-new {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.6rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  padding: 0.14rem 0.55rem;
+  border-radius: 999px;
+  font-family: var(--hx-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #2ee6d6;
+  background: rgb(46 230 214 / 12%);
+  border: 1px solid rgb(46 230 214 / 45%);
+}
+.hx-new-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2ee6d6;
+  box-shadow: 0 0 6px #2ee6d6;
+  animation: hx-pulse 1.8s ease-out infinite;
+}
+.hx-updates-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.1rem 0 0.4rem;
+  font-family: var(--hx-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgb(46 230 214) !important;
+  text-decoration: none;
+}
+.hx-updates-all i { transition: transform 0.2s; }
+.hx-updates-all:hover i { transform: translateX(4px); }
