@@ -8,7 +8,7 @@ oficiales:
     documento: "/assets/docs/master-ciberseguridad.pdf"
     preview: "/assets/img/docs-preview/master-ciberseguridad.png"
     tfm: "/assets/docs/JaimeHereza_TFM.pdf"
-    tfm_writeup: "/writeups/dolibarr"
+    tfm_writeup: "/posts/dolibarr/"
     resumen: >-
       Un máster muy completo (60 ECTS, 1.500 h) que toca casi todas las ramas de la
       ciberseguridad. Me ha servido para construir una base sólida antes de centrarme en lo

@@ -4470,21 +4470,13 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
   .hx-disclaimer-scan { opacity: 0; }
 }
 
-/* ====== Scroll propio del panel derecho (independiente de la pagina), solo escritorio ====== */
+/* ====== Panel derecho pegado arriba, sin scroll propio (acompaña a la página) ====== */
 @media (min-width: 1200px) {
   #panel-wrapper {
     position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: rgb(255 255 255 / 18%) transparent;
+    top: 1rem;
+    align-self: flex-start;
   }
-  #panel-wrapper::-webkit-scrollbar { width: 7px; }
-  #panel-wrapper::-webkit-scrollbar-track { background: transparent; }
-  #panel-wrapper::-webkit-scrollbar-thumb { background: rgb(255 255 255 / 12%); border-radius: 999px; }
-  #panel-wrapper::-webkit-scrollbar-thumb:hover { background: rgb(255 255 255 / 24%); }
 }
 
 /* ==========================================================================

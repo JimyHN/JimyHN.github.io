@@ -1,46 +1,6 @@
 {%- comment -%}
-  Panel derecho: buscador de etiquetas. Al elegir una, lleva a /maquinas/
-  filtrada por esa etiqueta (?tag=slug).
+  Buscador de etiquetas retirado del panel derecho (quedaba mal y obligaba a un
+  scroll propio de la columna). La búsqueda de etiquetas sigue estando en la
+  pestaña de Máquinas, que tiene su propio filtro. Este include queda vacío a
+  propósito: el tema lo incluye en el panel, así que no se borra, solo no pinta nada.
 {%- endcomment -%}
-
-{% if site.tags.size > 0 %}
-  <section class="hx-widget hx-tagsearch">
-    <h2 class="panel-heading hx-widget-title"><i class="fas fa-hashtag" aria-hidden="true"></i> Buscar etiqueta</h2>
-    <input type="search" class="hx-tagsearch-input" placeholder="Filtra etiquetas…" aria-label="Filtra etiquetas" autocomplete="off" spellcheck="false">
-    <div class="hx-chips hx-tagsearch-list" id="hx-tagsearch-list">
-      {% assign tags_sorted = site.tags | sort %}
-      {% for tag in tags_sorted %}
-        {% assign tname = tag | first %}
-        {% assign slug = tname | slugify %}
-        <a class="hx-chip" data-tag="{{ tname | downcase }}" href="{{ '/maquinas/' | relative_url }}?tag={{ slug | url_encode }}">
-          <span class="hx-chip-hash">#</span>{{ tname }}<span class="hx-chip-n">{{ tag | last | size }}</span>
-        </a>
-      {% endfor %}
-    </div>
-    <p class="hx-tagsearch-empty" hidden>Ninguna etiqueta coincide.</p>
-  </section>
-  <script>
-  (function () {
-    var inp = document.querySelector('.hx-tagsearch-input');
-    var list = document.getElementById('hx-tagsearch-list');
-    var empty = document.querySelector('.hx-tagsearch-empty');
-    if (!inp || !list) return;
-    var chips = Array.prototype.slice.call(list.querySelectorAll('.hx-chip'));
-    inp.addEventListener('input', function () {
-      var q = inp.value.trim().toLowerCase();
-      var n = 0;
-      chips.forEach(function (c) {
-        var ok = !q || c.dataset.tag.indexOf(q) !== -1;
-        c.hidden = !ok;
-        if (ok) n++;
-      });
-      if (empty) empty.hidden = n !== 0;
-    });
-    inp.addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter') return;
-      var first = chips.filter(function (c) { return !c.hidden; })[0];
-      if (first) { e.preventDefault(); window.location.href = first.href; }
-    });
-  })();
-  </script>
-{% endif %}
