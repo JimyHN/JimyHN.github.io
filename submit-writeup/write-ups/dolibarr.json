@@ -20,9 +20,10 @@
     "conclusiones": "Dolibarr 17.0.0 demuestra algo que se repite en auditorías reales: <b>un solo fallo de validación</b> (un filtro sensible a mayúsculas) basta para pasar de un usuario normal a <b>ejecución de comandos</b>, y de ahí, tirando del <bc>conf.php</bc>, al <b>control total</b> del sistema.\n\nTambién deja una idea muy clara: las <b>listas negras</b> (de etiquetas o de funciones) son un parche que siempre se puede esquivar, frente a las <b>listas blancas</b>, que deniegan por defecto.\n\nY lo más importante: casi todos los fallos están <b>corregidos en versiones posteriores</b>, así que la mejor defensa sigue siendo <b>mantener el software actualizado</b>. El informe completo con los 10 hallazgos, su CVSS, impacto y evidencias es mi <b>TFM</b>, enlazado desde el Máster en Ciberseguridad en la pestaña de <b>Títulos</b>."
   },
   "img": {
-    "avatar": "",
-    "banner": "",
+    "avatar": "/assets/img/machines/dolibarr.png",
+    "banner": "/assets/img/machines/dolibarr-banner.png",
     "proof": ""
   },
-  "status": "Resuelta"
+  "status": "Resuelta",
+  "updated": "2026-10-04"
 }
