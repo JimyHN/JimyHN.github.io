@@ -1,0 +1,25 @@
+# Elementos destacados del panel derecho (3 huecos por fila).
+# Deja un hueco vacío con "- {}" y saldrá como placeholder para rellenar luego.
+# Campos por hueco: nombre, img (ruta a la imagen), color ("R G B"), url (enlace).
+
+certificaciones:
+  - nombre: "eJPT"
+    img: "/assets/img/logos/ine.png"
+    color: "94 180 248"
+    url: "/certificaciones/"
+  - nombre: "OSCP"
+    img: "/assets/img/logos/offsec.jpeg"
+    color: "130 140 255"
+    url: "/certificaciones/"
+  - nombre: "Máster"
+    img: "/assets/img/logos/imf.png"
+    color: "220 48 73"
+    url: "/titulos/"
+
+maquinas:
+  - nombre: "Dolibarr"
+    img: "/assets/img/machines/dolibarr.png"
+    color: "239 68 68"
+    url: "/posts/dolibarr/"
+  - {}
+  - {}

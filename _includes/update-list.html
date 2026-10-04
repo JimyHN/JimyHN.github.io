@@ -84,6 +84,43 @@
   </section>
 {%- endif -%}
 
+{%- assign dest = site.data.destacadas -%}
+{%- if dest.certificaciones -%}
+  <section class="hx-widget hx-feat hx-feat-cert">
+    <h2 class="panel-heading hx-widget-title"><i class="fas fa-star" aria-hidden="true"></i> Certificaciones destacadas</h2>
+    <div class="hx-feat-grid">
+      {%- for c in dest.certificaciones limit: 3 -%}
+        {%- if c.nombre -%}
+          <a class="hx-feat-card" href="{{ c.url | default: '/certificaciones/' | relative_url }}" style="--fc: {{ c.color | default: '193 108 255' }}">
+            <span class="hx-feat-img"{% if c.img %} style="background-image:url('{{ c.img | relative_url }}')"{% endif %}></span>
+            <b>{{ c.nombre }}</b>
+          </a>
+        {%- else -%}
+          <span class="hx-feat-card hx-feat-empty" aria-hidden="true"><i class="fas fa-plus"></i></span>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{%- if dest.maquinas -%}
+  <section class="hx-widget hx-feat hx-feat-maq">
+    <h2 class="panel-heading hx-widget-title"><i class="fas fa-star" aria-hidden="true"></i> Máquinas destacadas</h2>
+    <div class="hx-feat-grid">
+      {%- for m in dest.maquinas limit: 3 -%}
+        {%- if m.nombre -%}
+          <a class="hx-feat-card" href="{{ m.url | default: '/writeups/' | relative_url }}" style="--fc: {{ m.color | default: '46 230 214' }}">
+            <span class="hx-feat-img"{% if m.img %} style="background-image:url('{{ m.img | relative_url }}')"{% endif %}></span>
+            <b>{{ m.nombre }}</b>
+          </a>
+        {%- else -%}
+          <span class="hx-feat-card hx-feat-empty" aria-hidden="true"><i class="fas fa-plus"></i></span>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
 {% assign MAX_SIZE = 5 %}
 {% assign all_list = '' | split: '' %}
 {% for post in site.posts %}

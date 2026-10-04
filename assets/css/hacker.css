@@ -4705,3 +4705,60 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
   .hx-htb-logo * { animation: none !important; }
   .hx-htb-scan, .hx-htb-ring, .hx-htb-ghost { opacity: 0; }
 }
+
+/* ====== Destacadas del panel (3 huecos por fila) ====== */
+#panel-wrapper .hx-widget.hx-feat-cert { --wc: 193 108 255; }
+#panel-wrapper .hx-widget.hx-feat-maq  { --wc: 46 230 214; }
+
+.hx-feat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+.hx-feat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.45rem;
+  min-height: 94px;
+  padding: 0.6rem 0.3rem;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--hx-text) !important;
+  border: 1px solid rgb(var(--fc, 46 230 214) / 28%);
+  background: rgb(var(--fc, 46 230 214) / 7%);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.hx-feat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgb(var(--fc) / 65%);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 35%), 0 0 14px rgb(var(--fc) / 22%);
+}
+.hx-feat-img {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #0b1018 center / contain no-repeat;
+  border: 1px solid rgb(var(--fc, 46 230 214) / 55%);
+  box-shadow: 0 0 10px rgb(var(--fc, 46 230 214) / 26%);
+}
+.hx-feat-card b {
+  max-width: 100%;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #e6edf3;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hx-feat-empty {
+  justify-content: center;
+  border-style: dashed;
+  border-color: rgb(255 255 255 / 14%);
+  background: rgb(255 255 255 / 2%);
+  color: var(--hx-muted);
+}
+.hx-feat-empty i { font-size: 1.1rem; opacity: 0.45; }
