@@ -167,6 +167,8 @@ def render_inline(t: str) -> str:
         store.append(html_)
         return f"\x02{len(store) - 1}\x03"
 
+    # subrayado <u>..</u> (se respeta tal cual, protegido del escapado)
+    t = re.sub(r"</?u>", lambda m: stash(m.group(0)), t)
     # código en línea
     t = re.sub(r"`([^`]+)`", lambda m: stash(f"<code>{esc(m.group(1))}</code>"), t)
     # enlaces [texto](url)
@@ -388,39 +390,58 @@ def render_table_block(block_text: str) -> str:
     return f'<table class="hx-tbl" style="border-radius:{rad}"><tbody>{"".join(rows_html)}</tbody></table>'
 
 
-def render_img_block(block) -> str:
-    """Renderiza un bloque ```img.  Cada línea: `ruta | pie` (el pie es opcional).
+def render_img_block(block, counter=None) -> str:
+    """Renderiza un bloque ```img.  Cada línea admite:
 
-    La imagen va centrada, con borde del color de la máquina, y al pulsarla se
-    abre ampliada en un visor (lightbox). Varias líneas = varias figuras.
+        ruta
+        ruta | pie
+        ruta | Etiqueta | pie
+
+    La etiqueta por defecto es «Figura» y el número se autodetecta según cuántas
+    figuras de esa misma etiqueta van por delante en el write-up. El pie sale en
+    negrita y en gris, con el prefijo «Etiqueta N:». La imagen va centrada, con
+    borde del color de la máquina, y al pulsarla se abre ampliada en un visor.
     """
+    if counter is None:
+        counter = {}
     figs = []
     for line in block:
         line = line.strip()
         if not line:
             continue
-        if "|" in line:
-            src, cap = line.split("|", 1)
-            src, cap = src.strip(), cap.strip()
+        parts = [p.strip() for p in line.split("|")]
+        src = parts[0]
+        if len(parts) >= 3:
+            label, cap = parts[1], " | ".join(parts[2:]).strip()
+        elif len(parts) == 2:
+            label, cap = "Figura", parts[1]
         else:
-            src, cap = line, ""
+            label, cap = "Figura", ""
         alt = esc(cap) if cap else "Captura del write-up"
         f = ('<figure class="hx-fig">'
              f'<button type="button" class="hx-fig-zoom" aria-label="Ampliar imagen">'
              f'<img src="{esc(src)}" alt="{alt}" loading="lazy" decoding="async"></button>')
-        if cap:
-            f += f'<figcaption>{render_inline(cap)}</figcaption>'
+        if label:
+            counter[label] = counter.get(label, 0) + 1
+            num = counter[label]
+            lbl = f'<span class="hx-fig-lbl">{esc(label)}&nbsp;{num}:</span>'
+            body = f" {render_inline(cap)}" if cap else ""
+            f += f'<figcaption class="hx-fig-cap">{lbl}{body}</figcaption>'
+        elif cap:
+            f += f'<figcaption class="hx-fig-cap">{render_inline(cap)}</figcaption>'
         f += "</figure>"
         figs.append(f)
     return "".join(figs)
 
 
-def render_section(text: str) -> str:
+def render_section(text: str, fig_counter=None) -> str:
     """Convierte el texto de una sección (marcado) en HTML.
 
     Bloques cercados:  ```term / ```out / ```in  (terminales),  ```table  (tabla
     de diseño con JSON)  y  ```img  (imágenes con lightbox). El resto es prosa
     (párrafos, listas, tablas Markdown, avisos).
+
+    `fig_counter` lleva la numeración de figuras compartida entre secciones.
     """
     lines = text.split("\n")
     out = []
@@ -446,7 +467,7 @@ def render_section(text: str) -> str:
             if lang == "table":
                 out.append(render_table_block("\n".join(block)))
             elif lang in ("img", "imagen", "captura"):
-                out.append(render_img_block(block))
+                out.append(render_img_block(block, fig_counter))
             else:
                 out.append(render_term(lang, block))
             continue
@@ -491,6 +512,7 @@ def render_body(data: dict) -> str:
     ip = (data.get("ip") or DEFAULT_IP).strip()
     os_name = data.get("os") or ""
     diff = data.get("diff") or ""
+    version = (data.get("version") or "").strip()
     osc = _os_class(os_name)
     img = data.get("img") or {}
     avatar = img.get("avatar") or data.get("thumb") or ""
@@ -506,7 +528,8 @@ def render_body(data: dict) -> str:
     if avatar:
         h += f'<span class="hx-wu-img" style="background-image:url(\'{avatar}\')" role="img" aria-label="{esc(name)}"></span>'
     h += '<div class="hx-wu-headtext">'
-    h += f'<h1 class="hx-wu-title">{esc(name)}</h1>'
+    _ver = f' <span class="hx-wu-ver">{esc(version)}</span>' if version else ""
+    h += f'<h1 class="hx-wu-title">{esc(name)}{_ver}</h1>'
     h += f'<p class="hx-wu-meta">Publicado por <b>{esc(AUTHOR)}</b></p>'
     # Fila: fechas (publicado / actualizado) a la izquierda, tiempo de lectura a la derecha
     pub = (data.get("date") or "")[:10]
@@ -514,14 +537,18 @@ def render_body(data: dict) -> str:
     dates = f'<span class="hx-wu-date"><i class="fas fa-calendar-day" aria-hidden="true"></i> Publicado {_fmt_date(pub)}</span>'
     if upd and upd != pub:
         dates += f'<span class="hx-wu-date"><i class="fas fa-rotate" aria-hidden="true"></i> Actualizado {_fmt_date(upd)}</span>'
+    try:
+        read_min = int(data.get("read_min") or 3)
+    except (TypeError, ValueError):
+        read_min = 3
     h += (f'<div class="hx-wu-sub"><div class="hx-wu-dates">{dates}</div>'
-          f'<span class="hx-wu-read"><i class="fas fa-clock" aria-hidden="true"></i> {_reading_minutes(secs)} min de lectura</span></div>')
+          f'<span class="hx-wu-read"><i class="fas fa-clock" aria-hidden="true"></i> {read_min} min de lectura</span></div>')
     h += "</div>"
     h += "</header>"
     # Tabla ficha
     h += ('<table class="hx-wu-table"><thead><tr><th>Máquina</th><th>SO</th>'
           '<th>Dificultad</th><th>IP</th></tr></thead><tbody><tr>')
-    h += f'<td class="wu-name">{esc(name)}</td>'
+    h += f'<td class="wu-name">{esc(name)}{(" " + esc(version)) if version else ""}</td>'
     h += f'<td class="wu-os wu-os-{osc}">{esc(os_name)}</td>'
     h += f'<td><span class="hx-badge hx-diff-{diff.lower()}">{esc(diff)}</span></td>'
     h += f'<td class="wu-ip">{esc(ip)}</td></tr></tbody></table>'
@@ -541,10 +568,11 @@ def render_body(data: dict) -> str:
         for sid, nom, col in present:
             h += f'<a href="#{sid}" style="--c:{col}">{esc(nom)}</a>'
         h += "</nav>"
-    # Secciones
+    # Secciones (numeración de figuras compartida entre todas)
+    fig_counter = {}
     for sid, nom, col in present:
         h += f'<section class="hx-wu-sec" id="{sid}" style="--c:{col}"><h2>{esc(nom)}</h2>'
-        h += render_section(secs[sid])
+        h += render_section(secs[sid], fig_counter)
         h += "</section>"
     # Tarjeta de verificación
     accent = data.get("accent", "")

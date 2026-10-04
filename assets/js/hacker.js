@@ -1296,7 +1296,23 @@
     });
   }
 
+  /* --- En un write-up, oculta el título/meta por defecto del tema (duplicado
+         de nuestro encabezado con avatar + nombre). --- */
+  function initHideDupHeader() {
+    const wu = document.querySelector('.hx-wu');
+    if (!wu) return;
+    const content = wu.closest('.content') || wu.parentElement;
+    if (!content) return;
+    let el = content.previousElementSibling;
+    while (el) {
+      const prev = el.previousElementSibling;
+      if (el.matches('h1, .post-meta, header, .post-desc, [data-toc-skip]')) el.style.display = 'none';
+      el = prev;
+    }
+  }
+
   function init() {
+    initHideDupHeader();
     initHtbFx();
     initPageTheme();
     initAge();

@@ -91,7 +91,14 @@
     <div class="hx-feat-grid">
       {%- for c in dest.certificaciones limit: 3 -%}
         {%- if c.nombre -%}
+          {%- assign wip = false -%}
+          {%- if c.en_curso_hasta -%}
+            {%- assign hoy = site.time | date: '%Y%m%d' | plus: 0 -%}
+            {%- assign fin = c.en_curso_hasta | date: '%Y%m%d' | plus: 0 -%}
+            {%- if hoy <= fin -%}{%- assign wip = true -%}{%- endif -%}
+          {%- endif -%}
           <a class="hx-feat-card" href="{{ c.url | default: '/certificaciones/' | relative_url }}" style="--fc: {{ c.color | default: '193 108 255' }}">
+            {%- if wip %}<span class="hx-feat-wip">En curso</span>{% endif -%}
             <span class="hx-feat-img"{% if c.img %} style="background-image:url('{{ c.img | relative_url }}')"{% endif %}></span>
             <b>{{ c.nombre }}</b>
           </a>

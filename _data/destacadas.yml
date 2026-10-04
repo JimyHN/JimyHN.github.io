@@ -11,6 +11,9 @@ certificaciones:
     img: "/assets/img/logos/offsec.jpeg"
     color: "130 140 255"
     url: "/certificaciones/"
+    # Mientras hoy <= esta fecha sale el badge "En curso"; al pasarla, desaparece.
+    # Pon aquí el día que esperas terminarla (o bórralo cuando ya la tengas).
+    en_curso_hasta: "2026-12-31"
   - nombre: "Máster"
     img: "/assets/img/logos/imf.png"
     color: "220 48 73"
