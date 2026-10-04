@@ -250,7 +250,7 @@
       <div class="ed-field"><label>Fecha</label><input id="f-date" type="date"></div>
       <div class="ed-field" style="flex:0 0 150px"><label>Versión (opcional)</label><input id="f-version" placeholder="17.0.0"></div>
       <div class="ed-field" style="flex:0 0 130px"><label>Min. lectura</label><input id="f-read" type="number" min="1" step="1" placeholder="3"></div>
-      <div class="ed-field" style="flex:0 0 150px"><label>Ancho imágenes (px)</label><input id="f-imgw" type="number" min="60" step="10" placeholder="340"></div>
+      <div class="ed-field" style="flex:0 0 150px"><label>Ancho imágenes (px)</label><input id="f-imgw" type="number" min="60" step="10" placeholder="680"></div>
     </div>
     <div class="ed-field" style="margin-bottom:0.5rem"><label>Descripción (resumen de 1 línea)</label><input id="f-desc" placeholder="..."></div>
     <div class="ed-field"><label>URL del logro de HackTheBox (imagen + certificado)</label><input id="f-url" placeholder="https://labs.hackthebox.com/achievement/machine/..."></div>
@@ -566,7 +566,7 @@ async function render() {
     const pv = document.getElementById('preview');
     pv.innerHTML = d.html || ('<p style="color:#ff3e3e">' + (d.error || 'error') + '</p>');
     pv.style.setProperty('--page', window._accent || '159 239 0');
-    pv.querySelectorAll('.hx-wu').forEach(w => w.style.setProperty('--fig-w', (val('f-imgw') || '340') + 'px'));
+    pv.querySelectorAll('.hx-wu').forEach(w => w.style.setProperty('--fig-w', (val('f-imgw') || '680') + 'px'));
     bindPreviewTables();
     bindPreviewImages();
   } catch (e) { /* servidor no disponible */ }
@@ -727,7 +727,7 @@ function gearPopover(ref, imgEl, anchor) {
   const box = document.createElement('div'); box.className = 'ed-fig-gear';
   const natW = (imgEl && imgEl.naturalWidth) || 0, natH = (imgEl && imgEl.naturalHeight) || 0;
   const ratio = (natW && natH) ? (natW / natH) : 0;
-  const curW = ref.fields.w ? parseInt(ref.fields.w, 10) : (ref.fields.h && ratio ? Math.round(parseInt(ref.fields.h, 10) * ratio) : (parseInt(val('f-imgw'), 10) || 340));
+  const curW = ref.fields.w ? parseInt(ref.fields.w, 10) : (ref.fields.h && ratio ? Math.round(parseInt(ref.fields.h, 10) * ratio) : (parseInt(val('f-imgw'), 10) || 680));
   const curH = ref.fields.h ? parseInt(ref.fields.h, 10) : (ratio ? Math.round(curW / ratio) : '');
   box.innerHTML = '<div class="ed-fig-gear-row"><label>Ancho</label><input type="number" class="gw" value="' + curW + '"><span>px</span></div>'
     + '<div class="ed-fig-gear-row"><label>Alto</label><input type="number" class="gh" value="' + curH + '"><span>px</span></div>'

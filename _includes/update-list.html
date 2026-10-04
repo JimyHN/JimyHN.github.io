@@ -98,7 +98,7 @@
             {%- if hoy <= fin -%}{%- assign wip = true -%}{%- endif -%}
           {%- endif -%}
           <a class="hx-feat-card" href="{{ c.url | default: '/certificaciones/' | relative_url }}" style="--fc: {{ c.color | default: '193 108 255' }}">
-            {%- if wip %}<span class="hx-feat-wip">En curso</span>{% endif -%}
+            {%- if wip %}<span class="hx-feat-wip" role="img" aria-label="En curso" title="En curso"></span>{% endif -%}
             <span class="hx-feat-img"{% if c.img %} style="background-image:url('{{ c.img | relative_url }}')"{% endif %}></span>
             <b>{{ c.nombre }}</b>
           </a>

@@ -4840,7 +4840,7 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
   line-height: 0; cursor: zoom-in; border-radius: 15px; max-width: 100%;
 }
 .hx-fig-zoom img {
-  display: block; width: var(--fig-w, 340px); max-width: 100%; height: auto; border-radius: 15px;
+  display: block; width: var(--fig-w, 680px); max-width: 100%; height: auto; border-radius: 15px;
   border: 2px solid rgb(var(--m, 199 21 133));
   box-shadow: 0 6px 24px rgba(0, 0, 0, .35);
   transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease, filter .25s ease;
@@ -4851,7 +4851,7 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
 /* Hueco sin imagen (placeholder gris, por si se publica vacío) */
 .hx-fig-ph2 {
   display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
-  width: var(--fig-w, 340px); max-width: 100%; aspect-ratio: 16 / 10; border-radius: 15px;
+  width: var(--fig-w, 680px); max-width: 100%; aspect-ratio: 16 / 10; border-radius: 15px;
   border: 2px dashed rgb(var(--m, 199 21 133) / 55%); background: rgb(var(--m, 199 21 133) / 7%);
   color: #8a97a8; font-size: .9rem;
 }
@@ -5059,18 +5059,14 @@ body.hx-lb-locked { overflow: hidden; }
   background: rgb(var(--m, 159 239 0) / 10%);
 }
 
-/* Badge "En curso" en una tarjeta destacada (p. ej. OSCP sin terminar) */
+/* "En curso" en una tarjeta destacada (p. ej. OSCP sin terminar): solo un
+   círculo naranja parpadeando arriba a la derecha. */
 .hx-feat-card { position: relative; }
 .hx-feat-wip {
-  position: absolute; top: 6px; right: 6px; z-index: 2;
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 7px; border-radius: 999px; font-size: .6rem; font-weight: 700; line-height: 1.4;
-  color: var(--hx-medium);
-  background: color-mix(in srgb, var(--hx-medium) 16%, #0d1016);
-  border: 1px solid color-mix(in srgb, var(--hx-medium) 55%, transparent);
-}
-.hx-feat-wip::before {
-  content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--hx-medium);
+  position: absolute; top: 7px; right: 7px; z-index: 2;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--hx-medium);
+  box-shadow: 0 0 8px var(--hx-medium);
   animation: hx-blink 1.2s steps(1) infinite;
 }
 
