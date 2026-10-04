@@ -1890,6 +1890,7 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
 .hx-ring-wrap {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
   color: var(--hx-muted) !important;
   text-decoration: none;
@@ -4167,7 +4168,7 @@ h1.dynamic-title i { -webkit-text-fill-color: rgb(var(--page, 68 240 138)); }
 .hx-recent li a:hover { background: rgb(var(--ic, 68 240 138) / 10%); transform: translateX(3px); }
 
 /* Tarjeta "Total máquinas" */
-.hx-widget-total .hx-total { display: flex; align-items: center; gap: 0.9rem; }
+.hx-widget-total .hx-total { display: flex; align-items: center; justify-content: center; gap: 0.9rem; }
 .hx-total-num {
   font-family: var(--hx-mono); font-size: 2.4rem; font-weight: 800; line-height: 1;
   background: linear-gradient(90deg, rgb(var(--wc, 46 230 214)), #bdfff7, rgb(var(--wc, 46 230 214)));
