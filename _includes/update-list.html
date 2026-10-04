@@ -121,12 +121,17 @@
   </section>
 {%- endif -%}
 
+{%- comment -%}
+  "Últimas subidas" = orden real de publicación. Ordenamos por `date` (la fecha
+  de subida del write-up), NO por `last_modified_at`: editar un write-up antiguo
+  actualiza su "Actualizado" pero no es una subida nueva, así que no debe colarse
+  arriba. Al publicar uno nuevo (fecha de hoy) entra el primero, igual que en Inicio.
+{%- endcomment -%}
 {% assign MAX_SIZE = 5 %}
 {% assign all_list = '' | split: '' %}
 {% for post in site.posts %}
-  {% assign datetime = post.last_modified_at | default: post.date %}
   {% capture elem %}
-    {{- datetime | date: "%Y%m%d%H%M%S" -}}::{{- forloop.index0 -}}
+    {{- post.date | date: "%Y%m%d%H%M%S" -}}::{{- forloop.index0 -}}
   {% endcapture %}
   {% assign all_list = all_list | push: elem %}
 {% endfor %}
@@ -161,7 +166,7 @@
             <span>
               <b>{{ post.title }}</b>
               <small>
-                {{ post.last_modified_at | default: post.date | date: '%d/%m/%Y' }}
+                {{ post.date | date: '%d/%m/%Y' }}
                 {%- if post.difficulty %} · <em class="hx-diff-{{ post.difficulty | downcase }}">{{ post.difficulty }}</em>{% endif -%}
                 {%- if post.status %} · {{ post.status }}{% endif -%}
               </small>

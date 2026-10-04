@@ -1225,6 +1225,77 @@
     })();
   }
 
+  /* --- Lightbox de las capturas del write-up --- */
+  function initFigures() {
+    if (!document.querySelector('.hx-fig-zoom')) return;
+    let ov = null, imgEl = null, capEl = null, closing = false;
+
+    function build() {
+      ov = document.createElement('div');
+      ov.className = 'hx-lb';
+      ov.setAttribute('role', 'dialog');
+      ov.setAttribute('aria-modal', 'true');
+      ov.innerHTML =
+        '<div class="hx-lb-stage">' +
+        '<button type="button" class="hx-lb-close" aria-label="Cerrar">✕</button>' +
+        '<img class="hx-lb-img" alt="">' +
+        '<p class="hx-lb-cap"></p>' +
+        '</div>';
+      document.body.appendChild(ov);
+      imgEl = ov.querySelector('.hx-lb-img');
+      capEl = ov.querySelector('.hx-lb-cap');
+      ov.addEventListener('click', (e) => {
+        if (e.target === ov || e.target.closest('.hx-lb-close')) close();
+      });
+    }
+
+    function open(src, cap, accent) {
+      if (!ov) build();
+      imgEl.src = src;
+      imgEl.alt = cap || 'Captura';
+      capEl.textContent = cap || '';
+      capEl.style.display = cap ? '' : 'none';
+      ov.style.setProperty('--m', accent || '199 21 133');
+      closing = false;
+      ov.classList.remove('is-closing');
+      ov.classList.add('is-open');
+      imgEl.classList.remove('hx-lb-pop');
+      void imgEl.offsetWidth;        // reinicia la animación de escalado
+      imgEl.classList.add('hx-lb-pop');
+      document.body.classList.add('hx-lb-locked');
+    }
+
+    function close() {
+      if (!ov || closing) return;
+      closing = true;
+      const done = () => {
+        ov.classList.remove('is-open', 'is-closing');
+        document.body.classList.remove('hx-lb-locked');
+        closing = false;
+        ov.removeEventListener('animationend', done);
+      };
+      if (reduceMotion) { done(); return; }
+      ov.classList.add('is-closing');
+      ov.addEventListener('animationend', done);
+      setTimeout(done, 420);         // red de seguridad
+    }
+
+    document.addEventListener('click', (e) => {
+      const b = e.target.closest('.hx-fig-zoom');
+      if (!b) return;
+      const img = b.querySelector('img');
+      if (!img) return;
+      const fig = b.closest('.hx-fig');
+      const cap = fig && fig.querySelector('figcaption');
+      const wu = b.closest('.hx-wu');
+      const accent = (wu && wu.dataset.accent) || '';
+      open(img.src, cap ? cap.textContent.trim() : (img.alt || ''), accent);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+  }
+
   function init() {
     initHtbFx();
     initPageTheme();
@@ -1246,6 +1317,7 @@
     initPostSections();
     initButtonAura();
     initCert();
+    initFigures();
   }
 
   if (document.readyState === 'loading') {

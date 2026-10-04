@@ -388,11 +388,39 @@ def render_table_block(block_text: str) -> str:
     return f'<table class="hx-tbl" style="border-radius:{rad}"><tbody>{"".join(rows_html)}</tbody></table>'
 
 
+def render_img_block(block) -> str:
+    """Renderiza un bloque ```img.  Cada línea: `ruta | pie` (el pie es opcional).
+
+    La imagen va centrada, con borde del color de la máquina, y al pulsarla se
+    abre ampliada en un visor (lightbox). Varias líneas = varias figuras.
+    """
+    figs = []
+    for line in block:
+        line = line.strip()
+        if not line:
+            continue
+        if "|" in line:
+            src, cap = line.split("|", 1)
+            src, cap = src.strip(), cap.strip()
+        else:
+            src, cap = line, ""
+        alt = esc(cap) if cap else "Captura del write-up"
+        f = ('<figure class="hx-fig">'
+             f'<button type="button" class="hx-fig-zoom" aria-label="Ampliar imagen">'
+             f'<img src="{esc(src)}" alt="{alt}" loading="lazy" decoding="async"></button>')
+        if cap:
+            f += f'<figcaption>{render_inline(cap)}</figcaption>'
+        f += "</figure>"
+        figs.append(f)
+    return "".join(figs)
+
+
 def render_section(text: str) -> str:
     """Convierte el texto de una sección (marcado) en HTML.
 
-    Bloques cercados:  ```term / ```out / ```in  (terminales)  y  ```table  (tabla
-    de diseño con JSON). El resto es prosa (párrafos, listas, tablas Markdown, avisos).
+    Bloques cercados:  ```term / ```out / ```in  (terminales),  ```table  (tabla
+    de diseño con JSON)  y  ```img  (imágenes con lightbox). El resto es prosa
+    (párrafos, listas, tablas Markdown, avisos).
     """
     lines = text.split("\n")
     out = []
@@ -417,6 +445,8 @@ def render_section(text: str) -> str:
             i = j + 1
             if lang == "table":
                 out.append(render_table_block("\n".join(block)))
+            elif lang in ("img", "imagen", "captura"):
+                out.append(render_img_block(block))
             else:
                 out.append(render_term(lang, block))
             continue
@@ -469,7 +499,8 @@ def render_body(data: dict) -> str:
     secs = data.get("sections") or {}
 
     _acc = data.get("accent", "")
-    h = f'<div class="hx-wu" data-os="{osc}"{f" data-accent=\"{_acc}\"" if _acc else ""}>'
+    _acc_style = f' style="--m:{_acc}"' if _acc else ""
+    h = f'<div class="hx-wu" data-os="{osc}"{f" data-accent=\"{_acc}\"" if _acc else ""}{_acc_style}>'
     # Cabecera: avatar + nombre + autor, y botón de certificado a la derecha
     h += '<header class="hx-wu-head">'
     if avatar:

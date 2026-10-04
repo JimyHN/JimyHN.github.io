@@ -66,7 +66,7 @@ layout: default
     {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
     {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
     {% else %}{% assign os_key = 'otros' %}{% endif %}
-    {% assign post_s = post.last_modified_at | default: post.date | date: '%s' | plus: 0 %}
+    {% assign post_s = post.date | date: '%s' | plus: 0 %}
     {% assign age = now_s | minus: post_s %}
     <a class="hx-mcard" data-os="{{ os_key }}" data-diff="{{ post.difficulty | default: '' | downcase }}" href="{{ post.url | relative_url }}" data-name="{{ post.machine | default: post.title | downcase }}" data-platform="{{ post.platform | default: '' | downcase | remove: ' ' }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
       {% if age >= 0 and age < 172800 %}<span class="hx-new"><span class="hx-new-dot" aria-hidden="true"></span>nueva</span>{% endif %}

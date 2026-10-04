@@ -226,6 +226,7 @@
     <p class="ed-hint">
       <b>Terminales:</b> bloque <code>```term</code> … <code>```</code>; dentro, las líneas que empiezan por <code>$&nbsp;</code> o <code>#&nbsp;</code> son comandos (prompt de Kali) y el resto es salida. <code>```out</code> = todo salida.<br>
       <b>Listas:</b> líneas que empiezan por <code>-&nbsp;</code>. &nbsp; <b>Tablas:</b> <code>| A | B |</code> + fila <code>| --- | --- |</code>. &nbsp; <b>Avisos:</b> <code>::tip</code> … <code>::</code> (tip/info/warn/danger).<br>
+      <b>Imágenes:</b> bloque <code>```img</code> … <code>```</code>; una por línea como <code>/ruta/captura.png | pie de foto</code>. Van centradas, con el borde del color de la máquina, y al pulsarlas se abren ampliadas (lightbox). Sube las capturas a <code>assets/img/writeups/&lt;slug&gt;/</code>.<br>
       <b>Resaltado:</b> <code>&lt;b&gt;</code> = negrita <b>blanca</b> (la general). Para color, etiqueta propia: <code>&lt;bc&gt;</code> cian (binarios), <code>&lt;by&gt;</code> amarillo (usuarios), <code>&lt;br&gt;</code> rojo (vulnerabilidades), <code>&lt;bg&gt;</code> verde, <code>&lt;bo&gt;</code> naranja, <code>&lt;ba&gt;</code> ámbar, <code>&lt;bm&gt;</code> magenta, <code>&lt;bw&gt;</code> blanca. También <code>**negrita**</code>, <code>*cursiva*</code>, <code>`código`</code> y <code>[texto](url)</code>.
     </p>
 
@@ -342,6 +343,7 @@ SECTIONS.forEach((s, i) => {
         <button onclick="tpl('${s.id}','list')" style="--c:#2ee6d6">- lista</button>
         <button onclick="openDesigner('${s.id}')" style="--c:#5eb4f8">tabla</button>
         <button onclick="tpl('${s.id}','note')" style="--c:#ffd60a">aviso</button>
+        <button onclick="tpl('${s.id}','img')" style="--c:#c71585">🖼 imagen</button>
         <span class="sep"></span>
         <button onclick="wrap('${s.id}','b')" style="--c:#9fef00">b</button>
         <button onclick="wrap('${s.id}','bc')" style="--c:#2ee6d6">bc</button>
@@ -371,6 +373,7 @@ NOTE_SECTIONS.forEach(s => {
       <button onclick="tplN('${s.id}','out')" style="--c:#ffffff">salida</button>
       <button onclick="tplN('${s.id}','list')" style="--c:#2ee6d6">- lista</button>
       <button onclick="tplN('${s.id}','note')" style="--c:#ffd60a">aviso</button>
+      <button onclick="tplN('${s.id}','img')" style="--c:#c71585">🖼 imagen</button>
       <span class="sep"></span>
       <button onclick="wrapN('${s.id}','b')" style="--c:#9fef00">b</button>
       <button onclick="wrapN('${s.id}','bc')" style="--c:#2ee6d6">bc</button>
@@ -411,6 +414,7 @@ const TEMPLATES = {
   list: '\n- primer punto\n- segundo punto\n',
   table:'\n| Columna | Columna |\n| --- | --- |\n| valor | valor |\n',
   note: '\n::tip\nUn aviso útil.\n::\n',
+  img:  '\n```img\n/assets/img/writeups/<slug>/captura.png | Pie de foto (opcional)\n```\n',
 };
 // Secciones (afectan a la vista previa)
 function insertAt(ta, text) { _insert(ta, text); scheduleRender(); }
