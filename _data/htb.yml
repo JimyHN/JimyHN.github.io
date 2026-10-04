@@ -1,16 +1,9 @@
 # Datos del perfil de HackTheBox para la sección "Nivel HackTheBox" del panel derecho.
 #
-# De momento se rellenan A MANO (app.hackthebox.com exige login y bloquea CORS,
-# así que la web NO puede leer tu nivel desde el navegador en cada refresco).
-# Para que se actualice solo hay que poblar este fichero desde un GitHub Action
-# programado que consulte la API de HTB con un App Token (ver README / nota del include).
-#
-# rank: tu rango actual en HTB
-#   (Noob · Script Kiddie · Hacker · Pro Hacker · Elite Hacker · Guru · Omniscient · Admin)
-rank: "Hacker"
-# URL pública de tu perfil (el botón "Ver perfil" apunta aquí)
+# Este fichero lo REGENERA el workflow .github/workflows/htb-update.yml
+# (tools/htb_update.py) consultando la API de HTB con un App Token.
+# No hace falta editarlo a mano; si lo haces, el siguiente build lo sobrescribe.
+rank: "Noob"
 profile: "https://app.hackthebox.com/users/2772097"
-# URL del avatar de HTB. Déjalo en "" para mostrar un marcador mientras no lo tengas.
-avatar: ""
-# Puntos de ranking (opcional, se muestra si está relleno)
-points: ""
+avatar: "https://htb-sso-prod-public-storage.s3.eu-central-1.amazonaws.com/users/a456974b-fe8d-4be5-a51b-3b77a10413c6-avatar.png"
+points: "0"
