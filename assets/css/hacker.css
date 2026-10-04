@@ -2859,42 +2859,66 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
 /* ==========================================================================
    Herramientas (acordeón)
    ========================================================================== */
+/* ====== Herramientas: rejilla de tarjetas abiertas (sin desplegable) ====== */
 .hx-tools {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 1rem;
   margin: 1.2rem 0 2rem;
 }
 
 .hx-tool {
   --c: 68 240 138;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.1rem 1.1rem 1.2rem;
   border: 1px solid var(--hx-border);
   border-left: 3px solid rgb(var(--c));
-  border-radius: 10px;
-  background: linear-gradient(150deg, rgb(var(--c) / 6%), var(--hx-bg-2) 60%);
-  overflow: hidden;
+  border-radius: 12px;
+  background:
+    radial-gradient(120% 95% at 100% 0%, rgb(var(--c) / 15%), transparent 55%),
+    linear-gradient(150deg, rgb(var(--c) / 7%), var(--hx-bg-2) 70%);
   transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+  animation: hx-fade-up 0.5s ease both;
 }
+.hx-tool:nth-child(1) { animation-delay: 0.05s; }
+.hx-tool:nth-child(2) { animation-delay: 0.14s; }
+.hx-tool:nth-child(3) { animation-delay: 0.23s; }
+.hx-tool:nth-child(4) { animation-delay: 0.32s; }
+.hx-tool:nth-child(5) { animation-delay: 0.41s; }
+.hx-tool:nth-child(6) { animation-delay: 0.50s; }
 
 .hx-tool:hover {
-  border-color: rgb(var(--c) / 45%);
-  border-left-color: rgb(var(--c));
-  box-shadow: 0 10px 26px rgb(0 0 0 / 40%), 0 0 18px rgb(var(--c) / 12%);
+  border-color: rgb(var(--c) / 50%);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgb(0 0 0 / 42%), 0 0 22px rgb(var(--c) / 16%);
 }
 
-.hx-tool-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  width: 100%;
-  padding: 1rem 1.1rem;
-  border: none;
-  background: none;
-  color: var(--hx-text);
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
+/* Línea superior animada */
+.hx-tool::before {
+  content: '';
+  position: absolute; left: 0; right: 0; top: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgb(var(--c) / 85%), transparent);
+  background-size: 200% auto;
+  animation: hx-grad-move 6s linear infinite;
 }
+
+/* Marca de agua: icono grande translúcido */
+.hx-tool-watermark {
+  position: absolute;
+  right: -0.6rem; bottom: -1.4rem;
+  font-size: 7.5rem;
+  line-height: 1;
+  color: rgb(var(--c) / 8%);
+  pointer-events: none;
+  animation: hx-ava-float 6s ease-in-out infinite;
+}
+.hx-tool > :not(.hx-tool-watermark) { position: relative; z-index: 1; }
+
+.hx-tool-head-row { display: flex; align-items: center; gap: 0.9rem; }
 
 .hx-tool-icon {
   display: grid;
@@ -2908,65 +2932,31 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
   font-size: 1.1rem;
   transition: transform 0.3s;
 }
-
-.hx-tool.is-open .hx-tool-icon,
-.hx-tool-toggle:hover .hx-tool-icon { transform: rotate(-8deg) scale(1.08); }
+.hx-tool:hover .hx-tool-icon { transform: rotate(-8deg) scale(1.08); }
 
 .hx-tool-head { display: flex; flex-direction: column; }
 .hx-tool-head b { font-family: var(--hx-mono); font-size: 1.05rem; color: #e6edf3; }
 .hx-tool-head small { font-size: 0.72rem; color: rgb(var(--c)); font-family: var(--hx-mono); }
 
-.hx-tool-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  margin-left: auto;
-}
-
+.hx-tool-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
 .hx-tool-tags span {
   font-family: var(--hx-mono);
   font-size: 0.66rem;
   color: var(--hx-muted);
   background: rgb(255 255 255 / 4%);
+  border: 1px solid rgb(var(--c) / 18%);
   border-radius: 4px;
   padding: 0.05rem 0.4rem;
 }
 
-.hx-tool-chevron {
-  margin-left: 0.4rem;
-  color: var(--hx-muted);
-  transition: transform 0.3s, color 0.25s;
-}
-
-.hx-tool.is-open .hx-tool-chevron { transform: rotate(180deg); color: rgb(var(--c)); }
-
-.hx-tool-body {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: grid-template-rows;
-}
-
-.hx-tool.is-open .hx-tool-body { grid-template-rows: 1fr; }
-
-.hx-tool-inner {
-  overflow: hidden;
-  min-height: 0;
-  padding: 0 1.1rem;
-}
-
-.hx-tool-inner > :last-child { margin-bottom: 1.1rem; }
-
 .hx-tool-resumen {
-  margin: 0 0 1rem;
-  padding-top: 0.3rem;
-  border-top: 1px dashed rgb(var(--c) / 25%);
-  font-size: 0.92rem;
+  margin: 0;
+  font-size: 0.9rem;
   line-height: 1.6;
   color: var(--hx-text);
 }
 
-.hx-tool-cta { text-align: center; }
+.hx-tool-cta { margin-top: auto; }
 
 .hx-tool-cta .hx-btn {
   border-color: rgb(var(--c) / 60%);
@@ -2975,24 +2965,15 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
   background: rgb(var(--c) / 8%);
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.3, 1), box-shadow 0.25s, border-color 0.25s;
 }
-
-/* Sin relleno verde: al pasar crece y brilla por fuera con el color de la herramienta */
 .hx-tool-cta .hx-btn::before { display: none; }
-
 .hx-tool-cta .hx-btn:hover {
   color: rgb(var(--c)) !important;
   border-color: rgb(var(--c)) !important;
-  transform: scale(1.07);
-  box-shadow: 0 0 22px rgb(var(--c) / 55%), 0 0 44px rgb(var(--c) / 25%);
+  transform: scale(1.05);
+  box-shadow: 0 0 22px rgb(var(--c) / 50%), 0 0 44px rgb(var(--c) / 22%);
 }
-
 .hx-tool-cta .hx-btn:active { transform: scale(1.02); }
-
 .hx-tool-cta .hx-btn i { color: rgb(var(--c)); }
-
-@media (max-width: 576px) {
-  .hx-tool-tags { display: none; }
-}
 
 /* ==========================================================================
    Certificaciones: más color y animación (usa --c por tarjeta)

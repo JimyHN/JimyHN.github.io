@@ -140,19 +140,20 @@ def repo_lang(repo_url: str) -> dict:
 def render_tool(t: dict) -> str:
     t = _norm(t)
     tags = "".join(f"<span>#{esc(tg)}</span>" for tg in t["tags"])
+    tags_html = f'<div class="hx-tool-tags">{tags}</div>' if tags else ""
+    icon = esc(t["icono"])
     return (
-        f'<div class="hx-tools"><article class="hx-tool is-open" style="--c: {esc(t["color"])}">'
-        f'<button type="button" class="hx-tool-toggle" aria-expanded="true">'
-        f'<i class="{esc(t["icono"])} hx-tool-icon" aria-hidden="true"></i>'
+        f'<div class="hx-tools"><article class="hx-tool" style="--c: {esc(t["color"])}">'
+        f'<i class="{icon} hx-tool-watermark" aria-hidden="true"></i>'
+        f'<div class="hx-tool-head-row">'
+        f'<i class="{icon} hx-tool-icon" aria-hidden="true"></i>'
         f'<span class="hx-tool-head"><b>{esc(t["nombre"] or "Nombre")}</b><small>{esc(t["lenguaje"])}</small></span>'
-        f'<span class="hx-tool-tags">{tags}</span>'
-        f'<i class="fas fa-chevron-down hx-tool-chevron" aria-hidden="true"></i>'
-        f'</button>'
-        f'<div class="hx-tool-body"><div class="hx-tool-inner">'
+        f'</div>'
+        f'{tags_html}'
         f'<p class="hx-tool-resumen">{esc(t["resumen"])}</p>'
         f'<div class="hx-tool-cta"><a class="hx-btn" href="{esc(t["repo"])}" target="_blank" rel="noopener">'
         f'<i class="fab fa-github" aria-hidden="true"></i> Abrir herramienta</a></div>'
-        f'</div></div></article></div>'
+        f'</article></div>'
     )
 
 
