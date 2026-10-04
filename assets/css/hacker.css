@@ -1858,6 +1858,7 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
 #panel-wrapper .hx-widget-title {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   margin: 0 0 0.9rem;
   font-family: var(--hx-mono) !important;
@@ -1873,7 +1874,7 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
 .hx-live {
   width: 7px;
   height: 7px;
-  margin-left: auto;
+  margin-left: 0.4rem;
   border-radius: 50%;
   background: rgb(var(--wc, 46 230 214));
   box-shadow: 0 0 0 0 rgb(var(--wc, 46 230 214) / 60%);
@@ -1976,6 +1977,9 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
   box-shadow: inset 2px 0 0 rgb(var(--ic, 68 240 138));
   transform: translateX(3px);
 }
+
+/* Al pasar por encima, el nombre toma el color de la máquina */
+#access-lastmod .hx-recent a:hover b { color: rgb(var(--ic, 68 240 138)); }
 
 .hx-recent a > i {
   margin-top: 0.2rem;

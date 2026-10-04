@@ -19,7 +19,7 @@
     "arreglo": "La cadena nace de un LFI y de una pertenencia a grupo peligrosa, así que el arreglo va por capas:\n\n- <bw>Corregir el LFI:</bw> validar y limitar el parámetro <bw>file</bw> a una lista blanca de ficheros; nunca concatenar entrada del usuario en una ruta.\n- <bw>Proteger las credenciales de Tomcat:</bw> no dejar <bc>tomcat-users.xml</bc> accesible y usar contraseñas robustas; restringir el rol <ba>manager-script.</ba>\n- <bw>No reutilizar contraseñas:</bw> la del ZIP abría la cuenta del sistema. Credenciales distintas por servicio habrían cortado el movimiento lateral.\n- <bw>Sacar usuarios del grupo lxd:</bw> pertenecer a <bo>lxd</bo> (igual que <bw>docker</bw> o <bw>disk</bw>) equivale a ser root. Solo administradores de confianza deberían estar en él.",
     "conclusiones": "Un <b>LFI</b> no es \"solo leer ficheros\": vale exactamente lo que valga el fichero más sensible al que llegues. Aquí, las credenciales de Tomcat.\n\nConviene conocer las rutas de configuración según la instalación: en Tomcat 9 por paquete de Ubuntu, <bc>tomcat-users.xml</bc> no está donde dice la documentación oficial. Y el rol <ba>manager-script</ba> basta para desplegar un WAR aunque el panel web esté cerrado.\n\nLa <b>reutilización de contraseñas</b> sigue siendo uno de los movimientos laterales más rentables, y los grupos <bo>lxd,</bo> <b>docker</b> y <b>disk</b> equivalen a root: revisa siempre <b>id</b> nada más conseguir un usuario."
   },
-  "accent": "159 239 0",
+  "accent": "255 214 10",
   "status": "Resuelta",
   "img": {
     "avatar": "/assets/img/machines/tabby.png",
@@ -27,5 +27,5 @@
     "proof": "https://labs.hackthebox.com/achievement/machine/2772097/259"
   },
   "url": "https://labs.hackthebox.com/achievement/machine/2772097/259",
-  "updated": "2026-10-03"
+  "updated": "2026-10-04"
 }

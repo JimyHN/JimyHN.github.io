@@ -25,7 +25,7 @@
   <h2 class="panel-heading hx-widget-title"><i class="fas fa-server" aria-hidden="true"></i> Total máquinas</h2>
   <div class="hx-total">
     <b class="hx-total-num">{{ total_wu }}</b>
-    <span class="hx-total-txt">máquinas resueltas<br>en el blog</span>
+    <span class="hx-total-txt">máquinas resueltas</span>
   </div>
 </section>
 
@@ -48,7 +48,7 @@
 {%- if htb -%}
   {%- assign htb_avatar = htb.avatar | default: '' -%}
   <section class="hx-widget hx-htb">
-    <h2 class="panel-heading hx-widget-title hx-htb-head"><span class="hx-icon-htb" aria-hidden="true"></span> Nivel HackTheBox</h2>
+    <h2 class="panel-heading hx-widget-title hx-htb-head"><span class="hx-icon-htb" aria-hidden="true"></span> HackTheBox</h2>
     <div class="hx-htb-card">
       <div class="hx-htb-logo{% if htb.badge and htb.badge != '' %} is-badge{% endif %}" id="hx-htb-logo" data-fx="a" aria-hidden="true">
         {%- if htb.badge and htb.badge != '' -%}
