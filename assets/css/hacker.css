@@ -1868,15 +1868,15 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
   color: var(--hx-muted) !important;
 }
 
-#panel-wrapper .hx-widget-title i { color: var(--hx-green); }
+#panel-wrapper .hx-widget-title i { color: rgb(var(--wc, 46 230 214)); }
 
 .hx-live {
   width: 7px;
   height: 7px;
   margin-left: auto;
   border-radius: 50%;
-  background: var(--hx-green);
-  box-shadow: 0 0 0 0 var(--hx-green-glow);
+  background: rgb(var(--wc, 46 230 214));
+  box-shadow: 0 0 0 0 rgb(var(--wc, 46 230 214) / 60%);
   animation: hx-pulse 1.8s ease-out infinite;
 }
 
@@ -1904,8 +1904,8 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: conic-gradient(var(--hx-green) calc(var(--p) * 1%), var(--hx-border) 0);
-  filter: drop-shadow(0 0 8px rgb(68 240 138 / 25%));
+  background: conic-gradient(rgb(var(--wc, 46 230 214)) calc(var(--p) * 1%), var(--hx-border) 0);
+  filter: drop-shadow(0 0 8px rgb(var(--wc, 46 230 214) / 25%));
 }
 
 .hx-ring::before {
@@ -1920,7 +1920,7 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
   position: relative;
   font-family: var(--hx-mono);
   font-size: 0.9rem;
-  color: var(--hx-green);
+  color: rgb(var(--wc, 46 230 214));
 }
 
 .hx-ring-txt {
@@ -1946,7 +1946,7 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
   margin-top: 0.3rem;
   font-style: normal;
   font-size: 0.75rem;
-  color: var(--hx-green);
+  color: rgb(var(--wc, 46 230 214));
 }
 
 .hx-ring-txt em i { transition: transform 0.2s; }
@@ -4153,10 +4153,12 @@ h1.dynamic-title i { -webkit-text-fill-color: rgb(var(--page, 68 240 138)); }
   background-size: 200% auto;
   animation: hx-grad-move 6s linear infinite;
 }
-#panel-wrapper .hx-widget:nth-of-type(1) { --wc: 46 230 214; }
-#panel-wrapper .hx-widget:nth-of-type(2) { --wc: 68 240 138; }
-#panel-wrapper .hx-widget:nth-of-type(3) { --wc: 193 108 255; }
-.hx-widget-title i { color: rgb(var(--wc, 68 240 138)); }
+/* Color propio por widget (el verde queda reservado a HackTheBox) */
+#panel-wrapper .hx-widget.hx-widget-total { --wc: 46 230 214; }     /* cian   */
+#panel-wrapper .hx-widget:has(.hx-ring-wrap) { --wc: 255 120 60; }  /* naranja (roadmap) */
+#panel-wrapper .hx-widget.hx-htb { --wc: 68 240 138; }              /* verde  (HackTheBox) */
+#panel-wrapper #access-lastmod.hx-widget { --wc: 193 108 255; }     /* morado (últimas subidas) */
+.hx-widget-title i { color: rgb(var(--wc, 46 230 214)); }
 .hx-recent li a { transition: background 0.2s, transform 0.15s; border-radius: 10px; }
 .hx-recent li a:hover { background: rgb(var(--ic, 68 240 138) / 10%); transform: translateX(3px); }
 
@@ -4164,7 +4166,7 @@ h1.dynamic-title i { -webkit-text-fill-color: rgb(var(--page, 68 240 138)); }
 .hx-widget-total .hx-total { display: flex; align-items: center; gap: 0.9rem; }
 .hx-total-num {
   font-family: var(--hx-mono); font-size: 2.4rem; font-weight: 800; line-height: 1;
-  background: linear-gradient(90deg, var(--hx-cyan), #44f08a, var(--hx-cyan));
+  background: linear-gradient(90deg, rgb(var(--wc, 46 230 214)), #bdfff7, rgb(var(--wc, 46 230 214)));
   background-size: 200% auto;
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   animation: hx-grad-move 7s linear infinite;
@@ -4233,6 +4235,9 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
 .hx-chip[data-tag="windows"] { --c: 46 230 214 !important; }
 
 /* Buscador de etiquetas (panel derecho) */
+/* Buscar etiqueta: color propio de la página de etiquetas (rosa) */
+.hx-tagsearch { --wc: 255 94 135; }
+
 .hx-tagsearch-input {
   width: 100%;
   margin-bottom: 0.7rem;
