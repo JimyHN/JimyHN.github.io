@@ -1,6 +1,8 @@
 {%- assign hx_writeups = site.posts | where_exp: 'p', "p.categories contains 'Writeups'" -%}
-{%- assign hx_tools = site.posts | where_exp: 'p', "p.categories contains 'Herramientas'" -%}
+{%- assign hx_tools = site.data.herramientas -%}
 {%- assign hx_certs = site.data.certificaciones.obtenidas -%}
+{%- assign hx_certs_total = site.data.certificaciones.obtenidas | concat: site.data.certificaciones.en_progreso -%}
+{%- assign hx_titulos_total = site.data.titulos.oficiales | concat: site.data.titulos.no_oficiales | concat: site.data.titulos.en_progreso -%}
 
 <section class="hx-hero" aria-label="Presentación">
   <div class="hx-term">
@@ -12,6 +14,7 @@
     </div>
 
     <div class="hx-term-body">
+      <p class="hx-term-note"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Contenido con fines educativos: las técnicas se practican solo en laboratorios y entornos autorizados.</p>
       <div class="hx-step">
         <span class="hx-prompt"><b>jaime@kali</b>:~$</span>
         <span class="hx-cmd">whoami</span>
@@ -32,25 +35,28 @@
           </div>
 
           <div class="hx-stats">
+            <a class="hx-kv hx-kv-gh" style="--c: 240 246 252" href="https://github.com/{{ site.github.username }}" aria-label="GitHub de {{ site.github.username }}" title="GitHub: {{ site.github.username }}">
+              <i class="fab fa-github" aria-hidden="true"></i>
+            </a>
             <div class="hx-kv" style="--c: 255 175 0">
               <span class="hx-kv-label"><i class="fas fa-crosshairs" aria-hidden="true"></i> Objetivo</span>
               <span class="hx-kv-value">OSCP</span>
             </div>
-            <a class="hx-kv" style="--c: 193 108 255" href="{{ '/certificaciones/' | relative_url }}">
-              <span class="hx-kv-label"><i class="fas fa-certificate" aria-hidden="true"></i> Certificaciones</span>
-              <span class="hx-kv-value">{{ hx_certs.size }}</span>
-            </a>
             <a class="hx-kv" style="--c: 46 230 214" href="{{ '/writeups/' | relative_url }}">
               <span class="hx-kv-label"><i class="fas fa-terminal" aria-hidden="true"></i> Write-ups</span>
               <span class="hx-kv-value">{{ hx_writeups.size }}</span>
             </a>
-            <a class="hx-kv" style="--c: 255 175 0" href="{{ '/herramientas/' | relative_url }}">
+            <a class="hx-kv" style="--c: 255 120 60" href="{{ '/herramientas/' | relative_url }}">
               <span class="hx-kv-label"><i class="fas fa-toolbox" aria-hidden="true"></i> Herramientas</span>
               <span class="hx-kv-value">{{ hx_tools.size }}</span>
             </a>
-            <a class="hx-kv" style="--c: 240 246 252" href="https://github.com/{{ site.github.username }}">
-              <span class="hx-kv-label"><i class="fab fa-github" aria-hidden="true"></i> GitHub</span>
-              <span class="hx-kv-value">{{ site.github.username }}</span>
+            <a class="hx-kv" style="--c: 193 108 255" href="{{ '/certificaciones/' | relative_url }}">
+              <span class="hx-kv-label"><i class="fas fa-certificate" aria-hidden="true"></i> Certificaciones</span>
+              <span class="hx-kv-value">{{ hx_certs_total.size }}</span>
+            </a>
+            <a class="hx-kv" style="--c: 94 180 248" href="{{ '/titulos/' | relative_url }}">
+              <span class="hx-kv-label"><i class="fas fa-user-graduate" aria-hidden="true"></i> Titulaciones</span>
+              <span class="hx-kv-value">{{ hx_titulos_total.size }}</span>
             </a>
           </div>
         </div>
@@ -59,8 +65,8 @@
   </div>
 
   <div class="hx-intro">
-    <p>¡Bienvenido a mi blog! Aquí dentro me dedico a resolver máquinas que me dejan la cabeza como un bombo y a subir herramientas guapardas que vaya creando.</p>
-    <p>¡Cualquier tipo de consejo o recomendación escríbeme directamente como prefieras! Tengo los enlaces debajo de la foto de perfil jeje.</p>
+    <p>Este es mi rincón para documentar las máquinas que voy rompiendo y las herramientas que se me ocurren por el camino. Escribo los write-ups como me habría gustado encontrármelos: al grano y fáciles de seguir.</p>
+    <p>Si algo te sirve, te atascas o ves que se me ha colado un error, escríbeme por donde te venga bien — tienes los enlaces debajo de la foto. Se agradece. 👊</p>
   </div>
 
   <nav class="hx-tiles" aria-label="Secciones">
