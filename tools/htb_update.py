@@ -91,21 +91,39 @@ def main():
         return 1
 
     prof = data.get("profile") or {}
-    rank = (prof.get("rank") or "").strip() or "—"
+
+    # --- Volcado de diagnóstico: todos los campos del perfil, para localizar
+    #     de qué campo sale el "Lvl 22" (se puede quitar cuando esté mapeado). ---
+    print("===== JSON COMPLETO DEL PERFIL (basic) =====")
+    print(json.dumps(prof, ensure_ascii=False, indent=2))
+    print("===== FIN JSON =====")
+
+    def pick(*keys):
+        for k in keys:
+            v = prof.get(k)
+            if v not in (None, ""):
+                return v
+        return ""
+
+    rank = (str(pick("rank")) or "").strip() or "—"
+    # Candidatos razonables para el "nivel"; si ninguno existe, queda vacío
+    level = str(pick("level", "user_level", "account_level", "vip_level")).strip()
     avatar = abs_avatar(prof.get("avatar") or "")
-    points = prof.get("points")
-    points = "" if points in (None, "") else str(points)
+    points = str(pick("points")).strip()
+    ranking = str(pick("ranking", "rank_ownership")).strip()
     profile_url = f"https://app.hackthebox.com/users/{uid}"
 
     out = (
         HEADER
         + f"rank: {yaml_str(rank)}\n"
+        + f"level: {yaml_str(level)}\n"
         + f"profile: {yaml_str(profile_url)}\n"
         + f"avatar: {yaml_str(avatar)}\n"
         + f"points: {yaml_str(points)}\n"
+        + f"ranking: {yaml_str(ranking)}\n"
     )
     HTB_YML.write_text(out, encoding="utf-8")
-    print(f"OK: rank={rank!r} avatar={'sí' if avatar else 'no'} points={points or '-'}")
+    print(f"OK: rank={rank!r} level={level or '-'} avatar={'sí' if avatar else 'no'} points={points or '-'}")
     return 0
 
 

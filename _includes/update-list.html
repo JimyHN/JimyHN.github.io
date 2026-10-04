@@ -62,9 +62,14 @@
       </div>
       <div class="hx-htb-side">
         <div class="hx-htb-level">
-          <small>Rango actual</small>
-          <b>{{ htb.rank | default: '—' }}</b>
-          {%- if htb.points and htb.points != '' %}<em>{{ htb.points }} pts</em>{% endif -%}
+          {%- if htb.level and htb.level != '' -%}
+            <small>Nivel</small>
+            <b>Lvl {{ htb.level }}</b>
+          {%- else -%}
+            <small>Rango actual</small>
+            <b>{{ htb.rank | default: '—' }}</b>
+          {%- endif -%}
+          {%- if htb.points and htb.points != '' and htb.points != '0' %}<em>{{ htb.points }} pts</em>{% endif -%}
         </div>
         <div class="hx-htb-row">
           <span class="hx-htb-avatar"{% if htb_avatar != '' %} style="background-image:url('{{ htb_avatar }}')"{% endif %} aria-hidden="true">{% if htb_avatar == '' %}<i class="fas fa-user-secret"></i>{% endif %}</span>
