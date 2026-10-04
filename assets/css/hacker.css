@@ -2468,14 +2468,14 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
 #sidebar .sidebar-bottom > a[aria-label='hackthebox'] { --b: 68 240 138; }
 #sidebar .sidebar-bottom > a[aria-label='hackthebox']:hover { color: #44f08a !important; }
 
-/* Icono de TryHackMe (escudo de seguridad) */
+/* Icono de TryHackMe (nube con lluvia binaria, estilo su logo) */
 .hx-icon-thm {
   display: inline-block;
   width: 1.05em;
   height: 1.05em;
   background: currentcolor;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 20 5v6c0 5-3.4 8.3-8 11-4.6-2.7-8-6-8-11V5z'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 20 5v6c0 5-3.4 8.3-8 11-4.6-2.7-8-6-8-11V5z'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z' transform='translate(0 -1) scale(0.66)' fill='none' stroke='black' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cg fill='black' fill-rule='evenodd'%3E%3Crect x='13.4' y='13.6' width='1.2' height='3.4' rx='0.3'/%3E%3Cpath d='M16.2 13.6H18.6V17H16.2Z M16.9 14.3H17.9V16.3H16.9Z'/%3E%3Crect x='18.4' y='17.6' width='1.1' height='3' rx='0.3'/%3E%3Cpath d='M13.4 17.8H15.6V20.8H13.4Z M14.1 18.5H14.9V20.1H14.1Z'/%3E%3Crect x='16.3' y='20.8' width='1' height='2.4' rx='0.3'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z' transform='translate(0 -1) scale(0.66)' fill='none' stroke='black' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cg fill='black' fill-rule='evenodd'%3E%3Crect x='13.4' y='13.6' width='1.2' height='3.4' rx='0.3'/%3E%3Cpath d='M16.2 13.6H18.6V17H16.2Z M16.9 14.3H17.9V16.3H16.9Z'/%3E%3Crect x='18.4' y='17.6' width='1.1' height='3' rx='0.3'/%3E%3Cpath d='M13.4 17.8H15.6V20.8H13.4Z M14.1 18.5H14.9V20.1H14.1Z'/%3E%3Crect x='16.3' y='20.8' width='1' height='2.4' rx='0.3'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
   vertical-align: -0.12em;
 }
 
