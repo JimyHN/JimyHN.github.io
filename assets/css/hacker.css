@@ -3242,6 +3242,34 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
 .hx-cred-hint i { color: rgb(var(--c)); margin-right: 0.3rem; }
 .hx-cred-note::before { content: '// '; color: rgb(var(--c)); }
 
+/* Botones de TFM / write-up en la cara frontal de la credencial */
+.hx-cred-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.55rem 0 0.2rem;
+}
+.hx-cred-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 7px;
+  font-family: var(--hx-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgb(var(--c)) !important;
+  text-decoration: none;
+  border: 1px solid rgb(var(--c) / 45%);
+  background: rgb(var(--c) / 10%);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.hx-cred-link:hover {
+  background: rgb(var(--c) / 20%);
+  box-shadow: 0 0 12px rgb(var(--c) / 30%);
+  transform: translateY(-1px);
+}
+
 /* Cara trasera: documentación */
 .hx-cred-back-title {
   margin: 0;
