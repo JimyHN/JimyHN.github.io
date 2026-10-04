@@ -205,6 +205,8 @@
     </div>
     <div class="ed-row">
       <div class="ed-field"><label>Fecha</label><input id="f-date" type="date"></div>
+      <div class="ed-field" style="flex:0 0 150px"><label>Versión (opcional)</label><input id="f-version" placeholder="17.0.0"></div>
+      <div class="ed-field" style="flex:0 0 130px"><label>Min. lectura</label><input id="f-read" type="number" min="1" step="1" placeholder="3"></div>
     </div>
     <div class="ed-field" style="margin-bottom:0.5rem"><label>Descripción (resumen de 1 línea)</label><input id="f-desc" placeholder="..."></div>
     <div class="ed-field"><label>URL del logro de HackTheBox (imagen + certificado)</label><input id="f-url" placeholder="https://labs.hackthebox.com/achievement/machine/..."></div>
@@ -227,7 +229,7 @@
       <b>Terminales:</b> bloque <code>```term</code> … <code>```</code>; dentro, las líneas que empiezan por <code>$&nbsp;</code> o <code>#&nbsp;</code> son comandos (prompt de Kali) y el resto es salida. <code>```out</code> = todo salida.<br>
       <b>Listas:</b> líneas que empiezan por <code>-&nbsp;</code>. &nbsp; <b>Tablas:</b> <code>| A | B |</code> + fila <code>| --- | --- |</code>. &nbsp; <b>Avisos:</b> <code>::tip</code> … <code>::</code> (tip/info/warn/danger).<br>
       <b>Imágenes:</b> bloque <code>```img</code> … <code>```</code>; una por línea como <code>/ruta/captura.png | pie de foto</code>. Van centradas, con el borde del color de la máquina, y al pulsarlas se abren ampliadas (lightbox). Sube las capturas a <code>assets/img/writeups/&lt;slug&gt;/</code>.<br>
-      <b>Resaltado:</b> <code>&lt;b&gt;</code> = negrita <b>blanca</b> (la general). Para color, etiqueta propia: <code>&lt;bc&gt;</code> cian (binarios), <code>&lt;by&gt;</code> amarillo (usuarios), <code>&lt;br&gt;</code> rojo (vulnerabilidades), <code>&lt;bg&gt;</code> verde, <code>&lt;bo&gt;</code> naranja, <code>&lt;ba&gt;</code> ámbar, <code>&lt;bm&gt;</code> magenta, <code>&lt;bw&gt;</code> blanca. También <code>**negrita**</code>, <code>*cursiva*</code>, <code>`código`</code> y <code>[texto](url)</code>.
+      <b>Resaltado:</b> <code>&lt;b&gt;</code> = negrita <b>blanca</b> (la general). Para color, etiqueta propia: <code>&lt;bc&gt;</code> cian (binarios), <code>&lt;by&gt;</code> amarillo (usuarios), <code>&lt;br&gt;</code> rojo (vulnerabilidades), <code>&lt;bg&gt;</code> verde, <code>&lt;bo&gt;</code> naranja, <code>&lt;ba&gt;</code> ámbar, <code>&lt;bm&gt;</code> magenta, <code>&lt;bw&gt;</code> blanca. &nbsp; <b>Subrayado</b> <code>&lt;u&gt;</code>, <b>cursiva</b> <code>&lt;i&gt;</code> (o <code>*..*</code>), <b>enlace</b> <code>[texto](url)</code> y <code>`código`</code>. Los binarios (<code>bc</code>) y usuarios (<code>by</code>) se subrayan solos: <code>&lt;u&gt;&lt;bc&gt;nc.exe&lt;/bc&gt;&lt;/u&gt;</code>.
     </p>
 
     <div id="ed-sections"></div>
@@ -353,6 +355,10 @@ SECTIONS.forEach((s, i) => {
         <button onclick="wrap('${s.id}','bo')" style="--c:#ffaf00">bo</button>
         <button onclick="wrap('${s.id}','bw')" style="--c:#ffffff">bw</button>
         <button onclick="wrap('${s.id}','ba')" style="--c:#5eb4f8">ba</button>
+        <span class="sep"></span>
+        <button onclick="wrap('${s.id}','u')" style="--c:#dfe6ef;text-decoration:underline">u</button>
+        <button onclick="wrap('${s.id}','i')" style="--c:#dfe6ef;font-style:italic">i</button>
+        <button onclick="insLink('${s.id}')" style="--c:#5eb4f8">🔗 enlace</button>
       </div>
       <textarea id="t-${s.id}" data-sec="${s.id}" placeholder="Escribe aquí ${s.nom}..."></textarea>
     </div>`;
@@ -383,6 +389,10 @@ NOTE_SECTIONS.forEach(s => {
       <button onclick="wrapN('${s.id}','bo')" style="--c:#ffaf00">bo</button>
       <button onclick="wrapN('${s.id}','bw')" style="--c:#ffffff">bw</button>
       <button onclick="wrapN('${s.id}','ba')" style="--c:#5eb4f8">ba</button>
+      <span class="sep"></span>
+      <button onclick="wrapN('${s.id}','u')" style="--c:#dfe6ef;text-decoration:underline">u</button>
+      <button onclick="wrapN('${s.id}','i')" style="--c:#dfe6ef;font-style:italic">i</button>
+      <button onclick="insLinkN('${s.id}')" style="--c:#5eb4f8">🔗 enlace</button>
     </div>
     <textarea id="n-${s.id}" data-note="${s.id}" placeholder="Notas de ${s.nom}..."></textarea>`;
   notesCont.appendChild(d);
@@ -406,7 +416,10 @@ function _insert(ta, text) {
 function _wrap(ta, tag) {
   const s = ta.selectionStart, e = ta.selectionEnd;
   const sel = ta.value.slice(s, e) || 'texto';
-  _replaceRange(ta, s, e, `<${tag}>` + sel + `</${tag}>`);
+  // Binarios (bc) y usuarios (by) se subrayan además de colorearse: <u><bc>..</bc></u>
+  const open = (tag === 'bc' || tag === 'by') ? `<u><${tag}>` : `<${tag}>`;
+  const close = (tag === 'bc' || tag === 'by') ? `</${tag}></u>` : `</${tag}>`;
+  _replaceRange(ta, s, e, open + sel + close);
 }
 const TEMPLATES = {
   term: '\n```term\n$ comando\nsalida del comando\n```\n',
@@ -416,13 +429,23 @@ const TEMPLATES = {
   note: '\n::tip\nUn aviso útil.\n::\n',
   img:  '\n```img\n/assets/img/writeups/<slug>/captura.png | Pie de foto (opcional)\n```\n',
 };
+// Insertar un enlace [texto](url) pidiendo la URL
+function _insLink(ta) {
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.slice(s, e) || 'texto';
+  const url = prompt('URL del enlace:', 'https://');
+  if (url === null || !url.trim()) return;
+  _replaceRange(ta, s, e, `[${sel}](${url.trim()})`);
+}
 // Secciones (afectan a la vista previa)
 function insertAt(ta, text) { _insert(ta, text); scheduleRender(); }
 function tpl(sec, kind) { insertAt(document.getElementById('t-' + sec), TEMPLATES[kind]); }
 function wrap(sec, tag) { _wrap(document.getElementById('t-' + sec), tag); scheduleRender(); }
+function insLink(sec) { _insLink(document.getElementById('t-' + sec)); scheduleRender(); }
 // Notas (no se renderizan; solo marcan cambios sin guardar)
 function tplN(id, kind) { _insert(document.getElementById('n-' + id), TEMPLATES[kind]); markDirty(); }
 function wrapN(id, tag) { _wrap(document.getElementById('n-' + id), tag); markDirty(); }
+function insLinkN(id) { _insLink(document.getElementById('n-' + id)); markDirty(); }
 document.addEventListener('keydown', (ev) => {
   if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'b') {
     const ta = document.activeElement;
@@ -458,7 +481,8 @@ function _autoHighlight(ta, e) {
   if (AUTO_CVE.test(core) || AUTO_VULN.test(core)) tag = 'br';
   else if (AUTO_EXTS.test(core) && /[a-z]/i.test(core.replace(/\.[^.]*$/, ''))) tag = 'bc';
   if (!tag) return;
-  const repl = `<${tag}>${core}</${tag}>`;
+  // Los binarios (bc) se subrayan además de colorearse: <u><bc>..</bc></u>
+  const repl = (tag === 'bc') ? `<u><bc>${core}</bc></u>` : `<${tag}>${core}</${tag}>`;
   _replaceRange(ta, start, start + core.length, repl);
   const delta = repl.length - core.length;
   ta.setSelectionRange(pos + delta, pos + delta);        // deja el cursor tras el separador
@@ -480,6 +504,8 @@ function collectData() {
     plat: val('f-plat'), date: val('f-date'), desc: val('f-desc'), tags: val('f-tags'),
     url: val('f-url'), sections,
   };
+  if (val('f-version')) d.version = val('f-version');
+  if (val('f-read')) d.read_min = parseInt(val('f-read'), 10) || 3;
   if (Object.keys(notes).length) d.notes = notes;   // bloc privado: nunca llega al blog
   if (window._accent) d.accent = window._accent;
   if (window._img) d.img = window._img;
@@ -1105,6 +1131,8 @@ function fillFrom(d) {
   document.getElementById('f-desc').value = d.desc || '';
   document.getElementById('f-url').value = (d.img && d.img.proof) || d.url || '';
   document.getElementById('f-tags').value = d.tags || '';
+  document.getElementById('f-version').value = d.version || '';
+  document.getElementById('f-read').value = d.read_min || '';
   if (d.accent) setAccent(d.accent);
   (d.sections && Object.keys(d.sections) || []).forEach(k => {
     const ta = document.getElementById('t-' + k);
