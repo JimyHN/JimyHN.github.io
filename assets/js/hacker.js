@@ -1221,7 +1221,7 @@
       logo.removeAttribute('data-fx');
       void logo.offsetWidth;
       logo.setAttribute('data-fx', next);
-      setTimeout(cycle, 4200);
+      setTimeout(cycle, 8400);
     })();
   }
 

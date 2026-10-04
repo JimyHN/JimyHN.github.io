@@ -4475,7 +4475,6 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  filter: drop-shadow(0 0 6px rgb(var(--htb) / 45%));
 }
 .hx-htb-hex {
   width: 100%;
@@ -4491,10 +4490,12 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 0 5px rgb(var(--htb) / 45%));
 }
+/* En la insignia (imagen azul) no metemos glow verde; solo un efecto sutil */
 .hx-htb-logo[data-fx="c"] .hx-htb-badge { animation: hx-htbfx-holo 0.9s steps(6) infinite; }
-.hx-htb-logo[data-fx="a"] .hx-htb-badge { animation: hx-htbfx-brighten 2.1s ease-in-out infinite; }
+.hx-htb-logo.is-badge[data-fx="b"] { animation: none; }
+.hx-htb-logo.is-badge .hx-htb-scan,
+.hx-htb-logo.is-badge .hx-htb-ring { display: none; }
 
 /* Línea de escáner, anillo y "fantasmas" RGB (ocultos salvo en su efecto) */
 .hx-htb-scan,
@@ -4642,15 +4643,13 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
   font-size: 0.8rem;
 }
 .hx-htb-btn {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.6rem;
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.9rem;
   color: rgb(var(--htb)) !important;
   text-decoration: none;
   border: 1px solid rgb(var(--htb) / 45%);

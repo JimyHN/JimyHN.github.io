@@ -77,7 +77,7 @@
         </div>
         <div class="hx-htb-row">
           <span class="hx-htb-avatar"{% if htb_avatar != '' %} style="background-image:url('{{ htb_avatar }}')"{% endif %} aria-hidden="true">{% if htb_avatar == '' %}<i class="fas fa-user-secret"></i>{% endif %}</span>
-          <a class="hx-htb-btn" href="{{ htb.profile | default: 'https://app.hackthebox.com' }}" target="_blank" rel="noopener noreferrer">Ver perfil <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+          <a class="hx-htb-btn" href="{{ htb.profile | default: 'https://app.hackthebox.com' }}" target="_blank" rel="noopener noreferrer" aria-label="Perfil de HackTheBox" title="Perfil de HackTheBox"><span class="hx-icon-htb" aria-hidden="true"></span></a>
         </div>
       </div>
     </div>

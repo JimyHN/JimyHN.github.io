@@ -1,21 +1,18 @@
 # Frases que se van escribiendo debajo del nombre, en la barra lateral.
 # Cambia una cada 10 segundos, en orden aleatorio. Añade o quita las que quieras.
-- "Bienvenido a mi rincón 🕸️"
-- "¿Me estás mirando la foto? 👀"
+- "Bienvenido a mi rincón"
+- "¿Me estás mirando? 👀"
 - "Café, terminal y a por ello ☕"
 - "Root primero, preguntas después"
 - "¿Has probado a apagarlo y encenderlo?"
-- "Ese sudo -l no se va a mirar solo"
 - "Menos teoría y más terminal"
-- "Enumera, explota, repite 🔁"
+- "Enumera, explota, repite"
 - "99 bugs en el código; arreglas uno y quedan 117 🐛"
 - "La curiosidad no mató al gato, lo hizo root 🐱"
 - "Toda flag empieza por un buen escaneo"
-- "Aquí se aprende rompiendo (en el laboratorio) 🧪"
+- "Aquí se aprende rompiendo 💥"
 - "Modo hacker: activado"
-- "Si tiene un puerto abierto, tengo una pregunta"
 - "Ponte cómodo, esto va para largo"
-- "Hoy también se aprende algo nuevo"
 - "El mejor exploit es la paciencia"
 
 # Frases con "guion": una lista de pasos que se ejecutan en orden.
@@ -30,7 +27,7 @@
     - escribe: "..."
     - espera: 800
     - borra: todo
-    - escribe: "Deploy a producción un viernes 😅"
+    - escribe: "Deploy a producción un viernes"
 - pasos:
     - escribe: "A rayarse"
     - espera: 3000
