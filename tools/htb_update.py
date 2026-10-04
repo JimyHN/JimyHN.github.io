@@ -93,10 +93,17 @@ def main():
     prof = data.get("profile") or {}
 
     # --- Volcado de diagnóstico: todos los campos del perfil, para localizar
-    #     de qué campo sale el "Lvl 22" (se puede quitar cuando esté mapeado). ---
+    #     de qué campo sale el "Lvl 22". Se escribe en el log y en
+    #     _data/htb_debug.json (ambos se quitan cuando esté mapeado). ---
     print("===== JSON COMPLETO DEL PERFIL (basic) =====")
     print(json.dumps(prof, ensure_ascii=False, indent=2))
     print("===== FIN JSON =====")
+    try:
+        (ROOT / "_data" / "htb_debug.json").write_text(
+            json.dumps(prof, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+    except OSError:
+        pass
 
     def pick(*keys):
         for k in keys:
