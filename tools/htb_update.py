@@ -92,18 +92,30 @@ def main():
 
     prof = data.get("profile") or {}
 
-    # --- Volcado de diagnóstico: todos los campos del perfil, para localizar
-    #     de qué campo sale el "Lvl 22". Se escribe en el log y en
-    #     _data/htb_debug.json (ambos se quitan cuando esté mapeado). ---
-    print("===== JSON COMPLETO DEL PERFIL (basic) =====")
-    print(json.dumps(prof, ensure_ascii=False, indent=2))
-    print("===== FIN JSON =====")
+    # --- Diagnóstico: el "Lvl 22" NO está en profile/basic, así que sondeamos
+    #     varios endpoints y los volcamos a _data/htb_debug.json para localizar
+    #     el campo del nivel y la URL de la insignia (se quita al mapearlo). ---
+    probes = {
+        "profile_basic": f"/user/profile/basic/{uid}",
+        "user_info": "/user/info",
+        "dashboard": "/user/dashboard",
+        "profile_content": f"/user/profile/content/{uid}",
+        "season_user": "/season/user/rank",
+        "profile_level": f"/user/profile/level/{uid}",
+    }
+    debug = {}
+    for key, path in probes.items():
+        try:
+            debug[key] = api_get(path, token)
+        except Exception as e:  # noqa: BLE001 - solo diagnóstico
+            debug[key] = {"_error": str(e)}
     try:
         (ROOT / "_data" / "htb_debug.json").write_text(
-            json.dumps(prof, ensure_ascii=False, indent=2), encoding="utf-8"
+            json.dumps(debug, ensure_ascii=False, indent=2), encoding="utf-8"
         )
     except OSError:
         pass
+    print("===== claves sondeadas:", ", ".join(probes), "=====")
 
     def pick(*keys):
         for k in keys:
