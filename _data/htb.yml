@@ -4,6 +4,8 @@
 # (tools/htb_update.py) consultando la API de HTB con un App Token.
 # No hace falta editarlo a mano; si lo haces, el siguiente build lo sobrescribe.
 rank: "Noob"
+level: ""
 profile: "https://app.hackthebox.com/users/2772097"
 avatar: "https://htb-sso-prod-public-storage.s3.eu-central-1.amazonaws.com/users/a456974b-fe8d-4be5-a51b-3b77a10413c6-avatar.png"
 points: "0"
+ranking: "981"
