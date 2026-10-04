@@ -309,7 +309,7 @@ a { transition: color 0.2s, text-shadow 0.2s; }
 
 /* Número 0x01, 0x02... a la derecha */
 #sidebar .nav-item .nav-link::after {
-  content: '0x0' counter(hx-nav);
+  content: none;
   margin-left: auto;
   padding-left: 0.5rem;
   font-family: var(--hx-mono);
@@ -3023,7 +3023,7 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
 .hx-cert:hover .hx-cert-head > i { transform: rotate(-8deg) scale(1.08); }
 
 .content .hx-cert .hx-cert-name {
-  background: linear-gradient(90deg, rgb(var(--c)) 0%, #e6edf3 50%, rgb(var(--c)) 100%);
+  background: linear-gradient(90deg, rgb(var(--c)) 0%, rgb(var(--c)) 28%, color-mix(in srgb, rgb(var(--c)) 35%, #ffffff) 50%, rgb(var(--c)) 72%, rgb(var(--c)) 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -3143,7 +3143,7 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
   font-size: 1.25rem;
   font-weight: 800;
   line-height: 1.2;
-  background: linear-gradient(90deg, rgb(var(--c)) 0%, #e6edf3 50%, rgb(var(--c)) 100%);
+  background: linear-gradient(90deg, rgb(var(--c)) 0%, rgb(var(--c)) 28%, color-mix(in srgb, rgb(var(--c)) 35%, #ffffff) 50%, rgb(var(--c)) 72%, rgb(var(--c)) 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
@@ -4076,7 +4076,7 @@ body.hx-cert-locked { overflow: hidden; }
 
 /* --- Título de cada página: degradado animado --- */
 h1.dynamic-title {
-  background-image: linear-gradient(90deg, rgb(var(--page, 68 240 138)) 0%, rgb(var(--page, 68 240 138)) 44%, #ffffff 50%, rgb(var(--page, 68 240 138)) 56%, rgb(var(--page, 68 240 138)) 100%);
+  background-image: linear-gradient(90deg, rgb(var(--page, 68 240 138)) 0%, rgb(var(--page, 68 240 138)) 28%, color-mix(in srgb, rgb(var(--page, 68 240 138)) 35%, #ffffff) 50%, rgb(var(--page, 68 240 138)) 72%, rgb(var(--page, 68 240 138)) 100%);
   background-size: 200% auto;
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -4088,7 +4088,7 @@ h1.dynamic-title i { -webkit-text-fill-color: rgb(var(--page, 68 240 138)); }
 
 /* --- Título del write-up: degradado SUTIL en el texto (sin fondo) --- */
 .content .hx-wu-title {
-  background-image: linear-gradient(90deg, rgb(var(--page, 68 240 138)) 0%, rgb(var(--page, 68 240 138)) 44%, #ffffff 50%, rgb(var(--page, 68 240 138)) 56%, rgb(var(--page, 68 240 138)) 100%);
+  background-image: linear-gradient(90deg, rgb(var(--page, 68 240 138)) 0%, rgb(var(--page, 68 240 138)) 28%, color-mix(in srgb, rgb(var(--page, 68 240 138)) 35%, #ffffff) 50%, rgb(var(--page, 68 240 138)) 72%, rgb(var(--page, 68 240 138)) 100%);
   background-size: 200% auto;
   animation: hx-grad-move 9s linear infinite;
 }
@@ -4197,14 +4197,14 @@ h1.dynamic-title i { -webkit-text-fill-color: rgb(var(--page, 68 240 138)); }
 /* --- Nav: degradado SUTIL (color -> blanco leve -> color) en nombre e icono, SIN fondo de boton --- */
 #sidebar .nav-item .nav-link,
 #sidebar .nav-item .nav-link > span {
-  background-image: linear-gradient(90deg, rgb(var(--c)) 0%, rgb(var(--c)) 43%, #ffffff 50%, rgb(var(--c)) 57%, rgb(var(--c)) 100%);
+  background-image: linear-gradient(90deg, rgb(var(--c)) 0%, rgb(var(--c)) 28%, color-mix(in srgb, rgb(var(--c)) 35%, #ffffff) 50%, rgb(var(--c)) 72%, rgb(var(--c)) 100%);
   background-size: 200% auto;
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: hx-grad-move 13s linear infinite;
 }
 #sidebar .nav-item .nav-link i {
-  background-image: linear-gradient(90deg, rgb(var(--c)) 0%, rgb(var(--c)) 40%, #ffffff 50%, rgb(var(--c)) 60%, rgb(var(--c)) 100%);
+  background-image: linear-gradient(90deg, rgb(var(--c)) 0%, rgb(var(--c)) 28%, color-mix(in srgb, rgb(var(--c)) 35%, #ffffff) 50%, rgb(var(--c)) 72%, rgb(var(--c)) 100%);
   background-size: 200% auto;
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -4279,9 +4279,26 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
 
 /* --- Hover: degradado sutil en movimiento en el nombre de las tarjetas de maquina --- */
 .hx-mcard:hover .hx-mcard-name {
-  background-image: linear-gradient(90deg, rgb(var(--m)) 0%, rgb(var(--m)) 43%, #ffffff 50%, rgb(var(--m)) 57%, rgb(var(--m)) 100%);
+  background-image: linear-gradient(90deg, rgb(var(--m)) 0%, rgb(var(--m)) 28%, color-mix(in srgb, rgb(var(--m)) 35%, #ffffff) 50%, rgb(var(--m)) 72%, rgb(var(--m)) 100%);
   background-size: 200% auto;
   -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   color: transparent;
   animation: hx-grad-move 2.5s linear infinite;
+}
+
+/* ====== Scroll propio del panel derecho (independiente de la pagina), solo escritorio ====== */
+@media (min-width: 1200px) {
+  #panel-wrapper {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 255 255 / 18%) transparent;
+  }
+  #panel-wrapper::-webkit-scrollbar { width: 7px; }
+  #panel-wrapper::-webkit-scrollbar-track { background: transparent; }
+  #panel-wrapper::-webkit-scrollbar-thumb { background: rgb(255 255 255 / 12%); border-radius: 999px; }
+  #panel-wrapper::-webkit-scrollbar-thumb:hover { background: rgb(255 255 255 / 24%); }
 }
