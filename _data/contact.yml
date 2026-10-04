@@ -18,6 +18,10 @@
 - type: hackthebox
   icon: "hx-icon-htb"
   url: "https://app.hackthebox.com/users/2772097"
+
+- type: tryhackme
+  icon: "hx-icon-thm"
+  url: "https://tryhackme.com/p/jaime.hereza"
 # Uncomment and complete the url below to enable more contact options
 #
 # - type: mastodon
