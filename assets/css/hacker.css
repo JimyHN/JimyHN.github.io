@@ -4482,6 +4482,16 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
 }
 .hx-htb-p { transition: stroke 0.3s; }
 
+/* Insignia real (imagen) en lugar del cubo */
+.hx-htb-badge {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 5px rgb(var(--htb) / 45%));
+}
+.hx-htb-logo[data-fx="c"] .hx-htb-badge { animation: hx-htbfx-holo 0.9s steps(6) infinite; }
+.hx-htb-logo[data-fx="a"] .hx-htb-badge { animation: hx-htbfx-brighten 2.1s ease-in-out infinite; }
+
 /* Línea de escáner, anillo y "fantasmas" RGB (ocultos salvo en su efecto) */
 .hx-htb-scan,
 .hx-htb-ring,

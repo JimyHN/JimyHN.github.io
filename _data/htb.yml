@@ -1,10 +1,11 @@
 # Datos del perfil de HackTheBox para la sección "Nivel HackTheBox" del panel derecho.
 #
-# Este fichero lo REGENERA el workflow .github/workflows/htb-update.yml
-# (tools/htb_update.py) consultando la API de HTB con un App Token.
-# No hace falta editarlo a mano; si lo haces, el siguiente build lo sobrescribe.
+# "rank", "avatar", "points" y "ranking" los actualiza solo el workflow diario
+# (.github/workflows/htb-update.yml). "level" y "badge" se ponen a mano aquí
+# y el workflow los RESPETA (no los pisa) mientras no encuentre el campo en la API.
 rank: "Noob"
-level: ""
+level: "22"
+badge: ""
 profile: "https://app.hackthebox.com/users/2772097"
 avatar: "https://htb-sso-prod-public-storage.s3.eu-central-1.amazonaws.com/users/a456974b-fe8d-4be5-a51b-3b77a10413c6-avatar.png"
 points: "0"

@@ -50,15 +50,19 @@
   <section class="hx-widget hx-htb">
     <h2 class="panel-heading hx-widget-title hx-htb-head"><span class="hx-icon-htb" aria-hidden="true"></span> Nivel HackTheBox</h2>
     <div class="hx-htb-card">
-      <div class="hx-htb-logo" id="hx-htb-logo" data-fx="a" aria-hidden="true">
-        <svg class="hx-htb-hex" viewBox="0 0 24 24" fill="none" stroke-linejoin="round" stroke-linecap="round">
-          <path class="hx-htb-p hx-htb-p1" pathLength="100" d="M12 2 21 7v10l-9 5-9-5V7z"/>
-          <path class="hx-htb-p hx-htb-p2" pathLength="100" d="M3 7l9 5 9-5M12 12v10"/>
-        </svg>
+      <div class="hx-htb-logo{% if htb.badge and htb.badge != '' %} is-badge{% endif %}" id="hx-htb-logo" data-fx="a" aria-hidden="true">
+        {%- if htb.badge and htb.badge != '' -%}
+          <img class="hx-htb-badge" src="{{ htb.badge }}" alt="" loading="lazy">
+        {%- else -%}
+          <svg class="hx-htb-hex" viewBox="0 0 24 24" fill="none" stroke-linejoin="round" stroke-linecap="round">
+            <path class="hx-htb-p hx-htb-p1" pathLength="100" d="M12 2 21 7v10l-9 5-9-5V7z"/>
+            <path class="hx-htb-p hx-htb-p2" pathLength="100" d="M3 7l9 5 9-5M12 12v10"/>
+          </svg>
+          <span class="hx-htb-ghost hx-htb-ghost-c"></span>
+          <span class="hx-htb-ghost hx-htb-ghost-m"></span>
+        {%- endif -%}
         <span class="hx-htb-scan"></span>
         <span class="hx-htb-ring"></span>
-        <span class="hx-htb-ghost hx-htb-ghost-c"></span>
-        <span class="hx-htb-ghost hx-htb-ghost-m"></span>
       </div>
       <div class="hx-htb-side">
         <div class="hx-htb-level">

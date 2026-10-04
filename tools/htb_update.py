@@ -31,9 +31,9 @@ UA = "JimyHN-blog-htb-updater/1.0"
 
 HEADER = """# Datos del perfil de HackTheBox para la sección "Nivel HackTheBox" del panel derecho.
 #
-# Este fichero lo REGENERA el workflow .github/workflows/htb-update.yml
-# (tools/htb_update.py) consultando la API de HTB con un App Token.
-# No hace falta editarlo a mano; si lo haces, el siguiente build lo sobrescribe.
+# "rank", "avatar", "points" y "ranking" los actualiza solo el workflow diario
+# (.github/workflows/htb-update.yml). "level" y "badge" se ponen a mano aquí
+# y el workflow los RESPETA (no los pisa) mientras no encuentre el campo en la API.
 """
 
 
@@ -57,6 +57,15 @@ def current_user_id():
         if m:
             return m.group(1)
     return None
+
+
+def existing_value(key):
+    """Valor actual de una clave en _data/htb.yml (para preservar lo puesto a mano)."""
+    if HTB_YML.is_file():
+        m = re.search(rf'^{key}:\s*"?(.*?)"?\s*$', HTB_YML.read_text(encoding="utf-8"), re.M)
+        if m:
+            return m.group(1)
+    return ""
 
 
 def abs_avatar(url):
@@ -92,31 +101,6 @@ def main():
 
     prof = data.get("profile") or {}
 
-    # --- Diagnóstico: el "Lvl 22" NO está en profile/basic, así que sondeamos
-    #     varios endpoints y los volcamos a _data/htb_debug.json para localizar
-    #     el campo del nivel y la URL de la insignia (se quita al mapearlo). ---
-    probes = {
-        "profile_basic": f"/user/profile/basic/{uid}",
-        "user_info": "/user/info",
-        "dashboard": "/user/dashboard",
-        "profile_content": f"/user/profile/content/{uid}",
-        "season_user": "/season/user/rank",
-        "profile_level": f"/user/profile/level/{uid}",
-    }
-    debug = {}
-    for key, path in probes.items():
-        try:
-            debug[key] = api_get(path, token)
-        except Exception as e:  # noqa: BLE001 - solo diagnóstico
-            debug[key] = {"_error": str(e)}
-    try:
-        (ROOT / "_data" / "htb_debug.json").write_text(
-            json.dumps(debug, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
-    except OSError:
-        pass
-    print("===== claves sondeadas:", ", ".join(probes), "=====")
-
     def pick(*keys):
         for k in keys:
             v = prof.get(k)
@@ -125,8 +109,9 @@ def main():
         return ""
 
     rank = (str(pick("rank")) or "").strip() or "—"
-    # Candidatos razonables para el "nivel"; si ninguno existe, queda vacío
-    level = str(pick("level", "user_level", "account_level", "vip_level")).strip()
+    # "level" y "badge" se mantienen a mano: solo se sobrescriben si la API los trae
+    level = str(pick("level", "user_level", "account_level", "vip_level")).strip() or existing_value("level")
+    badge = abs_avatar(str(pick("badge", "badge_url", "level_badge")).strip()) or existing_value("badge")
     avatar = abs_avatar(prof.get("avatar") or "")
     points = str(pick("points")).strip()
     ranking = str(pick("ranking", "rank_ownership")).strip()
@@ -136,13 +121,14 @@ def main():
         HEADER
         + f"rank: {yaml_str(rank)}\n"
         + f"level: {yaml_str(level)}\n"
+        + f"badge: {yaml_str(badge)}\n"
         + f"profile: {yaml_str(profile_url)}\n"
         + f"avatar: {yaml_str(avatar)}\n"
         + f"points: {yaml_str(points)}\n"
         + f"ranking: {yaml_str(ranking)}\n"
     )
     HTB_YML.write_text(out, encoding="utf-8")
-    print(f"OK: rank={rank!r} level={level or '-'} avatar={'sí' if avatar else 'no'} points={points or '-'}")
+    print(f"OK: rank={rank!r} level={level or '-'} badge={'sí' if badge else 'no'} avatar={'sí' if avatar else 'no'}")
     return 0
 
 

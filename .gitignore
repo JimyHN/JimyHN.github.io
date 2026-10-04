@@ -34,3 +34,6 @@ __pycache__
 *~
 .DS_Store
 Thumbs.db
+
+# Diagnostico temporal de HTB (datos personales)
+_data/htb_debug.json
