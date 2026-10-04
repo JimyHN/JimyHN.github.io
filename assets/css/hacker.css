@@ -1734,16 +1734,26 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
 /* --- Accesos a secciones --- */
 .hx-tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.6rem;
+}
+
+@media (max-width: 900px) {
+  .hx-tiles { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 480px) {
+  .hx-tiles { grid-template-columns: repeat(2, 1fr); }
 }
 
 .hx-tile {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.85rem 1rem;
+  justify-content: center;
+  text-align: center;
+  gap: 0.5rem;
+  padding: 0.85rem 0.6rem;
   border: 1px solid rgb(var(--c) / 25%);
   border-radius: 10px;
   background: linear-gradient(145deg, rgb(var(--c) / 9%), rgb(var(--c) / 2%));
@@ -1784,13 +1794,17 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
 .hx-tile-txt {
   display: flex;
   flex-direction: column;
+  align-items: center;
   min-width: 0;
 }
 
 .hx-tile-txt b {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #e6edf3;
+  white-space: nowrap;
 }
+
+.hx-tile-go { display: none; }
 
 .hx-tile-txt small {
   font-size: 0.75rem;
@@ -2408,21 +2422,27 @@ a.hx-kv:hover .hx-kv-value { color: rgb(var(--c)); }
 
 #sidebar .site-subtitle.hx-sub-glitch span {
   display: inline-block;
-  animation: hx-sub-glitch 0.18s steps(2) infinite;
-  text-shadow: -2px 0 #ff2e88, 2px 0 #2ee6d6;
+  color: #ff5fa2;
+  animation: hx-sub-glitch 0.12s steps(2, jump-none) infinite;
+  text-shadow: -3px 0 #ff2e88, 3px 0 #2ee6d6, 0 0 6px rgb(46 230 214 / 60%);
+  will-change: transform, clip-path, text-shadow;
 }
 
 #sidebar .site-subtitle.hx-sub-glitch .hx-caret {
   background: #ff2e88;
-  animation: hx-blink 0.12s steps(1) infinite;
+  box-shadow: 0 0 8px #ff2e88;
+  animation: hx-blink 0.1s steps(1) infinite;
 }
 
 @keyframes hx-sub-glitch {
-  0% { transform: translate(0, 0) skewX(0); clip-path: inset(0 0 0 0); }
-  25% { transform: translate(-3px, 1px) skewX(-8deg); clip-path: inset(0 0 45% 0); }
-  50% { transform: translate(3px, -1px) skewX(6deg); clip-path: inset(40% 0 0 0); }
-  75% { transform: translate(-1px, 0) skewX(-3deg); clip-path: inset(20% 0 30% 0); }
-  100% { transform: translate(2px, 1px); clip-path: inset(0 0 0 0); }
+  0%   { transform: translate(0, 0) skewX(0);       clip-path: inset(0 0 0 0);     text-shadow: -3px 0 #ff2e88, 3px 0 #2ee6d6; }
+  15%  { transform: translate(-5px, 1px) skewX(-14deg); clip-path: inset(0 0 55% 0);   text-shadow: -5px 0 #ff2e88, 4px 0 #2ee6d6; }
+  30%  { transform: translate(5px, -2px) skewX(10deg);  clip-path: inset(50% 0 0 0);   text-shadow: 4px 0 #ff2e88, -5px 0 #2ee6d6; }
+  45%  { transform: translate(-3px, 2px) skewX(-6deg);  clip-path: inset(25% 0 35% 0); text-shadow: -4px 0 #00e0ff, 3px 0 #ff2e88; }
+  60%  { transform: translate(4px, -1px) skewX(8deg);   clip-path: inset(10% 0 60% 0); text-shadow: 5px 0 #2ee6d6, -3px 0 #ff2e88; }
+  75%  { transform: translate(-2px, 1px) skewX(-4deg);  clip-path: inset(40% 0 10% 0); text-shadow: -3px 0 #ff2e88, 4px 0 #2ee6d6; }
+  90%  { transform: translate(3px, 1px) skewX(3deg);    clip-path: inset(0 0 20% 0);   text-shadow: 3px 0 #ff2e88, -3px 0 #2ee6d6; }
+  100% { transform: translate(0, 0) skewX(0);       clip-path: inset(0 0 0 0);     text-shadow: -3px 0 #ff2e88, 3px 0 #2ee6d6; }
 }
 
 /* Icono de HackTheBox (cubo hexagonal) para la barra de redes */
@@ -4304,20 +4324,96 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
 .hx-stats .hx-kv:nth-child(6)::after { animation-duration: 7.4s; animation-delay: -0.8s; }
 
 /* Aviso de fines didácticos en el terminal del hero */
-.hx-term-note {
+.hx-disclaimer {
+  --dc: 255 196 0;
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  margin: 0 0 0.9rem;
-  padding: 0.45rem 0.7rem;
-  border-left: 3px solid rgb(255 196 0 / 70%);
-  border-radius: 6px;
-  background: rgb(255 196 0 / 7%);
-  color: #d9c38a;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  overflow: hidden;
+  color: #e7d7a6;
   font-size: 0.8rem;
-  line-height: 1.4;
+  line-height: 1.45;
+  background:
+    linear-gradient(120deg, rgb(var(--dc) / 10%), rgb(var(--dc) / 3%) 45%, transparent),
+    rgb(255 255 255 / 2%);
+  border: 1px solid rgb(var(--dc) / 28%);
+  box-shadow: inset 0 0 0 1px rgb(var(--dc) / 6%), 0 0 0 0 rgb(var(--dc) / 0%);
+  animation: hx-dc-breathe 3.6s ease-in-out infinite;
 }
-.hx-term-note i { color: #ffc400; flex-shrink: 0; }
+
+/* Barrido de luz que recorre el aviso */
+.hx-disclaimer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 35%, rgb(var(--dc) / 14%) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: hx-dc-sweep 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Línea de escáner vertical */
+.hx-disclaimer-scan {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, rgb(var(--dc) / 85%), transparent);
+  box-shadow: 0 0 10px rgb(var(--dc) / 70%);
+  opacity: 0.7;
+  animation: hx-dc-scanline 4.5s linear infinite;
+  pointer-events: none;
+}
+
+.hx-disclaimer-ico {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 8px;
+  color: rgb(var(--dc));
+  background: rgb(var(--dc) / 12%);
+  border: 1px solid rgb(var(--dc) / 35%);
+  animation: hx-dc-pulse 2.4s ease-in-out infinite;
+}
+.hx-disclaimer-ico i { font-size: 1rem; }
+
+.hx-disclaimer-txt { margin: 0; position: relative; z-index: 1; }
+.hx-disclaimer-txt b { color: #ffd84d; font-weight: 700; }
+
+@keyframes hx-dc-breathe {
+  0%, 100% { border-color: rgb(var(--dc) / 24%); box-shadow: inset 0 0 0 1px rgb(var(--dc) / 5%), 0 0 0 rgb(var(--dc) / 0%); }
+  50%      { border-color: rgb(var(--dc) / 55%); box-shadow: inset 0 0 0 1px rgb(var(--dc) / 10%), 0 0 16px rgb(var(--dc) / 14%); }
+}
+@keyframes hx-dc-sweep {
+  0%   { transform: translateX(-120%); }
+  55%  { transform: translateX(120%); }
+  100% { transform: translateX(120%); }
+}
+@keyframes hx-dc-scanline {
+  0%   { left: 0;    opacity: 0; }
+  10%  { opacity: 0.8; }
+  90%  { opacity: 0.8; }
+  100% { left: 100%; opacity: 0; }
+}
+@keyframes hx-dc-pulse {
+  0%, 100% { box-shadow: 0 0 0 rgb(var(--dc) / 0%); transform: scale(1); }
+  50%      { box-shadow: 0 0 14px rgb(var(--dc) / 45%); transform: scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hx-disclaimer,
+  .hx-disclaimer::before,
+  .hx-disclaimer-scan,
+  .hx-disclaimer-ico { animation: none; }
+  .hx-disclaimer-scan { opacity: 0; }
+}
 
 /* ====== Scroll propio del panel derecho (independiente de la pagina), solo escritorio ====== */
 @media (min-width: 1200px) {
@@ -4334,4 +4430,222 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
   #panel-wrapper::-webkit-scrollbar-track { background: transparent; }
   #panel-wrapper::-webkit-scrollbar-thumb { background: rgb(255 255 255 / 12%); border-radius: 999px; }
   #panel-wrapper::-webkit-scrollbar-thumb:hover { background: rgb(255 255 255 / 24%); }
+}
+
+/* ==========================================================================
+   Nivel HackTheBox (panel derecho): logo con efectos "ciber" que rotan
+   ========================================================================== */
+.hx-htb { --htb: 68 240 138; }
+
+.hx-htb-head {
+  justify-content: center;
+  text-align: center;
+  gap: 0.45rem;
+}
+.hx-htb-head .hx-icon-htb { color: rgb(var(--htb)); }
+
+.hx-htb-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.95rem;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid rgb(var(--htb) / 28%);
+  border-radius: 12px;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgb(var(--htb) / 10%), transparent 55%),
+    rgb(255 255 255 / 2%);
+  box-shadow: inset 0 0 22px rgb(var(--htb) / 6%);
+}
+
+/* --- Caja del logo --- */
+.hx-htb-logo {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 0 6px rgb(var(--htb) / 45%));
+}
+.hx-htb-hex {
+  width: 100%;
+  height: 100%;
+  stroke: rgb(var(--htb));
+  stroke-width: 1.6;
+  overflow: visible;
+}
+.hx-htb-p { transition: stroke 0.3s; }
+
+/* Línea de escáner, anillo y "fantasmas" RGB (ocultos salvo en su efecto) */
+.hx-htb-scan,
+.hx-htb-ring,
+.hx-htb-ghost {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+}
+.hx-htb-scan {
+  left: 4%;
+  right: 4%;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgb(var(--htb)), transparent);
+  box-shadow: 0 0 10px rgb(var(--htb));
+}
+.hx-htb-ring {
+  inset: 10%;
+  border: 1.5px solid rgb(var(--htb) / 70%);
+  border-radius: 50%;
+}
+/* Copias hexagonales para el "RGB split" */
+.hx-htb-ghost {
+  inset: 0;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M12 2 21 7v10l-9 5-9-5V7z'/%3E%3Cpath d='M3 7l9 5 9-5M12 12v10'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Cpath d='M12 2 21 7v10l-9 5-9-5V7z'/%3E%3Cpath d='M3 7l9 5 9-5M12 12v10'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+.hx-htb-ghost-c { background: #2ee6d6; }
+.hx-htb-ghost-m { background: #ff2e88; }
+
+/* === Efecto A — Escaneo === */
+.hx-htb-logo[data-fx="a"] .hx-htb-scan { opacity: 1; animation: hx-htbfx-scan 2.1s ease-in-out infinite; }
+.hx-htb-logo[data-fx="a"] .hx-htb-hex { animation: hx-htbfx-brighten 2.1s ease-in-out infinite; }
+@keyframes hx-htbfx-scan {
+  0% { top: 2%; opacity: 0; }
+  12% { opacity: 1; }
+  88% { opacity: 1; }
+  100% { top: 96%; opacity: 0; }
+}
+@keyframes hx-htbfx-brighten {
+  0%, 100% { filter: none; }
+  50% { filter: drop-shadow(0 0 4px rgb(var(--htb))); }
+}
+
+/* === Efecto B — Pulso neón === */
+.hx-htb-logo[data-fx="b"] { animation: hx-htbfx-glow 1.6s ease-in-out infinite; }
+.hx-htb-logo[data-fx="b"] .hx-htb-ring { opacity: 1; animation: hx-htbfx-ring 1.6s ease-out infinite; }
+@keyframes hx-htbfx-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px rgb(var(--htb) / 40%)); }
+  50% { filter: drop-shadow(0 0 14px rgb(var(--htb) / 95%)); }
+}
+@keyframes hx-htbfx-ring {
+  0% { transform: scale(0.55); opacity: 0.9; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+
+/* === Efecto C — Holograma === */
+.hx-htb-logo[data-fx="c"] .hx-htb-hex { animation: hx-htbfx-holo 0.9s steps(6) infinite; }
+@keyframes hx-htbfx-holo {
+  0% { opacity: 1; transform: skewX(0) translateX(0); filter: hue-rotate(0); }
+  20% { opacity: 0.55; transform: skewX(-6deg) translateX(-1px); }
+  40% { opacity: 1; transform: skewX(4deg) translateX(1px); filter: hue-rotate(40deg); }
+  60% { opacity: 0.7; transform: skewX(-2deg); }
+  80% { opacity: 1; transform: skewX(3deg); filter: hue-rotate(-30deg); }
+  100% { opacity: 0.85; transform: skewX(0); }
+}
+
+/* === Efecto D — Trazado (se dibuja el hexágono) === */
+.hx-htb-logo[data-fx="d"] .hx-htb-p {
+  stroke-dasharray: 100;
+  animation: hx-htbfx-draw 2.4s ease-in-out infinite;
+}
+.hx-htb-logo[data-fx="d"] .hx-htb-p2 { animation-delay: 0.35s; }
+@keyframes hx-htbfx-draw {
+  0% { stroke-dashoffset: 100; opacity: 0.3; }
+  45% { stroke-dashoffset: 0; opacity: 1; }
+  80% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: -100; opacity: 0.3; }
+}
+
+/* === Efecto E — RGB split (glitch) === */
+.hx-htb-logo[data-fx="e"] .hx-htb-hex { animation: hx-htbfx-shift 0.22s steps(2) infinite; }
+.hx-htb-logo[data-fx="e"] .hx-htb-ghost { opacity: 0.85; }
+.hx-htb-logo[data-fx="e"] .hx-htb-ghost-c { animation: hx-htbfx-ghost-c 0.22s steps(2) infinite; }
+.hx-htb-logo[data-fx="e"] .hx-htb-ghost-m { animation: hx-htbfx-ghost-m 0.22s steps(2) infinite; }
+@keyframes hx-htbfx-shift {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(1px, -1px); }
+  100% { transform: translate(-1px, 1px); }
+}
+@keyframes hx-htbfx-ghost-c {
+  0% { transform: translate(-2px, 1px); }
+  50% { transform: translate(-3px, -1px); }
+  100% { transform: translate(-1px, 2px); }
+}
+@keyframes hx-htbfx-ghost-m {
+  0% { transform: translate(2px, -1px); }
+  50% { transform: translate(3px, 1px); }
+  100% { transform: translate(1px, -2px); }
+}
+
+/* --- Lado derecho: nivel + avatar + botón --- */
+.hx-htb-side {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+.hx-htb-level { line-height: 1.2; }
+.hx-htb-level small {
+  display: block;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--hx-muted);
+}
+.hx-htb-level b {
+  font-family: var(--hx-mono);
+  font-size: 1.15rem;
+  color: rgb(var(--htb));
+  text-shadow: 0 0 10px rgb(var(--htb) / 40%);
+}
+.hx-htb-level em {
+  font-style: normal;
+  font-size: 0.72rem;
+  color: var(--hx-muted);
+  margin-left: 0.35rem;
+}
+.hx-htb-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.hx-htb-avatar {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgb(var(--htb) / 12%) center / cover no-repeat;
+  border: 1.5px solid rgb(var(--htb) / 55%);
+  display: grid;
+  place-items: center;
+  color: rgb(var(--htb));
+  font-size: 0.8rem;
+}
+.hx-htb-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgb(var(--htb)) !important;
+  text-decoration: none;
+  border: 1px solid rgb(var(--htb) / 45%);
+  background: rgb(var(--htb) / 8%);
+  transition: background 0.25s, box-shadow 0.25s, transform 0.2s;
+}
+.hx-htb-btn:hover {
+  background: rgb(var(--htb) / 18%);
+  box-shadow: 0 0 14px rgb(var(--htb) / 35%);
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hx-htb-logo,
+  .hx-htb-logo * { animation: none !important; }
+  .hx-htb-scan, .hx-htb-ring, .hx-htb-ghost { opacity: 0; }
 }

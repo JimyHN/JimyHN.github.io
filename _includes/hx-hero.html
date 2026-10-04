@@ -14,7 +14,11 @@
     </div>
 
     <div class="hx-term-body">
-      <p class="hx-term-note"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i> Contenido con fines educativos: las técnicas se practican solo en laboratorios y entornos autorizados.</p>
+      <div class="hx-disclaimer" role="note" aria-label="Aviso de uso didáctico">
+        <span class="hx-disclaimer-ico" aria-hidden="true"><i class="fas fa-shield-halved"></i></span>
+        <p class="hx-disclaimer-txt">Todo el contenido de este blog tiene <b>fines educativos</b>. Las técnicas descritas se aplican únicamente en <b>entornos de laboratorio autorizados</b>.</p>
+        <span class="hx-disclaimer-scan" aria-hidden="true"></span>
+      </div>
       <div class="hx-step">
         <span class="hx-prompt"><b>jaime@kali</b>:~$</span>
         <span class="hx-cmd">whoami</span>
@@ -72,33 +76,33 @@
   <nav class="hx-tiles" aria-label="Secciones">
     <a class="hx-tile" style="--c: 46 230 214" href="{{ '/writeups/' | relative_url }}">
       <i class="fas fa-terminal" aria-hidden="true"></i>
-      <span class="hx-tile-txt"><b>Write-ups</b><small>{{ hx_writeups.size }} publicados</small></span>
+      <span class="hx-tile-txt"><b>Write-ups</b></span>
       <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
     </a>
     <a class="hx-tile" style="--c: 255 175 0" href="{{ '/herramientas/' | relative_url }}">
       <i class="fas fa-toolbox" aria-hidden="true"></i>
-      <span class="hx-tile-txt"><b>Herramientas</b><small>{{ hx_tools.size }} publicadas</small></span>
+      <span class="hx-tile-txt"><b>Herramientas</b></span>
       <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
     </a>
     <a class="hx-tile" style="--c: 193 108 255" href="{{ '/certificaciones/' | relative_url }}">
       <i class="fas fa-certificate" aria-hidden="true"></i>
-      <span class="hx-tile-txt"><b>Certificaciones</b><small>{{ hx_certs.size }} obtenida{% if hx_certs.size != 1 %}s{% endif %}</small></span>
+      <span class="hx-tile-txt"><b>Certificaciones</b></span>
       <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
     </a>
     {%- assign hx_titulos = site.data.titulos.oficiales | concat: site.data.titulos.no_oficiales -%}
     <a class="hx-tile" style="--c: 94 180 248" href="{{ '/titulos/' | relative_url }}">
       <i class="fas fa-user-graduate" aria-hidden="true"></i>
-      <span class="hx-tile-txt"><b>Títulos</b><small>{{ hx_titulos.size }} formaciones</small></span>
+      <span class="hx-tile-txt"><b>Títulos</b></span>
       <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
     </a>
     <a class="hx-tile" style="--c: 255 120 60" href="{{ '/roadmap/' | relative_url }}">
       <i class="fas fa-map" aria-hidden="true"></i>
-      <span class="hx-tile-txt"><b>Roadmap OSCP</b><small>Lista de TJnull</small></span>
+      <span class="hx-tile-txt"><b>Roadmap</b></span>
       <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
     </a>
     <a class="hx-tile" style="--c: 255 94 135" href="{{ '/tags/' | relative_url }}">
       <i class="fas fa-hashtag" aria-hidden="true"></i>
-      <span class="hx-tile-txt"><b>Etiquetas</b><small>{{ site.tags.size }} temas</small></span>
+      <span class="hx-tile-txt"><b>Etiquetas</b></span>
       <i class="fas fa-arrow-right hx-tile-go" aria-hidden="true"></i>
     </a>
   </nav>

@@ -1,0 +1,44 @@
+name: "Actualizar nivel HackTheBox"
+
+on:
+  schedule:
+    # Todos los días a las 06:10 UTC (ajusta a tu gusto)
+    - cron: "10 6 * * *"
+  # Permite lanzarlo a mano desde la pestaña Actions
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "htb-update"
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Actualizar _data/htb.yml desde la API de HTB
+        env:
+          HTB_TOKEN: ${{ secrets.HTB_TOKEN }}
+        run: python3 tools/htb_update.py
+
+      - name: Commit si hay cambios
+        run: |
+          if [[ -n "$(git status --porcelain _data/htb.yml)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add _data/htb.yml
+            git commit -m "HTB: actualizar nivel y avatar automáticamente"
+            git push
+          else
+            echo "Sin cambios en _data/htb.yml"
+          fi

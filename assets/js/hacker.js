@@ -1207,7 +1207,26 @@
     });
   }
 
+  /* --- Efectos "ciber" del logo de HackTheBox: rotan sin repetir --- */
+  function initHtbFx() {
+    const logo = document.getElementById('hx-htb-logo');
+    if (!logo || reduceMotion) return;
+    const fx = ['a', 'b', 'c', 'd', 'e'];
+    let last = logo.getAttribute('data-fx') || 'a';
+    (function cycle() {
+      const pool = fx.filter((f) => f !== last);
+      const next = pool[Math.floor(Math.random() * pool.length)];
+      last = next;
+      // Reinicia la animación aunque se repita algún estado intermedio
+      logo.removeAttribute('data-fx');
+      void logo.offsetWidth;
+      logo.setAttribute('data-fx', next);
+      setTimeout(cycle, 4200);
+    })();
+  }
+
   function init() {
+    initHtbFx();
     initPageTheme();
     initAge();
     initMatrix();
