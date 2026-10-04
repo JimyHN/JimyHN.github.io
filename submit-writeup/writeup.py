@@ -167,8 +167,8 @@ def render_inline(t: str) -> str:
         store.append(html_)
         return f"\x02{len(store) - 1}\x03"
 
-    # subrayado <u>..</u> (se respeta tal cual, protegido del escapado)
-    t = re.sub(r"</?u>", lambda m: stash(m.group(0)), t)
+    # subrayado <u> y cursiva <i> (se respetan tal cual, protegidos del escapado)
+    t = re.sub(r"</?[ui]>", lambda m: stash(m.group(0)), t)
     # código en línea
     t = re.sub(r"`([^`]+)`", lambda m: stash(f"<code>{esc(m.group(1))}</code>"), t)
     # enlaces [texto](url)
@@ -410,17 +410,43 @@ def render_img_block(block, counter=None) -> str:
         if not line:
             continue
         parts = [p.strip() for p in line.split("|")]
-        src = parts[0]
+        # Opciones al final (w=NNN / h=NNN / dim), si las hay
+        opt_w = opt_h = None
+        dim = False
+        if len(parts) >= 2 and re.fullmatch(r"(?:\s*(?:w=\d+|h=\d+|dim)\s*)+", parts[-1] or ""):
+            for tok in parts.pop().split():
+                if tok == "dim":
+                    dim = True
+                elif tok.startswith("w="):
+                    opt_w = tok[2:]
+                elif tok.startswith("h="):
+                    opt_h = tok[2:]
+        src = parts[0] if parts else ""
         if len(parts) >= 3:
             label, cap = parts[1], " | ".join(parts[2:]).strip()
         elif len(parts) == 2:
             label, cap = "Figura", parts[1]
         else:
             label, cap = "Figura", ""
-        alt = esc(cap) if cap else "Captura del write-up"
-        f = ('<figure class="hx-fig">'
-             f'<button type="button" class="hx-fig-zoom" aria-label="Ampliar imagen">'
-             f'<img src="{esc(src)}" alt="{alt}" loading="lazy" decoding="async"></button>')
+
+        # Tamaño: por defecto ancho fijo (CSS --fig-w); w/h lo sobreescriben y el
+        # otro eje queda en automático para conservar la proporción.
+        istyle = ""
+        if opt_w:
+            istyle = f' style="width:{opt_w}px;height:auto"'
+        elif opt_h:
+            istyle = f' style="height:{opt_h}px;width:auto"'
+
+        fcls = "hx-fig" + (" hx-fig-dim" if dim else "")
+        if src:
+            alt = esc(cap) if cap else "Captura del write-up"
+            media = ('<button type="button" class="hx-fig-zoom" aria-label="Ampliar imagen">'
+                     f'<img src="{esc(src)}" alt="{alt}" loading="lazy" decoding="async"{istyle}></button>')
+        else:
+            # Hueco sin imagen (el editor le engancha el botón de carga)
+            media = ('<div class="hx-fig-ph2" role="img" aria-label="Sin imagen">'
+                     '<i class="fas fa-image" aria-hidden="true"></i><span>Sin imagen</span></div>')
+        f = f'<figure class="{fcls}">{media}'
         if label:
             counter[label] = counter.get(label, 0) + 1
             num = counter[label]

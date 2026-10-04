@@ -4840,11 +4840,22 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
   line-height: 0; cursor: zoom-in; border-radius: 15px; max-width: 100%;
 }
 .hx-fig-zoom img {
-  display: block; max-width: 100%; height: auto; border-radius: 15px;
+  display: block; width: var(--fig-w, 340px); max-width: 100%; height: auto; border-radius: 15px;
   border: 2px solid rgb(var(--m, 199 21 133));
   box-shadow: 0 6px 24px rgba(0, 0, 0, .35);
-  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease, filter .25s ease;
 }
+/* Imagen atenuada (modo "luna") */
+.hx-fig-dim .hx-fig-zoom img { filter: brightness(.68) saturate(.95); }
+.hx-fig-dim .hx-fig-zoom:hover img { filter: brightness(.82) saturate(1); }
+/* Hueco sin imagen (placeholder gris, por si se publica vacío) */
+.hx-fig-ph2 {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  width: var(--fig-w, 340px); max-width: 100%; aspect-ratio: 16 / 10; border-radius: 15px;
+  border: 2px dashed rgb(var(--m, 199 21 133) / 55%); background: rgb(var(--m, 199 21 133) / 7%);
+  color: #8a97a8; font-size: .9rem;
+}
+.hx-fig-ph2 i { font-size: 1.8rem; opacity: .7; }
 .hx-fig-zoom:hover img,
 .hx-fig-zoom:focus-visible img {
   transform: scale(1.03);
