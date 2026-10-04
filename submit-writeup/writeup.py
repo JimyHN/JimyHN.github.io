@@ -23,6 +23,7 @@ que es lo que se recarga al usar --edit.
 """
 
 import argparse
+import base64
 import io
 import json
 import re
@@ -547,7 +548,12 @@ def render_body(data: dict) -> str:
     secs = data.get("sections") or {}
 
     _acc = data.get("accent", "")
-    _acc_style = f' style="--m:{_acc}"' if _acc else ""
+    _svars = []
+    if _acc:
+        _svars.append(f"--m:{_acc}")
+    if data.get("img_w"):
+        _svars.append(f"--fig-w:{int(data['img_w'])}px")
+    _acc_style = f' style="{";".join(_svars)}"' if _svars else ""
     h = f'<div class="hx-wu" data-os="{osc}"{f" data-accent=\"{_acc}\"" if _acc else ""}{_acc_style}>'
     # Cabecera: avatar + nombre + autor, y botón de certificado a la derecha
     h += '<header class="hx-wu-head">'
@@ -956,6 +962,34 @@ class Handler(BaseHTTPRequestHandler):
                 self._send(200, {"path": str(p.relative_to(ROOT)), "published": is_published(slug)})
             except Exception as e:  # noqa: BLE001
                 err(f"Error al guardar el borrador: {e}")
+                self._send(500, {"error": str(e)})
+            return
+        if u.path == "/api/upload-image":
+            # Guarda una imagen subida desde el navegador en assets/img/writeups/<slug>/.
+            try:
+                slug = slugify(data.get("slug") or data.get("name") or "writeup")
+                raw = (data.get("data") or "").strip()
+                if raw.startswith("data:") and "," in raw:
+                    raw = raw.split(",", 1)[1]
+                content = base64.b64decode(raw)
+                src_name = Path(data.get("filename") or "captura.png")
+                ext = src_name.suffix.lower()
+                if ext not in (".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"):
+                    ext = ".png"
+                base = slugify(src_name.stem) or "captura"
+                dest_dir = ROOT / "assets" / "img" / "writeups" / slug
+                dest_dir.mkdir(parents=True, exist_ok=True)
+                dest = dest_dir / f"{base}{ext}"
+                k = 2
+                while dest.exists():
+                    dest = dest_dir / f"{base}-{k}{ext}"
+                    k += 1
+                dest.write_bytes(content)
+                rel = "/" + str(dest.relative_to(ROOT)).replace("\\", "/")
+                ok(f"Imagen guardada: {_c(rel, Col.BOLD)}")
+                self._send(200, {"path": rel})
+            except Exception as e:  # noqa: BLE001
+                err(f"No se pudo guardar la imagen: {e}")
                 self._send(500, {"error": str(e)})
             return
         if u.path == "/api/rename":

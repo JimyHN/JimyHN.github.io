@@ -177,6 +177,49 @@
   .tbd-line.v .tbd-plus { top:4px; left:50%; transform:translateX(-50%); }
   .tbd-line.h .tbd-plus { left:4px; top:50%; transform:translateY(-50%); }
   .tbd-line:not(.on):hover .tbd-plus { display:block; }
+
+  /* --- Controles de imagen en la vista previa --- */
+  .ed-fig-edit { position:relative; }
+  .ed-fig-bar { position:absolute; top:6px; right:6px; z-index:5; display:flex; gap:4px; }
+  .ed-fig-b { width:26px; height:26px; padding:0; border:1px solid #2a3542; border-radius:7px;
+    background:rgba(10,13,18,.78); color:#dfe6ef; font-size:13px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; }
+  .ed-fig-b:hover { background:#1b2430; border-color:#3a4a5c; }
+  .ed-fig-del:hover { background:#3a1620; border-color:#ff3e3e; color:#ff8a8a; }
+  .ed-fig-upload { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:4;
+    padding:8px 14px; border:1px solid var(--ed-green,#9fef00); border-radius:8px; cursor:pointer;
+    background:#0d1016; color:#dfe6ef; font-size:13px; display:inline-flex; gap:7px; align-items:center; }
+  .ed-fig-upload:hover { background:#141a22; }
+  .ed-fig-caprow { display:flex; align-items:center; gap:6px; justify-content:center; margin-top:8px; flex-wrap:wrap; }
+  .ed-fig-colon { color:#8a97a8; font-weight:700; }
+  .ed-fig-captxt { flex:1 1 240px; max-width:420px; background:#0f141b; border:1px solid #243244;
+    border-radius:7px; color:#cdd6e3; padding:5px 9px; font-size:13px; }
+  .ed-fig-captxt:focus { outline:none; border-color:var(--ed-green,#9fef00); }
+  .ed-fig-lblbox { position:relative; }
+  .ed-fig-lblbtn { background:#161c25; border:1px solid #2a3542; border-radius:7px; color:#cdd6e3;
+    padding:5px 11px; font-size:13px; cursor:pointer; }
+  .ed-fig-lblbtn:hover { border-color:#3a4a5c; }
+  .ed-fig-lblmenu { position:absolute; top:calc(100% + 4px); left:0; z-index:20; min-width:170px;
+    background:#10151c; border:1px solid #2a3542; border-radius:9px; padding:5px; box-shadow:0 10px 28px rgba(0,0,0,.5); }
+  .ed-fig-lblrow { display:flex; align-items:center; justify-content:space-between; border-radius:6px; }
+  .ed-fig-lblrow:hover { background:#1b2430; }
+  .ed-fig-lblpick { flex:1; padding:6px 9px; cursor:pointer; font-size:13px; color:#dfe6ef; }
+  .ed-fig-lblx { border:0; background:none; color:#ff7a8a; cursor:pointer; padding:4px 9px; font-size:12px; }
+  .ed-fig-lblx:hover { color:#ff3e3e; }
+  .ed-fig-lbladd { padding:7px 9px; margin-top:3px; border-top:1px solid #243244; color:var(--ed-green,#9fef00);
+    cursor:pointer; font-size:13px; }
+  .ed-fig-lbladd:hover { background:#1b2430; }
+  .ed-fig-gear { position:absolute; top:36px; right:6px; z-index:21; width:190px; padding:10px;
+    background:#10151c; border:1px solid #2a3542; border-radius:9px; box-shadow:0 10px 28px rgba(0,0,0,.5); }
+  .ed-fig-gear-row { display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+  .ed-fig-gear-row label { width:42px; color:#8a97a8; font-size:12px; }
+  .ed-fig-gear-row input { width:70px; background:#0f141b; border:1px solid #243244; border-radius:6px;
+    color:#cdd6e3; padding:4px 7px; font-size:13px; }
+  .ed-fig-gear-row span { color:#8a97a8; font-size:12px; }
+  .ed-fig-gear-note { color:#6f7d8c; font-size:11px; margin:2px 0 8px; }
+  .ed-fig-gear button { flex:1; background:#1b2430; border:1px solid #2a3542; border-radius:6px;
+    color:#cdd6e3; padding:5px; font-size:12px; cursor:pointer; }
+  .ed-fig-gear .gok { background:var(--ed-green,#9fef00); color:#05070a; font-weight:700; border-color:transparent; }
 </style>
 </head>
 <body>
@@ -207,6 +250,7 @@
       <div class="ed-field"><label>Fecha</label><input id="f-date" type="date"></div>
       <div class="ed-field" style="flex:0 0 150px"><label>Versión (opcional)</label><input id="f-version" placeholder="17.0.0"></div>
       <div class="ed-field" style="flex:0 0 130px"><label>Min. lectura</label><input id="f-read" type="number" min="1" step="1" placeholder="3"></div>
+      <div class="ed-field" style="flex:0 0 150px"><label>Ancho imágenes (px)</label><input id="f-imgw" type="number" min="60" step="10" placeholder="340"></div>
     </div>
     <div class="ed-field" style="margin-bottom:0.5rem"><label>Descripción (resumen de 1 línea)</label><input id="f-desc" placeholder="..."></div>
     <div class="ed-field"><label>URL del logro de HackTheBox (imagen + certificado)</label><input id="f-url" placeholder="https://labs.hackthebox.com/achievement/machine/..."></div>
@@ -427,7 +471,7 @@ const TEMPLATES = {
   list: '\n- primer punto\n- segundo punto\n',
   table:'\n| Columna | Columna |\n| --- | --- |\n| valor | valor |\n',
   note: '\n::tip\nUn aviso útil.\n::\n',
-  img:  '\n```img\n/assets/img/writeups/<slug>/captura.png | Pie de foto (opcional)\n```\n',
+  img:  '\n```img\n | Figura | \n```\n',
 };
 // Insertar un enlace [texto](url) pidiendo la URL
 function _insLink(ta) {
@@ -506,6 +550,7 @@ function collectData() {
   };
   if (val('f-version')) d.version = val('f-version');
   if (val('f-read')) d.read_min = parseInt(val('f-read'), 10) || 3;
+  if (val('f-imgw')) d.img_w = parseInt(val('f-imgw'), 10) || 340;
   if (Object.keys(notes).length) d.notes = notes;   // bloc privado: nunca llega al blog
   if (window._accent) d.accent = window._accent;
   if (window._img) d.img = window._img;
@@ -521,7 +566,9 @@ async function render() {
     const pv = document.getElementById('preview');
     pv.innerHTML = d.html || ('<p style="color:#ff3e3e">' + (d.error || 'error') + '</p>');
     pv.style.setProperty('--page', window._accent || '159 239 0');
+    pv.querySelectorAll('.hx-wu').forEach(w => w.style.setProperty('--fig-w', (val('f-imgw') || '340') + 'px'));
     bindPreviewTables();
+    bindPreviewImages();
   } catch (e) { /* servidor no disponible */ }
 }
 
@@ -550,6 +597,210 @@ function bindPreviewTables() {
     };
   });
 }
+/* ===================== Imágenes en la vista previa =====================
+   Cada figura del preview se mapea (por orden) con su línea fuente dentro de
+   un bloque ```img de las secciones. Encima de cada imagen montamos: subir
+   imagen, sol/luna (atenuar), engranaje (ancho/alto) y papelera (borrar);
+   debajo, el desplegable de etiqueta ("Figura", etc.) + el pie de foto. */
+const DEFAULT_LABELS = ['Figura', 'Imagen', 'Captura', 'Tabla', 'Diagrama'];
+function getLabels() {
+  try { const a = JSON.parse(localStorage.getItem('wuLabels') || 'null'); if (Array.isArray(a) && a.length) return a; } catch (e) {}
+  return DEFAULT_LABELS.slice();
+}
+function saveLabels(a) { try { localStorage.setItem('wuLabels', JSON.stringify(a)); } catch (e) {} }
+function isCustomLabel(l) { return DEFAULT_LABELS.indexOf(l) === -1; }
+
+function parseImgLine(line) {
+  let parts = line.split('|').map(s => s.trim());
+  let opts = '';
+  if (parts.length >= 2 && /^(\s*(w=\d+|h=\d+|dim)\s*)+$/.test(parts[parts.length - 1] || '')) opts = parts.pop().trim();
+  const src = parts[0] || '';
+  let label = 'Figura', cap = '';
+  if (parts.length >= 3) { label = parts[1] || 'Figura'; cap = parts.slice(2).join(' | ').trim(); }
+  else if (parts.length === 2) { cap = parts[1] || ''; }
+  let w = null, h = null, dim = false;
+  opts.split(/\s+/).forEach(t => { if (t === 'dim') dim = true; else if (t.indexOf('w=') === 0) w = t.slice(2); else if (t.indexOf('h=') === 0) h = t.slice(2); });
+  return { src, label, cap, w, h, dim };
+}
+function buildImgLine(f) {
+  const opts = [];
+  if (f.w) opts.push('w=' + f.w); else if (f.h) opts.push('h=' + f.h);
+  if (f.dim) opts.push('dim');
+  let line = (f.src || '') + ' | ' + (f.label || 'Figura') + ' | ' + (f.cap || '');
+  if (opts.length) line += ' | ' + opts.join(' ');
+  return line;
+}
+function allImgRefs() {
+  const refs = [];
+  SECTIONS.forEach(s => {
+    const lines = document.getElementById('t-' + s.id).value.split('\n');
+    let inImg = false;
+    for (let i = 0; i < lines.length; i++) {
+      const t = lines[i].trim();
+      if (!inImg) { if (/^```(img|imagen|captura)\s*$/.test(t)) inImg = true; continue; }
+      if (t === '```') { inImg = false; continue; }
+      if (t.length) refs.push({ sec: s.id, line: i, fields: parseImgLine(lines[i]) });
+    }
+  });
+  return refs;
+}
+function writeImgLine(ref) {
+  const ta = document.getElementById('t-' + ref.sec);
+  const lines = ta.value.split('\n');
+  lines[ref.line] = buildImgLine(ref.fields);
+  ta.value = lines.join('\n');
+  markDirty(); scheduleRender();
+}
+function removeImgLine(ref) {
+  const ta = document.getElementById('t-' + ref.sec);
+  let lines = ta.value.split('\n');
+  let start = ref.line; while (start > 0 && !/^```(img|imagen|captura)\s*$/.test(lines[start].trim())) start--;
+  let end = ref.line; while (end < lines.length && lines[end].trim() !== '```') end++;
+  let imgs = 0; for (let i = start + 1; i < end; i++) if (lines[i].trim().length) imgs++;
+  if (imgs <= 1) lines.splice(start, (end - start) + 1); else lines.splice(ref.line, 1);
+  ta.value = lines.join('\n');
+  markDirty(); scheduleRender();
+}
+
+function uploadImageFor(ref) {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*';
+  inp.onchange = () => {
+    const file = inp.files && inp.files[0]; if (!file) return;
+    const rd = new FileReader();
+    rd.onload = async () => {
+      try {
+        const r = await fetch('/api/upload-image', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug: _slug || slugify(val('f-name')) || '', name: val('f-name'), filename: file.name, data: rd.result })
+        });
+        const d = await r.json();
+        if (d.path) { ref.fields.src = d.path; writeImgLine(ref); }
+        else alert('No se pudo subir la imagen: ' + (d.error || ''));
+      } catch (e) { alert('Error al subir la imagen.'); }
+    };
+    rd.readAsDataURL(file);
+  };
+  inp.click();
+}
+
+function labelDropdown(ref) {
+  const wrap = document.createElement('span'); wrap.className = 'ed-fig-lblbox';
+  const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'ed-fig-lblbtn';
+  btn.textContent = ref.fields.label || 'Figura'; btn.title = 'Etiqueta del pie';
+  const menu = document.createElement('div'); menu.className = 'ed-fig-lblmenu'; menu.hidden = true;
+  function build() {
+    menu.innerHTML = '';
+    getLabels().forEach(l => {
+      const row = document.createElement('div'); row.className = 'ed-fig-lblrow';
+      const pick = document.createElement('span'); pick.textContent = l; pick.className = 'ed-fig-lblpick';
+      pick.onclick = () => { ref.fields.label = l; writeImgLine(ref); };
+      row.appendChild(pick);
+      if (isCustomLabel(l)) {
+        const x = document.createElement('button'); x.type = 'button'; x.className = 'ed-fig-lblx'; x.textContent = '✕';
+        x.title = 'Borrar etiqueta'; x.onclick = (e) => {
+          e.stopPropagation();
+          if (confirm('¿Seguro que quieres borrar la etiqueta "' + l + '"?')) { saveLabels(getLabels().filter(y => y !== l)); build(); }
+        };
+        row.appendChild(x);
+      }
+      menu.appendChild(row);
+    });
+    const add = document.createElement('div'); add.className = 'ed-fig-lbladd'; add.textContent = '➕ nueva etiqueta';
+    add.onclick = () => {
+      const nv = (prompt('Nombre de la nueva etiqueta:') || '').trim();
+      if (!nv) return;
+      const ls = getLabels(); if (ls.indexOf(nv) === -1) { ls.push(nv); saveLabels(ls); }
+      ref.fields.label = nv; writeImgLine(ref);
+    };
+    menu.appendChild(add);
+  }
+  btn.onclick = (e) => { e.stopPropagation(); build(); menu.hidden = !menu.hidden; };
+  document.addEventListener('click', () => { menu.hidden = true; }, { once: true });
+  menu.onclick = (e) => e.stopPropagation();
+  wrap.appendChild(btn); wrap.appendChild(menu);
+  return wrap;
+}
+
+function gearPopover(ref, imgEl, anchor) {
+  const old = document.querySelector('.ed-fig-gear'); if (old) old.remove();
+  const box = document.createElement('div'); box.className = 'ed-fig-gear';
+  const natW = (imgEl && imgEl.naturalWidth) || 0, natH = (imgEl && imgEl.naturalHeight) || 0;
+  const ratio = (natW && natH) ? (natW / natH) : 0;
+  const curW = ref.fields.w ? parseInt(ref.fields.w, 10) : (ref.fields.h && ratio ? Math.round(parseInt(ref.fields.h, 10) * ratio) : (parseInt(val('f-imgw'), 10) || 340));
+  const curH = ref.fields.h ? parseInt(ref.fields.h, 10) : (ratio ? Math.round(curW / ratio) : '');
+  box.innerHTML = '<div class="ed-fig-gear-row"><label>Ancho</label><input type="number" class="gw" value="' + curW + '"><span>px</span></div>'
+    + '<div class="ed-fig-gear-row"><label>Alto</label><input type="number" class="gh" value="' + curH + '"><span>px</span></div>'
+    + '<div class="ed-fig-gear-note">Fija uno y el otro se autocalcula.</div>'
+    + '<div class="ed-fig-gear-row"><button type="button" class="ga">Ancho auto</button><button type="button" class="gok">Aplicar</button></div>';
+  const gw = box.querySelector('.gw'), gh = box.querySelector('.gh');
+  gw.oninput = () => { if (ratio && gw.value) gh.value = Math.round(parseInt(gw.value, 10) / ratio); box._use = 'w'; };
+  gh.oninput = () => { if (ratio && gh.value) gw.value = Math.round(parseInt(gh.value, 10) * ratio); box._use = 'h'; };
+  box.querySelector('.ga').onclick = () => { ref.fields.w = null; ref.fields.h = null; writeImgLine(ref); };
+  box.querySelector('.gok').onclick = () => {
+    if (box._use === 'h') { ref.fields.h = String(parseInt(gh.value, 10) || ''); ref.fields.w = null; }
+    else { ref.fields.w = String(parseInt(gw.value, 10) || ''); ref.fields.h = null; }
+    writeImgLine(ref);
+  };
+  box.onclick = (e) => e.stopPropagation();
+  anchor.appendChild(box);
+  document.addEventListener('click', function off() { box.remove(); document.removeEventListener('click', off); }, { once: true });
+}
+
+function buildImgControls(fig, ref) {
+  fig.classList.add('ed-fig-edit');
+  const media = fig.querySelector('.hx-fig-zoom, .hx-fig-ph2');
+  if (!media) return;
+  media.style.position = 'relative';
+  const imgEl = fig.querySelector('img');
+  // Barra de herramientas (arriba a la derecha de la imagen)
+  const bar = document.createElement('div'); bar.className = 'ed-fig-bar';
+  const bDim = document.createElement('button'); bDim.type = 'button'; bDim.className = 'ed-fig-b';
+  bDim.innerHTML = ref.fields.dim ? '🌙' : '☀️'; bDim.title = ref.fields.dim ? 'Atenuada (clic para brillo)' : 'Brillo normal (clic para atenuar)';
+  bDim.onclick = (e) => { e.stopPropagation(); ref.fields.dim = !ref.fields.dim; writeImgLine(ref); };
+  bar.appendChild(bDim);
+  if (imgEl) {
+    const bGear = document.createElement('button'); bGear.type = 'button'; bGear.className = 'ed-fig-b';
+    bGear.innerHTML = '⚙'; bGear.title = 'Tamaño (ancho/alto)';
+    bGear.onclick = (e) => { e.stopPropagation(); gearPopover(ref, imgEl, media); };
+    bar.appendChild(bGear);
+    const bUp = document.createElement('button'); bUp.type = 'button'; bUp.className = 'ed-fig-b';
+    bUp.innerHTML = '⟳'; bUp.title = 'Reemplazar imagen';
+    bUp.onclick = (e) => { e.stopPropagation(); uploadImageFor(ref); };
+    bar.appendChild(bUp);
+  }
+  const bDel = document.createElement('button'); bDel.type = 'button'; bDel.className = 'ed-fig-b ed-fig-del';
+  bDel.innerHTML = '🗑'; bDel.title = 'Borrar imagen';
+  bDel.onclick = (e) => { e.stopPropagation(); if (confirm('¿Seguro que quieres borrar esta imagen del write-up?')) removeImgLine(ref); };
+  bar.appendChild(bDel);
+  media.appendChild(bar);
+  // Botón grande "cargar imagen" si es un hueco vacío
+  if (!imgEl) {
+    const up = document.createElement('button'); up.type = 'button'; up.className = 'ed-fig-upload';
+    up.innerHTML = '<i class="fas fa-upload"></i> Cargar imagen';
+    up.onclick = (e) => { e.stopPropagation(); uploadImageFor(ref); };
+    media.appendChild(up);
+  }
+  // Editor del pie: etiqueta (desplegable) + texto
+  const capRow = document.createElement('div'); capRow.className = 'ed-fig-caprow';
+  capRow.appendChild(labelDropdown(ref));
+  const colon = document.createElement('span'); colon.className = 'ed-fig-colon'; colon.textContent = ':'; capRow.appendChild(colon);
+  const txt = document.createElement('input'); txt.type = 'text'; txt.className = 'ed-fig-captxt';
+  txt.placeholder = 'Pie de foto…'; txt.value = ref.fields.cap || '';
+  txt.onchange = () => { ref.fields.cap = txt.value.trim(); writeImgLine(ref); };
+  txt.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); txt.blur(); } };
+  capRow.appendChild(txt);
+  fig.appendChild(capRow);
+}
+
+function bindPreviewImages() {
+  const refs = allImgRefs();
+  document.querySelectorAll('#preview figure.hx-fig').forEach((fig, idx) => {
+    const ref = refs[idx]; if (!ref) return;
+    buildImgControls(fig, ref);
+  });
+}
+
 // La vista previa solo depende del panel izquierdo; las notas no se renderizan.
 document.querySelectorAll('.ed-left input, .ed-left select, .ed-left textarea').forEach(el => el.addEventListener('input', scheduleRender));
 // Cualquier edición (secciones o notas) marca cambios sin guardar.
@@ -1133,6 +1384,7 @@ function fillFrom(d) {
   document.getElementById('f-tags').value = d.tags || '';
   document.getElementById('f-version').value = d.version || '';
   document.getElementById('f-read').value = d.read_min || '';
+  document.getElementById('f-imgw').value = d.img_w || '';
   if (d.accent) setAccent(d.accent);
   (d.sections && Object.keys(d.sections) || []).forEach(k => {
     const ta = document.getElementById('t-' + k);
