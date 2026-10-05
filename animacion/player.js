@@ -26,7 +26,7 @@
     { trans: 'fade', dur: 0.9 },
     { page: 1, kind: 'scroll',  dur: 2.5, fadeAt: 0.33 }, // Write-ups (transición 3 s antes, misma velocidad)
     { trans: 'fade', dur: 0.9 },
-    { page: 2, kind: 'scroll',  dur: 8.5, fadeAt: 0.80, speedFrom: 3 }, // Dolibarr (misma velocidad que el roadmap; transición antes)
+    { page: 2, kind: 'scroll',  dur: 11, fadeAt: 0.80, speedFrom: 3, speedFactor: 0.6 }, // Dolibarr (60% de la velocidad del roadmap: más lento)
     { trans: 'fade', dur: 0.9 },
     { page: 3, kind: 'scroll',  dur: 9, fadeAt: 0.45 },   // Roadmap (misma velocidad que antes; funde 2 s antes)
     { trans: 'fade', dur: 0.9 },
@@ -136,6 +136,7 @@
         var rf = iframes[rs.page], rD = Math.max(0, (rf._h || H) - H), rdur = rs.end - rs.start;
         var rfade = rs.fadeAt || 0.7;
         v = rdur > 0 ? (rfade * rD / rdur) : 0;
+        v *= (seg.speedFactor || 1);               // <1 = más lento que la página de referencia
       } else {
         var fadeAt = seg.fadeAt || 0.7;            // fracción recorrida cuando empieza la salida
         v = dur > 0 ? (fadeAt * D / dur) : 0;      // sigue a la misma velocidad durante el fundido
