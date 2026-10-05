@@ -4,7 +4,7 @@
   "os": "Linux",
   "diff": "Easy",
   "plat": "HackTheBox",
-  "date": "2026-09-28",
+  "date": "2026-08-01",
   "desc": "LFI que filtra las credenciales de Tomcat, despliegue de un WAR y escalada abusando del grupo lxd.",
   "tags": "#linux #lfi #tomcat #war #lxd #privesc #password-reuse",
   "sections": {

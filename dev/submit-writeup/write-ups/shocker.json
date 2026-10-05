@@ -4,7 +4,7 @@
   "os": "Linux",
   "diff": "Easy",
   "plat": "HackTheBox",
-  "date": "2026-09-26",
+  "date": "2026-07-31",
   "desc": "Shellshock en un CGI de Apache y escalada con sudo perl sin contraseña.",
   "tags": "#linux #shellshock #cgi #bash #sudo #privesc",
   "sections": {

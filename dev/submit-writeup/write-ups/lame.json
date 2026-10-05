@@ -4,7 +4,7 @@
   "os": "Linux",
   "diff": "Easy",
   "plat": "HackTheBox",
-  "date": "2026-10-03",
+  "date": "2026-08-01",
   "desc": "Samba 3.0.20 vulnerable a usermap_script: ejecución de comandos como root sin autenticación.",
   "tags": "#linux #smb #samba #cve-2007-2447 #metasploit",
   "url": "https://labs.hackthebox.com/achievement/machine/2772097/1",

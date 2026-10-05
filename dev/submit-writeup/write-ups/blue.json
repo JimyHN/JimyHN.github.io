@@ -4,7 +4,7 @@
   "os": "Windows",
   "diff": "Easy",
   "plat": "HackTheBox",
-  "date": "2026-09-20",
+  "date": "2026-07-31",
   "desc": "Windows 7 sin parchear contra MS17-010 (EternalBlue): SMB vulnerable y SYSTEM directo.",
   "tags": "#windows #smb #eternalblue #ms17-010 #metasploit",
   "img": {

@@ -4,7 +4,7 @@
   "os": "Windows",
   "diff": "Easy",
   "plat": "HackTheBox",
-  "date": "2026-09-22",
+  "date": "2026-08-01",
   "desc": "Windows XP sin parchear: MS08-067 en el servicio Server y SYSTEM directo.",
   "tags": "#windows #smb #ms08-067 #windows-xp #metasploit",
   "sections": {

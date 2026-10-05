@@ -4,7 +4,7 @@
   "os": "Windows",
   "diff": "Easy",
   "plat": "HackTheBox",
-  "date": "2026-09-24",
+  "date": "2026-08-02",
   "desc": "IIS con FTP anónimo de escritura: webshell ASPX y escalada por un Windows 7 sin parches.",
   "tags": "#windows #iis #ftp #aspx #ms15-051 #privesc #metasploit",
   "sections": {

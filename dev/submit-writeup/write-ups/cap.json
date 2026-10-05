@@ -4,7 +4,7 @@
   "os": "Linux",
   "diff": "Easy",
   "plat": "HackTheBox",
-  "date": "2026-10-03",
+  "date": "2026-08-02",
   "desc": "IDOR que filtra una captura con credenciales FTP/SSH y escalada con la capability cap_setuid en Python.",
   "tags": "#linux #idor #pcap #ftp #capabilities #privesc",
   "url": "https://labs.hackthebox.com/achievement/machine/2772097/351",
