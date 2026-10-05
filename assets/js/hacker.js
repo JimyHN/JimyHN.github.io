@@ -1311,8 +1311,286 @@
     }
   }
 
+  /* --- Dashboard de Máquinas: gráficas con cross-filter (estilo Power BI) --- */
+  function initMachinesDash() {
+    const root = document.getElementById('hx-maqdash');
+    const dataEl = document.getElementById('hx-maq-data');
+    if (!root || !dataEl) return;
+    let DATA = [];
+    try { DATA = JSON.parse(dataEl.textContent) || []; } catch (e) { return; }
+    if (!DATA.length) return;
+
+    const SVGNS = 'http://www.w3.org/2000/svg';
+    const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    const normDiff = (d) => {
+      d = (d || '').toLowerCase();
+      if (d === 'fácil' || d === 'facil') return 'easy';
+      if (d === 'media') return 'medium';
+      if (d === 'difícil' || d === 'dificil') return 'hard';
+      return d;
+    };
+    DATA.forEach((m) => {
+      m.diff = normDiff(m.diff);
+      m.os = (m.os || 'otros').toLowerCase();
+      m.platform = (m.platform || 'hackthebox').toLowerCase();
+      m.month = (m.iso || '').slice(0, 7);
+      const mm = m.month.split('-');
+      m.monthLabel = mm[1] ? (MES[parseInt(mm[1], 10) - 1] + " '" + mm[0].slice(2)) : m.month;
+      m.nameNorm = normalize(m.name || '');
+    });
+
+    const DIFFS = [
+      { key: 'easy', label: 'Easy', color: 'var(--hx-easy)' },
+      { key: 'medium', label: 'Medium', color: 'var(--hx-medium)' },
+      { key: 'hard', label: 'Hard', color: 'var(--hx-hard)' },
+      { key: 'insane', label: 'Insane', color: 'var(--hx-insane)' }
+    ];
+    const OS = [
+      { key: 'linux', label: 'Linux', color: '#58c7f0' },
+      { key: 'windows', label: 'Windows', color: '#4a86ff' },
+      { key: 'otros', label: 'Otros', color: '#9aa6b8' }
+    ].filter((c) => DATA.some((m) => m.os === c.key));
+    const PLAT = [
+      { key: 'hackthebox', label: 'HackTheBox', color: '#9fef00' },
+      { key: 'investigacion', label: 'Investigación', color: '#e23e8e' }
+    ].filter((c) => DATA.some((m) => m.platform === c.key));
+    const MONTHS = Array.from(new Set(DATA.map((m) => m.month))).sort();
+
+    const state = { diff: new Set(), month: new Set(), os: new Set(), platform: new Set(), q: '' };
+    const anyFilter = () => state.diff.size || state.month.size || state.os.size || state.platform.size || state.q;
+
+    function matches(m, ignore) {
+      if (state.q && m.nameNorm.indexOf(state.q) === -1) return false;
+      const dims = ['diff', 'month', 'os', 'platform'];
+      for (let i = 0; i < dims.length; i++) {
+        const d = dims[i];
+        if (d === ignore) continue;
+        if (state[d].size && !state[d].has(m[d])) return false;
+      }
+      return true;
+    }
+    const subset = (ignore) => DATA.filter((m) => matches(m, ignore));
+    const countBy = (list, dim, key) => list.reduce((n, m) => n + (m[dim] === key ? 1 : 0), 0);
+
+    function toggle(dim, val) { const s = state[dim]; if (s.has(val)) s.delete(val); else s.add(val); render(); }
+
+    // ----- construcción del DOM (una vez) -----
+    const svg = (name, attrs) => {
+      const e = document.createElementNS(SVGNS, name);
+      for (const k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    };
+    const polar = (cx, cy, r, deg) => {
+      const a = (deg - 90) * Math.PI / 180;
+      return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+    };
+    function arcPath(cx, cy, r, a0, a1) {
+      if (a1 - a0 >= 359.999) {
+        const [x0, y0] = polar(cx, cy, r, a0);
+        const [xm, ym] = polar(cx, cy, r, a0 + 180);
+        return `M ${x0} ${y0} A ${r} ${r} 0 1 1 ${xm} ${ym} A ${r} ${r} 0 1 1 ${x0} ${y0}`;
+      }
+      const [x0, y0] = polar(cx, cy, r, a0);
+      const [x1, y1] = polar(cx, cy, r, a1);
+      return `M ${x0} ${y0} A ${r} ${r} 0 ${(a1 - a0) > 180 ? 1 : 0} 1 ${x1} ${y1}`;
+    }
+
+    // Donut
+    const donutWrap = document.getElementById('hx-maq-donut');
+    const dSvg = svg('svg', { viewBox: '0 0 120 120', class: 'hx-maq-donutsvg' });
+    dSvg.appendChild(svg('circle', { cx: 60, cy: 60, r: 48, fill: 'none', stroke: 'var(--hx-border)', 'stroke-width': 16 }));
+    const dArcs = DIFFS.map((d) => {
+      const p = svg('path', { fill: 'none', stroke: d.color, 'stroke-width': 16, 'stroke-linecap': 'butt', class: 'hx-maq-arc', tabindex: 0, role: 'button' });
+      p.addEventListener('click', () => toggle('diff', d.key));
+      p.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle('diff', d.key); } });
+      dSvg.appendChild(p);
+      return p;
+    });
+    const dCenter = document.createElement('div');
+    dCenter.className = 'hx-maq-donutc';
+    donutWrap.appendChild(dSvg);
+    donutWrap.appendChild(dCenter);
+    const dLegend = document.createElement('ul');
+    dLegend.className = 'hx-maq-legend';
+    const dLegItems = DIFFS.map((d) => {
+      const li = document.createElement('li');
+      li.className = 'hx-maq-leg';
+      li.setAttribute('tabindex', '0');
+      li.innerHTML = '<span class="hx-dot" style="background:' + d.color + '"></span>' + d.label + ' <b></b>';
+      li.addEventListener('click', () => toggle('diff', d.key));
+      li.addEventListener('keydown', (e) => { if (e.key === 'Enter') toggle('diff', d.key); });
+      dLegend.appendChild(li);
+      return li;
+    });
+    donutWrap.appendChild(dLegend);
+
+    // Columnas dificultad
+    const colsWrap = document.getElementById('hx-maq-cols');
+    const cols = DIFFS.map((d) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'hx-maq-col';
+      b.innerHTML = '<span class="hx-maq-coln"></span><span class="hx-maq-colbar"><span class="hx-maq-colfill" style="background:' + d.color + '"></span></span><span class="hx-maq-collbl">' + d.label + '</span>';
+      b.addEventListener('click', () => toggle('diff', d.key));
+      colsWrap.appendChild(b);
+      return { b, n: b.querySelector('.hx-maq-coln'), fill: b.querySelector('.hx-maq-colfill') };
+    });
+
+    // Onda (progreso en el tiempo)
+    const waveWrap = document.getElementById('hx-maq-wave');
+    const WV = { w: 300, h: 92, m: 6 };
+    const wSvg = svg('svg', { viewBox: `0 0 ${WV.w} ${WV.h}`, class: 'hx-maq-wavesvg' });
+    const wArea = svg('path', { class: 'hx-maq-wavearea' });
+    const wLine = svg('path', { class: 'hx-maq-waveline', fill: 'none' });
+    wSvg.appendChild(wArea); wSvg.appendChild(wLine);
+    const xAt = (i) => MONTHS.length <= 1 ? WV.w / 2 : WV.m + i * (WV.w - 2 * WV.m) / (MONTHS.length - 1);
+    const wHits = MONTHS.map((mo, i) => {
+      const bw = MONTHS.length <= 1 ? WV.w : (WV.w - 2 * WV.m) / Math.max(1, MONTHS.length - 1);
+      const r = svg('rect', { x: Math.max(0, xAt(i) - bw / 2), y: 0, width: bw, height: WV.h - 14, class: 'hx-maq-wavehit', tabindex: 0, role: 'button' });
+      r.addEventListener('click', () => toggle('month', mo));
+      r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle('month', mo); } });
+      wSvg.appendChild(r);
+      return r;
+    });
+    const wDots = MONTHS.map(() => { const c = svg('circle', { r: 2.5, class: 'hx-maq-wavedot' }); wSvg.appendChild(c); return c; });
+    waveWrap.appendChild(wSvg);
+    const wLabels = document.createElement('div');
+    wLabels.className = 'hx-maq-wavex';
+    MONTHS.forEach((mo) => {
+      const s = document.createElement('span');
+      s.textContent = MES[parseInt(mo.split('-')[1], 10) - 1] + " '" + mo.split('-')[0].slice(2);
+      wLabels.appendChild(s);
+    });
+    waveWrap.appendChild(wLabels);
+
+    // Minis (SO / plataforma)
+    function buildMini(container, cats, dim) {
+      return cats.map((c) => {
+        const row = document.createElement('button');
+        row.type = 'button';
+        row.className = 'hx-maq-minirow';
+        row.innerHTML = '<span class="hx-maq-minilbl">' + c.label + '</span><span class="hx-maq-minibar"><span class="hx-maq-minifill" style="background:' + c.color + '"></span></span><b class="hx-maq-minin"></b>';
+        row.addEventListener('click', () => toggle(dim, c.key));
+        container.appendChild(row);
+        return { cat: c, row, fill: row.querySelector('.hx-maq-minifill'), n: row.querySelector('.hx-maq-minin') };
+      });
+    }
+    const osRows = buildMini(document.getElementById('hx-maq-os'), OS, 'os');
+    const platRows = buildMini(document.getElementById('hx-maq-plat'), PLAT, 'platform');
+
+    // Contador, lista, buscador, limpiar
+    const countEl = document.getElementById('hx-maq-count');
+    const countLead = document.getElementById('hx-maq-countlead');
+    const listEl = document.getElementById('hx-maq-list');
+    const listCount = document.getElementById('hx-maq-listcount');
+    const emptyEl = document.getElementById('hx-maq-empty');
+    const clearBtn = document.getElementById('hx-maq-clear');
+    const searchInput = document.getElementById('hx-maq-search');
+    searchInput.addEventListener('input', () => { state.q = normalize(searchInput.value.trim()); render(); });
+    clearBtn.addEventListener('click', () => {
+      state.diff.clear(); state.month.clear(); state.os.clear(); state.platform.clear();
+      state.q = ''; searchInput.value = ''; render();
+    });
+
+    // Contador animado (una vez)
+    let countShown = 0, countFirst = true;
+    function setCount(n) {
+      if (reduceMotion || !countFirst) { countEl.textContent = n; countShown = n; return; }
+      countFirst = false;
+      const from = 0, to = n, t0 = performance.now(), dur = 900;
+      (function step(t) {
+        const k = Math.min(1, (t - t0) / dur);
+        const v = Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3)));
+        countEl.textContent = v; countShown = v;
+        if (k < 1) requestAnimationFrame(step);
+      })(t0);
+    }
+
+    function dimClass(elm, hasSel, isSel) {
+      elm.classList.toggle('is-sel', !!isSel);
+      elm.classList.toggle('is-dim', hasSel && !isSel);
+    }
+
+    function render() {
+      const all = subset(null);
+      // Contador
+      setCount(all.length);
+      countLead.textContent = anyFilter() ? ('de ' + DATA.length + ' · filtrado') : 'máquinas resueltas';
+      clearBtn.hidden = !anyFilter();
+
+      // Donut + columnas (dimensión diff, cross-filtrada por las demás)
+      const diffSub = subset('diff');
+      const diffCounts = DIFFS.map((d) => countBy(diffSub, 'diff', d.key));
+      const diffTotal = diffCounts.reduce((a, b) => a + b, 0);
+      let acc = 0;
+      DIFFS.forEach((d, i) => {
+        const c = diffCounts[i];
+        const a0 = diffTotal ? (acc / diffTotal) * 360 : 0;
+        acc += c;
+        const a1 = diffTotal ? (acc / diffTotal) * 360 : 0;
+        dArcs[i].setAttribute('d', c > 0 ? arcPath(60, 60, 48, a0, a1) : '');
+        dimClass(dArcs[i], state.diff.size > 0, state.diff.has(d.key));
+        dLegItems[i].querySelector('b').textContent = c;
+        dimClass(dLegItems[i], state.diff.size > 0, state.diff.has(d.key));
+      });
+      dCenter.innerHTML = '<b>' + diffTotal + '</b><span>máquinas</span>';
+      const colMax = Math.max(1, ...diffCounts);
+      cols.forEach((col, i) => {
+        col.n.textContent = diffCounts[i];
+        col.fill.style.height = (diffCounts[i] / colMax * 100) + '%';
+        dimClass(col.b, state.diff.size > 0, state.diff.has(DIFFS[i].key));
+      });
+
+      // Onda (dimensión month)
+      const monthSub = subset('month');
+      let cum = 0; const pts = MONTHS.map((mo, i) => {
+        cum += countBy(monthSub, 'month', mo);
+        const y = WV.h - 14 - (cum / Math.max(1, DATA.length)) * (WV.h - 20);
+        return [xAt(i), y, cum];
+      });
+      if (pts.length) {
+        const line = pts.map((p, i) => (i ? 'L' : 'M') + ' ' + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+        wLine.setAttribute('d', line);
+        wArea.setAttribute('d', line + ' L ' + pts[pts.length - 1][0].toFixed(1) + ' ' + (WV.h - 14) + ' L ' + pts[0][0].toFixed(1) + ' ' + (WV.h - 14) + ' Z');
+        pts.forEach((p, i) => { wDots[i].setAttribute('cx', p[0]); wDots[i].setAttribute('cy', p[1]); });
+      }
+      wHits.forEach((r, i) => dimClass(r, state.month.size > 0, state.month.has(MONTHS[i])));
+      wDots.forEach((c, i) => dimClass(c, state.month.size > 0, state.month.has(MONTHS[i])));
+
+      // Minis
+      function renderMini(rows, dim) {
+        const sub = subset(dim);
+        const mx = Math.max(1, ...rows.map((r) => countBy(sub, dim, r.cat.key)));
+        rows.forEach((r) => {
+          const c = countBy(sub, dim, r.cat.key);
+          r.n.textContent = c;
+          r.fill.style.width = (c / mx * 100) + '%';
+          dimClass(r.row, state[dim].size > 0, state[dim].has(r.cat.key));
+        });
+      }
+      renderMini(osRows, 'os');
+      renderMini(platRows, 'platform');
+
+      // Lista (historial minimalista, más reciente primero)
+      const list = all.slice().sort((a, b) => (a.iso < b.iso ? 1 : a.iso > b.iso ? -1 : 0));
+      listCount.textContent = anyFilter() ? '(' + list.length + ')' : '';
+      listEl.innerHTML = list.map((m) =>
+        '<li><a href="' + m.url + '">' +
+        '<span class="hx-dot hx-dot-' + (m.diff || 'otros') + '"></span>' +
+        '<span class="hx-maq-rname">' + escapeHtml(m.name) + '</span>' +
+        '<span class="hx-maq-rdate">' + m.disp + '</span></a></li>'
+      ).join('');
+      emptyEl.hidden = list.length > 0;
+    }
+
+    function escapeHtml(s) { return (s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+    render();
+  }
+
   function init() {
     initHideDupHeader();
+    initMachinesDash();
     initHtbFx();
     initPageTheme();
     initAge();

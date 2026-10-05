@@ -6,111 +6,77 @@ order: 7
 
 {% assign machines = site.posts | where_exp: 'p', "p.categories contains 'Writeups'" %}
 
-{%- comment -%} Recuento de la colección para el panel superior {%- endcomment -%}
-{%- assign n_easy = 0 -%}{%- assign n_medium = 0 -%}{%- assign n_hard = 0 -%}{%- assign n_insane = 0 -%}
-{%- assign n_linux = 0 -%}{%- assign n_windows = 0 -%}{%- assign n_otros = 0 -%}
-{%- assign n_htb = 0 -%}{%- assign n_inv = 0 -%}
-{%- for p in machines -%}
-  {%- assign d = p.difficulty | downcase -%}
-  {%- if d == 'easy' or d == 'fácil' or d == 'facil' -%}{%- assign n_easy = n_easy | plus: 1 -%}
-  {%- elsif d == 'medium' or d == 'media' -%}{%- assign n_medium = n_medium | plus: 1 -%}
-  {%- elsif d == 'hard' or d == 'difícil' or d == 'dificil' -%}{%- assign n_hard = n_hard | plus: 1 -%}
-  {%- elsif d == 'insane' -%}{%- assign n_insane = n_insane | plus: 1 -%}{%- endif -%}
-  {%- assign o = p.os | downcase -%}
-  {%- if o contains 'linux' -%}{%- assign n_linux = n_linux | plus: 1 -%}
-  {%- elsif o contains 'windows' -%}{%- assign n_windows = n_windows | plus: 1 -%}
-  {%- else -%}{%- assign n_otros = n_otros | plus: 1 -%}{%- endif -%}
-  {%- assign pl = p.platform | downcase | remove: ' ' -%}
-  {%- if pl == 'investigacion' -%}{%- assign n_inv = n_inv | plus: 1 -%}
-  {%- else -%}{%- assign n_htb = n_htb | plus: 1 -%}{%- endif -%}
-{%- endfor -%}
-
-<p class="hx-lead">Mi sala de trofeos: todas las máquinas <b>conquistadas</b>, de un vistazo. Busca por nombre o filtra por dificultad, sistema, plataforma o etiqueta.</p>
+<p class="hx-lead">Panel de progreso: todas las máquinas <b>conquistadas</b> en gráficas. Pulsa una columna, un trozo del queso o un mes para <b>filtrar</b> — se combinan entre sí (como en un dashboard).</p>
 
 {% if machines.size > 0 %}
-  {%- comment -%} ===== Panel resumen de la colección ===== {%- endcomment -%}
-  <section class="hx-mdash">
-    <div class="hx-mdash-hero">
-      <span class="hx-mdash-num" data-count="{{ machines.size }}">{{ machines.size }}</span>
-      <span class="hx-mdash-lead">máquinas<br>conquistadas</span>
-    </div>
+  <div id="hx-maqdash" data-total="{{ machines.size }}">
 
-    <div class="hx-mdash-main">
-      <div class="hx-mdash-block">
-        <span class="hx-mdash-cap">Por dificultad</span>
-        <div class="hx-mdash-bar" role="img" aria-label="Easy {{ n_easy }}, Medium {{ n_medium }}, Hard {{ n_hard }}, Insane {{ n_insane }}">
-          {% if n_easy > 0 %}<span class="hx-seg-easy" style="flex:{{ n_easy }}"><i>{{ n_easy }}</i></span>{% endif %}
-          {% if n_medium > 0 %}<span class="hx-seg-medium" style="flex:{{ n_medium }}"><i>{{ n_medium }}</i></span>{% endif %}
-          {% if n_hard > 0 %}<span class="hx-seg-hard" style="flex:{{ n_hard }}"><i>{{ n_hard }}</i></span>{% endif %}
-          {% if n_insane > 0 %}<span class="hx-seg-insane" style="flex:{{ n_insane }}"><i>{{ n_insane }}</i></span>{% endif %}
-        </div>
-        <ul class="hx-mdash-legend">
-          <li><span class="hx-dot hx-dot-easy"></span>Easy <b>{{ n_easy }}</b></li>
-          <li><span class="hx-dot hx-dot-medium"></span>Medium <b>{{ n_medium }}</b></li>
-          <li><span class="hx-dot hx-dot-hard"></span>Hard <b>{{ n_hard }}</b></li>
-          <li><span class="hx-dot hx-dot-insane"></span>Insane <b>{{ n_insane }}</b></li>
-        </ul>
+    <div class="hx-maq-head">
+      <div class="hx-maq-counter">
+        <span class="hx-maq-count" id="hx-maq-count" data-total="{{ machines.size }}">{{ machines.size }}</span>
+        <span class="hx-maq-countlead" id="hx-maq-countlead">máquinas resueltas</span>
       </div>
-
-      <div class="hx-mdash-side">
-        <div class="hx-mdash-block">
-          <span class="hx-mdash-cap">Por sistema</span>
-          <div class="hx-mdash-tally">
-            <span class="hx-tally"><i class="fab fa-linux"></i> Linux <b>{{ n_linux }}</b></span>
-            <span class="hx-tally"><i class="fab fa-windows"></i> Windows <b>{{ n_windows }}</b></span>
-            {% if n_otros > 0 %}<span class="hx-tally"><i class="fas fa-microchip"></i> Otros <b>{{ n_otros }}</b></span>{% endif %}
-          </div>
+      <div class="hx-maq-tools">
+        <div class="hx-maq-search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input id="hx-maq-search" type="search" placeholder="Buscar máquina…" autocomplete="off" spellcheck="false" aria-label="Buscar máquina por nombre">
         </div>
-        <div class="hx-mdash-block">
-          <span class="hx-mdash-cap">Por plataforma</span>
-          <div class="hx-mdash-tally">
-            <span class="hx-tally"><span class="hx-icon-htb" aria-hidden="true"></span> HackTheBox <b>{{ n_htb }}</b></span>
-            {% if n_inv > 0 %}<span class="hx-tally"><i class="fas fa-flask"></i> Investigación <b>{{ n_inv }}</b></span>{% endif %}
-          </div>
-        </div>
+        <button type="button" class="hx-maq-clear" id="hx-maq-clear" hidden><i class="fas fa-xmark" aria-hidden="true"></i> Limpiar filtros</button>
       </div>
     </div>
-  </section>
 
-  {% include hx-filterbar.html target="hx-mwall" empty="hx-mwall-empty" total=machines.size %}
+    <div class="hx-maq-grid">
+      <section class="hx-maq-card hx-maq-card-donut">
+        <h3 class="hx-maq-cap">Por dificultad</h3>
+        <div class="hx-maq-donutwrap" id="hx-maq-donut"></div>
+      </section>
 
-  <div class="hx-tagfilter" id="hx-tagfilter" hidden></div>
+      <section class="hx-maq-card">
+        <h3 class="hx-maq-cap">Columnas por dificultad</h3>
+        <div class="hx-maq-cols" id="hx-maq-cols"></div>
+      </section>
 
-  {%- comment -%} ===== Muro de trofeos: pósteres de todas las máquinas ===== {%- endcomment -%}
-  <div class="hx-mwall" id="hx-mwall">
-    {% for post in machines %}
-      {% assign os_down = post.os | default: '' | downcase %}
-      {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
-      {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
-      {% else %}{% assign os_key = 'otros' %}{% endif %}
-      {% assign plat_down = post.platform | default: '' | downcase | remove: ' ' %}
-      <a class="hx-mtile" data-os="{{ os_key }}" data-diff="{{ post.difficulty | default: '' | downcase }}" data-name="{{ post.machine | default: post.title | downcase }}" data-platform="{{ plat_down }}" data-tags="{{ post.tags | join: ' ' | downcase }}" href="{{ post.url | relative_url }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
-        <span class="hx-mtile-bg{% unless post.thumb %} hx-mtile-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
-          {% unless post.thumb %}{% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
-        </span>
-        <span class="hx-mtile-top">
-          <span class="hx-mtile-os" title="{{ post.os }}">
-            {% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-microchip"></i>{% endif %}
-          </span>
-          {% if post.difficulty %}<span class="hx-badge hx-diff-{{ post.difficulty | downcase }} hx-mtile-diff">{{ post.difficulty }}</span>{% endif %}
-        </span>
-        <span class="hx-mtile-info">
-          <b class="hx-mtile-name">{{ post.title }}</b>
-          <small class="hx-mtile-meta">
-            {% if plat_down == 'investigacion' %}<i class="fas fa-flask" aria-hidden="true"></i> Investigación{% else %}{{ post.os }}{% endif %}
-            · {{ post.date | date: '%d/%m/%Y' }}
-          </small>
-          <span class="hx-mtile-cta">Ver write-up <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
-        </span>
-        <span class="hx-mtile-flag" aria-hidden="true"><i class="fas fa-flag-checkered"></i></span>
-      </a>
-    {% endfor %}
+      <section class="hx-maq-card hx-maq-card-wave">
+        <h3 class="hx-maq-cap">Progreso en el tiempo</h3>
+        <div class="hx-maq-wavewrap" id="hx-maq-wave"></div>
+      </section>
+
+      <section class="hx-maq-card hx-maq-card-mini">
+        <h3 class="hx-maq-cap">Sistema</h3>
+        <div class="hx-maq-mini" id="hx-maq-os"></div>
+      </section>
+
+      <section class="hx-maq-card hx-maq-card-mini">
+        <h3 class="hx-maq-cap">Plataforma</h3>
+        <div class="hx-maq-mini" id="hx-maq-plat"></div>
+      </section>
+    </div>
+
+    <section class="hx-maq-card hx-maq-histwrap">
+      <h3 class="hx-maq-cap">Historial <span class="hx-maq-listcount" id="hx-maq-listcount"></span></h3>
+      <ul class="hx-maq-list" id="hx-maq-list"></ul>
+      <p class="hx-maq-emptylist" id="hx-maq-empty" hidden>Ninguna máquina coincide con los filtros.</p>
+    </section>
   </div>
 
-  <div class="hx-empty hx-no-results" id="hx-mwall-empty">
-    <i class="fas fa-filter"></i>
-    Ninguna máquina coincide con la búsqueda o el filtro.
-  </div>
+  {%- comment -%} Datos para el dashboard (los dibuja assets/js/hacker.js) {%- endcomment -%}
+  <script type="application/json" id="hx-maq-data">
+[
+{% for post in machines -%}
+  {%- assign osd = post.os | default: '' | downcase -%}
+  {%- if osd contains 'windows' -%}{%- assign osk = 'windows' -%}{%- elsif osd contains 'linux' -%}{%- assign osk = 'linux' -%}{%- else -%}{%- assign osk = 'otros' -%}{%- endif -%}
+  {%- assign pld = post.platform | default: '' | downcase | remove: ' ' -%}
+  {%- if pld == 'investigacion' -%}{%- assign plk = 'investigacion' -%}{%- else -%}{%- assign plk = 'hackthebox' -%}{%- endif -%}
+{"name":{{ post.title | jsonify }},"url":{{ post.url | relative_url | jsonify }},"diff":{{ post.difficulty | default: '' | downcase | jsonify }},"os":"{{ osk }}","platform":"{{ plk }}","iso":"{{ post.date | date: '%Y-%m-%d' }}","disp":"{{ post.date | date: '%d/%m/%Y' }}"}{%- unless forloop.last -%},{%- endunless %}
+{% endfor -%}
+]
+  </script>
+
+  <noscript>
+    <ul class="hx-maq-nojs">
+      {% for post in machines %}<li><a href="{{ post.url | relative_url }}">{{ post.title }}</a> — {{ post.difficulty }} · {{ post.date | date: '%d/%m/%Y' }}</li>{% endfor %}
+    </ul>
+  </noscript>
 {% else %}
   <div class="hx-empty">
     <i class="fas fa-server"></i>
