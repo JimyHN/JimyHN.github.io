@@ -3748,10 +3748,10 @@ article:has(.hx-wu) > .post-desc { display: none; }
   margin: 0.55rem 0;
   padding: 0 0 0 1.4rem;
   line-height: 1.6;
-  /* Las viñetas van en negrita y en el color de la sección (--c). Los colores
-     explícitos de dentro (binarios, usuarios, etc.) mandan sobre esto. */
-  color: rgb(var(--c));
-  font-weight: 600;
+  /* Texto normal: la explicación va plana. Solo el título (<bp>) y los colores
+     explícitos de dentro (binarios, usuarios, etc.) llevan color. */
+  color: var(--hx-text);
+  font-weight: 400;
 }
 .content .hx-wu-list li::before {
   content: '▹';
