@@ -1354,7 +1354,6 @@
       { key: 'hackthebox', label: 'HackTheBox', color: '#9fef00' },
       { key: 'investigacion', label: 'Investigación', color: '#e23e8e' }
     ].filter((c) => DATA.some((m) => m.platform === c.key));
-    const MONTHS = Array.from(new Set(DATA.map((m) => m.month))).sort();
 
     const state = { diff: new Set(), month: new Set(), os: new Set(), platform: new Set(), q: '' };
     const anyFilter = () => state.diff.size || state.month.size || state.os.size || state.platform.size || state.q;
@@ -1372,7 +1371,8 @@
     const subset = (ignore) => DATA.filter((m) => matches(m, ignore));
     const countBy = (list, dim, key) => list.reduce((n, m) => n + (m[dim] === key ? 1 : 0), 0);
 
-    function toggle(dim, val) { const s = state[dim]; if (s.has(val)) s.delete(val); else s.add(val); render(); }
+    // Selección ÚNICA por dimensión: clic nuevo reemplaza, clic en el activo lo quita.
+    function toggle(dim, val) { const s = state[dim]; const had = s.has(val) && s.size === 1; s.clear(); if (!had) s.add(val); render(); }
 
     // ----- construcción del DOM (una vez) -----
     const svg = (name, attrs) => {
@@ -1436,32 +1436,75 @@
       return { b, n: b.querySelector('.hx-maq-coln'), fill: b.querySelector('.hx-maq-colfill') };
     });
 
-    // Onda (progreso en el tiempo)
+    // Onda: 12 meses del año seleccionado (máquinas por mes) + navegador de año
     const waveWrap = document.getElementById('hx-maq-wave');
-    const WV = { w: 300, h: 92, m: 6 };
+    const WV = { w: 300, h: 92, m: 10 };
+    const pad2 = (n) => (n < 10 ? '0' : '') + n;
+    const monthKey = (i) => viewYear + '-' + pad2(i + 1);
+    const monthlyAll = {};
+    DATA.forEach((m) => { monthlyAll[m.month] = (monthlyAll[m.month] || 0) + 1; });
+    const MAXMONTH = Math.max(1, ...Object.values(monthlyAll));
+    const yearsData = Array.from(new Set(DATA.map((m) => parseInt(m.month.slice(0, 4), 10)))).filter(Boolean);
+    let viewYear = yearsData.length ? Math.max.apply(null, yearsData) : new Date().getFullYear();
+
     const wSvg = svg('svg', { viewBox: `0 0 ${WV.w} ${WV.h}`, class: 'hx-maq-wavesvg' });
     const wArea = svg('path', { class: 'hx-maq-wavearea' });
     const wLine = svg('path', { class: 'hx-maq-waveline', fill: 'none' });
     wSvg.appendChild(wArea); wSvg.appendChild(wLine);
-    const xAt = (i) => MONTHS.length <= 1 ? WV.w / 2 : WV.m + i * (WV.w - 2 * WV.m) / (MONTHS.length - 1);
-    const wHits = MONTHS.map((mo, i) => {
-      const bw = MONTHS.length <= 1 ? WV.w : (WV.w - 2 * WV.m) / Math.max(1, MONTHS.length - 1);
-      const r = svg('rect', { x: Math.max(0, xAt(i) - bw / 2), y: 0, width: bw, height: WV.h - 14, class: 'hx-maq-wavehit', tabindex: 0, role: 'button' });
-      r.addEventListener('click', () => toggle('month', mo));
-      r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle('month', mo); } });
-      wSvg.appendChild(r);
-      return r;
-    });
-    const wDots = MONTHS.map(() => { const c = svg('circle', { r: 2.5, class: 'hx-maq-wavedot' }); wSvg.appendChild(c); return c; });
+    const xAt = (i) => WV.m + i * (WV.w - 2 * WV.m) / 11;
+    const bw = (WV.w - 2 * WV.m) / 11;
+    const wHits = [], wDots = [];
+    function pickMonth(i) { if (!monthlyAll[monthKey(i)]) return; toggle('month', monthKey(i)); }
+    for (let i = 0; i < 12; i++) {
+      const r = svg('rect', { x: (xAt(i) - bw / 2).toFixed(1), y: 0, width: bw.toFixed(1), height: WV.h - 14, class: 'hx-maq-wavehit', tabindex: 0, role: 'button' });
+      ((idx) => {
+        r.addEventListener('click', () => pickMonth(idx));
+        r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickMonth(idx); } });
+      })(i);
+      wSvg.appendChild(r); wHits.push(r);
+      const c = svg('circle', { r: 2.5, class: 'hx-maq-wavedot' }); wSvg.appendChild(c); wDots.push(c);
+    }
     waveWrap.appendChild(wSvg);
     const wLabels = document.createElement('div');
     wLabels.className = 'hx-maq-wavex';
-    MONTHS.forEach((mo) => {
-      const s = document.createElement('span');
-      s.textContent = MES[parseInt(mo.split('-')[1], 10) - 1] + " '" + mo.split('-')[0].slice(2);
-      wLabels.appendChild(s);
-    });
+    MES.forEach((mm) => { const s = document.createElement('span'); s.textContent = mm; wLabels.appendChild(s); });
     waveWrap.appendChild(wLabels);
+    const yearNav = document.createElement('div');
+    yearNav.className = 'hx-maq-year';
+    const yPrev = document.createElement('button');
+    yPrev.type = 'button'; yPrev.className = 'hx-maq-yearbtn'; yPrev.setAttribute('aria-label', 'Año anterior');
+    yPrev.innerHTML = '<i class="fas fa-chevron-left" aria-hidden="true"></i>';
+    const yLbl = document.createElement('b'); yLbl.className = 'hx-maq-yearlbl';
+    const yNext = document.createElement('button');
+    yNext.type = 'button'; yNext.className = 'hx-maq-yearbtn'; yNext.setAttribute('aria-label', 'Año siguiente');
+    yNext.innerHTML = '<i class="fas fa-chevron-right" aria-hidden="true"></i>';
+    yPrev.addEventListener('click', () => { viewYear -= 1; renderWave(); });
+    yNext.addEventListener('click', () => { viewYear += 1; renderWave(); });
+    yearNav.appendChild(yPrev); yearNav.appendChild(yLbl); yearNav.appendChild(yNext);
+    waveWrap.appendChild(yearNav);
+
+    function renderWave() {
+      const sub = subset('month');
+      const pts = [];
+      for (let i = 0; i < 12; i++) {
+        const c = sub.reduce((n, m) => n + (m.month === monthKey(i) ? 1 : 0), 0);
+        const y = (WV.h - 14) - (c / MAXMONTH) * (WV.h - 20);
+        pts.push([xAt(i), y, c]);
+      }
+      const line = pts.map((p, i) => (i ? 'L' : 'M') + ' ' + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+      wLine.setAttribute('d', line);
+      wArea.setAttribute('d', line + ' L ' + pts[11][0].toFixed(1) + ' ' + (WV.h - 14) + ' L ' + pts[0][0].toFixed(1) + ' ' + (WV.h - 14) + ' Z');
+      pts.forEach((p, i) => {
+        wDots[i].setAttribute('cx', p[0]); wDots[i].setAttribute('cy', p[1]);
+        wDots[i].classList.toggle('hx-maq-dot0', p[2] === 0);
+        dimClass(wDots[i], state.month.size > 0, state.month.has(monthKey(i)));
+      });
+      wHits.forEach((r, i) => {
+        dimClass(r, state.month.size > 0, state.month.has(monthKey(i)));
+        r.classList.toggle('hx-maq-hitempty', !monthlyAll[monthKey(i)]);
+      });
+      yLbl.textContent = viewYear;
+    }
 
     // Minis (SO / plataforma)
     function buildMini(container, cats, dim) {
@@ -1533,7 +1576,7 @@
         dLegItems[i].querySelector('b').textContent = c;
         dimClass(dLegItems[i], state.diff.size > 0, state.diff.has(d.key));
       });
-      dCenter.innerHTML = '<b>' + diffTotal + '</b><span>máquinas</span>';
+      dCenter.innerHTML = '<b>' + diffTotal + '</b>';
       const colMax = Math.max(1, ...diffCounts);
       cols.forEach((col, i) => {
         col.n.textContent = diffCounts[i];
@@ -1541,21 +1584,8 @@
         dimClass(col.b, state.diff.size > 0, state.diff.has(DIFFS[i].key));
       });
 
-      // Onda (dimensión month)
-      const monthSub = subset('month');
-      let cum = 0; const pts = MONTHS.map((mo, i) => {
-        cum += countBy(monthSub, 'month', mo);
-        const y = WV.h - 14 - (cum / Math.max(1, DATA.length)) * (WV.h - 20);
-        return [xAt(i), y, cum];
-      });
-      if (pts.length) {
-        const line = pts.map((p, i) => (i ? 'L' : 'M') + ' ' + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
-        wLine.setAttribute('d', line);
-        wArea.setAttribute('d', line + ' L ' + pts[pts.length - 1][0].toFixed(1) + ' ' + (WV.h - 14) + ' L ' + pts[0][0].toFixed(1) + ' ' + (WV.h - 14) + ' Z');
-        pts.forEach((p, i) => { wDots[i].setAttribute('cx', p[0]); wDots[i].setAttribute('cy', p[1]); });
-      }
-      wHits.forEach((r, i) => dimClass(r, state.month.size > 0, state.month.has(MONTHS[i])));
-      wDots.forEach((c, i) => dimClass(c, state.month.size > 0, state.month.has(MONTHS[i])));
+      // Onda (12 meses del año en curso)
+      renderWave();
 
       // Minis
       function renderMini(rows, dim) {

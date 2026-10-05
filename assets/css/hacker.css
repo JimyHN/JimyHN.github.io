@@ -5132,7 +5132,7 @@ article:has(.hx-wu) > header,
 .hx-maq-grid > section:nth-child(3) { grid-area: wave; }
 .hx-maq-grid > section:nth-child(4) { grid-area: osm; }
 .hx-maq-grid > section:nth-child(5) { grid-area: platm; }
-.hx-maq-card { background: #10141b; border: 1px solid #1d2733; border-radius: 14px; padding: 16px 18px; min-width: 0; }
+.hx-maq-card { background: #10141b; border: 1px solid #1d2733; border-radius: 14px; padding: 16px 18px; min-width: 0; overflow: hidden; }
 .hx-maq-cap { margin: 0 0 12px; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: #8a97a8; font-weight: 700; }
 
 /* Donut dificultad */
@@ -5218,3 +5218,17 @@ article:has(.hx-wu) > header,
 @media (prefers-reduced-motion: reduce) {
   .hx-maq-colfill, .hx-maq-minifill, .hx-maq-wavearea { transition: none; }
 }
+
+/* Ajustes Máquinas: buscador en el historial, onda de 12 meses + selector de año */
+.hx-maq-wavesvg { overflow: hidden; }
+.hx-maq-histhead { display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; margin-bottom: 10px; }
+.hx-maq-histhead .hx-maq-cap { margin: 0; }
+.hx-maq-histhead .hx-maq-search { padding: 6px 12px; }
+.hx-maq-wavex span { font-size: .58rem; }
+.hx-maq-wavedot.hx-maq-dot0 { opacity: .35; }
+.hx-maq-wavehit.hx-maq-hitempty { cursor: default; }
+.hx-maq-wavehit.hx-maq-hitempty:hover { fill: transparent; }
+.hx-maq-year { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 10px; }
+.hx-maq-yearlbl { font-family: var(--hx-mono, ui-monospace, monospace); font-size: 1.5rem; font-weight: 800; color: #e6edf3; letter-spacing: .04em; min-width: 3.2em; text-align: center; }
+.hx-maq-yearbtn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid #2a3542; background: #161c25; color: #cdd6e3; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.hx-maq-yearbtn:hover { border-color: rgb(var(--page, 159 239 0)); color: rgb(var(--page, 159 239 0)); }

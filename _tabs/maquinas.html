@@ -16,13 +16,7 @@ order: 7
         <span class="hx-maq-count" id="hx-maq-count" data-total="{{ machines.size }}">{{ machines.size }}</span>
         <span class="hx-maq-countlead" id="hx-maq-countlead">máquinas resueltas</span>
       </div>
-      <div class="hx-maq-tools">
-        <div class="hx-maq-search">
-          <i class="fas fa-search" aria-hidden="true"></i>
-          <input id="hx-maq-search" type="search" placeholder="Buscar máquina…" autocomplete="off" spellcheck="false" aria-label="Buscar máquina por nombre">
-        </div>
-        <button type="button" class="hx-maq-clear" id="hx-maq-clear" hidden><i class="fas fa-xmark" aria-hidden="true"></i> Limpiar filtros</button>
-      </div>
+      <button type="button" class="hx-maq-clear" id="hx-maq-clear" hidden><i class="fas fa-xmark" aria-hidden="true"></i> Limpiar filtros</button>
     </div>
 
     <div class="hx-maq-grid">
@@ -53,7 +47,13 @@ order: 7
     </div>
 
     <section class="hx-maq-card hx-maq-histwrap">
-      <h3 class="hx-maq-cap">Historial <span class="hx-maq-listcount" id="hx-maq-listcount"></span></h3>
+      <div class="hx-maq-histhead">
+        <h3 class="hx-maq-cap">Historial <span class="hx-maq-listcount" id="hx-maq-listcount"></span></h3>
+        <div class="hx-maq-search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input id="hx-maq-search" type="search" placeholder="Buscar máquina…" autocomplete="off" spellcheck="false" aria-label="Buscar máquina por nombre">
+        </div>
+      </div>
       <ul class="hx-maq-list" id="hx-maq-list"></ul>
       <p class="hx-maq-emptylist" id="hx-maq-empty" hidden>Ninguna máquina coincide con los filtros.</p>
     </section>

@@ -20,13 +20,3 @@
     su ubicación, apoyándose en fzf para el filtrado interactivo. Se acabó el
     encadenar find y cd: buscas, eliges y ya estás dentro.
   tags: [bash, fzf, productividad]
-- nombre: "Git-Dojo"
-  lenguaje: "Web"
-  color: "193 108 255"
-  icono: "fas fa-code-branch"
-  repo: "https://github.com/JimyHN/Git-Dojo"
-  resumen: >-
-    Curso gratuito para aprender Git y GitHub desde cero. Un recorrido práctico por
-    los comandos y flujos de trabajo del día a día, pensado para quien empieza y
-    quiere perderle el miedo al control de versiones.
-  tags: [git, github, formación]
