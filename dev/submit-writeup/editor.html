@@ -1334,10 +1334,19 @@ function portsTableModel() {
 }
 function reconTemplate(host) {
   return 'Búsqueda de puertos abiertos en la máquina víctima\n\n'
-    + '```term\n$ sudo nmap -p- -Pn -sS -n --max-retries 1 <b>' + host + '</b>\n```\n\n'
+    + '```term\n$ sudo nmap -p- -Pn -sS -n --max-retries 1 ' + host + '\n```\n\n'
     + '```table\n' + JSON.stringify(portsTableModel()) + '\n```\n\n'
     + 'Enumeración de versiones de los servicios encontrados\n\n'
-    + '```term\n$ sudo nmap -p PUERTOS -n -sCV --version-intensity 9 <b>' + host + '</b>\n```\n';
+    + '```term\n$ sudo nmap -p PUERTOS -n -sCV --version-intensity 9 ' + host + '\n```\n';
+}
+function explotacionTemplate() {
+  // 3 vías de explotación ya colocadas; el título va en blanco (como los pasos).
+  return '<b>Manera 1 —</b> \n\n'
+    + '```term\n$ \n```\n\n'
+    + '<b>Manera 2 —</b> \n\n'
+    + '```term\n$ \n```\n\n'
+    + '<b>Manera 3 —</b> \n\n'
+    + '```term\n$ \n```\n';
 }
 function flagsTemplate(os) {
   if (os === 'Windows')
@@ -1350,6 +1359,8 @@ function prefillDefaults() {
   const host = _slug || slugify(val('f-name')) || 'maquina';
   const recon = document.getElementById('t-reconocimiento');
   if (recon && !recon.value.trim()) recon.value = reconTemplate(host);
+  const expl = document.getElementById('t-explotacion');
+  if (expl && !expl.value.trim()) expl.value = explotacionTemplate();
   const flags = document.getElementById('t-flags');
   if (flags && !flags.value.trim()) flags.value = flagsTemplate(val('f-os'));
   markDirty();
