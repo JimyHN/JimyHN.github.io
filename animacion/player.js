@@ -11,22 +11,24 @@
   //
   //  0) Fundido DE negro: aparece el Inicio y hace zoom-out (empieza
   //     a la vez que el fundido). Antes de acabar el zoom ya funde a negro.
-  //  1) Write-ups: scroll hacia abajo por las máquinas; al ~70% (antes
-  //     de llegar abajo) empieza el fundido de salida.
-  //  2) Roadmap: scroll hacia abajo; al pasar las "easy" empieza el
+  //  1) Write-ups: scroll hacia abajo por las máquinas (rápido).
+  //  2) Writeup de Dolibarr: scroll hacia abajo por el writeup.
+  //  3) Roadmap: scroll hacia abajo; al pasar las "easy" empieza el
   //     fundido y sigue bajando tapado por el negro.
-  //  3) Inicio otra vez (zoom-out) y a negro.
+  //  4) Inicio otra vez (zoom-out) y a negro.
   // ============================================================
-  var PAGES = ['/', '/writeups/', '/roadmap/'];
+  var PAGES = ['/', '/writeups/', '/posts/dolibarr/', '/roadmap/'];
   // páginas que se muestran SIN columnas laterales (solo el contenido)
-  var HIDE_CHROME = { 1: true, 2: true };
+  var HIDE_CHROME = { 1: true, 2: true, 3: true };
 
   var PLAN = [
     { page: 0, kind: 'zoomout', dur: 3.2 },               // Inicio (zoom-out) → antes a Write-ups
     { trans: 'fade', dur: 0.55 },
-    { page: 1, kind: 'scroll',  dur: 11, fadeAt: 0.72 },  // Write-ups (scroll, funde al ~70%)
+    { page: 1, kind: 'scroll',  dur: 7,  fadeAt: 0.72 },  // Write-ups (scroll rápido, como el roadmap)
     { trans: 'fade', dur: 0.5 },
-    { page: 2, kind: 'scroll',  dur: 11, fadeAt: 0.55 },  // Roadmap (scroll, funde tras las easy)
+    { page: 2, kind: 'scroll',  dur: 9,  fadeAt: 0.80 },  // Writeup de Dolibarr (scroll abajo)
+    { trans: 'fade', dur: 0.5 },
+    { page: 3, kind: 'scroll',  dur: 11, fadeAt: 0.55 },  // Roadmap (scroll, funde tras las easy)
     { trans: 'fade', dur: 0.5 },
     { page: 0, kind: 'zoomout', dur: 5 }                  // Inicio otra vez → negro
   ];
