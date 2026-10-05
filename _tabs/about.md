@@ -23,5 +23,8 @@ Soy **Jaime Hereza**, tengo **<span class="hx-age" data-dob="2001-01-29">25</spa
 - Instagram: [@jimy_hereza](https://www.instagram.com/jimy_hereza)
 - Email: [jaime.hereza@gmail.com](mailto:jaime.hereza@gmail.com)
 
-> Todo el contenido de este blog tiene fines educativos. Las técnicas descritas se aplican únicamente en entornos de laboratorio autorizados.
-{: .prompt-warning }
+<div class="hx-disclaimer" role="note" aria-label="Aviso de uso didáctico">
+  <span class="hx-disclaimer-ico" aria-hidden="true"><i class="fas fa-shield-halved"></i></span>
+  <p class="hx-disclaimer-txt">Todo el contenido de este blog tiene <b>fines educativos</b>. Las técnicas descritas se aplican únicamente en <b>entornos de laboratorio autorizados</b>.</p>
+  <span class="hx-disclaimer-scan" aria-hidden="true"></span>
+</div>

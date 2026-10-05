@@ -30,7 +30,7 @@
     { trans: 'fade', dur: 0.9 },
     { page: 3, kind: 'scroll',  dur: 9, fadeAt: 0.45 },   // Roadmap (misma velocidad que antes; funde 2 s antes)
     { trans: 'fade', dur: 0.9 },
-    { page: 0, kind: 'zoomout', dur: 5 }                  // Inicio otra vez → negro
+    { page: 0, kind: 'zoomout', dur: 4 }                  // Inicio otra vez → negro
   ];
   var INTRO = 1.2;   // fundido de entrada (de negro al Inicio)
   var OUTRO = 1.8;   // fundido de salida final (a negro)
