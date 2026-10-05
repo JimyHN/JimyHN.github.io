@@ -23,13 +23,13 @@
 
   var PLAN = [
     { page: 0, kind: 'zoomout', dur: 3.2 },               // Inicio (zoom-out) → antes a Write-ups
-    { trans: 'fade', dur: 0.55 },
+    { trans: 'fade', dur: 0.9 },
     { page: 1, kind: 'scroll',  dur: 5.5, fadeAt: 0.72 }, // Write-ups (transición antes)
-    { trans: 'fade', dur: 0.5 },
-    { page: 2, kind: 'scroll',  dur: 13,  fadeAt: 0.80 }, // Writeup de Dolibarr (scroll lento)
-    { trans: 'fade', dur: 0.5 },
+    { trans: 'fade', dur: 0.9 },
+    { page: 2, kind: 'scroll',  dur: 13,  fadeAt: 0.80, speedFrom: 3 }, // Dolibarr (misma velocidad que el roadmap)
+    { trans: 'fade', dur: 0.9 },
     { page: 3, kind: 'scroll',  dur: 11, fadeAt: 0.55 },  // Roadmap (scroll, funde tras las easy)
-    { trans: 'fade', dur: 0.5 },
+    { trans: 'fade', dur: 0.9 },
     { page: 0, kind: 'zoomout', dur: 5 }                  // Inicio otra vez → negro
   ];
   var INTRO = 1.2;   // fundido de entrada (de negro al Inicio)
@@ -100,6 +100,9 @@
       for (var b = m + 1; b < segs.length; b++) if (segs[b].type === 'page') { segs[m].toSeg = segs[b]; break; }
     }
   })();
+  // Índice de tramos de scroll por página (para copiar velocidad entre páginas).
+  var pageScrollSeg = {};
+  segs.forEach(function (s) { if (s.type === 'page' && s.kind === 'scroll') pageScrollSeg[s.page] = s; });
 
   // ====== easings ======
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -122,8 +125,17 @@
     } else { // scroll vertical a velocidad constante (ya se mueve al quitar el fundido)
       oy = '0%';
       var D = Math.max(0, ch - H);
-      var fadeAt = seg.fadeAt || 0.7;              // fracción recorrida cuando empieza la salida
-      var v = dur > 0 ? (fadeAt * D / dur) : 0;    // sigue a la misma velocidad durante el fundido
+      var v;
+      if (seg.speedFrom != null && pageScrollSeg[seg.speedFrom]) {
+        // Copia la velocidad (px/s) de otra página de scroll, medida en tiempo real.
+        var rs = pageScrollSeg[seg.speedFrom];
+        var rf = iframes[rs.page], rD = Math.max(0, (rf._h || H) - H), rdur = rs.end - rs.start;
+        var rfade = rs.fadeAt || 0.7;
+        v = rdur > 0 ? (rfade * rD / rdur) : 0;
+      } else {
+        var fadeAt = seg.fadeAt || 0.7;            // fracción recorrida cuando empieza la salida
+        v = dur > 0 ? (fadeAt * D / dur) : 0;      // sigue a la misma velocidad durante el fundido
+      }
       ty = -Math.min(D, v * elapsed);
     }
     f.style.transformOrigin = '50% ' + oy;
@@ -146,7 +158,7 @@
 
   function overlayAlpha(t, s, k) {
     var a = 0;
-    if (s.type === 'trans') a = Math.min(1, (1 - Math.abs(2 * k - 1)) * 1.25); // fundido suave (negro justo a mitad)
+    if (s.type === 'trans') { var c = 1 - Math.abs(2 * k - 1); a = Math.min(1, c * c * (3 - 2 * c) * 1.12); } // fundido suave (curva eased, no lineal)
     if (t < INTRO) a = Math.max(a, 1 - easeIO(t / INTRO));                    // fundido de entrada
     if (t > TOTAL - OUTRO) a = Math.max(a, easeIO((t - (TOTAL - OUTRO)) / OUTRO)); // fundido final
     return a;
