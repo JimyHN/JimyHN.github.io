@@ -1516,6 +1516,7 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   font-weight: 700;
   color: var(--heading-color);
   letter-spacing: 0;
+  text-align: center;
 }
 
 @media (max-width: 576px) {
@@ -4139,6 +4140,44 @@ body.hx-cert-locked { overflow: hidden; }
 .hx-mcard:hover .hx-mcard-img { border-color: rgb(var(--m)); }
 
 .hx-mcard[hidden] { display: none; }
+
+/* ====== Updates: 3 últimas máquinas en una fila (cuadrado + título) ====== */
+.hx-mgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 1.2rem 0 2rem;
+}
+
+.hx-mgrid .hx-mcard {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.7rem;
+  padding: 0.9rem;
+  text-align: center;
+}
+
+.hx-mgrid .hx-mcard-img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+}
+
+.hx-mgrid .hx-mcard-img.hx-mcard-ph { font-size: 2.6rem; }
+
+.hx-mgrid .hx-mcard-name {
+  font-size: 1rem;
+  line-height: 1.25;
+  text-align: center;
+}
+
+@media (max-width: 500px) {
+  .hx-mgrid { gap: 0.6rem; }
+  .hx-mgrid .hx-mcard { padding: 0.6rem; }
+  .hx-mgrid .hx-mcard-name { font-size: 0.82rem; }
+  .hx-mgrid .hx-new { top: 0.35rem; right: 0.35rem; padding: 0.1rem 0.4rem; font-size: 0.55rem; }
+}
 
 /* =======================================================================
    REDISEÑO VISUAL — degradados en movimiento, roadmap, panel, acerca de
