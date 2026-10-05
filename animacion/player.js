@@ -26,7 +26,7 @@
     { trans: 'fade', dur: 0.9 },
     { page: 1, kind: 'scroll',  dur: 2.5, fadeAt: 0.33 }, // Write-ups (transición 3 s antes, misma velocidad)
     { trans: 'fade', dur: 0.9 },
-    { page: 2, kind: 'scroll',  dur: 11, fadeAt: 0.80, speedFrom: 3, speedFactor: 0.6 }, // Dolibarr (60% de la velocidad del roadmap: más lento)
+    { page: 2, kind: 'scroll',  dur: 11, fadeAt: 0.80, speedFrom: 3, speedFactor: 0.6, startAtId: 'enumeracion' }, // Dolibarr (lento; arranca en Enumeración)
     { trans: 'fade', dur: 0.9 },
     { page: 3, kind: 'scroll',  dur: 9, fadeAt: 0.45 },   // Roadmap (misma velocidad que antes; funde 2 s antes)
     { trans: 'fade', dur: 0.9 },
@@ -141,7 +141,18 @@
         var fadeAt = seg.fadeAt || 0.7;            // fracción recorrida cuando empieza la salida
         v = dur > 0 ? (fadeAt * D / dur) : 0;      // sigue a la misma velocidad durante el fundido
       }
-      ty = -Math.min(D, v * elapsed);
+      // Arranque del scroll en una sección concreta (p. ej. 'enumeracion'), no arriba del todo.
+      var startOffset = 0;
+      if (seg.startAtId) {
+        if (!seg._startOff) {
+          try {
+            var sel = iframes[seg.page].contentDocument.getElementById(seg.startAtId);
+            if (sel) { var so = sel.getBoundingClientRect().top - 24; if (so > 0) seg._startOff = so; }
+          } catch (e) {}
+        }
+        if (seg._startOff) startOffset = Math.min(seg._startOff, D);
+      }
+      ty = -Math.min(D, startOffset + v * elapsed);
     }
     f.style.transformOrigin = '50% ' + oy;
     f.style.transform = 'translate(0px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
