@@ -32,6 +32,9 @@
   ];
   var INTRO = 1.2;   // fundido de entrada (de negro al Inicio)
   var OUTRO = 1.8;   // fundido de salida final (a negro)
+  var HOME_ZOOM_SPAN = 6.5; // el zoom-out del Inicio avanza a ESTE ritmo (lento),
+                            // independiente de la duración del tramo → la transición
+                            // entra antes y el zoom-out NO llega a terminar.
 
   // ====== iframes (altura completa → movimiento por transform, GPU) ======
   var frames = document.getElementById('frames');
@@ -108,10 +111,10 @@
     var dur = seg.end - seg.start;
     var s = 1, ty = 0, oy = '0%';
     if (seg.kind === 'zoomout') {
-      // El zoom-out abarca la página + su salida → no termina antes del fundido.
+      // Zoom-out a ritmo fijo y lento (HOME_ZOOM_SPAN), independiente de la
+      // duración del tramo: la transición entra antes y el zoom NO termina.
       oy = '35%';
-      var md = dur + (seg.exit || 0);
-      var q = clamp(elapsed / md, 0, 1);
+      var q = clamp(elapsed / HOME_ZOOM_SPAN, 0, 1);
       s = 1.12 - 0.12 * easeOut(q);                // 1.12 → 1.0
       ty = -0.03 * Math.max(0, s * ch - H);
     } else { // scroll vertical a velocidad constante (ya se mueve al quitar el fundido)
