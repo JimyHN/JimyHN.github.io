@@ -3793,6 +3793,7 @@ article:has(.hx-wu) > .post-desc { display: none; }
 .hx-cy { color: #ffd60a; font-weight: 700; }
 .hx-co { color: #ffaf00; font-weight: 700; }
 .hx-cw { color: #ffffff; font-weight: 700; }
+.hx-cp { color: rgb(var(--c)); font-weight: 700; }
 .hx-ca { color: #5eb4f8; font-weight: 700; }
 
 /* ------- Terminal estilo zsh / Kali ------- */
