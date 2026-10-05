@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Recorrido — JimyHN</title>
+  <link rel="stylesheet" href="/__static__/player.css">
+</head>
+<body>
+  <div id="stage">
+    <div id="frames"></div>
+
+    <!-- Capa ciber (intro / outro / transiciones, tipo TV encendiéndose) -->
+    <div id="cyber" aria-hidden="true">
+      <div class="cy-glitch"></div>
+      <div class="cy-line"></div>
+      <div class="cy-top"></div>
+      <div class="cy-bot"></div>
+      <div class="cy-black"></div>
+    </div>
+
+    <!-- Overlay de salto ±5s -->
+    <div id="seek" class="hide" aria-hidden="true">
+      <div class="seek-wash"></div>
+      <div class="seek-badge">
+        <span class="seek-arrow"></span>
+        <span class="seek-num"></span>
+      </div>
+    </div>
+
+    <!-- Aviso inicial -->
+    <div id="hint">Pulsa <b>play</b> o <b>espacio</b> para empezar</div>
+  </div>
+
+  <div id="bar">
+    <button id="play" class="ctl" title="Play (espacio)" aria-label="Play">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button id="pause" class="ctl" title="Pausa (espacio)" aria-label="Pausa">
+      <svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+    </button>
+
+    <div id="timeline" title="Clic para ir a ese momento">
+      <div id="tl-fill"></div>
+      <div id="tl-head"></div>
+    </div>
+
+    <span id="time">0:00 / 0:00</span>
+
+    <button id="loop" class="ctl loop-off" title="Repetir al terminar" aria-label="Repetir" aria-pressed="false">
+      <svg viewBox="0 0 24 24"><path d="M17 2l4 4-4 4V7H8a4 4 0 0 0-4 4H2a6 6 0 0 1 6-6h9V2zM7 22l-4-4 4-4v3h9a4 4 0 0 0 4-4h2a6 6 0 0 1-6 6H7v3z"/></svg>
+    </button>
+  </div>
+
+  <script src="/__static__/player.js"></script>
+</body>
+</html>
