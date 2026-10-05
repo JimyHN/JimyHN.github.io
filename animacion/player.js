@@ -23,9 +23,12 @@
       try {
         var d = f.contentDocument;
         var st = d.createElement('style');
-        st.textContent = '::-webkit-scrollbar{width:0;height:0}html{scrollbar-width:none}';
+        st.textContent = '::-webkit-scrollbar{width:0;height:0}html{scrollbar-width:none}html,body{scroll-behavior:auto !important}';
         d.head.appendChild(st);
       } catch (e) { /* mismo origen gracias al proxy */ }
+      f._scroller = detectScroller(f);
+      setTimeout(function () { f._scroller = detectScroller(f); }, 400);
+      setTimeout(function () { f._scroller = detectScroller(f); }, 1300);
     });
     frames.appendChild(f);
     return f;
@@ -46,32 +49,106 @@
   })();
 
   // ---------- scroll de iframes ----------
-  function maxScroll(f) {
+  // Chirpy puede scrollear en el documento o en un contenedor interno: elegimos
+  // el elemento con mayor (scrollHeight - clientHeight).
+  function detectScroller(f) {
     try {
-      var d = f.contentDocument; if (!d) return 0;
-      var el = d.scrollingElement || d.documentElement || d.body;
-      return Math.max(0, el.scrollHeight - f.clientHeight);
-    } catch (e) { return 0; }
+      var d = f.contentDocument; if (!d) return null;
+      var best = null, bestMax = 2;
+      var cands = [d.scrollingElement, d.documentElement, d.body];
+      var nodes = d.querySelectorAll('div,main,section,article');
+      for (var i = 0; i < nodes.length && i < 500; i++) cands.push(nodes[i]);
+      for (var j = 0; j < cands.length; j++) {
+        var el = cands[j]; if (!el) continue;
+        var m = el.scrollHeight - el.clientHeight;
+        if (m > bestMax) { bestMax = m; best = el; }
+      }
+      return best || d.scrollingElement || d.documentElement;
+    } catch (e) { return null; }
   }
   function setScroll(f, p) {
-    try { f.contentWindow.scrollTo(0, Math.round(p * maxScroll(f))); } catch (e) { /* aún cargando */ }
+    try {
+      var el = f._scroller || (f.contentDocument && (f.contentDocument.scrollingElement || f.contentDocument.documentElement));
+      if (!el) return;
+      var max = Math.max(0, el.scrollHeight - el.clientHeight);
+      var y = Math.round(p * max);
+      el.scrollTop = y;
+      if (f.contentWindow) { try { f.contentWindow.scrollTo(0, y); } catch (e2) {} }
+    } catch (e) { /* aún cargando */ }
   }
 
-  // ---------- capa ciber (TV encendiéndose/apagándose + glitch) ----------
-  var cyber = document.getElementById('cyber');
-  function setCyber(v) {
-    if (!v) { cyber.classList.add('hide'); return; }
-    cyber.classList.remove('hide');
-    cyber.style.setProperty('--reveal', v.reveal != null ? v.reveal : 1);
-    cyber.style.setProperty('--line', v.line || 0);
-    cyber.style.setProperty('--glitch', v.glitch || 0);
-    cyber.style.setProperty('--black', v.black || 0);
+  // ---------- capa ciber (canvas): TV encendiéndose + partículas de lluvia digital ----------
+  var canvas = document.getElementById('cy-canvas');
+  var ctx = canvas.getContext('2d');
+  var CW = 0, CH = 0;
+  function sizeCanvas() {
+    var r = canvas.getBoundingClientRect();
+    CW = canvas.width = Math.max(1, Math.round(r.width));
+    CH = canvas.height = Math.max(1, Math.round(r.height));
   }
-  // r: 0 = pantalla tapada (negra), 1 = abierta (blog visible)
-  function tv(r) {
+  function frac(x) { return x - Math.floor(x); }
+  function hash(n) { return frac(Math.sin(n) * 43758.5453); }
+  var N = 150, P = [];
+  for (var pi = 0; pi < N; pi++) {
+    P.push({ x: hash(pi * 1.7), y: hash(pi * 3.3 + 1), sp: 0.08 + hash(pi * 5.1) * 0.5,
+      ch: (pi % 9 === 0 ? '1' : pi % 5 === 0 ? '0' : pi % 3 === 0 ? '·' : '+') });
+  }
+  function drawParticles(t, e) {
+    if (e <= 0.02) return;
+    ctx.fillStyle = '#9fef00';
+    for (var i = 0; i < N; i++) {
+      var p = P[i];
+      ctx.globalAlpha = e * (0.35 + 0.65 * hash(i * 2.1 + Math.floor(t * 8)));
+      ctx.font = (9 + Math.floor(p.sp * 10)) + 'px monospace';
+      ctx.fillText(p.ch, p.x * CW, frac(p.y + t * p.sp) * CH);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function drawTV(r) {
     r = Math.max(0, Math.min(1, r));
-    var line = r < 0.35 ? (r / 0.35) : Math.max(0, 1 - (r - 0.35) / 0.35);
-    return { reveal: r, line: line, glitch: Math.max(0, 1 - r) * 0.9, black: r < 0.04 ? 1 : 0 };
+    if (r <= 0.5) {
+      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, CW, CH);
+      var hh = r / 0.5;
+      var bandH = Math.max(2, hh * CH), y = (CH - bandH) / 2;
+      var g = ctx.createLinearGradient(0, y, 0, y + bandH);
+      g.addColorStop(0, 'rgba(255,255,255,0)');
+      g.addColorStop(0.5, 'rgba(255,255,255,0.96)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, y, CW, bandH);
+      ctx.fillStyle = 'rgba(159,239,0,' + (0.7 * (1 - hh)) + ')';
+      ctx.fillRect(0, CH / 2 - 1.5, CW, 3);
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,' + (1 - (r - 0.5) / 0.5) + ')';
+      ctx.fillRect(0, 0, CW, CH);
+    }
+  }
+  function drawFX(t, e) {
+    if (e <= 0.02) return;
+    ctx.globalAlpha = e * 0.16; ctx.fillStyle = '#000';
+    for (var y = 0; y < CH; y += 3) ctx.fillRect(0, y, CW, 1);
+    ctx.globalAlpha = 1;
+    var slices = Math.floor(3 + e * 6);
+    for (var s = 0; s < slices; s++) {
+      var seed = s * 7.7 + Math.floor(t * 12);
+      var sy = hash(seed) * CH, sh = 4 + hash(seed + 1) * 16, dx = (hash(seed + 2) - 0.5) * 50 * e;
+      ctx.globalAlpha = e * 0.22;
+      ctx.fillStyle = 'rgba(255,0,90,0.65)'; ctx.fillRect(dx, sy, CW, sh);
+      ctx.fillStyle = 'rgba(0,220,255,0.65)'; ctx.fillRect(-dx, sy + 2, CW, sh);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function renderCyber(t, state) {
+    if (!CW) sizeCanvas();
+    ctx.clearRect(0, 0, CW, CH);
+    if (!state) return;              // sin efecto: lienzo transparente, se ve el blog
+    if (state.kind === 'tv') {
+      drawTV(state.r);
+      var e = Math.sin(Math.max(0, Math.min(1, state.r)) * Math.PI);
+      drawParticles(t, e); drawFX(t, e);
+    } else {                         // transición entre páginas
+      ctx.fillStyle = 'rgba(6,8,12,' + (state.mid * 0.5) + ')'; ctx.fillRect(0, 0, CW, CH);
+      drawParticles(t, state.mid); drawFX(t, state.mid);
+    }
   }
 
   var activeIdx = 0;
@@ -91,16 +168,16 @@
     t = Math.max(0, Math.min(TOTAL, t));
     var s = segAt(t), k = (t - s.start) / (s.end - s.start);
     if (s.type === 'intro') {
-      setActive(s.page); setScroll(iframes[s.page], 0); setCyber(tv(k));
+      setActive(s.page); setScroll(iframes[s.page], 0); renderCyber(t, { kind: 'tv', r: k });
     } else if (s.type === 'outro') {
-      setActive(s.page); setScroll(iframes[s.page], 1); setCyber(tv(1 - k));
+      setActive(s.page); setScroll(iframes[s.page], 1); renderCyber(t, { kind: 'tv', r: 1 - k });
     } else if (s.type === 'scroll') {
-      setActive(s.page); setScroll(iframes[s.page], k); setCyber(null);
+      setActive(s.page); setScroll(iframes[s.page], k); renderCyber(t, null);
     } else { // trans: cambia de página con un destello ciber
       if (k < 0.5) { setActive(s.from); setScroll(iframes[s.from], 1); }
       else { setActive(s.to); setScroll(iframes[s.to], 0); }
       var mid = 1 - Math.abs(k - 0.5) * 2; // 0 → 1 → 0
-      setCyber({ reveal: 1, line: 0, glitch: 0.5 + mid * 0.5, black: mid * 0.55 });
+      renderCyber(t, { kind: 'trans', mid: mid });
     }
     updateBar(t);
   }
@@ -193,9 +270,11 @@
     else if (e.code === 'ArrowRight') { e.preventDefault(); doSeek(1); }
     else if (e.code === 'ArrowLeft') { e.preventDefault(); doSeek(-1); }
   });
-  window.addEventListener('resize', function () { render(cur); });
+  window.addEventListener('resize', function () { sizeCanvas(); render(cur); });
+  window.addEventListener('load', function () { sizeCanvas(); render(cur); });
 
   // Estado inicial: segundo 0, en pausa, esperando play.
+  sizeCanvas();
   syncButtons();
   render(0);
 })();

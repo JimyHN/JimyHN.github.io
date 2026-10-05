@@ -20,30 +20,8 @@ body { display: flex; flex-direction: column; }
 }
 #frames iframe.is-active { opacity: 1; }
 
-/* ---------- Capa ciber (TV encendiéndose/apagándose + glitch) ---------- */
-#cyber { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
-#cyber.hide { display: none; }
-.cy-black { position: absolute; inset: 0; background: #000; opacity: var(--black, 0); }
-.cy-top, .cy-bot {
-  position: absolute; left: 0; right: 0; height: 50%; background: #000;
-  will-change: transform;
-}
-.cy-top { top: 0; transform: translateY(calc(var(--reveal, 0) * -100%)); }
-.cy-bot { bottom: 0; transform: translateY(calc(var(--reveal, 0) * 100%)); }
-.cy-line {
-  position: absolute; left: 0; right: 0; top: 50%; height: 3px; transform: translateY(-50%);
-  background: var(--accent); opacity: var(--line, 0);
-  box-shadow: 0 0 18px 4px var(--accent), 0 0 60px 10px var(--accent);
-}
-.cy-glitch {
-  position: absolute; inset: 0; opacity: var(--glitch, 0); mix-blend-mode: screen;
-  background:
-    repeating-linear-gradient(0deg, rgba(255,255,255,.08) 0 1px, transparent 1px 3px),
-    linear-gradient(90deg, rgba(255,0,80,.35), transparent 8%, transparent 92%, rgba(0,200,255,.35));
-  animation: cy-shift .18s steps(2) infinite, cy-flick .09s steps(2) infinite;
-}
-@keyframes cy-shift { 0% { transform: translateX(-3px); } 100% { transform: translateX(3px); } }
-@keyframes cy-flick { 0% { filter: hue-rotate(0) saturate(1.4); } 100% { filter: hue-rotate(40deg) saturate(2); } }
+/* ---------- Capa ciber (canvas: TV encendiéndose/apagándose + partículas) ---------- */
+#cy-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; }
 
 /* ---------- Overlay de salto ±5s ---------- */
 #seek { position: absolute; inset: 0; z-index: 7; display: grid; place-items: center; transition: opacity .12s; }

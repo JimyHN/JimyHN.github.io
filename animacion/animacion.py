@@ -102,13 +102,14 @@ def free_port(start):
 
 
 def open_browser(url):
-    # Preferimos Chrome/Chromium en modo app a pantalla completa; si no, el navegador por defecto.
+    # Ventana normal maximizada (con barra del navegador, para poder salir con
+    # Esc/cerrar). Nada de kiosk/fullscreen.
     for cand in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser",
                  "brave-browser", "microsoft-edge", "chrome"):
         exe = shutil.which(cand)
         if exe:
             try:
-                subprocess.Popen([exe, "--new-window", "--start-maximized", "--start-fullscreen", f"--app={url}"],
+                subprocess.Popen([exe, "--new-window", "--start-maximized", url],
                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 return
             except Exception:  # noqa: BLE001
