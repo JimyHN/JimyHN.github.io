@@ -6,7 +6,7 @@ puede leer HTB desde el navegador (login + CORS), así que los datos se refresca
 en el build consultando la API de HTB con un App Token.
 
 Uso:
-    HTB_TOKEN=<app-token> python3 tools/htb_update.py
+    HTB_TOKEN=<app-token> python3 dev/tools/htb_update.py
 
 Variables de entorno:
     HTB_TOKEN     (obligatoria) App Token de HTB (perfil -> App Tokens).
@@ -23,7 +23,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent  # dev/tools -> dev -> raíz del repo
 HTB_YML = ROOT / "_data" / "htb.yml"
 API = "https://labs.hackthebox.com/api/v4"
 WEB = "https://www.hackthebox.com"

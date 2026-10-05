@@ -1,6 +1,6 @@
 """Convierte una imagen en arte ASCII para la portada.
 
-Uso: python3 tools/ascii.py <imagen> [columnas] > _includes/hx-ascii.txt
+Uso: python3 dev/tools/ascii.py <imagen> [columnas] > _includes/hx-ascii.txt
 """
 import sys
 from PIL import Image, ImageOps

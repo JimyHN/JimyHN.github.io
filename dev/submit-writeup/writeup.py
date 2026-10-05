@@ -2,13 +2,13 @@
 """Editor y gestor de write-ups del blog.
 
 Uso:
-    python3 submit-writeup/writeup.py --add
+    python3 dev/submit-writeup/writeup.py --add
         Abre el editor en el navegador para redactar un write-up nuevo.
 
-    python3 submit-writeup/writeup.py --edit /writeups/blue
+    python3 dev/submit-writeup/writeup.py --edit /writeups/blue
         Abre el editor cargado con el write-up de Blue para editarlo.
 
-    python3 submit-writeup/writeup.py --remove /writeups/blue
+    python3 dev/submit-writeup/writeup.py --remove /writeups/blue
         Borra el write-up de Blue del blog (pide confirmación).
 
 Flags:
@@ -18,7 +18,7 @@ Flags:
     -p/--port PUERTO   Puerto del servidor (por defecto 8099).
     --no-open          No abrir el navegador automáticamente.
 
-Cada write-up guarda su fuente editable en submit-writeup/write-ups/<slug>.json,
+Cada write-up guarda su fuente editable en dev/submit-writeup/write-ups/<slug>.json,
 que es lo que se recarga al usar --edit.
 """
 
@@ -39,7 +39,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parent
+ROOT = HERE.parent.parent  # dev/submit-writeup -> dev -> raíz del repo
 POSTS = ROOT / "_posts"
 SOURCES = HERE / "write-ups"
 MACHINES_DIR = ROOT / "assets" / "img" / "machines"
@@ -1142,9 +1142,9 @@ def main():
         warn("No has indicado ninguna acción.")
         print()
         print("  Usa una de estas:")
-        print(_c("    python3 submit-writeup/writeup.py --add", Col.GREEN) + "                 redactar uno nuevo")
-        print(_c("    python3 submit-writeup/writeup.py --edit /writeups/blue", Col.CYAN) + "   editar Blue")
-        print(_c("    python3 submit-writeup/writeup.py --remove /writeups/blue", Col.RED) + " borrar Blue")
+        print(_c("    python3 dev/submit-writeup/writeup.py --add", Col.GREEN) + "                 redactar uno nuevo")
+        print(_c("    python3 dev/submit-writeup/writeup.py --edit /writeups/blue", Col.CYAN) + "   editar Blue")
+        print(_c("    python3 dev/submit-writeup/writeup.py --remove /writeups/blue", Col.RED) + " borrar Blue")
         print()
         print(_c("    -h / --help", Col.DIM) + " para ver todas las opciones.")
         print()

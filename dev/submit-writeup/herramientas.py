@@ -4,9 +4,9 @@
 Las herramientas no son posts: viven en _data/herramientas.yml. Este editor
 permite añadir/editar/borrar entradas con vista previa y publicarlas (git).
 
-  python3 submit-writeup/herramientas.py --add [Nombre]
-  python3 submit-writeup/herramientas.py --edit <nombre>
-  python3 submit-writeup/herramientas.py --remove <nombre>
+  python3 dev/submit-writeup/herramientas.py --add [Nombre]
+  python3 dev/submit-writeup/herramientas.py --edit <nombre>
+  python3 dev/submit-writeup/herramientas.py --remove <nombre>
 """
 import argparse
 import json
