@@ -24,9 +24,9 @@
   var PLAN = [
     { page: 0, kind: 'zoomout', dur: 3.2 },               // Inicio (zoom-out) → antes a Write-ups
     { trans: 'fade', dur: 0.55 },
-    { page: 1, kind: 'scroll',  dur: 7,  fadeAt: 0.72 },  // Write-ups (scroll rápido, como el roadmap)
+    { page: 1, kind: 'scroll',  dur: 5.5, fadeAt: 0.72 }, // Write-ups (transición antes)
     { trans: 'fade', dur: 0.5 },
-    { page: 2, kind: 'scroll',  dur: 9,  fadeAt: 0.80 },  // Writeup de Dolibarr (scroll abajo)
+    { page: 2, kind: 'scroll',  dur: 13,  fadeAt: 0.80 }, // Writeup de Dolibarr (scroll lento)
     { trans: 'fade', dur: 0.5 },
     { page: 3, kind: 'scroll',  dur: 11, fadeAt: 0.55 },  // Roadmap (scroll, funde tras las easy)
     { trans: 'fade', dur: 0.5 },
