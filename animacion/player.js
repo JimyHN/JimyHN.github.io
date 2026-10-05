@@ -24,7 +24,7 @@
   var PLAN = [
     { page: 0, kind: 'zoomout', dur: 3.2 },               // Inicio (zoom-out) → antes a Write-ups
     { trans: 'fade', dur: 0.9 },
-    { page: 1, kind: 'scroll',  dur: 5.5, fadeAt: 0.72 }, // Write-ups (transición antes)
+    { page: 1, kind: 'scroll',  dur: 2.5, fadeAt: 0.33 }, // Write-ups (transición 3 s antes, misma velocidad)
     { trans: 'fade', dur: 0.9 },
     { page: 2, kind: 'scroll',  dur: 13,  fadeAt: 0.80, speedFrom: 3 }, // Dolibarr (misma velocidad que el roadmap)
     { trans: 'fade', dur: 0.9 },
@@ -92,6 +92,10 @@
       var s = segs[j]; if (s.type !== 'page') continue;
       var post = segs[j + 1] && segs[j + 1].type === 'trans' ? segs[j + 1] : null;
       s.exit = post ? post.dur : OUTRO;
+      // La página empieza a moverse al comienzo de su transición de ENTRADA
+      // (mientras aún está negro), no cuando se quita el fundido.
+      var pre = segs[j - 1] && segs[j - 1].type === 'trans' ? segs[j - 1] : null;
+      s.motionStart = s.start - (pre ? pre.dur : 0);
     }
     // enlaces de cada transición con la página saliente / entrante
     for (var m = 0; m < segs.length; m++) {
@@ -112,7 +116,7 @@
   // ====== transform por página (en función del tiempo absoluto) ======
   function applyPage(f, seg, t) {
     var H = frames.clientHeight, ch = f._h || H;
-    var elapsed = Math.max(0, t - seg.start);     // puede exceder su dur (sigue tras el fin)
+    var elapsed = Math.max(0, t - (seg.motionStart != null ? seg.motionStart : seg.start)); // arranca en el negro de entrada y sigue tras el fin
     var dur = seg.end - seg.start;
     var s = 1, ty = 0, oy = '0%';
     if (seg.kind === 'zoomout') {
