@@ -1,23 +1,39 @@
 (function () {
   'use strict';
 
-  // ====== Guion ======
-  var PAGES = ['/', '/writeups/', '/herramientas/', '/roadmap/'];
-  var PLAN = [
-    { page: 0, kind: 'scrollz', dur: 7.5 },   // Inicio
-    { trans: 'swipe' },
-    { page: 1, kind: 'scrollz', dur: 7.0 },   // Write-ups
-    { trans: 'fade' },
-    { page: 2, kind: 'panx', dur: 6.0 },      // Herramientas (barrido horizontal)
-    { trans: 'flash' },
-    { page: 3, kind: 'scrollz', dur: 6.5 },   // Roadmap
-    { trans: 'dip' },
-    { page: 0, kind: 'zoomout', dur: 3.2 }    // Cierre: Inicio zoom-out y corta
-  ];
-  var INTRO = 2.2, OUTRO = 2.0, TRANS = 0.5;
-  var LEAD = 0.1;   // la página siguiente empieza a moverse al 90% de la transición
+  // ============================================================
+  //  GUION (recorrido determinista = función del tiempo)
+  //
+  //  Principio general: las transiciones SOLAPAN el movimiento.
+  //  Cada página ya se está moviendo cuando se quita el fundido de
+  //  entrada, y el fundido de salida empieza ANTES de que la página
+  //  termine su movimiento (sigue moviéndose tapada por el negro).
+  //
+  //  0) Fundido DE negro: aparece el Inicio y hace zoom-out (empieza
+  //     a la vez que el fundido). Antes de acabar el zoom ya funde a negro.
+  //  1) Write-ups: scroll hacia abajo por las máquinas; al ~70% (antes
+  //     de llegar abajo) empieza el fundido de salida.
+  //  2) Roadmap: scroll hacia abajo; al pasar las "easy" empieza el
+  //     fundido y sigue bajando tapado por el negro.
+  //  3) Inicio otra vez (zoom-out) y a negro.
+  // ============================================================
+  var PAGES = ['/', '/writeups/', '/roadmap/'];
+  // páginas que se muestran SIN columnas laterales (solo el contenido)
+  var HIDE_CHROME = { 1: true, 2: true };
 
-  // ====== iframes (a altura completa → scroll por transform, GPU) ======
+  var PLAN = [
+    { page: 0, kind: 'zoomout', dur: 3.2 },               // Inicio (zoom-out) → antes a Write-ups
+    { trans: 'fade', dur: 0.55 },
+    { page: 1, kind: 'scroll',  dur: 11, fadeAt: 0.72 },  // Write-ups (scroll, funde al ~70%)
+    { trans: 'fade', dur: 0.5 },
+    { page: 2, kind: 'scroll',  dur: 11, fadeAt: 0.55 },  // Roadmap (scroll, funde tras las easy)
+    { trans: 'fade', dur: 0.5 },
+    { page: 0, kind: 'zoomout', dur: 5 }                  // Inicio otra vez → negro
+  ];
+  var INTRO = 1.2;   // fundido de entrada (de negro al Inicio)
+  var OUTRO = 1.8;   // fundido de salida final (a negro)
+
+  // ====== iframes (altura completa → movimiento por transform, GPU) ======
   var frames = document.getElementById('frames');
   function measure(f) {
     try {
@@ -35,8 +51,17 @@
     f.addEventListener('load', function () {
       try {
         var d = f.contentDocument;
+        var css = 'html{scroll-behavior:auto!important;overflow:hidden!important}::-webkit-scrollbar{width:0;height:0}';
+        if (HIDE_CHROME[i]) {
+          // Ocultar columnas laterales / barra superior → solo el contenido.
+          css += '#sidebar,#topbar-wrapper,#panel-wrapper,#back-to-top,#notification,#mask,#search-result-wrapper{display:none!important}'
+               + '#main-wrapper{margin-left:0!important;width:100%!important}'
+               + '#main-wrapper>.container{max-width:100%!important}'
+               + '#main-wrapper>.container>.row>main{flex:0 0 100%!important;max-width:100%!important}'
+               + 'body{background:#05070a!important}';
+        }
         var st = d.createElement('style');
-        st.textContent = 'html{scroll-behavior:auto!important;overflow:hidden!important}::-webkit-scrollbar{width:0;height:0}';
+        st.textContent = css;
         d.head.appendChild(st);
       } catch (e) {}
       measure(f);
@@ -47,51 +72,57 @@
     return f;
   });
 
-  // ====== segmentos + ventanas de movimiento ======
+  // ====== segmentos ======
   var segs = [], TOTAL = 0;
   (function build() {
     var t = 0;
-    segs.push({ type: 'intro', page: 0, start: 0, end: INTRO }); t = INTRO;
     PLAN.forEach(function (it) {
-      if (it.trans) { segs.push({ type: 'trans', eff: it.trans, start: t, end: t + TRANS }); t += TRANS; }
-      else { segs.push({ type: 'page', page: it.page, kind: it.kind, start: t, end: t + it.dur }); t += it.dur; }
+      if (it.trans) { segs.push({ type: 'trans', eff: it.trans, dur: it.dur, start: t, end: t + it.dur }); t += it.dur; }
+      else { segs.push({ type: 'page', page: it.page, kind: it.kind, fadeAt: it.fadeAt, start: t, end: t + it.dur }); t += it.dur; }
     });
-    var lastPage = 0;
-    for (var i = segs.length - 1; i >= 0; i--) if (segs[i].type === 'page') { lastPage = segs[i].page; break; }
-    segs.push({ type: 'outro', page: lastPage, start: t, end: t + OUTRO }); t += OUTRO;
     TOTAL = t;
-    // ventanas de movimiento: cada página empieza LEAD*TRANS antes (durante el final
-    // de su transición de entrada) y termina TRANS después (sigue moviéndose durante
-    // su transición de salida) → movimiento continuo sin parones.
+    // exit = cuánto sigue moviéndose la página DESPUÉS de su fin (tapada por el
+    // negro): la duración de su transición de salida, o el OUTRO si es la última.
     for (var j = 0; j < segs.length; j++) {
       var s = segs[j]; if (s.type !== 'page') continue;
-      var pre = segs[j - 1] && segs[j - 1].type === 'trans';
-      var post = segs[j + 1] && segs[j + 1].type === 'trans';
-      s.m0 = s.start - (pre ? LEAD * TRANS : 0);
-      s.m1 = s.end + (post ? TRANS : 0);
+      var post = segs[j + 1] && segs[j + 1].type === 'trans' ? segs[j + 1] : null;
+      s.exit = post ? post.dur : OUTRO;
     }
+    // enlaces de cada transición con la página saliente / entrante
     for (var m = 0; m < segs.length; m++) {
       if (segs[m].type !== 'trans') continue;
       for (var a = m - 1; a >= 0; a--) if (segs[a].type === 'page') { segs[m].fromSeg = segs[a]; break; }
       for (var b = m + 1; b < segs.length; b++) if (segs[b].type === 'page') { segs[m].toSeg = segs[b]; break; }
     }
   })();
-  function pkOf(seg, t) { return Math.max(0, Math.min(1, (t - seg.m0) / (seg.m1 - seg.m0))); }
 
-  // ====== transform por página ======
+  // ====== easings ======
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
   function easeIO(k) { return k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; }
   function easeOut(k) { return 1 - Math.pow(1 - k, 3); }
-  function applyPage(f, kind, p) {
-    var W = frames.clientWidth, H = frames.clientHeight, ch = f._h || H, s, tx = 0, ty = 0, origin = '50% 0%';
-    if (kind === 'panx') {
-      s = 1.22; origin = '0% 0%'; tx = -p * (s - 1) * W; ty = -0.05 * Math.max(0, s * ch - H);
-    } else if (kind === 'zoomout') {
-      s = 1.16 - 0.16 * easeOut(Math.min(1, p)); origin = '50% 0%'; ty = 0;
-    } else { // scrollz: scroll vertical (GPU) + leve zoom-out
-      s = 1.08 - 0.08 * easeIO(p); origin = '50% 0%'; ty = -p * Math.max(0, s * ch - H);
+
+  // ====== transform por página (en función del tiempo absoluto) ======
+  function applyPage(f, seg, t) {
+    var H = frames.clientHeight, ch = f._h || H;
+    var elapsed = Math.max(0, t - seg.start);     // puede exceder su dur (sigue tras el fin)
+    var dur = seg.end - seg.start;
+    var s = 1, ty = 0, oy = '0%';
+    if (seg.kind === 'zoomout') {
+      // El zoom-out abarca la página + su salida → no termina antes del fundido.
+      oy = '35%';
+      var md = dur + (seg.exit || 0);
+      var q = clamp(elapsed / md, 0, 1);
+      s = 1.12 - 0.12 * easeOut(q);                // 1.12 → 1.0
+      ty = -0.03 * Math.max(0, s * ch - H);
+    } else { // scroll vertical a velocidad constante (ya se mueve al quitar el fundido)
+      oy = '0%';
+      var D = Math.max(0, ch - H);
+      var fadeAt = seg.fadeAt || 0.7;              // fracción recorrida cuando empieza la salida
+      var v = dur > 0 ? (fadeAt * D / dur) : 0;    // sigue a la misma velocidad durante el fundido
+      ty = -Math.min(D, v * elapsed);
     }
-    f.style.transformOrigin = origin;
-    f.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
+    f.style.transformOrigin = '50% ' + oy;
+    f.style.transform = 'translate(0px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
   }
 
   var activeIdx = 0;
@@ -102,92 +133,41 @@
     activeIdx = i;
   }
 
-  // ====== canvas ciber ======
+  // ====== capa negra (canvas): intro, outro y transiciones ======
   var canvas = document.getElementById('cy-canvas');
   var ctx = canvas.getContext('2d');
   var CW = 0, CH = 0;
   function sizeCanvas() { var r = canvas.getBoundingClientRect(); CW = canvas.width = Math.max(1, Math.round(r.width)); CH = canvas.height = Math.max(1, Math.round(r.height)); }
-  function frac(x) { return x - Math.floor(x); }
-  function hash(n) { return frac(Math.sin(n) * 43758.5453); }
 
-  // textura de estática (TV) precalculada
-  var nC = document.createElement('canvas'); nC.width = nC.height = 180;
-  (function () { var nx = nC.getContext('2d'); var img = nx.createImageData(180, 180); for (var i = 0; i < img.data.length; i += 4) { var v = Math.random() * 255 | 0; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; } nx.putImageData(img, 0, 0); })();
-  function noise(t, a) { if (a <= 0.02) return; ctx.globalAlpha = a * 0.6; var ox = (hash(Math.floor(t * 30)) * 50) | 0, oy = (hash(Math.floor(t * 30) + 9) * 50) | 0; ctx.drawImage(nC, -ox, -oy, CW + 50, CH + 50); ctx.globalAlpha = 1; }
-
-  var COLORS = ['#9fef00', '#9fef00', '#2ee6d6', '#ff3ea5', '#ffffff'];
-  var N = 170, P = [];
-  for (var pi = 0; pi < N; pi++) P.push({ x: hash(pi * 1.7), y: hash(pi * 3.3 + 1), sp: 0.07 + hash(pi * 5.1) * 0.6, col: COLORS[Math.floor(hash(pi * 9.2) * COLORS.length)], ang: hash(pi * 2.4) * 6.283, ch: (pi % 11 === 0 ? '1' : pi % 6 === 0 ? '0' : pi % 3 === 0 ? '·' : '+') });
-  function rain(t, e) {
-    if (e <= 0.02) return; ctx.save(); ctx.shadowBlur = 8;
-    for (var i = 0; i < N; i++) { var p = P[i]; ctx.globalAlpha = e * (0.3 + 0.7 * hash(i * 2.1 + Math.floor(t * 9))); ctx.fillStyle = p.col; ctx.shadowColor = p.col; ctx.font = (10 + Math.floor(p.sp * 12)) + 'px monospace'; ctx.fillText(p.ch, p.x * CW, frac(p.y + t * p.sp) * CH); }
-    ctx.restore();
+  function overlayAlpha(t, s, k) {
+    var a = 0;
+    if (s.type === 'trans') a = Math.min(1, (1 - Math.abs(2 * k - 1)) * 1.25); // fundido suave (negro justo a mitad)
+    if (t < INTRO) a = Math.max(a, 1 - easeIO(t / INTRO));                    // fundido de entrada
+    if (t > TOTAL - OUTRO) a = Math.max(a, easeIO((t - (TOTAL - OUTRO)) / OUTRO)); // fundido final
+    return a;
   }
-  function burst(t, e) {
-    if (e <= 0.02) return; ctx.save(); ctx.shadowBlur = 12; var cx = CW / 2, cy = CH / 2, R = Math.max(CW, CH) * 0.7;
-    for (var i = 0; i < N; i++) { var p = P[i], d = e * R * (0.2 + hash(i * 1.3)); ctx.globalAlpha = e * 0.9; ctx.fillStyle = p.col; ctx.shadowColor = p.col; ctx.fillRect(cx + Math.cos(p.ang) * d, cy + Math.sin(p.ang) * d, 2.6, 2.6); }
-    ctx.restore();
-  }
-  function scan(e) { if (e <= 0.02) return; ctx.globalAlpha = e * 0.14; ctx.fillStyle = '#000'; for (var y = 0; y < CH; y += 3) ctx.fillRect(0, y, CW, 1); ctx.globalAlpha = 1; }
-  function chroma(t, e) {
-    if (e <= 0.02) return; var slices = Math.floor(3 + e * 7);
-    for (var s = 0; s < slices; s++) { var sd = s * 7.7 + Math.floor(t * 14); var sy = hash(sd) * CH, sh = 4 + hash(sd + 1) * 18, dx = (hash(sd + 2) - 0.5) * 70 * e; ctx.globalAlpha = e * 0.25; ctx.fillStyle = 'rgba(255,0,110,0.7)'; ctx.fillRect(dx, sy, CW, sh); ctx.fillStyle = 'rgba(0,230,255,0.7)'; ctx.fillRect(-dx, sy + 2, CW, sh); }
+  function paintBlack(a) {
+    if (a <= 0.002) return;
+    ctx.globalAlpha = Math.min(1, a);
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, CW, CH);
     ctx.globalAlpha = 1;
   }
-  function vignette(a) { if (a <= 0.02) return; var g = ctx.createRadialGradient(CW / 2, CH / 2, Math.min(CW, CH) * 0.35, CW / 2, CH / 2, Math.max(CW, CH) * 0.72); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,' + a + ')'); ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH); }
-
-  function cyberTV(t, r) {
-    r = Math.max(0, Math.min(1, r)); var e = Math.sin(r * Math.PI);
-    // base: negro → banda de luz que se abre → flash → revela
-    if (r <= 0.5) {
-      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, CW, CH);
-      var hh = r / 0.5, bandH = Math.max(2, hh * hh * CH), y = (CH - bandH) / 2;
-      var gr = ctx.createLinearGradient(0, y, 0, y + bandH);
-      gr.addColorStop(0, 'rgba(159,239,0,0)'); gr.addColorStop(0.5, 'rgba(255,255,255,0.98)'); gr.addColorStop(1, 'rgba(46,230,214,0)');
-      ctx.fillStyle = gr; ctx.fillRect(0, y, CW, bandH);
-      ctx.fillStyle = 'rgba(255,255,255,' + (0.9 * (1 - hh)) + ')'; ctx.fillRect(0, CH / 2 - 2, CW, 4);
-    } else {
-      ctx.fillStyle = 'rgba(255,255,255,' + Math.pow(1 - (r - 0.5) / 0.5, 1.3) + ')'; ctx.fillRect(0, 0, CW, CH);
-    }
-    noise(t, Math.max(0, (0.5 - r) / 0.5));         // estática de TV (fuerte cerrado)
-    // bloom radial (destello de encendido)
-    var bl = Math.max(0, 1 - Math.abs(r - 0.42) / 0.3);
-    if (bl > 0.02) { var rad = ctx.createRadialGradient(CW / 2, CH / 2, 0, CW / 2, CH / 2, Math.max(CW, CH) * 0.65); rad.addColorStop(0, 'rgba(159,239,0,' + (0.6 * bl) + ')'); rad.addColorStop(0.5, 'rgba(46,230,214,' + (0.28 * bl) + ')'); rad.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = rad; ctx.fillRect(0, 0, CW, CH); }
-    burst(t, e * Math.max(0, 1 - Math.abs(r - 0.45) / 0.45));
-    rain(t, e); chroma(t, e); scan(e); vignette(e * 0.55);
-  }
-
-  // ====== transiciones (simples, tapan el cambio en el medio) ======
-  function transition(eff, t, k) {
-    var c = 1 - Math.abs(2 * k - 1), W = CW, H = CH;
-    if (eff === 'fade') {
-      ctx.globalAlpha = Math.min(1, c * 1.7); ctx.fillStyle = '#04060a'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
-    } else if (eff === 'flash') {
-      ctx.globalAlpha = Math.min(1, c * 1.7); ctx.fillStyle = '#eef6ff'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1;
-    } else if (eff === 'dip') {
-      ctx.globalAlpha = Math.min(1, c * 1.7); ctx.fillStyle = '#04060a'; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; chroma(t, c * 0.5);
-    } else { // swipe: barra negra cruza (cubre a la mitad) con filo brillante
-      ctx.fillStyle = '#04060a';
-      if (k < 0.5) { var w = 2 * k * W; ctx.fillRect(0, 0, w, H); edge(w, H); }
-      else { var x = (2 * k - 1) * W; ctx.fillRect(x, 0, W - x, H); edge(x, H); }
-    }
-  }
-  function edge(x, H) { ctx.save(); ctx.shadowBlur = 16; ctx.shadowColor = '#9fef00'; ctx.fillStyle = '#9fef00'; ctx.fillRect(x - 2, 0, 3, H); ctx.restore(); }
 
   // ====== render ======
   function render(t) {
-    t = Math.max(0, Math.min(TOTAL, t));
+    t = clamp(t, 0, TOTAL);
     var s = segAt(t), k = (t - s.start) / (s.end - s.start);
     if (!CW) sizeCanvas();
     ctx.clearRect(0, 0, CW, CH);
-    if (s.type === 'intro') { setActive(s.page); applyPage(iframes[s.page], 'scrollz', 0); cyberTV(t, k); }
-    else if (s.type === 'outro') { setActive(s.page); applyPage(iframes[s.page], 'zoomout', 1); cyberTV(t, 1 - k); }
-    else if (s.type === 'page') { setActive(s.page); applyPage(iframes[s.page], s.kind, pkOf(s, t)); }
-    else { // trans: from sigue moviéndose; to arranca durante el final (LEAD)
-      if (k < 0.5) { setActive(s.fromSeg.page); applyPage(iframes[s.fromSeg.page], s.fromSeg.kind, pkOf(s.fromSeg, t)); }
-      else { setActive(s.toSeg.page); applyPage(iframes[s.toSeg.page], s.toSeg.kind, pkOf(s.toSeg, t)); }
-      transition(s.eff, t, k);
+    if (s.type === 'page') {
+      setActive(s.page);
+      applyPage(iframes[s.page], s, t);
+    } else { // transición: la saliente sigue su movimiento; a mitad se cambia a la entrante
+      if (k < 0.5) { setActive(s.fromSeg.page); applyPage(iframes[s.fromSeg.page], s.fromSeg, t); }
+      else { setActive(s.toSeg.page); applyPage(iframes[s.toSeg.page], s.toSeg, t); }
     }
+    paintBlack(overlayAlpha(t, s, k));
     updateBar(t);
   }
   function segAt(t) { for (var i = 0; i < segs.length; i++) if (t < segs[i].end) return segs[i]; return segs[segs.length - 1]; }
@@ -204,14 +184,14 @@
   function play() { if (playing) return; if (cur >= TOTAL) cur = 0; playing = true; last = performance.now(); hint.classList.add('hide'); syncButtons(); requestAnimationFrame(frame); }
   function pause() { playing = false; syncButtons(); }
   function toggle() { if (playing) pause(); else play(); }
-  function seek(t) { cur = Math.max(0, Math.min(TOTAL, t)); render(cur); }
+  function seek(t) { cur = clamp(t, 0, TOTAL); render(cur); }
   function frame(now) { if (!playing) return; var dt = (now - last) / 1000; last = now; cur += dt; if (cur >= TOTAL) { if (loop) cur -= TOTAL; else { cur = TOTAL; render(cur); pause(); return; } } render(cur); requestAnimationFrame(frame); }
   playBtn.addEventListener('click', play);
   pauseBtn.addEventListener('click', pause);
   loopBtn.addEventListener('click', function () { loop = !loop; loopBtn.classList.toggle('loop-on', loop); loopBtn.classList.toggle('loop-off', !loop); loopBtn.setAttribute('aria-pressed', loop ? 'true' : 'false'); });
 
   var tl = document.getElementById('timeline');
-  function seekFromEvent(e) { var r = tl.getBoundingClientRect(), cx = e.clientX != null ? e.clientX : (e.touches && e.touches[0].clientX) || 0; seek(Math.max(0, Math.min(1, (cx - r.left) / r.width)) * TOTAL); }
+  function seekFromEvent(e) { var r = tl.getBoundingClientRect(), cx = e.clientX != null ? e.clientX : (e.touches && e.touches[0].clientX) || 0; seek(clamp((cx - r.left) / r.width, 0, 1) * TOTAL); }
   var scrubbing = false;
   tl.addEventListener('pointerdown', function (e) { scrubbing = true; try { tl.setPointerCapture(e.pointerId); } catch (x) {} seekFromEvent(e); });
   tl.addEventListener('pointermove', function (e) { if (scrubbing) seekFromEvent(e); });

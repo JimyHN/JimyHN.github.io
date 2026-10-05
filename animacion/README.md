@@ -1,9 +1,20 @@
 # animacion/ — recorrido animado del blog
 
 Herramienta de desarrollo (no forma parte del sitio; está excluida del build).
-Abre el navegador con un "vídeo" determinista que recorre el blog: intro ciber
-(tipo TV encendiéndose), scroll por **Inicio → Write-ups → Herramientas →
-Roadmap**, y outro ciber a negro.
+Abre el navegador con un "vídeo" determinista que recorre el blog con fundidos a
+negro entre páginas:
+
+Las transiciones **solapan el movimiento**: cada página ya se mueve cuando se
+quita el fundido de entrada, y el fundido de salida empieza antes de que termine
+su movimiento (sigue moviéndose tapada por el negro).
+
+1. Fundido **de negro al Inicio**, que hace zoom-out (empieza a la vez que el
+   fundido); antes de acabar el zoom ya empieza a fundir a negro.
+2. **Write-ups**: scroll hacia abajo por las máquinas; al ~70% (antes de llegar
+   abajo) arranca el fundido de salida.
+3. **Roadmap**: scroll hacia abajo; al pasar las "easy" empieza el fundido y
+   sigue bajando tapado por el negro.
+4. **Inicio** otra vez (zoom-out) y a negro.
 
 ## Uso
 
@@ -35,8 +46,9 @@ BLOG_URL="http://127.0.0.1:4000" python3 animacion/animacion.py
 
 ## Ajustes
 
-En `player.js`, arriba: `PAGES` (páginas y orden del recorrido) y `DUR`
-(duración de intro, scroll por página, transición y outro).
+En `player.js`, arriba: `PAGES` (páginas), `HIDE_CHROME` (cuáles se muestran sin
+columnas laterales), `PLAN` (orden, tipo de movimiento y duración de cada tramo y
+transición) e `INTRO`/`OUTRO` (fundidos de entrada y salida).
 
 ## Ficheros
 
