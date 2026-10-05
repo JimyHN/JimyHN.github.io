@@ -26,9 +26,9 @@
     { trans: 'fade', dur: 0.9 },
     { page: 1, kind: 'scroll',  dur: 2.5, fadeAt: 0.33 }, // Write-ups (transición 3 s antes, misma velocidad)
     { trans: 'fade', dur: 0.9 },
-    { page: 2, kind: 'scroll',  dur: 10.5, fadeAt: 0.80, speedFrom: 3 }, // Dolibarr (misma velocidad que el roadmap; transición un poco antes)
+    { page: 2, kind: 'scroll',  dur: 8.5, fadeAt: 0.80, speedFrom: 3 }, // Dolibarr (misma velocidad que el roadmap; transición antes)
     { trans: 'fade', dur: 0.9 },
-    { page: 3, kind: 'scroll',  dur: 11, fadeAt: 0.55 },  // Roadmap (scroll, funde tras las easy)
+    { page: 3, kind: 'scroll',  dur: 9, fadeAt: 0.55 },   // Roadmap (scroll, funde antes)
     { trans: 'fade', dur: 0.9 },
     { page: 0, kind: 'zoomout', dur: 5 }                  // Inicio otra vez → negro
   ];
