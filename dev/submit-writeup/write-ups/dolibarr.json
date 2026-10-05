@@ -4,7 +4,7 @@
   "os": "Linux",
   "diff": "Hard",
   "plat": "Investigacion",
-  "date": "2026-10-04",
+  "date": "2026-08-13",
   "desc": "Mi TFM: auditoría de seguridad de Dolibarr ERP & CRM 17.0.0 (OWASP ASVS, CVSS). 10 vulnerabilidades — 2 RCE y un XSS almacenado por API REST entre las críticas.",
   "tags": "#web #dolibarr #erp #rce #xss #api-rest #owasp #tfm #auditoria",
   "accent": "199 21 133",
