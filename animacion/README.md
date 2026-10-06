@@ -34,6 +34,15 @@ Para usar tu **Jekyll local** en vez del sitio en vivo (arráncalo antes con
 BLOG_URL="http://127.0.0.1:4000" python3 animacion/animacion.py
 ```
 
+### Windows
+
+Doble clic en **`Recorrido animado.bat`** (necesita Python 3 instalado desde
+python.org con la opción *Add to PATH*, y conexión a internet). Abre el
+navegador por defecto; deja la ventana negra abierta mientras ves la animación
+y ciérrala para apagar el servidor. Para crear un acceso directo en el
+escritorio: clic derecho sobre el `.bat` → *Enviar a* → *Escritorio (crear
+acceso directo)*.
+
 ## Controles
 
 - **Play / Pausa** y **barra de tiempo** abajo (clic o arrastre para ir a un punto).

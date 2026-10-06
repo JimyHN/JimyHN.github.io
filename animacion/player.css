@@ -59,6 +59,7 @@ body { display: flex; flex-direction: column; }
 .ctl:hover { background: #1b2430; border-color: #3a4a5c; }
 .ctl svg { width: 20px; height: 20px; fill: currentColor; }
 #play.is-on, #pause.is-on { border-color: var(--accent); color: var(--accent); }
+#play.is-loading { opacity: .45; cursor: progress; }
 
 #timeline {
   position: relative; flex: 1 1 auto; height: 10px; border-radius: 999px;

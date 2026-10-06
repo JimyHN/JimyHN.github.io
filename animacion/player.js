@@ -69,13 +69,54 @@
         st.textContent = css;
         d.head.appendChild(st);
       } catch (e) {}
-      measure(f);
-      setTimeout(function () { measure(f); }, 450);
-      setTimeout(function () { measure(f); render(cur); }, 1400);
+      warmFrame(f, i);
     });
     frames.appendChild(f);
     return f;
   });
+
+  // ====== precarga (para que el recorrido vaya FLUIDO, sin tirones) ======
+  // El blog carga las imágenes en diferido (lazy) y decodifican al entrar en
+  // pantalla → tirones al hacer scroll. Forzamos su carga y decode ANTES de
+  // dejar reproducir; play no se habilita hasta que las 4 páginas estén listas.
+  var ready = PAGES.map(function () { return false; });
+  var gateReady = false;
+  function markReady(i) {
+    if (ready[i]) return;
+    ready[i] = true;
+    for (var k = 0; k < ready.length; k++) if (!ready[k]) return;
+    gateReady = true;
+    var pb = document.getElementById('play');
+    if (pb) pb.classList.remove('is-loading');
+    var h = document.getElementById('hint');
+    if (h && !playing && cur === 0) h.innerHTML = 'Pulsa <b>play</b> o <b>espacio</b> para empezar';
+  }
+  function warmFrame(f, i) {
+    var d; try { d = f.contentDocument; } catch (e) { d = null; }
+    measure(f);
+    function finish() { measure(f); render(cur); markReady(i); }
+    if (!d) { finish(); return; }
+    var imgs = [].slice.call(d.images || []);
+    imgs.forEach(function (img) {
+      try {
+        img.loading = 'eager';
+        if (img.dataset && img.dataset.src) img.src = img.dataset.src;
+        if (img.dataset && img.dataset.srcset) img.srcset = img.dataset.srcset;
+      } catch (e) {}
+    });
+    var proms = imgs.map(function (img) {
+      if (img.complete && img.naturalWidth) return Promise.resolve();
+      return new Promise(function (res) {
+        var done = false, to = setTimeout(fin, 4000);
+        function fin() { if (done) return; done = true; clearTimeout(to); res(); }
+        if (img.decode) img.decode().then(fin, fin); else fin();
+        img.addEventListener('load', fin, { once: true });
+        img.addEventListener('error', fin, { once: true });
+      });
+    });
+    (proms.length ? Promise.all(proms) : Promise.resolve()).then(finish, finish);
+    setTimeout(function () { measure(f); }, 600);
+  }
 
   // ====== segmentos ======
   var segs = [], TOTAL = 0;
@@ -214,7 +255,7 @@
   var cur = 0, playing = false, last = 0, loop = false;
   var playBtn = document.getElementById('play'), pauseBtn = document.getElementById('pause'), loopBtn = document.getElementById('loop'), hint = document.getElementById('hint');
   function syncButtons() { playBtn.classList.toggle('is-on', playing); pauseBtn.classList.toggle('is-on', !playing); }
-  function play() { if (playing) return; if (cur >= TOTAL) cur = 0; playing = true; last = performance.now(); hint.classList.add('hide'); syncButtons(); requestAnimationFrame(frame); }
+  function play() { if (!gateReady || playing) return; if (cur >= TOTAL) cur = 0; playing = true; last = performance.now(); hint.classList.add('hide'); syncButtons(); requestAnimationFrame(frame); }
   function pause() { playing = false; syncButtons(); }
   function toggle() { if (playing) pause(); else play(); }
   function seek(t) { cur = clamp(t, 0, TOTAL); render(cur); }
@@ -247,6 +288,17 @@
   });
   window.addEventListener('resize', function () { sizeCanvas(); render(cur); });
   window.addEventListener('load', function () { sizeCanvas(); iframes.forEach(measure); render(cur); });
+
+  // Estado inicial: cargando (play deshabilitado hasta precargar las páginas).
+  hint.innerHTML = 'Cargando el recorrido…';
+  playBtn.classList.add('is-loading');
+
+  // Hook para un grabador determinista externo (frame a frame, sin tirones).
+  window.ANIM = {
+    seek: function (t) { seek(t); },
+    total: function () { return TOTAL; },
+    ready: function () { return gateReady; }
+  };
 
   sizeCanvas(); syncButtons(); render(0);
 })();
