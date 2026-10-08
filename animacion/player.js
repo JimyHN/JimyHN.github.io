@@ -19,8 +19,6 @@
   //  4) Inicio otra vez (zoom-out) y a negro.
   // ============================================================
   var PAGES = ['/', '/writeups/', '/posts/dolibarr/', '/roadmap/'];
-  // páginas que se muestran SIN columnas laterales (solo el contenido)
-  var HIDE_CHROME = { 1: true, 2: true, 3: true };
 
   var PLAN = [
     { page: 0, kind: 'zoomout', dur: 4.2 },               // Inicio (zoom-out) → antes a Write-ups
@@ -39,14 +37,29 @@
                             // independiente de la duración del tramo → la transición
                             // entra antes y el zoom-out NO llega a terminar.
 
-  // ====== iframes (altura completa → movimiento por transform, GPU) ======
+  // ====== iframes ======
+  //  Van del tamaño del hueco y se mueven haciendo scroll DE VERDAD dentro del
+  //  iframe. Antes se estiraban a la altura de la página y se desplazaban con
+  //  transform, pero así un position:fixed (la columna lateral del blog) se
+  //  calcula contra la página entera y se va hacia arriba con el scroll: por eso
+  //  se ocultaba la columna y no se veía la foto de perfil. Con scroll real la
+  //  web sale tal cual.
   var frames = document.getElementById('frames');
   function measure(f) {
     try {
       var d = f.contentDocument; if (!d) return;
       var h = Math.max(d.documentElement.scrollHeight, d.body ? d.body.scrollHeight : 0);
-      if (h > 120) { f._h = h; f.style.height = h + 'px'; }
+      if (h > 120) f._h = h;
     } catch (e) {}
+  }
+  function scrollFrame(f, y) {
+    try { f.contentWindow.scrollTo(0, y); } catch (e) {}
+  }
+  // Distancia de un elemento al principio del documento (el iframe puede estar
+  // ya desplazado, así que hay que sumarle su scroll).
+  function docTop(d, el) {
+    var sc = (d.scrollingElement || d.documentElement).scrollTop || 0;
+    return el.getBoundingClientRect().top + sc;
   }
   var iframes = PAGES.map(function (src, i) {
     var f = document.createElement('iframe');
@@ -57,15 +70,11 @@
     f.addEventListener('load', function () {
       try {
         var d = f.contentDocument;
-        var css = 'html{scroll-behavior:auto!important;overflow:hidden!important}::-webkit-scrollbar{width:0;height:0}';
-        if (HIDE_CHROME[i]) {
-          // Ocultar columnas laterales / barra superior → solo el contenido.
-          css += '#sidebar,#topbar-wrapper,#panel-wrapper,#back-to-top,#notification,#mask,#search-result-wrapper{display:none!important}'
-               + '#main-wrapper{margin-left:0!important;width:100%!important}'
-               + '#main-wrapper>.container{max-width:100%!important}'
-               + '#main-wrapper>.container>.row>main{flex:0 0 100%!important;max-width:100%!important}'
-               + 'body{background:#05070a!important}';
-        }
+        // Solo lo imprescindible: scroll instantáneo (lo movemos nosotros) y sin
+        // barra de scroll. La página se deja intacta, tal cual se ve en el blog.
+        var css = 'html{scroll-behavior:auto!important;scrollbar-width:none}'
+                + '::-webkit-scrollbar{width:0;height:0}'
+                + '#back-to-top{display:none!important}';
         var st = d.createElement('style');
         st.textContent = css;
         d.head.appendChild(st);
@@ -95,7 +104,17 @@
   function warmFrame(f, i) {
     var d; try { d = f.contentDocument; } catch (e) { d = null; }
     measure(f);
-    function finish() { measure(f); render(cur); markReady(i); }
+    // Mientras precarga se estira el iframe a la altura de la página entera: así
+    // el navegador maqueta y decodifica TODAS las imágenes de golpe. Al acabar
+    // vuelve al tamaño del hueco, que es como se reproduce.
+    if (f._h) f.style.height = f._h + 'px';
+    function finish() {
+      f.style.height = '';
+      measure(f);
+      scrollFrame(f, 0);
+      render(cur);
+      markReady(i);
+    }
     if (!d) { finish(); return; }
     var imgs = [].slice.call(d.images || []);
     imgs.forEach(function (img) {
@@ -174,16 +193,13 @@
     var H = frames.clientHeight, ch = f._h || H;
     var elapsed = Math.max(0, t - (seg.motionStart != null ? seg.motionStart : seg.start)); // arranca en el negro de entrada y sigue tras el fin
     var dur = seg.end - seg.start;
-    var s = 1, ty = 0, oy = '0%';
+    var s = 1, y = 0;
     if (seg.kind === 'zoomout') {
       // Zoom-out a ritmo fijo y lento (HOME_ZOOM_SPAN), independiente de la
       // duración del tramo: la transición entra antes y el zoom NO termina.
-      oy = '35%';
       var q = clamp(elapsed / HOME_ZOOM_SPAN, 0, 1);
       s = 1.12 - 0.12 * easeOut(q);                // 1.12 → 1.0
-      ty = -0.03 * Math.max(0, s * ch - H);
     } else { // scroll vertical a velocidad constante (ya se mueve al quitar el fundido)
-      oy = '0%';
       var D = Math.max(0, ch - H);
       var v;
       if (seg.speedPx != null) {
@@ -199,20 +215,24 @@
       if (seg.startAtId) {
         if (!seg._startOff) {
           try {
-            var sel = iframes[seg.page].contentDocument.getElementById(seg.startAtId);
+            var sd = iframes[seg.page].contentDocument;
+            var sel = sd.getElementById(seg.startAtId);
             // startAtText afina dentro de la sección (p. ej. una CVE concreta): los
             // posts son generados y sus párrafos no llevan id, así que se busca por
             // texto, y solo ahí dentro para no cazar una mención anterior.
             if (sel && seg.startAtText) sel = findText(sel, seg.startAtText) || sel;
-            if (sel) { var so = sel.getBoundingClientRect().top - 24; if (so > 0) seg._startOff = so; }
+            if (sel) { var so = docTop(sd, sel) - 24; if (so > 0) seg._startOff = so; }
           } catch (e) {}
         }
         if (seg._startOff) startOffset = Math.min(seg._startOff, D);
       }
-      ty = -Math.min(D, startOffset + v * elapsed);
+      y = Math.min(D, startOffset + v * elapsed);
     }
-    f.style.transformOrigin = '50% ' + oy;
-    f.style.transform = 'translate(0px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
+    // El pivote del zoom es la esquina de arriba a la izquierda: ahí están la foto
+    // de perfil y el menú, y con el pivote en el centro se salían de cuadro.
+    f.style.transformOrigin = '0% 0%';
+    f.style.transform = 'scale(' + s.toFixed(3) + ')';
+    scrollFrame(f, Math.round(y));
   }
 
   var activeIdx = 0;
