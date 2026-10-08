@@ -12,7 +12,8 @@
   //  0) Fundido DE negro: aparece el Inicio y hace zoom-out (empieza
   //     a la vez que el fundido). Antes de acabar el zoom ya funde a negro.
   //  1) Write-ups: scroll hacia abajo por las máquinas (rápido).
-  //  2) Writeup de Dolibarr: scroll hacia abajo por el writeup.
+  //  2) Writeup de Dolibarr: arranca en Enumeracion y baja al mismo
+  //     ritmo calmado que /writeups y el roadmap; corto, solo esa parte.
   //  3) Roadmap: scroll hacia abajo; al pasar las "easy" empieza el
   //     fundido y sigue bajando tapado por el negro.
   //  4) Inicio otra vez (zoom-out) y a negro.
@@ -26,7 +27,7 @@
     { trans: 'fade', dur: 0.9 },
     { page: 1, kind: 'scroll',  dur: 2.5, fadeAt: 0.33 }, // Write-ups (transición 3 s antes, misma velocidad)
     { trans: 'fade', dur: 0.9 },
-    { page: 2, kind: 'scroll',  dur: 11, fadeAt: 0.80, speedFrom: 3, speedFactor: 0.6, startAtId: 'enumeracion' }, // Dolibarr (lento; arranca en Enumeración)
+    { page: 2, kind: 'scroll',  dur: 5, speedPx: 105, startAtId: 'enumeracion' }, // Dolibarr (arranca en Enumeración; ritmo calmado, no recorre todo)
     { trans: 'fade', dur: 0.9 },
     { page: 3, kind: 'scroll',  dur: 9, fadeAt: 0.45 },   // Roadmap (misma velocidad que antes; funde 2 s antes)
     { trans: 'fade', dur: 0.9 },
@@ -124,7 +125,14 @@
     var t = 0;
     PLAN.forEach(function (it) {
       if (it.trans) { segs.push({ type: 'trans', eff: it.trans, dur: it.dur, start: t, end: t + it.dur }); t += it.dur; }
-      else { segs.push({ type: 'page', page: it.page, kind: it.kind, fadeAt: it.fadeAt, start: t, end: t + it.dur }); t += it.dur; }
+      else {
+        // OJO: hay que copiar TODOS los ajustes del tramo (speedPx, startAtId…);
+        // si alguno se queda fuera, applyPage cae al cálculo por defecto y el
+        // scroll se dispara.
+        segs.push({ type: 'page', page: it.page, kind: it.kind, fadeAt: it.fadeAt,
+                    speedPx: it.speedPx, startAtId: it.startAtId, start: t, end: t + it.dur });
+        t += it.dur;
+      }
     });
     TOTAL = t;
     // exit = cuánto sigue moviéndose la página DESPUÉS de su fin (tapada por el
@@ -145,10 +153,6 @@
       for (var b = m + 1; b < segs.length; b++) if (segs[b].type === 'page') { segs[m].toSeg = segs[b]; break; }
     }
   })();
-  // Índice de tramos de scroll por página (para copiar velocidad entre páginas).
-  var pageScrollSeg = {};
-  segs.forEach(function (s) { if (s.type === 'page' && s.kind === 'scroll') pageScrollSeg[s.page] = s; });
-
   // ====== easings ======
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
   function easeIO(k) { return k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; }
@@ -171,13 +175,10 @@
       oy = '0%';
       var D = Math.max(0, ch - H);
       var v;
-      if (seg.speedFrom != null && pageScrollSeg[seg.speedFrom]) {
-        // Copia la velocidad (px/s) de otra página de scroll, medida en tiempo real.
-        var rs = pageScrollSeg[seg.speedFrom];
-        var rf = iframes[rs.page], rD = Math.max(0, (rf._h || H) - H), rdur = rs.end - rs.start;
-        var rfade = rs.fadeAt || 0.7;
-        v = rdur > 0 ? (rfade * rD / rdur) : 0;
-        v *= (seg.speedFactor || 1);               // <1 = más lento que la página de referencia
+      if (seg.speedPx != null) {
+        // Velocidad fija en px/s: el tramo NO tiene que recorrer la página entera,
+        // así una página muy larga (un writeup) se lee al mismo ritmo que una corta.
+        v = seg.speedPx;
       } else {
         var fadeAt = seg.fadeAt || 0.7;            // fracción recorrida cuando empieza la salida
         v = dur > 0 ? (fadeAt * D / dur) : 0;      // sigue a la misma velocidad durante el fundido
