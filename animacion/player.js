@@ -14,8 +14,8 @@
   //  1) Write-ups: scroll hacia abajo por las máquinas (rápido).
   //  2) Writeup de Dolibarr: arranca en Explotacion y baja al mismo
   //     ritmo calmado que /writeups y el roadmap; corto, solo esa parte.
-  //  3) Roadmap: scroll hacia abajo; al pasar las "easy" empieza el
-  //     fundido y sigue bajando tapado por el negro.
+  //  3) Roadmap: arranca en las easy y baja hasta que asoman las medium;
+  //     el fundido entra ahi, con la pagina aun bajando tapada por el negro.
   //  4) Inicio otra vez (zoom-out) y a negro.
   // ============================================================
   var PAGES = ['/', '/writeups/', '/posts/dolibarr/', '/roadmap/'];
@@ -23,15 +23,15 @@
   var HIDE_CHROME = { 1: true, 2: true, 3: true };
 
   var PLAN = [
-    { page: 0, kind: 'zoomout', dur: 3.2 },               // Inicio (zoom-out) → antes a Write-ups
+    { page: 0, kind: 'zoomout', dur: 4.2 },               // Inicio (zoom-out) → antes a Write-ups
     { trans: 'fade', dur: 0.9 },
-    { page: 1, kind: 'scroll',  dur: 2.5, fadeAt: 0.33 }, // Write-ups (transición 3 s antes, misma velocidad)
+    { page: 1, kind: 'scroll',  dur: 4.5, fadeAt: 0.594 }, // Write-ups (fadeAt sube con dur para NO frenar: 0.594/4.5 = 0.33/2.5)
     { trans: 'fade', dur: 0.9 },
-    { page: 2, kind: 'scroll',  dur: 7, speedPx: 105, startAtId: 'explotacion' }, // Dolibarr (arranca en Explotación; ritmo calmado, no recorre todo)
+    { page: 2, kind: 'scroll',  dur: 9, speedPx: 105, startAtId: 'explotacion', startAtText: 'CVE-2023-38888' }, // Dolibarr (arranca en la 2ª CVE de Explotación; ritmo calmado, no recorre todo)
     { trans: 'fade', dur: 0.9 },
-    { page: 3, kind: 'scroll',  dur: 9, fadeAt: 0.45 },   // Roadmap (misma velocidad que antes; funde 2 s antes)
+    { page: 3, kind: 'scroll',  dur: 11, speedPx: 135, startAtId: 'easy' }, // Roadmap (arranca en las easy; al acabar el tramo ya se ven las 6 primeras medium)
     { trans: 'fade', dur: 0.9 },
-    { page: 0, kind: 'zoomout', dur: 4 }                  // Inicio otra vez → negro
+    { page: 0, kind: 'zoomout', dur: 5 }                  // Inicio otra vez → negro
   ];
   var INTRO = 1.2;   // fundido de entrada (de negro al Inicio)
   var OUTRO = 1.8;   // fundido de salida final (a negro)
@@ -130,7 +130,8 @@
         // si alguno se queda fuera, applyPage cae al cálculo por defecto y el
         // scroll se dispara.
         segs.push({ type: 'page', page: it.page, kind: it.kind, fadeAt: it.fadeAt,
-                    speedPx: it.speedPx, startAtId: it.startAtId, start: t, end: t + it.dur });
+                    speedPx: it.speedPx, startAtId: it.startAtId, startAtText: it.startAtText,
+                    start: t, end: t + it.dur });
         t += it.dur;
       }
     });
@@ -158,6 +159,16 @@
   function easeIO(k) { return k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; }
   function easeOut(k) { return 1 - Math.pow(1 - k, 3); }
 
+  // Primer elemento "hoja" dentro de root cuyo texto contiene txt (para anclar
+  // el scroll a un párrafo sin id).
+  function findText(root, txt) {
+    var all = root.querySelectorAll('h1,h2,h3,h4,p,span,li');
+    for (var i = 0; i < all.length; i++) {
+      if (all[i].textContent.indexOf(txt) >= 0 && !all[i].querySelector('*')) return all[i];
+    }
+    return null;
+  }
+
   // ====== transform por página (en función del tiempo absoluto) ======
   function applyPage(f, seg, t) {
     var H = frames.clientHeight, ch = f._h || H;
@@ -183,12 +194,16 @@
         var fadeAt = seg.fadeAt || 0.7;            // fracción recorrida cuando empieza la salida
         v = dur > 0 ? (fadeAt * D / dur) : 0;      // sigue a la misma velocidad durante el fundido
       }
-      // Arranque del scroll en una sección concreta (p. ej. 'enumeracion'), no arriba del todo.
+      // Arranque del scroll en una sección concreta (p. ej. 'explotacion'), no arriba del todo.
       var startOffset = 0;
       if (seg.startAtId) {
         if (!seg._startOff) {
           try {
             var sel = iframes[seg.page].contentDocument.getElementById(seg.startAtId);
+            // startAtText afina dentro de la sección (p. ej. una CVE concreta): los
+            // posts son generados y sus párrafos no llevan id, así que se busca por
+            // texto, y solo ahí dentro para no cazar una mención anterior.
+            if (sel && seg.startAtText) sel = findText(sel, seg.startAtText) || sel;
             if (sel) { var so = sel.getBoundingClientRect().top - 24; if (so > 0) seg._startOff = so; }
           } catch (e) {}
         }

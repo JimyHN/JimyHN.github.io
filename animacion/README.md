@@ -11,9 +11,9 @@ su movimiento (sigue moviéndose tapada por el negro).
 1. Fundido **de negro al Inicio**, que hace zoom-out (empieza a la vez que el
    fundido); antes de acabar el zoom ya empieza a fundir a negro.
 2. **Write-ups**: scroll hacia abajo por las máquinas (rápido).
-3. **Writeup de Dolibarr**: arranca en la sección Explotación y baja despacio, lo justo para leerla.
-4. **Roadmap**: scroll hacia abajo; al pasar las "easy" empieza el fundido y
-   sigue bajando tapado por el negro.
+3. **Writeup de Dolibarr**: arranca en la segunda CVE de Explotación y baja despacio, lo justo para leerla.
+4. **Roadmap**: arranca en las "easy" y baja hasta que asoman las "medium";
+   el fundido entra ahí, con la página todavía bajando tapada por el negro.
 5. **Inicio** otra vez (zoom-out) y a negro.
 
 ## Uso
