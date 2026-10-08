@@ -174,14 +174,17 @@
     var H = frames.clientHeight, ch = f._h || H;
     var elapsed = Math.max(0, t - (seg.motionStart != null ? seg.motionStart : seg.start)); // arranca en el negro de entrada y sigue tras el fin
     var dur = seg.end - seg.start;
-    var s = 1, ty = 0, oy = '0%';
+    var s = 1, ty = 0, ox = '50%', oy = '0%';
     if (seg.kind === 'zoomout') {
       // Zoom-out a ritmo fijo y lento (HOME_ZOOM_SPAN), independiente de la
       // duración del tramo: la transición entra antes y el zoom NO termina.
-      oy = '35%';
+      // Pivota en la esquina de arriba a la izquierda, que es donde están la foto
+      // de perfil y el menú: con el pivote centrado se salían de cuadro (y el 35%
+      // era porcentaje de la ALTURA DEL IFRAME, la página entera, no del hueco
+      // visible, así que el pivote caía muy por debajo y los empujaba aún más).
+      ox = '0%'; oy = '0%';
       var q = clamp(elapsed / HOME_ZOOM_SPAN, 0, 1);
       s = 1.12 - 0.12 * easeOut(q);                // 1.12 → 1.0
-      ty = -0.03 * Math.max(0, s * ch - H);
     } else { // scroll vertical a velocidad constante (ya se mueve al quitar el fundido)
       oy = '0%';
       var D = Math.max(0, ch - H);
@@ -211,7 +214,7 @@
       }
       ty = -Math.min(D, startOffset + v * elapsed);
     }
-    f.style.transformOrigin = '50% ' + oy;
+    f.style.transformOrigin = ox + ' ' + oy;
     f.style.transform = 'translate(0px,' + ty.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
   }
 
