@@ -1382,6 +1382,19 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
   white-space: nowrap;
 }
 
+.hx-rm-name a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.hx-rm-name a:hover,
+.hx-rm-name a:focus-visible {
+  color: var(--hx-green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .hx-rm-note {
   margin-left: 0.4rem;
   font-size: 0.65rem;
@@ -1398,6 +1411,33 @@ article:has(.hx-roadmap) > .content { margin-top: 1.5rem; }
 .hx-rm-muted { color: var(--hx-muted); opacity: 0.6; }
 
 .hx-diff-very-easy { color: var(--hx-cyan); }
+
+/* Valoración de dificultad de la comunidad (gráfica de 10 barras estilo HTB) */
+.hx-rm-rating { white-space: nowrap; }
+.hx-rm-rating-h { white-space: nowrap; }
+
+.hx-drbars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 26px;
+  line-height: 0;
+  vertical-align: middle;
+}
+
+.hx-drbar {
+  width: 4px;
+  min-height: 2px;
+  height: var(--h, 2px);
+  border-radius: 1px;
+  opacity: 0.88;
+}
+
+.hx-drbar-g { background: var(--hx-easy); }
+.hx-drbar-o { background: var(--hx-medium); }
+.hx-drbar-r { background: var(--hx-hard); }
+
+.content .hx-rm-table tbody tr:hover .hx-drbar { opacity: 1; }
 
 .hx-status {
   display: inline-flex;

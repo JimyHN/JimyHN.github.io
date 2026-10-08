@@ -31,13 +31,18 @@ jobs:
           HTB_TOKEN: ${{ secrets.HTB_TOKEN }}
         run: python3 dev/tools/htb_update.py
 
+      - name: Actualizar _data/htb_difficulty.json (gráfica de valoración)
+        env:
+          HTB_TOKEN: ${{ secrets.HTB_TOKEN }}
+        run: python3 dev/tools/htb_difficulty.py
+
       - name: Commit si hay cambios
         run: |
-          git add _data/htb.yml
-          if [[ -n "$(git status --porcelain _data/htb.yml)" ]]; then
+          git add _data/htb.yml _data/htb_difficulty.json
+          if [[ -n "$(git status --porcelain _data/htb.yml _data/htb_difficulty.json)" ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "HTB: actualizar nivel y avatar automáticamente"
+            git commit -m "HTB: actualizar nivel, avatar y valoración de dificultad automáticamente"
             git push
           else
             echo "Sin cambios en _data/"

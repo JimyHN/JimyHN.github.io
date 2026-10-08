@@ -24,6 +24,7 @@ order: 8
             <th>Máquina</th>
             <th>SO</th>
             <th>Dificultad</th>
+            <th class="hx-rm-rating-h" title="Dificultad valorada por la comunidad en HackTheBox">Valoración</th>
             <th>Estado</th>
             <th>Write-up</th>
           </tr>
@@ -44,7 +45,7 @@ order: 8
             {%- elsif os_down contains 'linux' -%}{%- assign os_key = 'linux' -%}
             {%- else -%}{%- assign os_key = 'otros' -%}{%- endif -%}
             <tr data-name="{{ m.name | downcase }}" data-diff="{{ m.difficulty | downcase }}" data-os="{{ os_key }}" data-platform="{{ p.platform | downcase | remove: ' ' }}">
-              <td class="hx-rm-name">{{ m.name }}</td>
+              <td class="hx-rm-name"><a href="https://app.hackthebox.com/machines/{{ m.name | uri_escape }}" target="_blank" rel="noopener" title="Abrir {{ m.name }} en HackTheBox">{{ m.name }}</a></td>
               <td class="hx-rm-os">
                 {%- if os_down contains 'windows' %}<i class="fab fa-windows" aria-hidden="true"></i>{% endif -%}
                 {%- if os_down contains 'linux' %}<i class="fab fa-linux" aria-hidden="true"></i>{% endif -%}
@@ -53,6 +54,21 @@ order: 8
                 {{ m.os }}
               </td>
               <td><span class="hx-badge hx-diff-{{ m.difficulty | downcase }}">{{ m.difficulty }}</span></td>
+              <td class="hx-rm-rating">
+                {%- assign rt = site.data.htb_difficulty.machines[m.name] -%}
+                {%- if rt and rt.total > 0 -%}
+                  <span class="hx-drbars" title="Valoración de la comunidad · {{ rt.total }} votos">
+                    {%- for h in rt.bars -%}
+                      {%- if forloop.index0 < 3 -%}{%- assign cls = 'g' -%}
+                      {%- elsif forloop.index0 < 7 -%}{%- assign cls = 'o' -%}
+                      {%- else -%}{%- assign cls = 'r' -%}{%- endif -%}
+                      <span class="hx-drbar hx-drbar-{{ cls }}" style="--h: {{ h }}%"></span>
+                    {%- endfor -%}
+                  </span>
+                {%- else -%}
+                  <span class="hx-rm-muted" title="Sin datos de valoración">—</span>
+                {%- endif -%}
+              </td>
               <td>
                 {%- if wp.proof -%}
                   <a class="hx-status hx-status-{{ status | downcase | replace: ' ', '-' }} hx-status-proof" href="{{ wp.proof }}" target="_blank" rel="noopener" title="Comprobar máquina comprometida">{{ status }} <i class="fas fa-shield-halved" aria-hidden="true"></i></a>
