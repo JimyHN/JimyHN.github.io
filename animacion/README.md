@@ -9,8 +9,7 @@ quita el fundido de entrada, y el fundido de salida empieza antes de que termine
 su movimiento (sigue moviéndose tapada por el negro).
 
 1. Fundido **de negro al Inicio**, que hace zoom-out (empieza a la vez que el
-   fundido); antes de acabar el zoom ya empieza a fundir a negro. El zoom pivota
-   en la esquina de arriba a la izquierda para no recortar la foto ni el menú.
+   fundido); antes de acabar el zoom ya empieza a fundir a negro.
 2. **Write-ups**: scroll hacia abajo por las máquinas (rápido).
 3. **Writeup de Dolibarr**: arranca en la segunda CVE de Explotación y baja despacio, lo justo para leerla.
 4. **Roadmap**: arranca en las "easy" y baja hasta que asoman las "medium";
@@ -56,11 +55,9 @@ acceso directo)*.
 
 ## Ajustes
 
-En `player.js`, arriba: `PAGES` (páginas), `PLAN` (orden, tipo de movimiento y
-duración de cada tramo y transición) e `INTRO`/`OUTRO` (fundidos de entrada y
-salida). Cada tramo de scroll acepta `speedPx` (velocidad en px/s), `startAtId`
-(arrancar en una sección, no arriba del todo) y `startAtText` (afinar dentro de
-esa sección buscando un texto, para párrafos sin `id`).
+En `player.js`, arriba: `PAGES` (páginas), `HIDE_CHROME` (cuáles se muestran sin
+columnas laterales), `PLAN` (orden, tipo de movimiento y duración de cada tramo y
+transición) e `INTRO`/`OUTRO` (fundidos de entrada y salida).
 
 ## Ficheros
 
