@@ -12,7 +12,7 @@
   //  0) Fundido DE negro: aparece el Inicio y hace zoom-out (empieza
   //     a la vez que el fundido). Antes de acabar el zoom ya funde a negro.
   //  1) Write-ups: scroll hacia abajo por las máquinas (rápido).
-  //  2) Writeup de Dolibarr: arranca en Enumeracion y baja al mismo
+  //  2) Writeup de Dolibarr: arranca en Explotacion y baja al mismo
   //     ritmo calmado que /writeups y el roadmap; corto, solo esa parte.
   //  3) Roadmap: scroll hacia abajo; al pasar las "easy" empieza el
   //     fundido y sigue bajando tapado por el negro.
@@ -27,7 +27,7 @@
     { trans: 'fade', dur: 0.9 },
     { page: 1, kind: 'scroll',  dur: 2.5, fadeAt: 0.33 }, // Write-ups (transición 3 s antes, misma velocidad)
     { trans: 'fade', dur: 0.9 },
-    { page: 2, kind: 'scroll',  dur: 5, speedPx: 105, startAtId: 'enumeracion' }, // Dolibarr (arranca en Enumeración; ritmo calmado, no recorre todo)
+    { page: 2, kind: 'scroll',  dur: 7, speedPx: 105, startAtId: 'explotacion' }, // Dolibarr (arranca en Explotación; ritmo calmado, no recorre todo)
     { trans: 'fade', dur: 0.9 },
     { page: 3, kind: 'scroll',  dur: 9, fadeAt: 0.45 },   // Roadmap (misma velocidad que antes; funde 2 s antes)
     { trans: 'fade', dur: 0.9 },
