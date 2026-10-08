@@ -1,0 +1,32 @@
+{
+  "name": "Arctic",
+  "ip": "10.129.70.50",
+  "os": "Linux",
+  "diff": "Easy",
+  "plat": "HackTheBox",
+  "date": "2026-10-08",
+  "desc": "",
+  "tags": "",
+  "url": "https://labs.hackthebox.com/achievement/machine/2772097/9",
+  "sections": {
+    "reconocimiento": "Búsqueda de puertos abiertos en la máquina víctima\n\n```term\n$ sudo nmap -p- -Pn -sS -n --max-retries 1 arctic\n```\n\n```table\n{\"corners\":\"round\",\"cells\":[[{\"t\":\"Puerto\",\"b\":true,\"a\":\"c\",\"c\":\"p\"},{\"t\":\"Servicio\",\"b\":true,\"a\":\"c\",\"c\":\"p\"}],[{\"t\":\"\",\"a\":\"l\"},{\"t\":\"\",\"a\":\"l\"}],[{\"t\":\"\",\"a\":\"l\"},{\"t\":\"\",\"a\":\"l\"}]],\"v\":[{\"on\":true,\"color\":\"#243244\",\"w\":1},{\"on\":false},{\"on\":true,\"color\":\"#243244\",\"w\":1}],\"h\":[{\"on\":true,\"color\":\"#243244\",\"w\":1},{\"on\":true,\"color\":\"page\",\"w\":3},{\"on\":false},{\"on\":true,\"color\":\"#243244\",\"w\":1}]}\n```\n\nEnumeración de versiones de los servicios encontrados\n\n```term\n$ sudo nmap -p PUERTOS -n -sCV --version-intensity 9 arctic\n```\n",
+    "explotacion": "<b>Manera 1 —</b> \n\n```term\n$ \n```\n\n<b>Manera 2 —</b> \n\n```term\n$ \n```\n\n<b>Manera 3 —</b> \n\n```term\n$ \n```\n",
+    "flags": "```term\n$ cat /home/USUARIO/user.txt\n```\n\n```term\n$ cat /root/root.txt\n```\n"
+  },
+  "notes": {
+    "vulnerabilidad": "<br>CVE-2010-2861</br>\n\nEscalada de privilegios\n<br>CVE-2010-2554</br>\nChimichurri MS10-059",
+    "reconocimiento": "PORT      STATE SERVICE VERSION\n135/tcp   open  msrpc   Microsoft Windows RPC\n8500/tcp  open  http    JRun Web Server\n49154/tcp open  msrpc   Microsoft Windows RPC\nService Info: OS: Windows; CPE: cpe:/o:microsoft:windows\n\nSO: Windows",
+    "enumeracion": "PORT      STATE SERVICE VERSION\n135/tcp   open  msrpc   Microsoft Windows RPC\n8500/tcp  open  http    JRun Web Server\n49154/tcp open  msrpc   Microsoft Windows RPC\nService Info: OS: Windows; CPE: cpe:/o:microsoft:windows\n\nEnumeración en la web\nhttp://10.129.70.50:8500/CFIDE/administrator/enter.cfm\n\nEnumeración de versiones: ABODE COLDFUSION 8\n\nCOLDFUSION permite extensiones php, jsp, asp",
+    "explotacion": "Tiramos del exploit de searchsploit de Path Trasversal, 14641.py, el cual busca hacer un Path trasversal a \n\nhttp://server/CFIDE/administrator/enter.cfm?locale=../../../../../../../../../../ColdFusion8/lib/password.properties%00en\n\nAutomatizando la lectura del archivo en el que sacamos la contraseña del panel de ColdFusion de administrador directamente, aunque la saca hasheada\n\nProbamos inicialmente en crackstation.net en el cual nos saca directamente el resultado, i no deberiamos haber usado hasid o hash-identifier para sacar que es un SHA-1 y posteriormente crackearlo con herramientas como JohnTheReaper o Hashcat\n\nAhora que accedemos al panel de administrador, la idea es que vemos que en Mappings tenemos un directorio donde podemos ver los archivos que se suben.\n\nCreando un schedule task, vamos a hacer que de una URL que le proporcionemos, la cual será un servidor nuestro, descargue ese archivo que nosotros queremos y lo meta dentro de la ruta de mappings\n\nNos hacemos con terminal y con la flag <u><bc>user.txt</bc></u>\n",
+    "escalada": "\nLuego hacemos systeminfo para tirar de wesng que es como el suggester pero moderno\n\nTitle: Vulnerabilities in the Tracing Feature for Services Could Allow Elevation of Privilege\nAffected product: Windows Server 2008 R2 for x64-based Systems\nAffected component: \nSeverity: Important\nImpact: Elevation of Privilege\nExploit: https://exploit-db.com/exploits/14610\n\nMS10-059\n",
+    "conclusiones": "Máquina fácil, con cosas escondidas, pero sobretodo la tortura mayor es los tiempos de espera, entre cada petición a la web hay que esperar una eternidad lo que te lleva a desesperarte un poco y a tardar más de la cuenta\n\nEn cuanto a la escalada, bastante sencilla, tiene multitud de CVEs posibles para escalar auqnue no funcionen todas"
+  },
+  "accent": "46 230 214",
+  "img": {
+    "avatar": "/assets/img/machines/arctic.png",
+    "banner": "/assets/img/machines/arctic-banner.png",
+    "proof": "https://labs.hackthebox.com/achievement/machine/2772097/9"
+  },
+  "mode": "add",
+  "status": "Resuelta"
+}
