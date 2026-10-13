@@ -23,6 +23,17 @@
   .ed-row { display:flex; flex-wrap:wrap; gap:0.6rem; margin-bottom:0.8rem; }
   .ed-field { display:flex; flex-direction:column; gap:0.2rem; flex:1; min-width:120px; }
   .ed-field label { font-size:0.7rem; color:var(--ed-mut); text-transform:uppercase; letter-spacing:0.05em; }
+  .ed-plat { flex:0 0 310px; }
+  .ed-req { color:#ff6b6b; font-size:0.62rem; font-weight:700; letter-spacing:0.06em; }
+  .ed-plat-opts { display:flex; gap:0.4rem; }
+  .ed-plat-opt { display:flex !important; align-items:center; gap:0.35rem; flex:1;
+                 padding:0.35rem 0.55rem; border:1px solid var(--ed-border); border-radius:6px;
+                 background:var(--ed-panel); cursor:pointer; text-transform:none !important;
+                 letter-spacing:0 !important; font-size:0.8rem !important; color:#e6edf3 !important; }
+  .ed-plat-opt input { accent-color:var(--ed-green); margin:0; padding:0; }
+  .ed-plat-opt:has(input:checked) { border-color:var(--ed-green); box-shadow:0 0 0 1px var(--ed-green) inset; }
+  .ed-plat-missing .ed-plat-opt { border-color:#ff6b6b; animation:edShake .35s; }
+  @keyframes edShake { 25%{transform:translateX(-3px)} 75%{transform:translateX(3px)} }
   input, select, textarea { background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:6px; color:#e6edf3; font-family:inherit; font-size:0.85rem; padding:0.4rem 0.6rem; }
   input:focus, select:focus, textarea:focus { outline:none; border-color:var(--ed-green); }
   textarea { width:100%; min-height:120px; resize:vertical; line-height:1.5; }
@@ -244,7 +255,11 @@
     <div class="ed-row">
       <div class="ed-field"><label>SO</label><select id="f-os"><option>Linux</option><option>Windows</option><option>Otros</option></select></div>
       <div class="ed-field"><label>Dificultad</label><select id="f-diff"><option>Easy</option><option>Medium</option><option>Hard</option><option>Insane</option></select></div>
-      <div class="ed-field"><label>Plataforma</label><input id="f-plat" value="HackTheBox"></div>
+      <div class="ed-field ed-plat" id="f-plat-row"><label>Plataforma <b class="ed-req">obligatorio</b></label>
+        <div class="ed-plat-opts">
+          <label class="ed-plat-opt"><input type="radio" name="plat" value="HackTheBox" onchange="onPlat()"><span>HackTheBox</span></label>
+          <label class="ed-plat-opt"><input type="radio" name="plat" value="Investigacion" onchange="onPlat()"><span>Investigación</span></label>
+        </div></div>
     </div>
     <div class="ed-row">
       <div class="ed-field"><label>Fecha</label><input id="f-date" type="date"></div>
@@ -538,6 +553,33 @@ document.querySelectorAll('textarea[data-sec], textarea[data-note]').forEach(ta 
 // ---------- Recogida de datos y render ----------
 function val(id) { return document.getElementById(id).value.trim(); }
 
+// ---------- Plataforma (obligatoria: sin elegir no se guarda ni se publica) ----------
+function platVal() {
+  const r = document.querySelector('input[name="plat"]:checked');
+  return r ? r.value : '';
+}
+function setPlat(v) {
+  const want = (v || '').trim().toLowerCase().replace(/\s+/g, '');
+  document.querySelectorAll('input[name="plat"]').forEach(r => {
+    r.checked = r.value.toLowerCase().replace(/\s+/g, '') === want;
+  });
+  onPlat();
+}
+function onPlat() {
+  // markDirty ya lo dispara el listener global de inputs (más abajo)
+  if (platVal()) document.getElementById('f-plat-row').classList.remove('ed-plat-missing');
+}
+function exigePlat() {
+  if (platVal()) return true;
+  const row = document.getElementById('f-plat-row');
+  row.classList.remove('ed-plat-missing');
+  void row.offsetWidth;                       // reinicia la animación
+  row.classList.add('ed-plat-missing');
+  row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setSave('Elige la plataforma', 'err');
+  return false;
+}
+
 function collectData() {
   const sections = {};
   SECTIONS.forEach(s => { const v = document.getElementById('t-' + s.id).value; if (v.trim()) sections[s.id] = v; });
@@ -545,7 +587,7 @@ function collectData() {
   NOTE_SECTIONS.forEach(s => { const v = document.getElementById('n-' + s.id).value; if (v.trim()) notes[s.id] = v; });
   const d = {
     name: val('f-name'), ip: val('f-ip'), os: val('f-os'), diff: val('f-diff'),
-    plat: val('f-plat'), date: val('f-date'), desc: val('f-desc'), tags: val('f-tags'),
+    plat: platVal(), date: val('f-date'), desc: val('f-desc'), tags: val('f-tags'),
     url: val('f-url'), sections,
   };
   if (val('f-version')) d.version = val('f-version');
@@ -885,6 +927,7 @@ function hideOp() { document.getElementById('op-ov').classList.remove('open'); }
 // ---------- Guardar (manual, con ventana ≥5 s; no publica) ----------
 async function guardar() {
   if (!val('f-name')) { openNombre(); return; }
+  if (!exigePlat()) return;
   if (_saving) return;
   _saving = true;
   const t0 = Date.now();
@@ -902,7 +945,7 @@ async function guardar() {
 
 // ---------- Autoguardado silencioso (solo máquinas NO publicadas) ----------
 async function autoSave() {
-  if (_published || _saving || !_dirty || !val('f-name')) return;
+  if (_published || _saving || !_dirty || !val('f-name') || !platVal()) return;
   _saving = true;
   try {
     const d = await (await fetch('/api/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(collectData()) })).json();
@@ -914,6 +957,7 @@ async function autoSave() {
 // ---------- Publicar (ventana ≥5 s; guarda, regenera el post y cierra el editor) ----------
 async function publicar() {
   if (!val('f-name')) { openNombre(); return; }
+  if (!exigePlat()) return;
   if (_saving) return;
   _saving = true;
   const t0 = Date.now();
@@ -1388,7 +1432,7 @@ function fillFrom(d) {
   document.getElementById('f-ip').value = d.ip || '';
   if (d.os) document.getElementById('f-os').value = d.os;
   if (d.diff) document.getElementById('f-diff').value = d.diff;
-  document.getElementById('f-plat').value = d.plat || 'HackTheBox';
+  setPlat(d.plat || '');
   document.getElementById('f-date').value = (d.date || '').slice(0, 10) || new Date().toISOString().slice(0, 10);
   document.getElementById('f-desc').value = d.desc || '';
   document.getElementById('f-url').value = (d.img && d.img.proof) || d.url || '';
