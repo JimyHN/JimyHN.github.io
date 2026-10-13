@@ -32,7 +32,7 @@ UA = "JimyHN-blog-htb-updater/1.0"
 HEADER = """# Datos del perfil de HackTheBox para la sección "Nivel HackTheBox" del panel derecho.
 #
 # "rank", "avatar", "points" y "ranking" los actualiza solo el workflow diario
-# (.github/workflows/htb-update.yml). "level" y "badge" se ponen a mano aquí
+# (.github/workflows/actualizar-htb.yml). "level" y "badge" se ponen a mano aquí
 # y el workflow los RESPETA (no los pisa) mientras no encuentre el campo en la API.
 """
 

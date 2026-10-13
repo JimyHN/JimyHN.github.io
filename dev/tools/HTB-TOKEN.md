@@ -52,7 +52,7 @@ tocar nada más.
 
 ## El mismo token en GitHub Actions
 
-El workflow `.github/workflows/htb-update.yml` usa el secreto `HTB_TOKEN` del
+El workflow `.github/workflows/actualizar-htb.yml` usa el secreto `HTB_TOKEN` del
 repositorio, que es independiente del fichero local. Si renuevas el token,
 actualiza también:
 

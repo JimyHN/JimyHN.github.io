@@ -1,0 +1,65 @@
+name: "Actualizar datos de HackTheBox"
+
+# Refresca lo que el blog saca de HTB:
+#   - _data/htb.yml          perfil: nivel, rango, avatar, puntos y ranking
+#   - _data/htb_machines.yml dificultad votada de cada máquina (roadmap + write-ups)
+#
+# Sustituye al antiguo htb-update.yml, que solo cubría la mitad de las máquinas
+# porque no reintentaba cuando HTB limitaba las peticiones.
+
+on:
+  schedule:
+    # Todos los días a las 06:10 UTC (08:10 en Madrid, 07:10 en invierno)
+    - cron: "10 6 * * *"
+  # Permite lanzarlo a mano desde la pestaña Actions
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "actualizar-htb"
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    # Son ~112 máquinas con pausa entre peticiones: tarda unos 4 minutos.
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Perfil (nivel, rango y avatar)
+        env:
+          HTB_TOKEN: ${{ secrets.HTB_TOKEN }}
+        run: python3 dev/tools/htb_update.py
+
+      - name: Dificultad votada de cada máquina
+        env:
+          HTB_TOKEN: ${{ secrets.HTB_TOKEN }}
+        run: python3 dev/tools/htb_machines.py
+
+      - name: Commit si hay cambios
+        shell: bash
+        run: |
+          FICHEROS="_data/htb.yml _data/htb_machines.yml"
+          # La línea "updated:" cambia en cada ejecución aunque no cambie ningún
+          # dato: si es lo único que varía, no merece un commit.
+          reales=$(git diff -U0 -- $FICHEROS \
+            | grep -E '^[+-]' | grep -Ev '^(\+\+\+|---)' | grep -Evc '^[+-]updated:' || true)
+          if [[ "${reales:-0}" -eq 0 ]]; then
+            echo "Sin cambios reales en los datos de HTB."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- $FICHEROS
+          git commit -m "HTB: actualizar perfil y dificultad votada de las máquinas"
+          git push

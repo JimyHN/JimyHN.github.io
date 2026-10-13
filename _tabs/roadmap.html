@@ -23,7 +23,7 @@ order: 8
             <th>Máquina</th>
             <th>SO</th>
             <th>Dificultad</th>
-            <th>Dificultad votada</th>
+            <th class="hx-rm-rating-h" title="Dificultad votada por la comunidad en HackTheBox">Dificultad votada</th>
             <th>Estado</th>
             <th>Write-up</th>
           </tr>
@@ -43,7 +43,7 @@ order: 8
             {%- elsif os_down contains 'linux' -%}{%- assign os_key = 'linux' -%}
             {%- else -%}{%- assign os_key = 'otros' -%}{%- endif -%}
             <tr data-name="{{ m.name | downcase }}" data-diff="{{ m.difficulty | downcase }}" data-os="{{ os_key }}" data-platform="{{ p.platform | downcase | remove: ' ' }}">
-              <td class="hx-rm-name">{{ m.name }}</td>
+              <td class="hx-rm-name"><a href="https://app.hackthebox.com/machines/{{ m.name | uri_escape }}" target="_blank" rel="noopener" title="Abrir {{ m.name }} en HackTheBox">{{ m.name }}</a></td>
               <td class="hx-rm-os">
                 {%- if os_down contains 'windows' %}<i class="fab fa-windows" aria-hidden="true"></i>{% endif -%}
                 {%- if os_down contains 'linux' %}<i class="fab fa-linux" aria-hidden="true"></i>{% endif -%}
