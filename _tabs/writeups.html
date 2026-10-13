@@ -29,6 +29,10 @@ order: 1
           </p>
           {% if post.difficulty %}<span class="hx-badge hx-diff-{{ post.difficulty | downcase }}">{{ post.difficulty }}</span>{% endif %}
         </div>
+        {%- assign mname = post.machine | default: post.title -%}
+        {%- capture chart %}{% include hx-htb-chart.html machine=mname platform=post.platform %}{% endcapture -%}
+        {%- assign chart = chart | strip -%}
+        {%- unless chart == '' %}<span class="hx-mcard-chart">{{ chart }}</span>{% endunless -%}
       </a>
     {% endfor %}
   </div>

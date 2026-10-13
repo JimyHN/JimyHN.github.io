@@ -1,0 +1,36 @@
+{%- comment -%}
+  Gráfica de "dificultad votada" de una máquina de HackTheBox.
+  Los datos salen de _data/htb_machines.yml (lo genera dev/tools/htb_machines.py).
+
+  Parámetros:
+    machine  (obligatorio) nombre de la máquina, tal cual está en HTB
+    platform (opcional)    si se pasa y no es HackTheBox, no pinta nada
+    size     (opcional)    sm (por defecto) | md
+    labels   (opcional)    true para añadir el pie con el total de votos
+    na       (opcional)    true para pintar un "—" cuando no haya datos
+{%- endcomment -%}
+{%- assign _plat = include.platform | default: 'HackTheBox' | downcase | remove: ' ' -%}
+{%- if _plat == 'hackthebox' -%}
+  {%- assign _hm = site.data.htb_machines.machines[include.machine] -%}
+  {%- if _hm and _hm.chart and _hm.total > 0 -%}
+    {%- assign _max = _hm.chart | sort | last -%}
+    {%- assign _names = 'Cake,Very Easy,Easy,Too Easy,Medium,A bit hard,Hard,Too hard,Extremely hard,Brainfuck' | split: ',' -%}
+    {%- assign _cols = '#44f08a,#6ee26b,#97d34d,#c1c52e,#eab60f,#ffaf00,#ff8915,#ff7022,#ff5730,#ff3e3e' | split: ',' -%}
+    <span class="hx-htbc hx-htbc-{{ include.size | default: 'sm' }}" role="img"
+          aria-label="Dificultad votada en HackTheBox por {{ _hm.total }} usuarios">
+      <span class="hx-htbc-bars">
+        {%- for c in _hm.chart -%}
+          {%- if _max > 0 -%}{%- assign _h = c | times: 100 | divided_by: _max -%}{%- else -%}{%- assign _h = 0 -%}{%- endif -%}
+          <span class="hx-htbc-bar{% if c == 0 %} hx-htbc-zero{% endif %}"
+                style="--h: {{ _h }}%; --bc: {{ _cols[forloop.index0] }}"
+                title="{{ _names[forloop.index0] }}: {{ c }} voto{% unless c == 1 %}s{% endunless %}"></span>
+        {%- endfor -%}
+      </span>
+      {%- if include.labels -%}
+        <span class="hx-htbc-foot">{{ _hm.total }} voto{% unless _hm.total == 1 %}s{% endunless %}</span>
+      {%- endif -%}
+    </span>
+  {%- elsif include.na -%}
+    <span class="hx-htbc-na" title="Sin datos de HackTheBox todavía">—</span>
+  {%- endif -%}
+{%- endif -%}

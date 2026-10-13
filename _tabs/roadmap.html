@@ -11,7 +11,6 @@ order: 8
 
 {%- assign total = 0 -%}
 {%- assign solved = 0 -%}
-{%- assign doing = 0 -%}
 
 {%- capture tables -%}
   {%- assign p = site.data.oscp -%}
@@ -24,6 +23,7 @@ order: 8
             <th>Máquina</th>
             <th>SO</th>
             <th>Dificultad</th>
+            <th>Dificultad votada</th>
             <th>Estado</th>
             <th>Write-up</th>
           </tr>
@@ -38,7 +38,6 @@ order: 8
               {%- assign status = m.status | default: 'Pendiente' -%}
             {%- endif -%}
             {%- if status == 'Resuelta' -%}{%- assign solved = solved | plus: 1 -%}{%- endif -%}
-            {%- if status == 'En curso' -%}{%- assign doing = doing | plus: 1 -%}{%- endif -%}
             {%- assign os_down = m.os | downcase -%}
             {%- if os_down contains 'windows' -%}{%- assign os_key = 'windows' -%}
             {%- elsif os_down contains 'linux' -%}{%- assign os_key = 'linux' -%}
@@ -53,6 +52,7 @@ order: 8
                 {{ m.os }}
               </td>
               <td><span class="hx-badge hx-diff-{{ m.difficulty | downcase }}">{{ m.difficulty }}</span></td>
+              <td class="hx-rm-chart">{% include hx-htb-chart.html machine=m.name platform=p.platform na=true %}</td>
               <td>
                 {%- if wp.proof -%}
                   <a class="hx-status hx-status-{{ status | downcase | replace: ' ', '-' }} hx-status-proof" href="{{ wp.proof }}" target="_blank" rel="noopener" title="Comprobar máquina comprometida">{{ status }} <i class="fas fa-shield-halved" aria-hidden="true"></i></a>
@@ -85,7 +85,6 @@ order: 8
 
     <div class="hx-rm-stats">
       <div><span class="hx-rm-num">{{ solved }}</span><span>resueltas</span></div>
-      <div><span class="hx-rm-num">{{ doing }}</span><span>en curso</span></div>
       <div><span class="hx-rm-num">{{ total }}</span><span>máquinas</span></div>
     </div>
 

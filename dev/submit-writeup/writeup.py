@@ -584,6 +584,18 @@ def render_body(data: dict) -> str:
     h += f'<td class="wu-os wu-os-{osc}">{esc(os_name)}</td>'
     h += f'<td><span class="hx-badge hx-diff-{diff.lower()}">{esc(diff)}</span></td>'
     h += f'<td class="wu-ip">{esc(ip)}</td></tr></tbody></table>'
+    # Dificultad votada en HTB: solo para máquinas de HackTheBox.
+    # Se emite como include de Jekyll, así que los datos se refrescan en cada
+    # build desde _data/htb_machines.yml SIN tener que regenerar el post.
+    if (data.get("plat") or "HackTheBox").strip().lower().replace(" ", "") == "hackthebox":
+        _mq = name.replace('\\', '\\\\').replace('"', '\\"')
+        h += ('<div class="hx-wu-htb">'
+              '<div class="hx-wu-htb-lead"><b>Dificultad votada</b>'
+              '<small>por la comunidad de HackTheBox</small></div>'
+              '<div class="hx-wu-htb-plot">'
+              f'{{% include hx-htb-chart.html machine="{_mq}" platform="HackTheBox" size="md" labels=true %}}'
+              '<div class="hx-wu-htb-scale"><span>Cake</span><span>Brainfuck</span></div>'
+              '</div></div>')
     # Botón del certificado, debajo de la tabla
     if proof:
         h += (f'<button type="button" class="hx-wu-cert" data-cert="{esc(proof)}" '
@@ -1116,6 +1128,44 @@ def cmd_remove(args):
     step("Haz " + _c("git add -A && git commit && git push", Col.CYAN) + " para reflejarlo en el blog.")
 
 
+def cmd_regen(args):
+    """Regenera el HTML de todos los write-ups a partir de sus JSON.
+
+    Útil cuando cambia la plantilla (render_body) y hay que repasar los posts
+    ya publicados sin abrir el editor uno a uno. No toca los JSON ni las fechas.
+    """
+    banner()
+    fuentes = sorted(SOURCES.glob("*.json")) if SOURCES.is_dir() else []
+    if not fuentes:
+        warn("No hay ningún write-up en dev/submit-writeup/write-ups/.")
+        return
+    hechos, fallos = 0, 0
+    for f in fuentes:
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+        except ValueError as e:
+            print(_c(f"  x {f.name}: JSON inválido ({e})", Col.RED))
+            fallos += 1
+            continue
+        slug = slugify(data.get("name") or f.stem)
+        viejos = post_files(slug)
+        if not viejos:
+            print(_c(f"  - {data.get('name') or slug}: sin publicar, se omite", Col.DIM))
+            continue
+        # Se respeta la fecha del fichero publicado: el nombre fija la fecha.
+        fecha = viejos[0].name[:10]
+        for v in viejos:
+            v.unlink()
+        destino = POSTS / f"{fecha}-{slug}.html"
+        destino.write_text(build_post(data), encoding="utf-8")
+        print(_c(f"  ok {data.get('name') or slug}", Col.GREEN) + _c(f"  -> {destino.name}", Col.DIM))
+        hechos += 1
+    print()
+    print(f"  {hechos} write-up(s) regenerado(s)" + (f", {fallos} con error" if fallos else ""))
+    print(_c("  Repasa el resultado con: bash dev/tools/test.sh", Col.DIM))
+    print()
+
+
 def main():
     p = argparse.ArgumentParser(
         prog="writeup",
@@ -1127,6 +1177,8 @@ def main():
                    help="Redactar un write-up nuevo (abre el editor). Opcional: nombre de la máquina.")
     g.add_argument("--edit", metavar="RUTA", help="Editar un write-up publicado (p. ej. /writeups/blue).")
     g.add_argument("--remove", metavar="RUTA", help="Borrar un write-up publicado (p. ej. /writeups/blue).")
+    g.add_argument("--regen", action="store_true",
+                   help="Regenerar el HTML de todos los write-ups desde sus JSON (tras cambiar la plantilla).")
     p.add_argument("-p", "--port", type=int, default=8099, help="Puerto del servidor (por defecto 8099).")
     p.add_argument("--no-open", action="store_true", help="No abrir el navegador automáticamente.")
     args = p.parse_args()
@@ -1137,6 +1189,8 @@ def main():
         cmd_edit(args)
     elif args.remove:
         cmd_remove(args)
+    elif args.regen:
+        cmd_regen(args)
     else:
         banner()
         warn("No has indicado ninguna acción.")
@@ -1145,6 +1199,7 @@ def main():
         print(_c("    python3 dev/submit-writeup/writeup.py --add", Col.GREEN) + "                 redactar uno nuevo")
         print(_c("    python3 dev/submit-writeup/writeup.py --edit /writeups/blue", Col.CYAN) + "   editar Blue")
         print(_c("    python3 dev/submit-writeup/writeup.py --remove /writeups/blue", Col.RED) + " borrar Blue")
+        print(_c("    python3 dev/submit-writeup/writeup.py --regen", Col.DIM) + "              regenerar todos los posts")
         print()
         print(_c("    -h / --help", Col.DIM) + " para ver todas las opciones.")
         print()
