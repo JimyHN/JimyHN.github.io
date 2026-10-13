@@ -576,6 +576,14 @@ def render_body(data: dict) -> str:
     h += (f'<div class="hx-wu-sub"><div class="hx-wu-dates">{dates}</div>'
           f'<span class="hx-wu-read"><i class="fas fa-clock" aria-hidden="true"></i> {read_min} min de lectura</span></div>')
     h += "</div>"
+    # Dificultad votada en HTB, a la derecha de la cabecera. Solo para máquinas
+    # de HackTheBox. Va como include de Jekyll: los votos se refrescan en cada
+    # build desde _data/htb_machines.yml, sin regenerar el post.
+    if (data.get("plat") or "HackTheBox").strip().lower().replace(" ", "") == "hackthebox":
+        _mq = name.replace('\\', '\\\\').replace('"', '\\"')
+        h += ('<div class="hx-wu-headchart">'
+              f'{{% include hx-htb-chart.html machine="{_mq}" platform="HackTheBox" size="md" labels=true %}}'
+              '</div>')
     h += "</header>"
     # Tabla ficha
     h += ('<table class="hx-wu-table"><thead><tr><th>Máquina</th><th>SO</th>'
@@ -584,18 +592,6 @@ def render_body(data: dict) -> str:
     h += f'<td class="wu-os wu-os-{osc}">{esc(os_name)}</td>'
     h += f'<td><span class="hx-badge hx-diff-{diff.lower()}">{esc(diff)}</span></td>'
     h += f'<td class="wu-ip">{esc(ip)}</td></tr></tbody></table>'
-    # Dificultad votada en HTB: solo para máquinas de HackTheBox.
-    # Se emite como include de Jekyll, así que los datos se refrescan en cada
-    # build desde _data/htb_machines.yml SIN tener que regenerar el post.
-    if (data.get("plat") or "HackTheBox").strip().lower().replace(" ", "") == "hackthebox":
-        _mq = name.replace('\\', '\\\\').replace('"', '\\"')
-        h += ('<div class="hx-wu-htb">'
-              '<div class="hx-wu-htb-lead"><b>Dificultad votada</b>'
-              '<small>por la comunidad de HackTheBox</small></div>'
-              '<div class="hx-wu-htb-plot">'
-              f'{{% include hx-htb-chart.html machine="{_mq}" platform="HackTheBox" size="md" labels=true %}}'
-              '<div class="hx-wu-htb-scale"><span>Cake</span><span>Brainfuck</span></div>'
-              '</div></div>')
     # Botón del certificado, debajo de la tabla
     if proof:
         h += (f'<button type="button" class="hx-wu-cert" data-cert="{esc(proof)}" '

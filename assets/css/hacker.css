@@ -5373,53 +5373,25 @@ article:has(.hx-wu) > header,
   font-size: .7rem;
 }
 
-/* Bloque con título, debajo de la tabla de cada write-up */
-.hx-wu-htb {
+/* Gráfica a la derecha de la cabecera del write-up, alineada con el título,
+   el autor, las fechas y el tiempo de lectura. Sin caja ni borde: solo las
+   barras y, centrado debajo, el total de votos en el color de la máquina. */
+.hx-wu-headchart {
+  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin: 0 0 14px;
-  padding: 12px 16px;
-  border: 1px solid var(--hx-border);
-  border-radius: 12px;
-  background: var(--hx-panel);
 }
 
-.hx-wu-htb-lead {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-family: var(--hx-mono);
+.hx-wu-headchart .hx-htbc {
+  align-items: center;
+  gap: 6px;
 }
 
-.hx-wu-htb-lead b {
-  font-size: .78rem;
-  color: var(--hx-text);
-  letter-spacing: .03em;
-}
-
-.hx-wu-htb-lead small {
-  font-size: .66rem;
-  color: var(--hx-muted);
-}
-
-.hx-wu-htb-plot {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-/* Escala Cake -> Brainfuck bajo las barras */
-.hx-wu-htb-scale {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  font-family: var(--hx-mono);
-  font-size: .56rem;
-  color: var(--hx-muted);
-  text-transform: uppercase;
-  letter-spacing: .02em;
+.hx-wu-headchart .hx-htbc-foot {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  color: rgb(var(--m, 68 240 138));
 }
 
 /* En la tabla del roadmap */
@@ -5438,5 +5410,5 @@ article:has(.hx-wu) > header,
 
 @media (max-width: 600px) {
   .hx-mcard-chart { display: none; }
-  .hx-wu-htb { gap: 10px; padding: 10px 12px; }
+  .hx-wu-headchart { margin: 2px auto 0; }
 }
