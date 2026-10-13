@@ -5535,9 +5535,8 @@ article:has(.hx-wu) > header,
 .hx-star-line path {
   fill: none;
   stroke: var(--hx-border);
-  stroke-width: 7;
+  stroke-width: 7;          /* unidades del viewBox (108), ~1px en pantalla */
   stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
 }
 
 /* --- Bamboleo cada 30 s, de izquierda a derecha y solo en las rellenas --- */
@@ -5578,7 +5577,7 @@ article:has(.hx-wu) > header,
   padding-left: 12px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 30px;                /* la puntuación se va a la izquierda y la gráfica respira */
   flex: 0 0 auto;
 }
 
@@ -5647,24 +5646,23 @@ article:has(.hx-wu) > header,
 
 .hx-vcard:hover .hx-vcard-name { color: rgb(var(--m)); }
 
-.hx-vcard-meta {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 4px;
+.hx-vcard-os {
+  font-size: 1rem;
+  line-height: 1;
+  color: rgb(var(--os));
+}
+
+.hx-vcard-date {
   font-size: .7rem;
   color: var(--hx-muted);
   line-height: 1.3;
+  font-variant-numeric: tabular-nums;
 }
 
-.hx-vcard-meta i { color: rgb(var(--os)); }
-.hx-vcard-sep { opacity: .5; }
-
-/* La imagen va la última, debajo del nivel */
+/* La imagen va la última y pegada abajo, así todas las tarjetas miden igual */
 .hx-vcard-img {
-  margin-top: 4px;
+  margin-top: auto;
+  padding-top: 4px;
   width: 72px;
   height: 72px;
   border-radius: 50%;
