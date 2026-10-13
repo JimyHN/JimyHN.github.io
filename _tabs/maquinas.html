@@ -68,7 +68,7 @@ permalink: /maquinas/
   {%- if osd contains 'windows' -%}{%- assign osk = 'windows' -%}{%- elsif osd contains 'linux' -%}{%- assign osk = 'linux' -%}{%- else -%}{%- assign osk = 'otros' -%}{%- endif -%}
   {%- assign pld = post.platform | default: '' | downcase | remove: ' ' -%}
   {%- if pld == 'investigacion' -%}{%- assign plk = 'investigacion' -%}{%- else -%}{%- assign plk = 'hackthebox' -%}{%- endif -%}
-{"name":{{ post.title | jsonify }},"url":{{ post.url | relative_url | jsonify }},"diff":{{ post.difficulty | default: '' | downcase | jsonify }},"os":"{{ osk }}","platform":"{{ plk }}","iso":"{{ post.date | date: '%Y-%m-%d' }}","disp":"{{ post.date | date: '%d/%m/%Y' }}"}{%- unless forloop.last -%},{%- endunless %}
+{"name":{{ post.title | jsonify }},"url":{{ post.url | relative_url | jsonify }},"diff":{{ post.difficulty | default: '' | downcase | jsonify }},"os":"{{ osk }}","platform":"{{ plk }}","iso":"{{ post.date | date: '%Y-%m-%d' }}","disp":"{{ post.date | date: '%d/%m/%Y' }}","accent":{{ post.accent | default: '' | jsonify }}}{%- unless forloop.last -%},{%- endunless %}
 {% endfor -%}
 ]
   </script>

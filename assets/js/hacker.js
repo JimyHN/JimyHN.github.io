@@ -1445,7 +1445,12 @@
     DATA.forEach((m) => { monthlyAll[m.month] = (monthlyAll[m.month] || 0) + 1; });
     const MAXMONTH = Math.max(1, ...Object.values(monthlyAll));
     const yearsData = Array.from(new Set(DATA.map((m) => parseInt(m.month.slice(0, 4), 10)))).filter(Boolean);
-    let viewYear = yearsData.length ? Math.max.apply(null, yearsData) : new Date().getFullYear();
+    // El blog arranca en 2026: antes de ese año no hay nada que enseñar, y por
+    // el otro lado tampoco tiene sentido pasar del año en curso.
+    const ANYO_MIN = 2026;
+    const ultimoConDatos = yearsData.length ? Math.max.apply(null, yearsData) : new Date().getFullYear();
+    const ANYO_MAX = Math.max(ANYO_MIN, ultimoConDatos, new Date().getFullYear());
+    let viewYear = Math.min(ANYO_MAX, Math.max(ANYO_MIN, ultimoConDatos));
 
     const wSvg = svg('svg', { viewBox: `0 0 ${WV.w} ${WV.h}`, class: 'hx-maq-wavesvg' });
     const wArea = svg('path', { class: 'hx-maq-wavearea' });
@@ -1478,8 +1483,8 @@
     const yNext = document.createElement('button');
     yNext.type = 'button'; yNext.className = 'hx-maq-yearbtn'; yNext.setAttribute('aria-label', 'Año siguiente');
     yNext.innerHTML = '<i class="fas fa-chevron-right" aria-hidden="true"></i>';
-    yPrev.addEventListener('click', () => { viewYear -= 1; renderWave(); });
-    yNext.addEventListener('click', () => { viewYear += 1; renderWave(); });
+    yPrev.addEventListener('click', () => { if (viewYear > ANYO_MIN) { viewYear -= 1; renderWave(); } });
+    yNext.addEventListener('click', () => { if (viewYear < ANYO_MAX) { viewYear += 1; renderWave(); } });
     yearNav.appendChild(yPrev); yearNav.appendChild(yLbl); yearNav.appendChild(yNext);
     waveWrap.appendChild(yearNav);
 
@@ -1504,6 +1509,8 @@
         r.classList.toggle('hx-maq-hitempty', !monthlyAll[monthKey(i)]);
       });
       yLbl.textContent = viewYear;
+      yPrev.disabled = viewYear <= ANYO_MIN;
+      yNext.disabled = viewYear >= ANYO_MAX;
     }
 
     // Minis (SO / plataforma)
@@ -1604,12 +1611,15 @@
       // Lista (historial minimalista, más reciente primero)
       const list = all.slice().sort((a, b) => (a.iso < b.iso ? 1 : a.iso > b.iso ? -1 : 0));
       listCount.textContent = anyFilter() ? '(' + list.length + ')' : '';
-      listEl.innerHTML = list.map((m) =>
-        '<li><a href="' + m.url + '">' +
-        '<span class="hx-dot hx-dot-' + (m.diff || 'otros') + '"></span>' +
-        '<span class="hx-maq-rname">' + escapeHtml(m.name) + '</span>' +
-        '<span class="hx-maq-rdate">' + m.disp + '</span></a></li>'
-      ).join('');
+      listEl.innerHTML = list.map((m) => {
+        // --m = color del write-up (front matter "accent"); al pasar el ratón
+        // tiñe el punto, el nombre, la fecha y la línea de debajo.
+        const acc = /^[\d\s]+$/.test(m.accent || '') ? (m.accent || '').trim() : '';
+        return '<li' + (acc ? ' style="--m: ' + acc + '"' : '') + '><a href="' + m.url + '">' +
+          '<span class="hx-dot hx-dot-' + (m.diff || 'otros') + '"></span>' +
+          '<span class="hx-maq-rname">' + escapeHtml(m.name) + '</span>' +
+          '<span class="hx-maq-rdate">' + m.disp + '</span></a></li>';
+      }).join('');
       emptyEl.hidden = list.length > 0;
     }
 
