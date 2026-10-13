@@ -5598,3 +5598,101 @@ article:has(.hx-wu) > header,
 
 /* El botón de certificado repetido al final, tras Conclusiones */
 .hx-wu-cert-fin { margin-top: 1.4rem; }
+
+/* ==========================================================================
+   Lecturas adicionales: cinco tarjetas verticales
+   ========================================================================== */
+
+.hx-vlist {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.hx-vcard {
+  --os: 125 139 153;
+  --m: var(--os);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 14px 10px 16px;
+  border: 1px solid var(--hx-border);
+  border-radius: 12px;
+  background: linear-gradient(160deg, rgb(var(--m) / 13%), var(--hx-bg-2) 60%);
+  text-decoration: none;
+  text-align: center;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.hx-vcard[data-os='windows'] { --os: 94 180 248; }
+.hx-vcard[data-os='linux'] { --os: 255 175 0; }
+
+.hx-vcard:hover {
+  transform: translateY(-4px);
+  border-color: rgb(var(--m) / 55%);
+  box-shadow: 0 10px 26px rgb(0 0 0 / 45%), 0 0 0 1px rgb(var(--m) / 30%);
+}
+
+.hx-vcard-name {
+  margin: 0;
+  font-family: var(--hx-mono);
+  font-size: .95rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #e6edf3;
+  word-break: break-word;
+}
+
+.hx-vcard:hover .hx-vcard-name { color: rgb(var(--m)); }
+
+.hx-vcard-meta {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: .7rem;
+  color: var(--hx-muted);
+  line-height: 1.3;
+}
+
+.hx-vcard-meta i { color: rgb(var(--os)); }
+.hx-vcard-sep { opacity: .5; }
+
+/* La imagen va la última, debajo del nivel */
+.hx-vcard-img {
+  margin-top: 4px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid rgb(var(--m) / 35%);
+  transition: transform .18s ease, border-color .18s ease;
+}
+
+.hx-vcard:hover .hx-vcard-img {
+  transform: scale(1.06);
+  border-color: rgb(var(--m) / 70%);
+}
+
+.hx-vcard-ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--hx-panel);
+  color: rgb(var(--os));
+  font-size: 1.6rem;
+}
+
+@media (max-width: 900px) {
+  .hx-vlist { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .hx-vlist { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .hx-vcard-img { width: 58px; height: 58px; }
+}

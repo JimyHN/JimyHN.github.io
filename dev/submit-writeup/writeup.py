@@ -26,6 +26,7 @@ import argparse
 import base64
 import io
 import json
+import random
 import re
 import subprocess
 import sys
@@ -629,6 +630,47 @@ def render_body(data: dict) -> str:
     return h
 
 
+def _posts_meta(excluir_slug: str = ""):
+    """Lee de _posts la plataforma, el SO y la fecha de cada write-up publicado."""
+    out = []
+    for f in sorted(POSTS.glob("*.html")):
+        if excluir_slug and f.name.endswith(f"-{excluir_slug}.html"):
+            continue
+        cab = f.read_text(encoding="utf-8")[:1200]
+        def campo(k):
+            m = re.search(rf'^{k}:\s*"(.*?)"\s*$', cab, re.M)
+            return m.group(1) if m else ""
+        if "Writeups" not in campo("categories") and '"Writeups"' not in cab[:600]:
+            continue
+        out.append({
+            "machine": campo("machine") or campo("title"),
+            "platform": campo("platform"),
+            "os": campo("os"),
+            "fecha": f.name[:10],
+        })
+    out.sort(key=lambda d: d["fecha"], reverse=True)
+    return out
+
+
+def pick_related_old(data: dict) -> str:
+    """Quinta tarjeta de "Lecturas adicionales": misma plataforma, mismo SO y
+    de las antiguas, elegida al azar.
+
+    Se sortea aquí, al publicar, y se guarda en el front matter: así la tarjeta
+    no cambia en cada build ni en cada visita. Las otras cuatro se calculan en
+    la plantilla, para que se refresquen solas cuando se publica algo nuevo.
+    """
+    slug = slugify(data.get("name") or "")
+    plat = (data.get("plat") or "HackTheBox").strip()
+    so = (data.get("os") or "").strip()
+    cand = [p for p in _posts_meta(slug) if p["platform"] == plat and p["os"] == so]
+    # La más reciente ya ocupa la primera tarjeta: aquí van las de atrás
+    cand = cand[1:]
+    if not cand:
+        return ""
+    return random.choice(cand)["machine"]
+
+
 def front_matter(data: dict) -> str:
     name = (data.get("name") or "Máquina").strip()
     date = (data.get("date") or datetime.now().strftime("%Y-%m-%d")).strip()
@@ -654,6 +696,9 @@ def front_matter(data: dict) -> str:
     # Puntuación personal (1-10): la pintan las estrellas de la cabecera
     if str(data.get("score") or "").strip():
         fm["score"] = str(data["score"]).strip()
+    # Quinta tarjeta de Lecturas adicionales, sorteada al publicar
+    if str(data.get("related_old") or "").strip():
+        fm["related_old"] = str(data["related_old"]).strip()
     # Un write-up publicado siempre está "Resuelta" (el roadmap lo cruza por machine+platform).
     fm["status"] = "Resuelta"
     if data.get("updated"):
@@ -719,6 +764,12 @@ def publish(data: dict, mode: str = "add") -> str:
     date = (data.get("date") or today).strip()
     # Un write-up publicado siempre queda como "Resuelta".
     data["status"] = "Resuelta"
+    # Se sortea la quinta tarjeta solo si aún no la tiene, para no cambiarla
+    # cada vez que se reedita el write-up
+    if not str(data.get("related_old") or "").strip():
+        elegida = pick_related_old(data)
+        if elegida:
+            data["related_old"] = elegida
     # Borra cualquier versión previa del mismo slug (p. ej. un .md antiguo)
     for old in post_files(slug):
         old.unlink()
@@ -1150,6 +1201,13 @@ def cmd_regen(args):
             fallos += 1
             continue
         slug = slugify(data.get("name") or f.stem)
+        # Si aún no tiene sorteada la quinta tarjeta de Lecturas adicionales,
+        # se sortea ahora y se guarda en el JSON (solo la primera vez)
+        if not str(data.get("related_old") or "").strip():
+            elegida = pick_related_old(data)
+            if elegida:
+                data["related_old"] = elegida
+                f.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
         viejos = post_files(slug)
         if not viejos:
             print(_c(f"  - {data.get('name') or slug}: sin publicar, se omite", Col.DIM))

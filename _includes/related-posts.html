@@ -1,33 +1,107 @@
 {%- comment -%}
-  Lecturas adicionales con el estilo de tarjetas de máquina (.hx-mcard),
-  igual que la lista de /writeups/. Sustituye al include del tema.
+  Lecturas adicionales: cinco tarjetas verticales elegidas por reglas, no por
+  cercanía cronológica. De izquierda a derecha:
+
+    1. misma plataforma, mismo SO, la más reciente
+    2. misma plataforma, distinto SO, la segunda más reciente
+    3. distinta plataforma, mismo SO, la más reciente
+    4. distinta plataforma, distinto SO, la más reciente
+    5. misma plataforma, mismo SO, una antigua al azar
+
+  La quinta se sortea al publicar y queda fija en el front matter
+  (related_old); las otras cuatro se recalculan en cada build, así que se
+  refrescan solas al publicar una máquina nueva.
+
+  Si una regla no encuentra nada — pasa a menudo, porque casi todo es de
+  HackTheBox — el hueco se rellena con la más reciente que no haya salido ya.
 {%- endcomment -%}
 
-{% assign related = site.posts | where_exp: "p", "p.url != page.url and p.categories contains 'Writeups'" %}
+{%- assign todas = site.posts | where_exp: "p", "p.url != page.url and p.categories contains 'Writeups'" -%}
 
-{% if related.size > 0 %}
+{%- if todas.size > 0 -%}
+  {%- assign miplat = page.platform | default: 'HackTheBox' -%}
+  {%- assign mios = page.os | default: '' -%}
+
+  {%- assign mismaplat = todas | where_exp: "p", "p.platform == miplat" -%}
+  {%- assign otraplat  = todas | where_exp: "p", "p.platform != miplat" -%}
+  {%- assign r1 = mismaplat | where_exp: "p", "p.os == mios" -%}
+  {%- assign r2 = mismaplat | where_exp: "p", "p.os != mios" -%}
+  {%- assign r3 = otraplat  | where_exp: "p", "p.os == mios" -%}
+  {%- assign r4 = otraplat  | where_exp: "p", "p.os != mios" -%}
+  {%- assign r5 = todas | where: "machine", page.related_old -%}
+
+  {%- comment -%} Se van apuntando las URLs ya usadas, entre comas {%- endcomment -%}
+  {%- assign usadas = "," -%}
+  {%- assign puestas = 0 -%}
+
+  {%- assign c1 = r1[0] -%}
+  {%- assign c2 = r2[1] -%}
+  {%- assign c3 = r3[0] -%}
+  {%- assign c4 = r4[0] -%}
+  {%- assign c5 = r5[0] -%}
+
+  {%- for c in (1..5) -%}
+    {%- case c -%}
+      {%- when 1 -%}{%- assign elegida = c1 -%}
+      {%- when 2 -%}{%- assign elegida = c2 -%}
+      {%- when 3 -%}{%- assign elegida = c3 -%}
+      {%- when 4 -%}{%- assign elegida = c4 -%}
+      {%- when 5 -%}{%- assign elegida = c5 -%}
+    {%- endcase -%}
+    {%- if elegida -%}
+      {%- capture clave -%},{{ elegida.url }},{%- endcapture -%}
+      {%- unless usadas contains clave -%}
+        {%- assign usadas = usadas | append: elegida.url | append: "," -%}
+        {%- assign puestas = puestas | plus: 1 -%}
+      {%- endunless -%}
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- comment -%} Huecos sin candidato: la más reciente que quede libre {%- endcomment -%}
+  {%- for p in todas -%}
+    {%- if puestas < 5 -%}
+      {%- capture clave -%},{{ p.url }},{%- endcapture -%}
+      {%- unless usadas contains clave -%}
+        {%- assign usadas = usadas | append: p.url | append: "," -%}
+        {%- assign puestas = puestas | plus: 1 -%}
+      {%- endunless -%}
+    {%- endif -%}
+  {%- endfor -%}
+
   <section id="related-posts" class="hx-related" aria-labelledby="related-label">
     <h2 class="hx-related-title" id="related-label">Lecturas adicionales</h2>
-    <div class="hx-mlist">
-      {% for post in related limit: 4 %}
-        {% assign os_down = post.os | default: '' | downcase %}
-        {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
-        {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
-        {% else %}{% assign os_key = 'otros' %}{% endif %}
-        <a class="hx-mcard" data-os="{{ os_key }}" data-diff="{{ post.difficulty | default: '' | downcase }}" href="{{ post.url | relative_url }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
-          <span class="hx-mcard-img{% unless post.thumb %} hx-mcard-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
-            {% unless post.thumb %}{% if os_down contains 'windows' %}<i class="fab fa-windows"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
-          </span>
-          <div class="hx-mcard-body">
-            <h3 class="hx-mcard-name">{{ post.title }}</h3>
-            <p class="hx-mcard-meta">
-              {% if os_down contains 'windows' %}<i class="fab fa-windows"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>{% else %}<i class="fas fa-microchip"></i>{% endif %}
-              {{ post.os }} · {{ post.date | date: '%d/%m/%Y' }}
-            </p>
-            {% if post.difficulty %}<span class="hx-badge hx-diff-{{ post.difficulty | downcase }}">{{ post.difficulty }}</span>{% endif %}
-          </div>
-        </a>
-      {% endfor %}
+    <div class="hx-vlist">
+      {%- assign lista = usadas | split: "," -%}
+      {%- for u in lista -%}
+        {%- unless u == '' -%}
+          {%- assign post = todas | where: "url", u | first -%}
+          {%- if post -%}
+            {%- assign os_down = post.os | default: '' | downcase -%}
+            {%- if os_down contains 'windows' -%}{%- assign os_key = 'windows' -%}
+            {%- elsif os_down contains 'linux' -%}{%- assign os_key = 'linux' -%}
+            {%- else -%}{%- assign os_key = 'otros' -%}{%- endif -%}
+            <a class="hx-vcard" data-os="{{ os_key }}" data-diff="{{ post.difficulty | default: '' | downcase }}"
+               href="{{ post.url | relative_url }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
+              <h3 class="hx-vcard-name">{{ post.title }}</h3>
+              <p class="hx-vcard-meta">
+                {%- if os_down contains 'windows' %}<i class="fab fa-windows" aria-hidden="true"></i>
+                {%- elsif os_down contains 'linux' %}<i class="fab fa-linux" aria-hidden="true"></i>
+                {%- else %}<i class="fas fa-microchip" aria-hidden="true"></i>{% endif %}
+                {{ post.os }}<span class="hx-vcard-sep">·</span>{{ post.date | date: '%d/%m/%Y' }}
+              </p>
+              {%- if post.difficulty %}<span class="hx-badge hx-diff-{{ post.difficulty | downcase }}">{{ post.difficulty }}</span>{% endif -%}
+              <span class="hx-vcard-img{% unless post.thumb %} hx-vcard-ph{% endunless %}"
+                    {%- if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
+                {%- unless post.thumb -%}
+                  {%- if os_down contains 'windows' %}<i class="fab fa-windows"></i>
+                  {%- elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>
+                  {%- else %}<i class="fas fa-server"></i>{% endif -%}
+                {%- endunless -%}
+              </span>
+            </a>
+          {%- endif -%}
+        {%- endunless -%}
+      {%- endfor -%}
     </div>
   </section>
-{% endif %}
+{%- endif -%}
