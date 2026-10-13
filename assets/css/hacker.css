@@ -3025,12 +3025,19 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.3, 1), box-shadow 0.25s, border-color 0.25s;
 }
 .hx-tool-cta .hx-btn::before { display: none; }
-.hx-tool-cta .hx-btn:hover {
+/* El selector lleva .content y a.hx-btn a propósito: el tema trae
+   `.content a:not(.img-link):hover { color: #d2603a !important }`, que con
+   !important y más especificidad teñía de naranja el botón al pasar el ratón.
+   Con esto gana el color de cada herramienta (--c). */
+.content .hx-tool-cta a.hx-btn:hover {
   color: rgb(var(--c)) !important;
   border-color: rgb(var(--c)) !important;
+  border-bottom-color: rgb(var(--c)) !important;
   transform: scale(1.05);
   box-shadow: 0 0 22px rgb(var(--c) / 50%), 0 0 44px rgb(var(--c) / 22%);
 }
+
+.content .hx-tool-cta a.hx-btn:hover i { color: rgb(var(--c)) !important; }
 .hx-tool-cta .hx-btn:active { transform: scale(1.02); }
 .hx-tool-cta .hx-btn i { color: rgb(var(--c)); }
 

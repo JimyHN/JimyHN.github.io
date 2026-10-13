@@ -1184,7 +1184,10 @@
     if (c) document.documentElement.style.setProperty('--page', c);
 
     const title = document.querySelector('h1.dynamic-title');
-    const navIcon = active.querySelector('.nav-link i');
+    // En un post no hay ningún .nav-item activo en el menú: sin esta guarda,
+    // aquí saltaba un TypeError que abortaba init() entero y dejaba sin
+    // registrar todo lo que viene después (certificado, zoom de figuras...)
+    const navIcon = active ? active.querySelector('.nav-link i') : null;
     if (title && navIcon && !title.querySelector('i')) {
       const ic = document.createElement('i');
       ic.className = navIcon.className;
@@ -1650,30 +1653,35 @@
   }
 
   function init() {
-    initStars();
-    initHideDupHeader();
-    initMachinesDash();
-    initHtbFx();
-    initPageTheme();
-    initAge();
-    initMatrix();
-    initAvatarFx();
-    initTools();
-    initCredentials();
-    initCarousels();
-    initGlitch();
-    initSubtitle();
-    initTabTitle();
-    initAscii();
-    initTerminal();
-    initReveal();
-    initCardGlow();
-    initProgress();
-    initFilterBars();
-    initPostSections();
-    initButtonAura();
-    initCert();
-    initFigures();
+    // Cada módulo va aislado: si uno falla, los demás siguen vivos.
+    [
+      initStars,
+      initHideDupHeader,
+      initMachinesDash,
+      initHtbFx,
+      initPageTheme,
+      initAge,
+      initMatrix,
+      initAvatarFx,
+      initTools,
+      initCredentials,
+      initCarousels,
+      initGlitch,
+      initSubtitle,
+      initTabTitle,
+      initAscii,
+      initTerminal,
+      initReveal,
+      initCardGlow,
+      initProgress,
+      initFilterBars,
+      initPostSections,
+      initButtonAura,
+      initCert,
+      initFigures,
+    ].forEach((fn) => {
+      try { fn(); } catch (e) { console.error('hx: falló ' + fn.name, e); }
+    });
   }
 
   if (document.readyState === 'loading') {
