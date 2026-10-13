@@ -1628,7 +1628,29 @@
     render();
   }
 
+  // ---------- Mi puntuación: al pulsar las estrellas sale la nota ----------
+  function initStars() {
+    document.querySelectorAll('.hx-stars').forEach((el) => {
+      let temporizador = null;
+      const alternar = (e) => {
+        // En /writeups las estrellas van dentro de la tarjeta, que es un
+        // enlace: sin esto, pulsarlas abriría el write-up.
+        e.preventDefault();
+        e.stopPropagation();
+        const nota = el.classList.toggle('is-num');
+        clearTimeout(temporizador);
+        // Si no se vuelve a pulsar, las estrellas regresan solas a los 5 s
+        if (nota) temporizador = setTimeout(() => el.classList.remove('is-num'), 5000);
+      };
+      el.addEventListener('click', alternar);
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') alternar(e);
+      });
+    });
+  }
+
   function init() {
+    initStars();
     initHideDupHeader();
     initMachinesDash();
     initHtbFx();

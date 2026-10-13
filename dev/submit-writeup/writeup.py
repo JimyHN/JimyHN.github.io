@@ -576,14 +576,20 @@ def render_body(data: dict) -> str:
     h += (f'<div class="hx-wu-sub"><div class="hx-wu-dates">{dates}</div>'
           f'<span class="hx-wu-read"><i class="fas fa-clock" aria-hidden="true"></i> {read_min} min de lectura</span></div>')
     h += "</div>"
-    # Dificultad votada en HTB, a la derecha de la cabecera. Solo para máquinas
-    # de HackTheBox. Va como include de Jekyll: los votos se refrescan en cada
+    # Bloque derecho de la cabecera, solo para máquinas de HackTheBox: la
+    # puntuación personal y, a su derecha, la dificultad votada por la
+    # comunidad. Ambas como include de Jekyll — los votos se refrescan en cada
     # build desde _data/htb_machines.yml, sin regenerar el post.
     if (data.get("plat") or "HackTheBox").strip().lower().replace(" ", "") == "hackthebox":
         _mq = name.replace('\\', '\\\\').replace('"', '\\"')
+        h += '<div class="hx-wu-headside">'
+        _score = str(data.get("score") or "").strip()
+        if _score:
+            h += f'{{% include hx-stars.html score="{_score}" platform="HackTheBox" label=true %}}'
         h += ('<div class="hx-wu-headchart">'
               f'{{% include hx-htb-chart.html machine="{_mq}" platform="HackTheBox" size="md" labels=true %}}'
               '</div>')
+        h += '</div>'
     h += "</header>"
     # Tabla ficha
     h += ('<table class="hx-wu-table"><thead><tr><th>Máquina</th><th>SO</th>'
@@ -614,14 +620,11 @@ def render_body(data: dict) -> str:
         h += f'<section class="hx-wu-sec" id="{sid}" style="--c:{col}"><h2>{esc(nom)}</h2>'
         h += render_section(secs[sid], fig_counter)
         h += "</section>"
-    # Tarjeta de verificación
-    accent = data.get("accent", "")
-    _m = f' style="--m:{accent}"' if accent else ""
+    # Cierre: el mismo botón de certificado que va arriba, debajo de Conclusiones
     if proof:
-        h += (f'<a class="hx-wu-card" data-os="{osc}"{_m} href="{esc(proof)}" target="_blank" rel="noopener">'
-              f'<span class="hx-wu-cardimg" style="background-image:url(\'{avatar}\')"></span>'
-              f'<div><b>{esc(name)}</b><small>{esc(os_name)} · {esc(diff)}</small></div>'
-              f'<span class="hx-wu-verify"><i class="fas fa-shield-halved"></i> Verificar</span></a>')
+        h += (f'<button type="button" class="hx-wu-cert hx-wu-cert-fin" data-cert="{esc(proof)}" '
+              f'data-img="{esc(banner_img or avatar)}" data-name="{esc(name)}">'
+              f'<i class="fas fa-certificate" aria-hidden="true"></i> Mostrar certificado</button>')
     h += "</div>"
     return h
 
@@ -648,6 +651,9 @@ def front_matter(data: dict) -> str:
         "description": data.get("desc") or "",
         "toc": False,
     }
+    # Puntuación personal (1-10): la pintan las estrellas de la cabecera
+    if str(data.get("score") or "").strip():
+        fm["score"] = str(data["score"]).strip()
     # Un write-up publicado siempre está "Resuelta" (el roadmap lo cruza por machine+platform).
     fm["status"] = "Resuelta"
     if data.get("updated"):

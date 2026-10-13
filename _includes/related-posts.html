@@ -9,7 +9,7 @@
   <section id="related-posts" class="hx-related" aria-labelledby="related-label">
     <h2 class="hx-related-title" id="related-label">Lecturas adicionales</h2>
     <div class="hx-mlist">
-      {% for post in related limit: 3 %}
+      {% for post in related limit: 4 %}
         {% assign os_down = post.os | default: '' | downcase %}
         {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
         {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}

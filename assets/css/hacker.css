@@ -5412,3 +5412,189 @@ article:has(.hx-wu) > header,
   .hx-mcard-chart { display: none; }
   .hx-wu-headchart { margin: 2px auto 0; }
 }
+
+/* ==========================================================================
+   Mi puntuación: 5 estrellas (_includes/hx-stars.html)
+   ========================================================================== */
+
+:root {
+  --hx-star: #ffd60a;                 /* amarillo base del relleno */
+  --hx-star-hi: #ffe76b;              /* el claro por el que pasa el degradado */
+}
+
+.hx-stars-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.hx-stars-lead {
+  font-family: var(--hx-mono);
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--hx-muted);
+  white-space: nowrap;
+}
+
+/* El contenedor pulsable: estrellas y nota ocupan la misma celda y se
+   intercambian con una transición, así nada se mueve de sitio al pulsar. */
+.hx-stars {
+  display: grid;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+  color: inherit;
+  font: inherit;
+}
+
+.hx-stars > * {
+  grid-area: 1 / 1;
+  transition: opacity .32s ease, transform .32s cubic-bezier(.4, 0, .2, 1);
+}
+
+.hx-stars-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.hx-stars-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--hx-mono);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--hx-star);
+  text-shadow: 0 0 12px rgb(255 214 10 / 35%);
+  opacity: 0;
+  transform: scale(.82);
+  pointer-events: none;
+}
+
+/* Estado "nota a la vista": las estrellas se van, el número entra */
+.hx-stars.is-num .hx-stars-row { opacity: 0; transform: scale(.82); }
+.hx-stars.is-num .hx-stars-num { opacity: 1; transform: scale(1); }
+
+.hx-stars:focus-visible {
+  outline: 2px solid rgb(var(--page, 68 240 138) / 70%);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* --- Una estrella --- */
+.hx-star {
+  position: relative;
+  display: block;
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+}
+
+/* Recorte en forma de estrella: dentro va el fondo y, encima, el relleno */
+.hx-star-shape {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--hx-bg);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+/* Lo relleno: amarillo con el degradado viajando, como los títulos */
+.hx-star-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--f, 0%);
+  background-image: linear-gradient(90deg,
+    var(--hx-star) 0%, var(--hx-star) 28%,
+    var(--hx-star-hi) 50%,
+    var(--hx-star) 72%, var(--hx-star) 100%);
+  background-size: 200% auto;
+  animation: hx-grad-move 9s linear infinite;
+  transition: width .55s cubic-bezier(.45, 0, .2, 1);
+}
+
+/* El reborde gris, por encima del relleno y sin recortar */
+.hx-star-line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.hx-star-line path {
+  fill: none;
+  stroke: var(--hx-border);
+  stroke-width: 7;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* --- Bamboleo cada 30 s, de izquierda a derecha y solo en las rellenas --- */
+@keyframes hx-star-wiggle {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  1.2%     { transform: translateX(-2.5px) rotate(-7deg); }
+  2.8%     { transform: translateX(2.5px) rotate(7deg); }
+  4.2%     { transform: translateX(-1.4px) rotate(-3deg); }
+  5.6%     { transform: translateX(0) rotate(0); }
+}
+
+.hx-star.is-on {
+  animation: hx-star-wiggle 30s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * .16s);
+}
+
+.hx-stars.is-num .hx-star.is-on { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hx-star.is-on { animation: none; }
+  .hx-star-fill { animation: none; transition: none; }
+  .hx-stars > * { transition: none; }
+}
+
+/* --- En la cabecera del write-up: estrellas a la izquierda de la gráfica --- */
+.hx-wu-headside {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.hx-wu-headside .hx-wu-headchart { margin-left: 0; }
+
+/* --- En las tarjetas de /writeups --- */
+.hx-mcard-side {
+  margin-left: auto;
+  padding-left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 0 0 auto;
+}
+
+.hx-mcard-side .hx-mcard-chart { margin-left: 0; padding-left: 0; }
+
+.hx-mcard-stars { display: flex; align-items: center; }
+.hx-mcard-stars .hx-star { width: 14px; height: 14px; }
+.hx-mcard-stars .hx-stars-num { font-size: .92rem; }
+
+@media (max-width: 760px) {
+  .hx-mcard-side { display: none; }
+}
+
+@media (max-width: 600px) {
+  .hx-wu-headside { margin: 4px auto 0; gap: 14px; }
+}
+
+/* El botón de certificado repetido al final, tras Conclusiones */
+.hx-wu-cert-fin { margin-top: 1.4rem; }

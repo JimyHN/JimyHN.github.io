@@ -33,6 +33,11 @@
   .ed-plat-opt input { accent-color:var(--ed-green); margin:0; padding:0; }
   .ed-plat-opt:has(input:checked) { border-color:var(--ed-green); box-shadow:0 0 0 1px var(--ed-green) inset; }
   .ed-plat-missing .ed-plat-opt { border-color:#ff6b6b; animation:edShake .35s; }
+  .ed-score { flex:0 0 230px; }
+  .ed-score-box { display:flex; align-items:center; gap:0.6rem; }
+  .ed-score-box input { width:84px; }
+  .ed-score-stars { display:flex; align-items:center; gap:3px; }
+  .ed-score-missing input { border-color:#ff6b6b; animation:edShake .35s; }
   @keyframes edShake { 25%{transform:translateX(-3px)} 75%{transform:translateX(3px)} }
   input, select, textarea { background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:6px; color:#e6edf3; font-family:inherit; font-size:0.85rem; padding:0.4rem 0.6rem; }
   input:focus, select:focus, textarea:focus { outline:none; border-color:var(--ed-green); }
@@ -259,6 +264,11 @@
         <div class="ed-plat-opts">
           <label class="ed-plat-opt"><input type="radio" name="plat" value="HackTheBox" onchange="onPlat()"><span>HackTheBox</span></label>
           <label class="ed-plat-opt"><input type="radio" name="plat" value="Investigacion" onchange="onPlat()"><span>Investigación</span></label>
+        </div></div>
+      <div class="ed-field ed-score" id="f-score-row"><label>Mi puntuación <b class="ed-req">obligatorio</b></label>
+        <div class="ed-score-box">
+          <input id="f-score" type="number" min="1" max="10" step="0.01" placeholder="1 - 10" oninput="onScore()">
+          <span class="ed-score-stars" id="f-score-stars"></span>
         </div></div>
     </div>
     <div class="ed-row">
@@ -569,6 +579,47 @@ function onPlat() {
   // markDirty ya lo dispara el listener global de inputs (más abajo)
   if (platVal()) document.getElementById('f-plat-row').classList.remove('ed-plat-missing');
 }
+// ---------- Mi puntuación (obligatoria, 1-10, admite decimales) ----------
+function pintaEstrellas(cont, nota) {
+  const q = Math.round((parseFloat(nota) || 0) * 2);   // la nota en cuartos de estrella
+  if (!cont.childElementCount) {
+    // Se construyen una sola vez; luego solo cambia --f, y la transición de
+    // CSS hace el relleno/vaciado suave
+    for (let i = 0; i < 5; i++) {
+      const s = document.createElement('span');
+      s.className = 'hx-star';
+      s.style.setProperty('--i', i);
+      s.innerHTML = '<span class="hx-star-shape"><span class="hx-star-fill"></span></span>' +
+        '<svg class="hx-star-line" viewBox="-4 -4 108 108" aria-hidden="true">' +
+        '<path d="M50 0 L61 35 L98 35 L68 57 L79 91 L50 70 L21 91 L32 57 L2 35 L39 35 Z"/></svg>';
+      cont.appendChild(s);
+    }
+  }
+  [...cont.children].forEach((s, i) => {
+    const f = Math.max(0, Math.min(4, q - i * 4));
+    s.style.setProperty('--f', (f * 25) + '%');
+    s.classList.toggle('is-on', f > 0);
+  });
+}
+function onScore() {
+  const v = document.getElementById('f-score').value;
+  pintaEstrellas(document.getElementById('f-score-stars'), v);
+  if (scoreVal()) document.getElementById('f-score-row').classList.remove('ed-score-missing');
+}
+function scoreVal() {
+  const n = parseFloat(document.getElementById('f-score').value);
+  return (isFinite(n) && n >= 1 && n <= 10) ? String(Math.round(n * 100) / 100) : '';
+}
+function exigeScore() {
+  if (scoreVal()) return true;
+  const row = document.getElementById('f-score-row');
+  row.classList.remove('ed-score-missing');
+  void row.offsetWidth;
+  row.classList.add('ed-score-missing');
+  row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setSave('Pon tu puntuación (1-10)', 'err');
+  return false;
+}
 function exigePlat() {
   if (platVal()) return true;
   const row = document.getElementById('f-plat-row');
@@ -591,6 +642,7 @@ function collectData() {
     url: val('f-url'), sections,
   };
   if (val('f-version')) d.version = val('f-version');
+  if (scoreVal()) d.score = scoreVal();
   if (val('f-read')) d.read_min = parseInt(val('f-read'), 10) || 3;
   if (val('f-imgw')) d.img_w = parseInt(val('f-imgw'), 10) || 340;
   if (Object.keys(notes).length) d.notes = notes;   // bloc privado: nunca llega al blog
@@ -928,6 +980,7 @@ function hideOp() { document.getElementById('op-ov').classList.remove('open'); }
 async function guardar() {
   if (!val('f-name')) { openNombre(); return; }
   if (!exigePlat()) return;
+  if (!exigeScore()) return;
   if (_saving) return;
   _saving = true;
   const t0 = Date.now();
@@ -945,7 +998,7 @@ async function guardar() {
 
 // ---------- Autoguardado silencioso (solo máquinas NO publicadas) ----------
 async function autoSave() {
-  if (_published || _saving || !_dirty || !val('f-name') || !platVal()) return;
+  if (_published || _saving || !_dirty || !val('f-name') || !platVal() || !scoreVal()) return;
   _saving = true;
   try {
     const d = await (await fetch('/api/save', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(collectData()) })).json();
@@ -958,6 +1011,7 @@ async function autoSave() {
 async function publicar() {
   if (!val('f-name')) { openNombre(); return; }
   if (!exigePlat()) return;
+  if (!exigeScore()) return;
   if (_saving) return;
   _saving = true;
   const t0 = Date.now();
@@ -1433,6 +1487,8 @@ function fillFrom(d) {
   if (d.os) document.getElementById('f-os').value = d.os;
   if (d.diff) document.getElementById('f-diff').value = d.diff;
   setPlat(d.plat || '');
+  document.getElementById('f-score').value = d.score || '';
+  onScore();
   document.getElementById('f-date').value = (d.date || '').slice(0, 10) || new Date().toISOString().slice(0, 10);
   document.getElementById('f-desc').value = d.desc || '';
   document.getElementById('f-url').value = (d.img && d.img.proof) || d.url || '';

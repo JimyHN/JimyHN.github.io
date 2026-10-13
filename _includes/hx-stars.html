@@ -1,0 +1,44 @@
+{%- comment -%}
+  Puntuación personal de una máquina, en 5 estrellas.
+  La nota va de 1 a 10 (admite decimales) y se reparte entre las 5 estrellas
+  redondeando el relleno de cada una a cuartos: 0, 1/4, 1/2, 3/4 o entera.
+
+  Parámetros:
+    score    (obligatorio) la nota, 1-10. Sin ella no se pinta nada.
+    platform (opcional)    si se pasa y no es HackTheBox, no pinta nada
+    label    (opcional)    true para el título "Mi puntuación" encima
+{%- endcomment -%}
+{%- assign _plat = include.platform | default: 'HackTheBox' | downcase | remove: ' ' -%}
+{%- if _plat == 'hackthebox' and include.score -%}
+  {%- assign _n = include.score | plus: 0.0 -%}
+  {%- if _n > 0 -%}
+    {%- comment -%} Nota -> cuartos de estrella: 10 puntos = 20 cuartos {%- endcomment -%}
+    {%- assign _q = _n | times: 2.0 | round -%}
+    {%- comment -%} Texto de la nota: entero sin decimales, si no hasta dos {%- endcomment -%}
+    {%- assign _ent = _n | round -%}
+    {%- if _n == _ent -%}{%- assign _txt = _ent -%}
+    {%- else -%}{%- assign _txt = _n | round: 2 -%}{%- endif -%}
+    <div class="hx-stars-wrap">
+      {%- if include.label %}<span class="hx-stars-lead">Mi puntuación</span>{% endif -%}
+      <span class="hx-stars" role="button" tabindex="0" data-score="{{ _txt }}"
+            aria-label="Mi puntuación: {{ _txt }} sobre 10. Pulsa para ver la nota.">
+        <span class="hx-stars-row">
+          {%- for i in (1..5) -%}
+            {%- assign _base = i | minus: 1 | times: 4 -%}
+            {%- assign _f = _q | minus: _base -%}
+            {%- if _f < 0 -%}{%- assign _f = 0 -%}{%- endif -%}
+            {%- if _f > 4 -%}{%- assign _f = 4 -%}{%- endif -%}
+            {%- assign _pct = _f | times: 25 -%}
+            <span class="hx-star{% if _pct > 0 %} is-on{% endif %}" style="--f: {{ _pct }}%; --i: {{ forloop.index0 }}">
+              <span class="hx-star-shape"><span class="hx-star-fill"></span></span>
+              <svg class="hx-star-line" viewBox="-4 -4 108 108" aria-hidden="true">
+                <path d="M50 0 L61 35 L98 35 L68 57 L79 91 L50 70 L21 91 L32 57 L2 35 L39 35 Z"/>
+              </svg>
+            </span>
+          {%- endfor -%}
+        </span>
+        <span class="hx-stars-num" aria-hidden="true">{{ _txt }}/10</span>
+      </span>
+    </div>
+  {%- endif -%}
+{%- endif -%}
