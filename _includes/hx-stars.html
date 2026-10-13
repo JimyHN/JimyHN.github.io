@@ -7,6 +7,8 @@
     score    (obligatorio) la nota, 1-10. Sin ella no se pinta nada.
     platform (opcional)    si se pasa y no es HackTheBox, no pinta nada
     label    (opcional)    true para el título "Mi puntuación" encima
+    static   (opcional)    true para que NO se pueda pulsar (listado de
+                           /writeups: ahí la tarjeta entera ya es un enlace)
 {%- endcomment -%}
 {%- assign _plat = include.platform | default: 'HackTheBox' | downcase | remove: ' ' -%}
 {%- if _plat == 'hackthebox' and include.score -%}
@@ -20,8 +22,12 @@
     {%- else -%}{%- assign _txt = _n | round: 2 -%}{%- endif -%}
     <div class="hx-stars-wrap">
       {%- if include.label %}<span class="hx-stars-lead">Mi puntuación</span>{% endif -%}
+      {%- if include.static -%}
+      <span class="hx-stars is-static" role="img" aria-label="Mi puntuación: {{ _txt }} sobre 10">
+      {%- else -%}
       <span class="hx-stars" role="button" tabindex="0" data-score="{{ _txt }}"
             aria-label="Mi puntuación: {{ _txt }} sobre 10. Pulsa para ver la nota.">
+      {%- endif -%}
         <span class="hx-stars-row">
           {%- for i in (1..5) -%}
             {%- assign _base = i | minus: 1 | times: 4 -%}
@@ -32,12 +38,12 @@
             <span class="hx-star{% if _pct > 0 %} is-on{% endif %}" style="--f: {{ _pct }}%; --i: {{ forloop.index0 }}">
               <span class="hx-star-shape"><span class="hx-star-fill"></span></span>
               <svg class="hx-star-line" viewBox="-4 -4 108 108" aria-hidden="true">
-                <path d="M50 0 L61 35 L98 35 L68 57 L79 91 L50 70 L21 91 L32 57 L2 35 L39 35 Z"/>
+                <path d="M50 0 L66.2 27.8 L97.6 34.5 L76.2 58.5 L79.4 90.5 L50 77.5 L20.6 90.5 L23.8 58.5 L2.4 34.5 L33.8 27.8 Z"/>
               </svg>
             </span>
           {%- endfor -%}
         </span>
-        <span class="hx-stars-num" aria-hidden="true">{{ _txt }}/10</span>
+        {%- unless include.static %}<span class="hx-stars-num" aria-hidden="true">{{ _txt }}/10</span>{% endunless -%}
       </span>
     </div>
   {%- endif -%}

@@ -1630,7 +1630,7 @@
 
   // ---------- Mi puntuación: al pulsar las estrellas sale la nota ----------
   function initStars() {
-    document.querySelectorAll('.hx-stars').forEach((el) => {
+    document.querySelectorAll('.hx-stars:not(.is-static)').forEach((el) => {
       let temporizador = null;
       const alternar = (e) => {
         // En /writeups las estrellas van dentro de la tarjeta, que es un

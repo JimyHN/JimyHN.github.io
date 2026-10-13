@@ -30,7 +30,7 @@ order: 1
           {% if post.difficulty %}<span class="hx-badge hx-diff-{{ post.difficulty | downcase }}">{{ post.difficulty }}</span>{% endif %}
         </div>
         {%- assign mname = post.machine | default: post.title -%}
-        {%- capture stars %}{% include hx-stars.html score=post.score platform=post.platform label=true %}{% endcapture -%}
+        {%- capture stars %}{% include hx-stars.html score=post.score platform=post.platform label=true static=true %}{% endcapture -%}
         {%- capture chart %}{% include hx-htb-chart.html machine=mname platform=post.platform %}{% endcapture -%}
         {%- assign stars = stars | strip -%}
         {%- assign chart = chart | strip -%}

@@ -5494,8 +5494,8 @@ article:has(.hx-wu) > header,
 .hx-star {
   position: relative;
   display: block;
-  width: 17px;
-  height: 17px;
+  width: 19px;
+  height: 19px;
   flex: 0 0 auto;
 }
 
@@ -5505,7 +5505,7 @@ article:has(.hx-wu) > header,
   inset: 0;
   overflow: hidden;
   background: var(--hx-bg);
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  clip-path: polygon(50% 0%, 66.2% 27.8%, 97.6% 34.5%, 76.2% 58.5%, 79.4% 90.5%, 50% 77.5%, 20.6% 90.5%, 23.8% 58.5%, 2.4% 34.5%, 33.8% 27.8%);
 }
 
 /* Lo relleno: amarillo con el degradado viajando, como los títulos */
@@ -5584,7 +5584,7 @@ article:has(.hx-wu) > header,
 .hx-mcard-side .hx-mcard-chart { margin-left: 0; padding-left: 0; }
 
 .hx-mcard-stars { display: flex; align-items: center; }
-.hx-mcard-stars .hx-star { width: 14px; height: 14px; }
+.hx-mcard-stars .hx-star { width: 16px; height: 16px; }
 .hx-mcard-stars .hx-stars-num { font-size: .92rem; }
 
 @media (max-width: 760px) {
@@ -5694,3 +5694,7 @@ article:has(.hx-wu) > header,
   .hx-vlist { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .hx-vcard-img { width: 58px; height: 58px; }
 }
+
+/* En el listado de /writeups las estrellas no se pulsan: la tarjeta entera ya
+   es un enlace al write-up */
+.hx-stars.is-static { cursor: inherit; }
