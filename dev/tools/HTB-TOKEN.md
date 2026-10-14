@@ -50,6 +50,26 @@ Cuando `update_blog.sh` falle con **401 Unauthorized**, el token ha caducado o
 lo has revocado. Repite los pasos de arriba y sobrescribe el fichero: no hay que
 tocar nada más.
 
+## El nivel se pone a mano
+
+El número de nivel que sale en el panel es del **sistema XP** de HackTheBox
+(el de los rangos Beginner, Apprentice, Skilled…, que sube de rango cada 15
+niveles). Ese dato **no se puede leer con el App Token**: su endpoint,
+`GET /api/v4/profile/xp`, existe pero deriva el usuario de la sesión del
+navegador y rechaza el token; y `experience.hackthebox.com` está detrás de
+Cloudflare Access. Por eso se fija a mano:
+
+```bash
+./update_blog.sh --set-level 23
+```
+
+Eso escribe el nivel en `_data/htb.yml` y a continuación lanza la
+actualización completa (perfil, avatar, ranking y las gráficas de las
+máquinas), comitea y sube. Solo se guarda el nivel actual: no hay histórico.
+
+El resto de ejecuciones —la automática al arrancar, o un `./update_blog.sh`
+a secas— **respetan** el nivel que ya hubiera y no lo pisan.
+
 ## Cuándo se actualiza solo
 
 Ya no hay ningún GitHub Action haciendo esto: todo sale de tu ordenador.

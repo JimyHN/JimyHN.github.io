@@ -3,9 +3,14 @@
 # Refresca en el repo todo lo que se saca de HackTheBox y, si algo ha cambiado,
 # lo comitea y lo sube.
 #
-#   ./update_blog.sh            actualiza, comitea y hace push
-#   ./update_blog.sh --check    solo comprueba que el token sirve
-#   ./update_blog.sh --dry-run  actualiza pero NO comitea ni sube
+#   ./update_blog.sh                 actualiza, comitea y hace push
+#   ./update_blog.sh --set-level 23  fija tu nivel de HTB y actualiza todo
+#   ./update_blog.sh --check         solo comprueba que el token sirve
+#   ./update_blog.sh --dry-run       actualiza pero NO comitea ni sube
+#
+# El nivel del sistema XP de HackTheBox no se puede leer con el App Token (su
+# endpoint va por sesión de navegador), así que se pone a mano con --set-level.
+# Solo se guarda el nivel actual: no se lleva histórico.
 #
 # El token se lee de ~/.config/jimyhn/htb_token (ver dev/tools/HTB-TOKEN.md).
 set -uo pipefail
@@ -23,13 +28,28 @@ tit()   { printf '\n\033[1;36m== %s ==\033[0m\n' "$*"; }
 
 CHECK=0
 DRY=0
-for a in "$@"; do
-  case "$a" in
+NIVEL=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
     --check)   CHECK=1 ;;
     --dry-run) DRY=1 ;;
-    -h|--help) sed -n '3,12p' "$0" | sed 's/^# \?//'; exit 0 ;;
-    *) rojo "Opción desconocida: $a"; exit 2 ;;
+    --set-level)
+      NIVEL="${2:-}"
+      if [[ ! "$NIVEL" =~ ^[0-9]+$ ]] || [[ "$NIVEL" -lt 1 ]] || [[ "$NIVEL" -gt 999 ]]; then
+        rojo "--set-level necesita un número entero entre 1 y 999 (recibido: '${NIVEL:-nada}')"
+        exit 2
+      fi
+      shift ;;
+    --set-level=*)
+      NIVEL="${1#*=}"
+      if [[ ! "$NIVEL" =~ ^[0-9]+$ ]] || [[ "$NIVEL" -lt 1 ]] || [[ "$NIVEL" -gt 999 ]]; then
+        rojo "--set-level necesita un número entero entre 1 y 999 (recibido: '$NIVEL')"
+        exit 2
+      fi ;;
+    -h|--help) sed -n '3,15p' "$0" | sed 's/^# \?//'; exit 0 ;;
+    *) rojo "Opción desconocida: $1"; exit 2 ;;
   esac
+  shift
 done
 
 # ---------------------------------------------------------------- token
@@ -73,6 +93,26 @@ case "$codigo" in
 esac
 
 [[ $CHECK -eq 1 ]] && exit 0
+
+# ---------------------------------------------------------------- nivel
+# Se escribe ANTES de htb_update.py a propósito: ese script reescribe
+# _data/htb.yml entero pero conserva el "level" que ya hubiera, porque la API
+# no lo devuelve. Así el valor nuevo sobrevive a la actualización.
+if [[ -n "$NIVEL" ]]; then
+  tit "Nivel de HackTheBox"
+  ANTERIOR="$(sed -n 's/^level:[[:space:]]*"\?\([0-9]*\)"\?[[:space:]]*$/\1/p' _data/htb.yml)"
+  if [[ "$ANTERIOR" == "$NIVEL" ]]; then
+    gris "  ya estaba en $NIVEL, no se toca"
+  else
+    if grep -q '^level:' _data/htb.yml; then
+      sed -i "s|^level:.*|level: \"$NIVEL\"|" _data/htb.yml
+    else
+      # Por si alguna vez el fichero se queda sin la clave
+      sed -i "/^rank:/a level: \"$NIVEL\"" _data/htb.yml
+    fi
+    verde "  nivel ${ANTERIOR:-sin valor} -> $NIVEL"
+  fi
+fi
 
 # ---------------------------------------------------------------- datos
 tit "Perfil de HackTheBox (nivel, rango y avatar)"
