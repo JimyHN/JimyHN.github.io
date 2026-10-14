@@ -1,0 +1,32 @@
+{
+  "name": "Jerry",
+  "ip": "10.129.136.9",
+  "os": "Windows",
+  "diff": "Easy",
+  "plat": "HackTheBox",
+  "date": "2026-10-14",
+  "desc": "",
+  "tags": "",
+  "url": "https://labs.hackthebox.com/achievement/machine/2772097/144",
+  "sections": {
+    "reconocimiento": "Búsqueda de puertos abiertos en la máquina víctima\n\n```term\n$ sudo nmap -p- -Pn -sS -n --max-retries 1 jerry\n```\n\n```table\n{\"corners\":\"round\",\"cells\":[[{\"t\":\"Puerto\",\"b\":true,\"a\":\"c\",\"c\":\"p\"},{\"t\":\"Servicio\",\"b\":true,\"a\":\"c\",\"c\":\"p\"}],[{\"t\":\"\",\"a\":\"l\"},{\"t\":\"\",\"a\":\"l\"}],[{\"t\":\"\",\"a\":\"l\"},{\"t\":\"\",\"a\":\"l\"}]],\"v\":[{\"on\":true,\"color\":\"#243244\",\"w\":1},{\"on\":false},{\"on\":true,\"color\":\"#243244\",\"w\":1}],\"h\":[{\"on\":true,\"color\":\"#243244\",\"w\":1},{\"on\":true,\"color\":\"page\",\"w\":3},{\"on\":false},{\"on\":true,\"color\":\"#243244\",\"w\":1}]}\n```\n\nEnumeración de versiones de los servicios encontrados\n\n```term\n$ sudo nmap -p PUERTOS -n -sCV --version-intensity 9 jerry\n```\n",
+    "explotacion": "<b>Manera 1 —</b> \n\n```term\n$ \n```\n\n<b>Manera 2 —</b> \n\n```term\n$ \n```\n\n<b>Manera 3 —</b> \n\n```term\n$ \n```\n",
+    "flags": "```term\n$ type C:\\Users\\USUARIO\\Desktop\\user.txt\n```\n\n```term\n$ type C:\\Users\\Administrator\\Desktop\\root.txt\n```\n"
+  },
+  "score": "6",
+  "notes": {
+    "reconocimiento": "(captura nmapreconocimiento.png)",
+    "enumeracion": "(captura nmapversiones.png)\n\nLuego hacemos enumeración web\n\n(captura dirsearch y captura whatweb)",
+    "explotacion": "Realizamos un ataque de fuerza bruta con hydra sobre el /manager/html del Tomcat, que vemos que realmente usaba un usuario y contraseña por defecto\n\n(captura hydra.png)\n\nVemos dentro del panel de manager que podemos subir y desplegar archivos war\n\n(captura subirarchivowar.png)\n\nEntonces la idea va a ser subirnos una webshell de java con extension war y desplegarla para darnos una reverse_shell a nuestro host\n\n(captura shellwar.png)\n(captura shellwarcargado.ong)\n(captura escucha.png)\n\nLuego vemos que en la web tenemos el /shell, que al llamar a nuestra shell \"shell.war\", basta con ejecutar esta url y nos hacemos con la terminal\n\n(captura urlshell1.png)\n(captura urlshell2.png)\n(captura terminaltomcat.png)\n\nY directamente somos AUTHORITY SYSTEM\n\n(captura whoami)\n\nAhora para extraer las flags, intentan engañarnos usando un nombre de un archivo txt con espacios entre medias, con lo que usaremos el comando <bo>type \"nombre archivo\"</bo>\n\n(captura flags.png) ",
+    "conclusiones": "Máquina de un nivel muy principiante, ideal para tu primer contacto, es muy sencilla, ninguna explotación ni nada raro, el único truco estaba en leer el archivo txt usando las comillas"
+  },
+  "accent": "255 196 0",
+  "img": {
+    "avatar": "/assets/img/machines/jerry.png",
+    "banner": "/assets/img/machines/jerry-banner.png",
+    "proof": "https://labs.hackthebox.com/achievement/machine/2772097/144"
+  },
+  "mode": "add",
+  "status": "Resuelta",
+  "related_old": "Blue"
+}
