@@ -6,13 +6,13 @@
 # chart = los 10 cubos de la gráfica de HTB, en orden:
 #   Cake, Very Easy, Easy, Too Easy, Medium, A bit hard, Hard, Too hard,
 #   Extremely hard, Brainfuck
-updated: "2026-10-14 12:47"
+updated: "2026-10-14 13:04"
 machines:
   "Active":
     id: 148
     difficulty: "Easy"
     votes: 2652
-    owns: 34804
+    owns: 34805
     chart: [3066, 4691, 12887, 7338, 9062, 1791, 1266, 574, 166, 250]
     total: 41091
   "Admirer":
@@ -124,7 +124,7 @@ machines:
     id: 254
     difficulty: "Easy"
     votes: 310
-    owns: 18546
+    owns: 18547
     chart: [2550, 3016, 5591, 5069, 11210, 1964, 1355, 711, 207, 366]
     total: 32039
   "Book":
@@ -166,7 +166,7 @@ machines:
     id: 351
     difficulty: "Easy"
     votes: 4720
-    owns: 119464
+    owns: 119465
     chart: [21841, 24865, 42052, 15287, 7782, 1960, 1209, 307, 125, 437]
     total: 115865
   "Cascade":
@@ -180,7 +180,7 @@ machines:
     id: 123
     difficulty: "Medium"
     votes: 1203
-    owns: 12024
+    owns: 12025
     chart: [1247, 1870, 3899, 2791, 4414, 737, 455, 185, 45, 86]
     total: 15729
   "Conceal":
@@ -677,7 +677,7 @@ machines:
     id: 108
     difficulty: "Easy"
     votes: 1847
-    owns: 30040
+    owns: 30041
     chart: [6052, 6355, 10392, 6035, 8567, 1107, 672, 228, 71, 167]
     total: 39646
   "Silo":
@@ -733,7 +733,7 @@ machines:
     id: 484
     difficulty: "Easy"
     votes: 441
-    owns: 19659
+    owns: 19660
     chart: [552, 712, 3281, 4534, 3874, 1822, 1186, 389, 92, 244]
     total: 16686
   "SwagShop":
