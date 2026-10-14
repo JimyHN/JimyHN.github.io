@@ -43,6 +43,24 @@ y ciérrala para apagar el servidor. Para crear un acceso directo en el
 escritorio: clic derecho sobre el `.bat` → *Enviar a* → *Escritorio (crear
 acceso directo)*.
 
+## Grabar el recorrido en un vídeo
+
+```bash
+python3 animacion/grabar.py                 # → ~/Vídeos/recorrido-jimyhn.mp4 (1920x1080, 30 fps)
+python3 animacion/grabar.py -o recorrido.mp4 --fps 60 --ancho 2560 --alto 1440
+```
+
+Abre el reproductor en un Chromium sin ventana con `?rec=1` (sin barra de
+controles ni avisos) y, en vez de dejarlo correr en tiempo real, lo mueve
+**fotograma a fotograma** con `window.ANIM.seek()` y captura cada uno: el vídeo
+sale idéntico al recorrido y sin tirones, vaya como vaya el equipo o la red.
+Luego junta los fotogramas con GStreamer (`gst-launch-1.0`, x264) o con
+`ffmpeg` si lo tienes.
+
+Como coge las páginas del sitio **en vivo**, el vídeo refleja el blog tal y como
+está al grabarlo: cuando cambie el blog, vuelve a lanzarlo. Con `BLOG_URL`
+también graba tu Jekyll local, y con `--conservar` deja los PNG sueltos.
+
 ## Controles
 
 - **Play / Pausa** y **barra de tiempo** abajo (clic o arrastre para ir a un punto).
@@ -63,3 +81,4 @@ transición) e `INTRO`/`OUTRO` (fundidos de entrada y salida).
 
 - `animacion.py` — proxy + servidor local + lanzador del navegador.
 - `player.html` / `player.css` / `player.js` — el reproductor determinista.
+- `grabar.py` — graba el recorrido en un mp4 (captura fotograma a fotograma).

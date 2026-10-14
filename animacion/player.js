@@ -1,6 +1,12 @@
 (function () {
   'use strict';
 
+  // Modo grabacion (?rec=1): sin barra de controles ni avisos, solo la
+  // imagen. El recorrido no corre solo: lo mueve un grabador externo
+  // fotograma a fotograma con window.ANIM.seek() (ver grabar.py).
+  var REC = /[?&]rec=1(&|$)/.test(location.search);
+  if (REC) document.body.classList.add('rec');
+
   // ============================================================
   //  GUION (recorrido determinista = función del tiempo)
   //

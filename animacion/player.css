@@ -77,3 +77,7 @@ body { display: flex; flex-direction: column; }
   .cy-glitch { animation: none; }
   #frames iframe { transition: none; }
 }
+
+/* ---------- Modo grabacion (?rec=1): solo la imagen ---------- */
+body.rec #bar, body.rec #hint, body.rec #seek { display: none !important; }
+body.rec #frames iframe { transition: none; }
