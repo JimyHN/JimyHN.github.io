@@ -5711,3 +5711,21 @@ article:has(.hx-wu) > header,
 /* En el listado de /writeups las estrellas no se pulsan: la tarjeta entera ya
    es un enlace al write-up */
 .hx-stars.is-static { cursor: inherit; }
+
+/* El badge "Resuelta" del roadmap es un enlace al certificado, y el tema trae
+   `.content a:not(.img-link):hover { color: #d2603a !important }`, que por
+   especificidad lo teñía de naranja al pasar el ratón. Aquí solo debe crecer
+   un poco y aclararse el verde. */
+.content .hx-rm-table a.hx-status-proof:hover {
+  color: color-mix(in srgb, #44f08a 62%, #ffffff) !important;
+  border-color: rgb(68 240 138 / 75%) !important;
+  border-bottom-color: transparent !important;
+  transform: scale(1.07);
+  text-shadow: 0 0 10px rgb(68 240 138 / 55%);
+}
+
+/* Lo mismo para el nombre de la máquina, que ahora enlaza al write-up */
+.content .hx-rm-table .hx-rm-name a:hover {
+  color: color-mix(in srgb, #44f08a 62%, #ffffff) !important;
+  border-bottom-color: transparent !important;
+}

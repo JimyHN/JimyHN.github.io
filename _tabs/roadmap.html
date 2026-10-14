@@ -43,7 +43,17 @@ order: 8
             {%- elsif os_down contains 'linux' -%}{%- assign os_key = 'linux' -%}
             {%- else -%}{%- assign os_key = 'otros' -%}{%- endif -%}
             <tr data-name="{{ m.name | downcase }}" data-diff="{{ m.difficulty | downcase }}" data-os="{{ os_key }}" data-platform="{{ p.platform | downcase | remove: ' ' }}">
-              <td class="hx-rm-name"><a href="https://app.hackthebox.com/machines/{{ m.name | uri_escape }}" target="_blank" rel="noopener" title="Abrir {{ m.name }} en HackTheBox">{{ m.name }}</a></td>
+              {%- comment -%}
+                Si la máquina tiene write-up, el nombre lleva a él; si no, a su
+                página de HackTheBox.
+              {%- endcomment -%}
+              <td class="hx-rm-name">
+                {%- if wp -%}
+                  <a href="{{ wp.url | relative_url }}" title="Leer el write-up de {{ m.name }}">{{ m.name }}</a>
+                {%- else -%}
+                  <a href="https://app.hackthebox.com/machines/{{ m.name | uri_escape }}" target="_blank" rel="noopener" title="Abrir {{ m.name }} en HackTheBox">{{ m.name }}</a>
+                {%- endif -%}
+              </td>
               <td class="hx-rm-os">
                 {%- if os_down contains 'windows' %}<i class="fab fa-windows" aria-hidden="true"></i>{% endif -%}
                 {%- if os_down contains 'linux' %}<i class="fab fa-linux" aria-hidden="true"></i>{% endif -%}
