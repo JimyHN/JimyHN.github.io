@@ -6,13 +6,13 @@
 # chart = los 10 cubos de la gráfica de HTB, en orden:
 #   Cake, Very Easy, Easy, Too Easy, Medium, A bit hard, Hard, Too hard,
 #   Extremely hard, Brainfuck
-updated: "2026-10-14 17:56"
+updated: "2026-10-14 18:19"
 machines:
   "Active":
     id: 148
     difficulty: "Easy"
     votes: 2652
-    owns: 34807
+    owns: 34808
     chart: [3066, 4691, 12887, 7339, 9063, 1791, 1266, 574, 166, 250]
     total: 41093
   "Admirer":
@@ -159,14 +159,14 @@ machines:
     id: 263
     difficulty: "Easy"
     votes: 294
-    owns: 22485
+    owns: 22486
     chart: [3649, 4110, 5808, 3602, 7118, 1240, 977, 483, 142, 247]
     total: 27376
   "Cap":
     id: 351
     difficulty: "Easy"
     votes: 4720
-    owns: 119516
+    owns: 119519
     chart: [21842, 24873, 42058, 15292, 7787, 1960, 1209, 307, 125, 437]
     total: 115890
   "Cascade":
@@ -271,7 +271,7 @@ machines:
     id: 158
     difficulty: "Easy"
     votes: 1209
-    owns: 6931
+    owns: 6932
     chart: [250, 309, 1041, 1443, 3455, 1060, 1013, 582, 211, 292]
     total: 9656
   "Fuse":
@@ -362,7 +362,7 @@ machines:
     id: 347
     difficulty: "Easy"
     votes: 405
-    owns: 27698
+    owns: 27699
     chart: [6522, 6447, 8349, 3352, 3466, 542, 331, 129, 46, 188]
     total: 29372
   "Kotarak":
@@ -390,7 +390,7 @@ machines:
     id: 2
     difficulty: "Easy"
     votes: 1998
-    owns: 45655
+    owns: 45656
     chart: [27151, 14561, 10112, 2850, 9261, 452, 237, 112, 73, 212]
     total: 65021
   "Lightweight":
@@ -446,7 +446,7 @@ machines:
     id: 223
     difficulty: "Medium"
     votes: 224
-    owns: 14460
+    owns: 14461
     chart: [677, 1166, 3756, 3709, 6246, 1880, 1516, 708, 173, 270]
     total: 20101
   "Nest":
@@ -467,14 +467,14 @@ machines:
     id: 203
     difficulty: "Easy"
     votes: 344
-    owns: 13903
+    owns: 13904
     chart: [674, 1192, 3698, 4454, 6736, 1625, 1073, 449, 127, 248]
     total: 20276
   "Nibbles":
     id: 121
     difficulty: "Easy"
     votes: 3397
-    owns: 36428
+    owns: 36429
     chart: [5461, 8461, 14259, 7696, 10871, 1396, 820, 342, 96, 236]
     total: 49638
   "Nineveh":
@@ -516,7 +516,7 @@ machines:
     id: 222
     difficulty: "Easy"
     votes: 443
-    owns: 27660
+    owns: 27661
     chart: [3585, 3959, 7415, 7428, 15833, 3399, 2532, 1257, 401, 559]
     total: 46368
   "Ophiuchi":
@@ -579,7 +579,7 @@ machines:
     id: 215
     difficulty: "Easy"
     votes: 309
-    owns: 17936
+    owns: 17937
     chart: [1503, 2596, 5572, 5252, 10198, 2035, 1529, 703, 164, 290]
     total: 29842
   "Previse":
@@ -628,7 +628,7 @@ machines:
     id: 229
     difficulty: "Easy"
     votes: 415
-    owns: 25931
+    owns: 25932
     chart: [1400, 2356, 8098, 6607, 9466, 2445, 1692, 859, 259, 376]
     total: 33558
   "ScriptKiddie":
@@ -732,7 +732,7 @@ machines:
   "Support":
     id: 484
     difficulty: "Easy"
-    votes: 441
+    votes: 442
     owns: 19671
     chart: [552, 712, 3281, 4534, 3876, 1822, 1186, 390, 92, 244]
     total: 16689
