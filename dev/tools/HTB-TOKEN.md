@@ -50,13 +50,28 @@ Cuando `update_blog.sh` falle con **401 Unauthorized**, el token ha caducado o
 lo has revocado. Repite los pasos de arriba y sobrescribe el fichero: no hay que
 tocar nada más.
 
-## El mismo token en GitHub Actions
+## Cuándo se actualiza solo
 
-El workflow `.github/workflows/actualizar-htb.yml` usa el secreto `HTB_TOKEN` del
-repositorio, que es independiente del fichero local. Si renuevas el token,
-actualiza también:
+Ya no hay ningún GitHub Action haciendo esto: todo sale de tu ordenador.
 
-**Settings → Secrets and variables → Actions → `HTB_TOKEN` → Update**
+Un temporizador de systemd lanza `update_blog.sh` **10 minutos después de
+iniciar sesión**, con lo que los datos se refrescan cada vez que enciendes el
+equipo. Si falla —token caducado, sin red, push rechazado— salta un aviso de
+escritorio; si todo va bien, no dice nada.
+
+```bash
+systemctl --user list-timers blog-htb.timer   # cuándo toca la próxima
+systemctl --user start blog-htb.service       # lanzarlo ahora
+journalctl --user -u blog-htb -n 40           # qué pasó la última vez
+systemctl --user disable --now blog-htb.timer # desactivarlo
+```
+
+Los ficheros están en `~/.config/systemd/user/`: `blog-htb.service` (el
+trabajo), `blog-htb.timer` (cuándo) y `blog-htb-aviso.service` (la
+notificación de error).
+
+Como el repositorio ya no usa el token, puedes borrar el secreto `HTB_TOKEN`
+en **Settings → Secrets and variables → Actions**.
 
 ## Qué NO hacer
 

@@ -47,11 +47,21 @@ if [[ -z "$HTB_TOKEN" ]]; then
 fi
 export HTB_TOKEN
 
-codigo="$(curl -s -o /dev/null -w '%{http_code}' \
-  -H "Authorization: Bearer $HTB_TOKEN" \
-  -H 'Accept: application/json' \
-  -H 'User-Agent: JimyHN-blog-htb-updater/1.0' \
-  https://labs.hackthebox.com/api/v4/user/info)"
+# Al arrancar el ordenador la red puede tardar en estar lista: si no hay
+# conexión se reintenta un rato antes de rendirse.
+codigo=000
+for intento in 1 2 3 4 5 6; do
+  codigo="$(curl -s --max-time 20 -o /dev/null -w '%{http_code}' \
+    -H "Authorization: Bearer $HTB_TOKEN" \
+    -H 'Accept: application/json' \
+    -H 'User-Agent: JimyHN-blog-htb-updater/1.0' \
+    https://labs.hackthebox.com/api/v4/user/info)"
+  [[ "$codigo" != "000" ]] && break
+  if [[ $intento -lt 6 ]]; then
+    gris "  sin conexión todavía; reintento en 30 s ($intento/5)"
+    sleep 30
+  fi
+done
 
 case "$codigo" in
   200) verde "Token OK" ;;
@@ -112,9 +122,12 @@ if [[ $DRY -eq 1 ]]; then
 fi
 
 rama="$(git rev-parse --abbrev-ref HEAD)"
+# Ojo: el commit va limitado a esos ficheros a propósito. Sin el `--`, se
+# llevaría por delante cualquier otra cosa que hubiera en el índice y la
+# metería en este commit con un mensaje que no le corresponde.
 git add -- "${FICHEROS[@]}"
-git commit -m "HTB: actualizar datos del perfil y la dificultad votada de las máquinas" || {
-  rojo "El commit falló"; exit 1; }
+git commit -m "HTB: actualizar datos del perfil y la dificultad votada de las máquinas" \
+  -- "${FICHEROS[@]}" || { rojo "El commit falló"; exit 1; }
 
 if git push origin "$rama"; then
   verde "Subido a origin/$rama"

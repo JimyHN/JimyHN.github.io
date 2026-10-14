@@ -843,8 +843,9 @@ function gearPopover(ref, imgEl, anchor) {
 
 function buildImgControls(fig, ref) {
   fig.classList.add('ed-fig-edit');
-  const media = fig.querySelector('.hx-fig-zoom, .hx-fig-ph2');
-  if (!media) return;
+  // Antes la imagen iba envuelta en un botón de zoom; ya no, así que la barra
+  // de herramientas se ancla a la propia <figure>
+  const media = fig.querySelector('.hx-fig-zoom, .hx-fig-ph2') || fig;
   media.style.position = 'relative';
   const imgEl = fig.querySelector('img');
   // Barra de herramientas (arriba a la derecha de la imagen)

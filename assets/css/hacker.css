@@ -4898,19 +4898,22 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
    el ratón se escala un poco y el borde aclara; al pulsarla se abre ampliada.
    =========================================================================== */
 .hx-fig { margin: 24px auto; text-align: center; }
-.hx-fig-zoom {
+/* El enlace que Chirpy pone alrededor de la imagen para su visor */
+.hx-fig a.popup, .hx-fig-zoom {
   display: inline-block; padding: 0; border: 0; background: none;
   line-height: 0; cursor: zoom-in; border-radius: 15px; max-width: 100%;
 }
-.hx-fig-zoom img {
+/* En reposo, reborde gris oscuro; el color de la máquina aparece al pasar
+   el ratón, junto con el aumento */
+.hx-fig img {
   display: block; width: var(--fig-w, 680px); max-width: 100%; height: auto; border-radius: 15px;
-  border: 2px solid rgb(var(--m, 199 21 133));
+  border: 2px solid var(--hx-border);
   box-shadow: 0 6px 24px rgba(0, 0, 0, .35);
   transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease, filter .25s ease;
 }
 /* Imagen atenuada (modo "luna") */
-.hx-fig-dim .hx-fig-zoom img { filter: brightness(.68) saturate(.95); }
-.hx-fig-dim .hx-fig-zoom:hover img { filter: brightness(.82) saturate(1); }
+.hx-fig-dim img { filter: brightness(.68) saturate(.95); }
+.hx-fig-dim:hover img { filter: brightness(.82) saturate(1); }
 /* Hueco sin imagen (placeholder gris, por si se publica vacío) */
 .hx-fig-ph2 {
   display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
@@ -4919,14 +4922,17 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
   color: #8a97a8; font-size: .9rem;
 }
 .hx-fig-ph2 i { font-size: 1.8rem; opacity: .7; }
+.hx-fig img:hover,
+.hx-fig a:hover img,
+.hx-fig a:focus-visible img,
 .hx-fig-zoom:hover img,
 .hx-fig-zoom:focus-visible img {
   transform: scale(1.03);
-  border-color: color-mix(in srgb, rgb(var(--m, 199 21 133)) 55%, #fff);
+  border-color: rgb(var(--m, 199 21 133));
   box-shadow: 0 10px 34px color-mix(in srgb, rgb(var(--m, 199 21 133)) 32%, transparent);
   outline: none;
 }
-.hx-fig-zoom:active img { transform: scale(.995); }
+.hx-fig a:active img, .hx-fig-zoom:active img { transform: scale(.995); }
 .hx-fig figcaption, .hx-fig-cap {
   margin-top: 10px; font-size: .86rem; font-weight: 600; font-style: normal;
   color: #9aa6b8; line-height: 1.45;
@@ -4968,7 +4974,7 @@ body.hx-lb-locked { overflow: hidden; }
 @keyframes hx-lb-shrink { from { transform: scale(1); opacity: 1 } to { transform: scale(.7); opacity: 0 } }
 
 @media (prefers-reduced-motion: reduce) {
-  .hx-fig-zoom img, .hx-lb-img { transition: none; }
+  .hx-fig img, .hx-lb-img { transition: none; }
   .hx-lb.is-open, .hx-lb.is-closing, .hx-lb-img.hx-lb-pop { animation: none; }
 }
 

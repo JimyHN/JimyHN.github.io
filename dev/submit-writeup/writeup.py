@@ -442,8 +442,10 @@ def render_img_block(block, counter=None) -> str:
         fcls = "hx-fig" + (" hx-fig-dim" if dim else "")
         if src:
             alt = esc(cap) if cap else "Captura del write-up"
-            media = ('<button type="button" class="hx-fig-zoom" aria-label="Ampliar imagen">'
-                     f'<img src="{esc(src)}" alt="{alt}" loading="lazy" decoding="async"{istyle}></button>')
+            # Sin botón envolvente: Chirpy ya envuelve la imagen en un enlace
+            # <a class="popup"> que abre su visor (GLightbox). Con el botón
+            # encima se disparaban los dos visores en el mismo clic.
+            media = f'<img src="{esc(src)}" alt="{alt}" loading="lazy" decoding="async"{istyle}>'
         else:
             # Hueco sin imagen (el editor le engancha el botón de carga)
             media = ('<div class="hx-fig-ph2" role="img" aria-label="Sin imagen">'
