@@ -298,7 +298,7 @@
       <b>Terminales:</b> bloque <code>```term</code> … <code>```</code>; dentro, las líneas que empiezan por <code>$&nbsp;</code> o <code>#&nbsp;</code> son comandos (prompt de Kali) y el resto es salida. <code>```out</code> = todo salida.<br>
       <b>Listas:</b> líneas que empiezan por <code>-&nbsp;</code>. &nbsp; <b>Tablas:</b> <code>| A | B |</code> + fila <code>| --- | --- |</code>. &nbsp; <b>Avisos:</b> <code>::tip</code> … <code>::</code> (tip/info/warn/danger).<br>
       <b>Imágenes:</b> bloque <code>```img</code> … <code>```</code>; una por línea como <code>/ruta/captura.png | pie de foto</code>. Van centradas, con el borde del color de la máquina, y al pulsarlas se abren ampliadas (lightbox). Sube las capturas a <code>assets/img/writeups/&lt;slug&gt;/</code>.<br>
-      <b>Resaltado:</b> <code>&lt;b&gt;</code> = negrita <b>blanca</b> (la general). Para color, etiqueta propia: <code>&lt;bc&gt;</code> cian (binarios), <code>&lt;by&gt;</code> amarillo (usuarios), <code>&lt;br&gt;</code> rojo (vulnerabilidades), <code>&lt;bg&gt;</code> verde, <code>&lt;bo&gt;</code> naranja, <code>&lt;ba&gt;</code> ámbar, <code>&lt;bm&gt;</code> magenta, <code>&lt;bw&gt;</code> blanca. &nbsp; <b>Subrayado</b> <code>&lt;u&gt;</code>, <b>cursiva</b> <code>&lt;i&gt;</code> (o <code>*..*</code>), <b>enlace</b> <code>[texto](url)</code> y <code>`código`</code>. Los binarios (<code>bc</code>) y usuarios (<code>by</code>) se subrayan solos: <code>&lt;u&gt;&lt;bc&gt;nc.exe&lt;/bc&gt;&lt;/u&gt;</code>.
+      <b>Resaltado:</b> <code>&lt;b&gt;</code> = negrita <b>blanca</b> (la general). Para color, etiqueta propia: <code>&lt;bc&gt;</code> cian (binarios), <code>&lt;by&gt;</code> amarillo (usuarios), <code>&lt;br&gt;</code> rojo (vulnerabilidades), <code>&lt;bg&gt;</code> verde, <code>&lt;bo&gt;</code> naranja (<b>ficheros .txt</b>), <code>&lt;ba&gt;</code> ámbar, <code>&lt;bm&gt;</code> magenta, <code>&lt;bw&gt;</code> blanca. &nbsp; <b>Subrayado</b> <code>&lt;u&gt;</code>, <b>cursiva</b> <code>&lt;i&gt;</code> (o <code>*..*</code>), <b>enlace</b> <code>[texto](url)</code> y <code>`código`</code>. Los binarios (<code>bc</code>) y usuarios (<code>by</code>) se subrayan solos: <code>&lt;u&gt;&lt;bc&gt;nc.exe&lt;/bc&gt;&lt;/u&gt;</code>. Los <b>ficheros <code>.txt</code></b> van en naranja y sin subrayar: al escribirlos se marcan solos como <code>&lt;bo&gt;root.txt&lt;/bo&gt;</code>.
     </p>
 
     <div id="ed-sections"></div>
@@ -524,8 +524,10 @@ document.addEventListener('keydown', (ev) => {
 });
 
 // ---------- Resaltado automático al escribir ----------
-// archivo.ext -> cian (bc); vulnerabilidad/es y CVE-xxxx-yyyy -> rojo (br).
-const AUTO_EXTS = /\.(py|exe|sh|bat|ps1|psm1|dll|php|rb|pl|c|cpp|cs|java|jar|war|zip|tar|gz|tgz|7z|rar|xml|json|ya?ml|conf|cfg|ini|bak|aspx?|jsp|html?|js|ts|bin|elf|so|ko|sql|db|sqlite|csv|log|txt|md|pdf|docx?|xlsx?|pptx?|ovpn|key|pem|crt|cer|cap|pcap|pcapng|hccapx|kdbx|nse|lnk|vbs|asp)$/i;
+// archivo.ext -> cian (bc); fichero .txt -> naranja (bo); vulnerabilidad/es y
+// CVE-xxxx-yyyy -> rojo (br).
+const AUTO_EXTS = /\.(py|exe|sh|bat|ps1|psm1|dll|php|rb|pl|c|cpp|cs|java|jar|war|zip|tar|gz|tgz|7z|rar|xml|json|ya?ml|conf|cfg|ini|bak|aspx?|jsp|html?|js|ts|bin|elf|so|ko|sql|db|sqlite|csv|log|md|pdf|docx?|xlsx?|pptx?|ovpn|key|pem|crt|cer|cap|pcap|pcapng|hccapx|kdbx|nse|lnk|vbs|asp)$/i;
+const AUTO_TXT = /\.txt$/i;                 // ficheros .txt -> naranja (bo)
 const AUTO_CVE = /^CVE-\d{4}-\d{3,7}$/i;
 const AUTO_VULN = /^vulnerabilidades?$/i;
 const _isSep = ch => /[\s,;:)\]}("'<>]/.test(ch);
@@ -548,6 +550,7 @@ function _autoHighlight(ta, e) {
   if (!core) return;
   let tag = null;
   if (AUTO_CVE.test(core) || AUTO_VULN.test(core)) tag = 'br';
+  else if (AUTO_TXT.test(core) && /\w/.test(core.replace(/\.[^.]*$/, ''))) tag = 'bo';
   else if (AUTO_EXTS.test(core) && /[a-z]/i.test(core.replace(/\.[^.]*$/, ''))) tag = 'bc';
   if (!tag) return;
   // Los binarios (bc) se subrayan además de colorearse: <u><bc>..</bc></u>
