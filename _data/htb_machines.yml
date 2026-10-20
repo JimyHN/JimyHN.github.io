@@ -6,505 +6,505 @@
 # chart = los 10 cubos de la gráfica de HTB, en orden:
 #   Cake, Very Easy, Easy, Too Easy, Medium, A bit hard, Hard, Too hard,
 #   Extremely hard, Brainfuck
-updated: "2026-10-14 18:19"
+updated: "2026-10-20 09:06"
 machines:
   "Active":
     id: 148
     difficulty: "Easy"
     votes: 2652
-    owns: 34808
-    chart: [3066, 4691, 12887, 7339, 9063, 1791, 1266, 574, 166, 250]
-    total: 41093
+    owns: 34871
+    chart: [3073, 4698, 12902, 7341, 9066, 1791, 1266, 574, 166, 250]
+    total: 41127
   "Admirer":
     id: 248
     difficulty: "Easy"
     votes: 336
-    owns: 12183
+    owns: 12187
     chart: [357, 504, 1713, 3036, 7447, 2491, 2188, 1196, 366, 460]
     total: 19758
   "APT":
     id: 296
     difficulty: "Insane"
-    votes: 56
-    owns: 1531
-    chart: [91, 10, 25, 57, 298, 105, 286, 384, 270, 367]
-    total: 1893
+    votes: 57
+    owns: 1535
+    chart: [91, 10, 25, 57, 299, 105, 286, 384, 270, 370]
+    total: 1897
   "Arctic":
     id: 9
     difficulty: "Easy"
     votes: 724
-    owns: 19167
-    chart: [2451, 3195, 6605, 4179, 5929, 934, 511, 217, 77, 143]
-    total: 24241
+    owns: 19189
+    chart: [2451, 3195, 6606, 4180, 5929, 934, 511, 217, 77, 143]
+    total: 24243
   "Armageddon":
     id: 323
     difficulty: "Easy"
     votes: 215
-    owns: 16905
-    chart: [1256, 2118, 5097, 3835, 4455, 1071, 601, 225, 79, 161]
-    total: 18898
+    owns: 16911
+    chart: [1257, 2118, 5097, 3835, 4455, 1071, 601, 225, 79, 161]
+    total: 18899
   "Atom":
     id: 340
     difficulty: "Medium"
     votes: 77
-    owns: 3243
+    owns: 3245
     chart: [114, 74, 291, 592, 1418, 583, 416, 136, 51, 91]
     total: 3766
   "Bankrobber":
     id: 209
     difficulty: "Insane"
     votes: 106
-    owns: 2850
-    chart: [115, 60, 158, 264, 1242, 570, 798, 685, 293, 339]
-    total: 4524
+    owns: 2853
+    chart: [115, 60, 158, 264, 1242, 570, 798, 685, 293, 341]
+    total: 4526
   "Bart":
     id: 128
     difficulty: "Medium"
     votes: 365
-    owns: 2892
+    owns: 2893
     chart: [131, 96, 213, 306, 1397, 478, 635, 482, 212, 161]
     total: 4111
   "Bashed":
     id: 118
     difficulty: "Easy"
-    votes: 2927
-    owns: 41822
-    chart: [14617, 10502, 10845, 5570, 10696, 1335, 872, 397, 126, 252]
-    total: 55212
+    votes: 2928
+    owns: 41871
+    chart: [14623, 10505, 10850, 5573, 10699, 1336, 872, 397, 126, 255]
+    total: 55236
   "Bastard":
     id: 7
     difficulty: "Medium"
     votes: 606
-    owns: 14594
-    chart: [1047, 1633, 3772, 3821, 6467, 1373, 859, 389, 118, 139]
-    total: 19618
+    owns: 14606
+    chart: [1048, 1633, 3772, 3821, 6469, 1373, 859, 389, 118, 139]
+    total: 19621
   "Bastion":
     id: 186
     difficulty: "Easy"
-    votes: 2555
-    owns: 19215
-    chart: [774, 1826, 5548, 5964, 9605, 2184, 1468, 642, 153, 287]
-    total: 28451
+    votes: 2556
+    owns: 19238
+    chart: [777, 1827, 5552, 5968, 9605, 2186, 1470, 642, 153, 287]
+    total: 28467
   "Beep":
     id: 5
     difficulty: "Easy"
     votes: 1340
-    owns: 26225
-    chart: [4852, 5795, 9241, 5716, 10107, 1139, 699, 267, 77, 185]
-    total: 38078
+    owns: 26247
+    chart: [4852, 5796, 9242, 5718, 10107, 1139, 699, 267, 77, 186]
+    total: 38083
   "Bitlab":
     id: 207
     difficulty: "Medium"
     votes: 154
-    owns: 4290
+    owns: 4291
     chart: [234, 302, 984, 1321, 2884, 820, 593, 243, 96, 142]
     total: 7619
   "Blackfield":
     id: 255
     difficulty: "Hard"
     votes: 320
-    owns: 10672
-    chart: [275, 191, 987, 1451, 3476, 2125, 2440, 1052, 385, 304]
-    total: 12686
+    owns: 10695
+    chart: [276, 192, 990, 1451, 3480, 2126, 2442, 1054, 385, 304]
+    total: 12700
   "Blocky":
     id: 48
     difficulty: "Easy"
     votes: 1171
-    owns: 18955
-    chart: [5597, 3980, 6194, 3381, 5329, 539, 280, 100, 31, 91]
-    total: 25522
+    owns: 18978
+    chart: [5598, 3983, 6197, 3381, 5329, 539, 280, 100, 31, 91]
+    total: 25529
   "Blue":
     id: 51
     difficulty: "Easy"
-    votes: 3531
-    owns: 50855
-    chart: [32214, 14274, 9754, 2536, 9235, 381, 229, 119, 53, 264]
-    total: 69059
+    votes: 3532
+    owns: 50910
+    chart: [32224, 14280, 9754, 2536, 9235, 381, 229, 119, 53, 264]
+    total: 69075
   "Blunder":
     id: 254
     difficulty: "Easy"
     votes: 310
-    owns: 18548
-    chart: [2550, 3016, 5591, 5069, 11210, 1964, 1355, 711, 207, 366]
-    total: 32039
+    owns: 18551
+    chart: [2550, 3016, 5592, 5070, 11210, 1964, 1355, 711, 207, 366]
+    total: 32041
   "Book":
     id: 230
     difficulty: "Medium"
     votes: 165
-    owns: 5683
+    owns: 5686
     chart: [106, 105, 345, 847, 3223, 1523, 1798, 1279, 480, 425]
     total: 10131
   "Bounty":
     id: 142
     difficulty: "Easy"
     votes: 1182
-    owns: 11351
-    chart: [829, 1075, 2801, 3189, 5270, 1220, 769, 349, 87, 151]
-    total: 15740
+    owns: 11366
+    chart: [829, 1075, 2801, 3191, 5271, 1220, 770, 349, 87, 151]
+    total: 15744
   "Brainfuck":
     id: 17
     difficulty: "Insane"
     votes: 340
-    owns: 6823
+    owns: 6829
     chart: [234, 124, 359, 660, 2818, 957, 1539, 1277, 725, 1115]
     total: 9808
   "Breadcrumbs":
     id: 316
     difficulty: "Hard"
     votes: 67
-    owns: 2377
+    owns: 2378
     chart: [49, 36, 93, 251, 990, 540, 663, 382, 126, 114]
     total: 3244
   "Buff":
     id: 263
     difficulty: "Easy"
     votes: 294
-    owns: 22486
-    chart: [3649, 4110, 5808, 3602, 7118, 1240, 977, 483, 142, 247]
-    total: 27376
+    owns: 22494
+    chart: [3649, 4111, 5809, 3603, 7119, 1240, 977, 483, 142, 247]
+    total: 27380
   "Cap":
     id: 351
     difficulty: "Easy"
-    votes: 4720
-    owns: 119519
-    chart: [21842, 24873, 42058, 15292, 7787, 1960, 1209, 307, 125, 437]
-    total: 115890
+    votes: 4768
+    owns: 120312
+    chart: [21928, 24997, 42271, 15397, 7817, 1972, 1223, 307, 125, 440]
+    total: 116477
   "Cascade":
     id: 235
     difficulty: "Medium"
     votes: 308
-    owns: 12236
-    chart: [328, 380, 1726, 3155, 5517, 2230, 1544, 695, 256, 276]
-    total: 16107
+    owns: 12258
+    chart: [328, 380, 1728, 3157, 5519, 2231, 1544, 695, 256, 276]
+    total: 16114
   "Chatterbox":
     id: 123
     difficulty: "Medium"
     votes: 1203
-    owns: 12026
-    chart: [1247, 1870, 3899, 2791, 4414, 737, 455, 185, 45, 86]
-    total: 15729
+    owns: 12035
+    chart: [1247, 1871, 3902, 2791, 4414, 737, 455, 185, 45, 86]
+    total: 15733
   "Conceal":
     id: 168
     difficulty: "Hard"
-    votes: 442
-    owns: 2979
+    votes: 443
+    owns: 2983
     chart: [109, 95, 272, 287, 1366, 490, 803, 572, 199, 221]
     total: 4414
   "Control":
     id: 218
     difficulty: "Hard"
-    votes: 97
-    owns: 3438
-    chart: [88, 58, 175, 363, 1632, 724, 1051, 887, 374, 395]
-    total: 5747
+    votes: 98
+    owns: 3444
+    chart: [90, 58, 175, 363, 1633, 725, 1051, 887, 374, 395]
+    total: 5751
   "Cronos":
     id: 11
     difficulty: "Medium"
-    votes: 709
-    owns: 15349
-    chart: [1444, 2260, 5013, 3951, 6426, 1063, 591, 221, 61, 90]
-    total: 21120
+    votes: 710
+    owns: 15371
+    chart: [1447, 2260, 5015, 3954, 6429, 1063, 591, 222, 61, 92]
+    total: 21134
   "Delivery":
     id: 308
     difficulty: "Easy"
-    votes: 320
-    owns: 19054
-    chart: [1163, 2169, 5886, 5002, 7708, 1551, 1034, 419, 123, 212]
-    total: 25267
+    votes: 321
+    owns: 19064
+    chart: [1163, 2169, 5889, 5006, 7710, 1551, 1034, 419, 123, 212]
+    total: 25276
   "Devel":
     id: 3
     difficulty: "Easy"
-    votes: 2297
-    owns: 38493
-    chart: [6030, 9107, 15501, 8380, 12641, 1470, 886, 393, 105, 226]
-    total: 54739
+    votes: 2298
+    owns: 38534
+    chart: [6032, 9113, 15507, 8382, 12643, 1470, 886, 393, 105, 227]
+    total: 54758
   "DevOops":
     id: 140
     difficulty: "Medium"
     votes: 2166
-    owns: 7620
+    owns: 7623
     chart: [488, 911, 2393, 2259, 4427, 820, 504, 211, 64, 89]
     total: 12166
   "Doctor":
     id: 278
     difficulty: "Easy"
     votes: 192
-    owns: 12506
+    owns: 12509
     chart: [511, 723, 2360, 2819, 7742, 1948, 1456, 732, 187, 304]
     total: 18782
   "Dynstr":
     id: 352
     difficulty: "Medium"
     votes: 78
-    owns: 3334
+    owns: 3335
     chart: [54, 55, 150, 315, 1089, 842, 693, 273, 72, 94]
     total: 3637
   "Falafel":
     id: 124
     difficulty: "Hard"
     votes: 431
-    owns: 2419
+    owns: 2420
     chart: [74, 47, 112, 195, 1151, 429, 608, 454, 217, 168]
     total: 3455
   "Forest":
     id: 212
     difficulty: "Easy"
-    votes: 539
-    owns: 31742
-    chart: [1551, 2195, 7634, 6966, 9292, 3062, 2812, 1638, 589, 764]
-    total: 36503
+    votes: 540
+    owns: 31794
+    chart: [1553, 2198, 7648, 6970, 9296, 3063, 2812, 1638, 589, 764]
+    total: 36531
   "Forge":
     id: 376
     difficulty: "Medium"
     votes: 128
-    owns: 7112
-    chart: [276, 380, 1150, 1704, 2361, 785, 405, 92, 33, 75]
-    total: 7261
+    owns: 7118
+    chart: [276, 380, 1150, 1705, 2364, 785, 406, 92, 33, 75]
+    total: 7266
   "FriendZone":
     id: 173
     difficulty: "Easy"
     votes: 1903
-    owns: 12224
-    chart: [384, 604, 2051, 3167, 6653, 1966, 1622, 764, 191, 265]
-    total: 17667
+    owns: 12232
+    chart: [385, 605, 2051, 3167, 6653, 1966, 1622, 764, 191, 265]
+    total: 17669
   "Frolic":
     id: 158
     difficulty: "Easy"
     votes: 1209
-    owns: 6932
-    chart: [250, 309, 1041, 1443, 3455, 1060, 1013, 582, 211, 292]
-    total: 9656
+    owns: 6936
+    chart: [250, 309, 1041, 1443, 3455, 1060, 1014, 583, 211, 292]
+    total: 9658
   "Fuse":
     id: 256
     difficulty: "Medium"
     votes: 112
-    owns: 6017
+    owns: 6020
     chart: [196, 144, 499, 1087, 3092, 1366, 1154, 570, 206, 195]
     total: 8509
   "Grandpa":
     id: 13
     difficulty: "Easy"
-    votes: 1076
-    owns: 21326
-    chart: [4219, 5806, 8037, 4229, 6336, 703, 408, 181, 52, 131]
-    total: 30102
+    votes: 1078
+    owns: 21346
+    chart: [4221, 5808, 8040, 4230, 6336, 703, 408, 181, 52, 131]
+    total: 30110
   "Granny":
     id: 14
     difficulty: "Easy"
-    votes: 725
-    owns: 20514
-    chart: [4922, 5440, 7562, 3861, 5930, 606, 323, 125, 41, 116]
-    total: 28926
+    votes: 727
+    owns: 20530
+    chart: [4922, 5442, 7562, 3861, 5930, 606, 323, 125, 41, 116]
+    total: 28928
   "Haircut":
     id: 21
     difficulty: "Medium"
     votes: 394
-    owns: 6550
-    chart: [492, 786, 1869, 1696, 2836, 523, 318, 148, 39, 72]
-    total: 8779
+    owns: 6553
+    chart: [492, 786, 1869, 1697, 2836, 523, 319, 148, 39, 72]
+    total: 8781
   "Hawk":
     id: 146
     difficulty: "Medium"
     votes: 1400
-    owns: 5565
+    owns: 5569
     chart: [240, 400, 1184, 1596, 3500, 798, 610, 289, 71, 99]
     total: 8787
   "Horizontall":
     id: 374
     difficulty: "Easy"
     votes: 185
-    owns: 18019
-    chart: [1006, 1912, 5239, 4513, 3700, 1103, 612, 194, 64, 145]
-    total: 18488
+    owns: 18029
+    chart: [1006, 1912, 5240, 4514, 3700, 1103, 612, 194, 64, 145]
+    total: 18490
   "Intelligence":
     id: 357
     difficulty: "Medium"
     votes: 150
-    owns: 9172
-    chart: [209, 263, 1006, 1792, 2856, 1351, 860, 266, 86, 124]
-    total: 8813
+    owns: 9185
+    chart: [209, 264, 1007, 1794, 2859, 1351, 860, 266, 86, 124]
+    total: 8820
   "Irked":
     id: 163
     difficulty: "Easy"
-    votes: 4162
-    owns: 19268
-    chart: [1480, 2588, 6160, 5408, 10431, 1750, 1232, 600, 147, 271]
-    total: 30067
+    votes: 4163
+    owns: 19283
+    chart: [1483, 2588, 6160, 5408, 10438, 1750, 1232, 600, 147, 273]
+    total: 30079
   "Jail":
     id: 45
     difficulty: "Insane"
-    votes: 214
-    owns: 1080
+    votes: 215
+    owns: 1084
     chart: [37, 10, 19, 36, 402, 89, 207, 253, 220, 293]
     total: 1566
   "Jarvis":
     id: 194
     difficulty: "Medium"
     votes: 1114
-    owns: 10610
-    chart: [446, 603, 2068, 2934, 6060, 1809, 1225, 571, 177, 208]
-    total: 16101
+    owns: 10614
+    chart: [446, 603, 2068, 2934, 6062, 1809, 1225, 571, 177, 208]
+    total: 16103
   "Jeeves":
     id: 114
     difficulty: "Medium"
-    votes: 1338
-    owns: 16872
-    chart: [864, 1439, 4398, 3701, 6024, 1605, 1110, 572, 164, 214]
-    total: 20091
+    votes: 1339
+    owns: 16907
+    chart: [864, 1444, 4401, 3706, 6025, 1606, 1110, 572, 164, 214]
+    total: 20106
   "Jerry":
     id: 144
     difficulty: "Easy"
-    votes: 6870
-    owns: 54685
-    chart: [21491, 17727, 16334, 5541, 12579, 845, 491, 225, 60, 256]
-    total: 75549
+    votes: 6872
+    owns: 54740
+    chart: [21499, 17728, 16338, 5542, 12579, 845, 491, 225, 60, 256]
+    total: 75563
   "Knife":
     id: 347
     difficulty: "Easy"
-    votes: 405
-    owns: 27699
-    chart: [6522, 6447, 8349, 3352, 3466, 542, 331, 129, 46, 188]
-    total: 29372
+    votes: 407
+    owns: 27746
+    chart: [6535, 6454, 8364, 3356, 3466, 542, 331, 129, 46, 188]
+    total: 29411
   "Kotarak":
     id: 101
     difficulty: "Hard"
     votes: 309
-    owns: 3134
-    chart: [83, 54, 126, 270, 1358, 523, 740, 670, 325, 238]
-    total: 4387
+    owns: 3138
+    chart: [83, 54, 126, 270, 1359, 523, 740, 670, 325, 238]
+    total: 4388
   "LaCasaDePapel":
     id: 181
     difficulty: "Easy"
     votes: 1246
-    owns: 5725
+    owns: 5729
     chart: [205, 281, 989, 1537, 3377, 1117, 938, 408, 122, 198]
     total: 9172
   "Lame":
     id: 1
     difficulty: "Easy"
-    votes: 4425
-    owns: 80442
-    chart: [36437, 24638, 22179, 5580, 13804, 853, 525, 241, 102, 346]
-    total: 104705
+    votes: 4427
+    owns: 80492
+    chart: [36445, 24642, 22183, 5582, 13804, 853, 525, 241, 102, 346]
+    total: 104723
   "Legacy":
     id: 2
     difficulty: "Easy"
-    votes: 1998
-    owns: 45656
-    chart: [27151, 14561, 10112, 2850, 9261, 452, 237, 112, 73, 212]
-    total: 65021
+    votes: 2000
+    owns: 45702
+    chart: [27165, 14563, 10116, 2850, 9261, 452, 237, 112, 73, 212]
+    total: 65041
   "Lightweight":
     id: 166
     difficulty: "Medium"
     votes: 1437
-    owns: 4253
+    owns: 4255
     chart: [134, 160, 627, 987, 3245, 819, 784, 344, 97, 125]
     total: 7322
   "Love":
     id: 344
     difficulty: "Easy"
     votes: 211
-    owns: 15865
-    chart: [1047, 1656, 4719, 4107, 3794, 919, 465, 152, 46, 152]
-    total: 17057
+    owns: 15877
+    chart: [1047, 1657, 4722, 4110, 3794, 919, 466, 152, 46, 152]
+    total: 17065
   "Luanne":
     id: 302
     difficulty: "Easy"
     votes: 121
-    owns: 5453
-    chart: [198, 249, 769, 1172, 3196, 1015, 823, 346, 123, 219]
-    total: 8110
+    owns: 5457
+    chart: [198, 249, 770, 1173, 3196, 1015, 823, 346, 123, 219]
+    total: 8112
   "Magic":
     id: 241
     difficulty: "Medium"
     votes: 253
-    owns: 13043
-    chart: [550, 878, 2975, 3969, 7323, 1947, 1385, 622, 224, 239]
-    total: 20112
+    owns: 13059
+    chart: [550, 878, 2977, 3971, 7326, 1949, 1386, 622, 224, 239]
+    total: 20122
   "Mango":
     id: 214
     difficulty: "Medium"
     votes: 208
-    owns: 10501
-    chart: [592, 951, 2123, 2704, 7087, 2081, 1749, 953, 272, 295]
-    total: 18807
+    owns: 10504
+    chart: [592, 951, 2124, 2704, 7087, 2081, 1749, 953, 272, 295]
+    total: 18808
   "Mirai":
     id: 64
     difficulty: "Easy"
     votes: 2391
-    owns: 20810
-    chart: [4400, 4895, 6627, 3640, 7436, 751, 503, 232, 65, 168]
-    total: 28717
+    owns: 20833
+    chart: [4400, 4897, 6634, 3642, 7437, 751, 503, 232, 65, 168]
+    total: 28729
   "Monitors":
     id: 341
     difficulty: "Hard"
     votes: 103
-    owns: 3401
-    chart: [76, 56, 169, 388, 1206, 749, 745, 351, 103, 111]
-    total: 3954
+    owns: 3404
+    chart: [76, 56, 169, 389, 1207, 749, 745, 351, 103, 111]
+    total: 3956
   "Monteverde":
     id: 223
     difficulty: "Medium"
     votes: 224
-    owns: 14461
-    chart: [677, 1166, 3756, 3709, 6246, 1880, 1516, 708, 173, 270]
-    total: 20101
+    owns: 14485
+    chart: [677, 1168, 3758, 3711, 6250, 1882, 1518, 708, 173, 270]
+    total: 20115
   "Nest":
     id: 225
     difficulty: "Easy"
     votes: 310
-    owns: 12734
-    chart: [665, 744, 2108, 3214, 6911, 2427, 2214, 1318, 459, 587]
-    total: 20647
+    owns: 12740
+    chart: [665, 745, 2109, 3214, 6911, 2427, 2214, 1318, 459, 587]
+    total: 20649
   "Netmon":
     id: 177
     difficulty: "Easy"
-    votes: 5077
-    owns: 46850
-    chart: [23960, 8605, 8788, 4767, 13840, 1411, 1086, 607, 174, 391]
-    total: 63629
+    votes: 5078
+    owns: 46884
+    chart: [23968, 8608, 8788, 4768, 13840, 1411, 1086, 607, 174, 391]
+    total: 63641
   "Networked":
     id: 203
     difficulty: "Easy"
     votes: 344
-    owns: 13904
-    chart: [674, 1192, 3698, 4454, 6736, 1625, 1073, 449, 127, 248]
-    total: 20276
+    owns: 13924
+    chart: [674, 1192, 3698, 4454, 6738, 1625, 1073, 449, 127, 248]
+    total: 20278
   "Nibbles":
     id: 121
     difficulty: "Easy"
-    votes: 3397
-    owns: 36429
-    chart: [5461, 8461, 14259, 7696, 10871, 1396, 820, 342, 96, 236]
-    total: 49638
+    votes: 3398
+    owns: 36483
+    chart: [5461, 8464, 14268, 7702, 10872, 1396, 820, 342, 96, 238]
+    total: 49659
   "Nineveh":
     id: 54
     difficulty: "Medium"
     votes: 469
-    owns: 7824
-    chart: [254, 294, 872, 1474, 4330, 1500, 1205, 569, 143, 169]
-    total: 10810
+    owns: 7831
+    chart: [254, 294, 872, 1474, 4331, 1501, 1206, 569, 143, 169]
+    total: 10813
   "Node":
     id: 110
     difficulty: "Medium"
     votes: 487
-    owns: 6472
+    owns: 6476
     chart: [201, 178, 533, 997, 2921, 1141, 1168, 761, 308, 351]
     total: 8559
   "Object":
     id: 447
     difficulty: "Hard"
     votes: 37
-    owns: 1322
-    chart: [46, 19, 100, 137, 234, 207, 311, 86, 20, 32]
-    total: 1192
+    owns: 1325
+    chart: [46, 19, 100, 137, 236, 207, 312, 86, 20, 32]
+    total: 1195
   "October":
     id: 15
     difficulty: "Medium"
     votes: 432
-    owns: 6639
-    chart: [760, 1099, 1663, 886, 2317, 509, 499, 1, 164, 188]
-    total: 8086
+    owns: 6644
+    chart: [760, 1100, 1664, 886, 2317, 509, 499, 382, 165, 188]
+    total: 8470
   "Omni":
     id: 271
     difficulty: "Easy"
@@ -515,185 +515,185 @@ machines:
   "OpenAdmin":
     id: 222
     difficulty: "Easy"
-    votes: 443
-    owns: 27661
-    chart: [3585, 3959, 7415, 7428, 15833, 3399, 2532, 1257, 401, 559]
-    total: 46368
+    votes: 444
+    owns: 27670
+    chart: [3587, 3959, 7416, 7431, 15833, 3399, 2532, 1257, 401, 559]
+    total: 46374
   "Ophiuchi":
     id: 315
     difficulty: "Medium"
     votes: 93
-    owns: 6307
+    owns: 6310
     chart: [213, 302, 1021, 1579, 2983, 896, 586, 236, 70, 82]
     total: 7968
   "Optimum":
     id: 6
     difficulty: "Easy"
     votes: 1646
-    owns: 38835
-    chart: [12609, 9815, 10086, 5089, 10081, 1305, 863, 445, 123, 232]
-    total: 50648
+    owns: 38875
+    chart: [12611, 9819, 10092, 5089, 10081, 1305, 863, 445, 123, 234]
+    total: 50662
   "Passage":
     id: 275
     difficulty: "Medium"
     votes: 176
-    owns: 11349
+    owns: 11350
     chart: [587, 999, 2678, 2738, 6770, 1640, 1351, 687, 228, 238]
     total: 17916
   "Pikaboo":
     id: 360
     difficulty: "Hard"
     votes: 50
-    owns: 2021
+    owns: 2022
     chart: [63, 39, 128, 266, 715, 407, 388, 140, 46, 50]
     total: 2242
   "Pit":
     id: 346
     difficulty: "Medium"
     votes: 92
-    owns: 4488
+    owns: 4490
     chart: [106, 75, 226, 680, 1633, 1017, 785, 259, 78, 113]
     total: 4972
   "PivotAPI":
     id: 345
     difficulty: "Insane"
     votes: 49
-    owns: 1056
-    chart: [53, 27, 33, 51, 261, 99, 212, 234, 135, 177]
-    total: 1282
+    owns: 1058
+    chart: [53, 27, 33, 51, 261, 99, 212, 234, 135, 179]
+    total: 1284
   "Poison":
     id: 132
     difficulty: "Medium"
     votes: 3431
-    owns: 18811
-    chart: [3077, 3738, 4943, 3401, 8094, 1284, 973, 491, 136, 187]
-    total: 26324
+    owns: 18822
+    chart: [3077, 3739, 4946, 3402, 8095, 1285, 973, 491, 136, 187]
+    total: 26331
   "Popcorn":
     id: 4
     difficulty: "Medium"
     votes: 1136
-    owns: 14243
-    chart: [1039, 1942, 4483, 3862, 6883, 1038, 647, 274, 69, 124]
-    total: 20361
+    owns: 14258
+    chart: [1039, 1943, 4484, 3863, 6885, 1038, 647, 274, 69, 124]
+    total: 20366
   "Postman":
     id: 215
     difficulty: "Easy"
     votes: 309
-    owns: 17937
-    chart: [1503, 2596, 5572, 5252, 10198, 2035, 1529, 703, 164, 290]
-    total: 29842
+    owns: 17965
+    chart: [1503, 2597, 5575, 5256, 10199, 2035, 1529, 703, 164, 290]
+    total: 29851
   "Previse":
     id: 373
     difficulty: "Easy"
     votes: 204
-    owns: 17857
-    chart: [1045, 1575, 4416, 4901, 4285, 1311, 697, 213, 72, 151]
-    total: 18666
+    owns: 17868
+    chart: [1045, 1576, 4416, 4901, 4286, 1311, 698, 213, 72, 151]
+    total: 18669
   "Querier":
     id: 175
     difficulty: "Medium"
     votes: 1316
-    owns: 8195
-    chart: [399, 427, 1450, 1878, 3994, 1339, 993, 408, 119, 138]
-    total: 11145
+    owns: 8211
+    chart: [403, 427, 1453, 1881, 3995, 1340, 993, 408, 119, 138]
+    total: 11157
   "Quick":
     id: 244
     difficulty: "Hard"
     votes: 102
-    owns: 2663
-    chart: [77, 39, 110, 206, 1010, 530, 914, 920, 404, 319]
-    total: 4529
+    owns: 2665
+    chart: [77, 39, 110, 206, 1010, 530, 914, 920, 406, 319]
+    total: 4531
   "Ready":
     id: 304
     difficulty: "Medium"
     votes: 99
-    owns: 8577
+    owns: 8582
     chart: [840, 1283, 2446, 1930, 3939, 839, 619, 244, 66, 113]
     total: 12319
   "Remote":
     id: 234
     difficulty: "Easy"
-    votes: 259
-    owns: 18182
-    chart: [892, 1565, 4968, 5628, 8947, 2239, 1529, 680, 236, 348]
-    total: 27032
+    votes: 261
+    owns: 18219
+    chart: [893, 1569, 4973, 5632, 8950, 2240, 1529, 680, 236, 348]
+    total: 27050
   "Safe":
     id: 199
     difficulty: "Easy"
     votes: 396
-    owns: 3360
-    chart: [222, 247, 659, 653, 1634, 550, 627, 382, 153, 269]
-    total: 5396
+    owns: 3365
+    chart: [222, 247, 659, 653, 1634, 550, 627, 382, 155, 269]
+    total: 5398
   "Sauna":
     id: 229
     difficulty: "Easy"
     votes: 415
-    owns: 25932
-    chart: [1400, 2356, 8098, 6607, 9466, 2445, 1692, 859, 259, 376]
-    total: 33558
+    owns: 25969
+    chart: [1402, 2359, 8112, 6613, 9469, 2445, 1692, 859, 259, 376]
+    total: 33586
   "ScriptKiddie":
     id: 314
     difficulty: "Easy"
     votes: 200
-    owns: 17371
-    chart: [1600, 2551, 5549, 4118, 5874, 1118, 688, 301, 74, 211]
-    total: 22084
+    owns: 17378
+    chart: [1600, 2551, 5549, 4119, 5875, 1118, 688, 301, 74, 211]
+    total: 22086
   "Seal":
     id: 358
     difficulty: "Medium"
     votes: 83
-    owns: 5823
-    chart: [379, 259, 504, 893, 2181, 1156, 658, 186, 42, 83]
-    total: 6341
+    owns: 5825
+    chart: [380, 260, 504, 893, 2182, 1156, 659, 186, 42, 83]
+    total: 6345
   "SecNotes":
     id: 151
     difficulty: "Medium"
     votes: 1392
-    owns: 10127
-    chart: [282, 439, 1737, 2798, 5449, 1446, 971, 396, 102, 147]
-    total: 13767
+    owns: 10132
+    chart: [282, 439, 1739, 2800, 5449, 1446, 971, 396, 102, 147]
+    total: 13771
   "Sense":
     id: 111
     difficulty: "Easy"
-    votes: 1243
-    owns: 15370
-    chart: [3508, 3301, 5194, 3121, 5478, 641, 398, 186, 53, 108]
-    total: 21988
+    votes: 1244
+    owns: 15379
+    chart: [3508, 3301, 5194, 3121, 5480, 641, 398, 186, 53, 108]
+    total: 21990
   "ServMon":
     id: 240
     difficulty: "Easy"
     votes: 637
-    owns: 18760
-    chart: [1720, 3109, 5665, 3530, 5983, 1254, 862, 425, 137, 311]
-    total: 22996
+    owns: 18785
+    chart: [1722, 3110, 5668, 3534, 5985, 1254, 862, 426, 137, 311]
+    total: 23009
   "Shibboleth":
     id: 410
     difficulty: "Medium"
     votes: 65
-    owns: 5137
+    owns: 5140
     chart: [121, 124, 611, 1100, 1976, 708, 335, 108, 28, 65]
     total: 5176
   "Shocker":
     id: 108
     difficulty: "Easy"
-    votes: 1847
-    owns: 30043
-    chart: [6052, 6355, 10392, 6035, 8568, 1108, 672, 228, 71, 167]
-    total: 39648
+    votes: 1848
+    owns: 30092
+    chart: [6056, 6359, 10397, 6038, 8569, 1108, 672, 228, 71, 169]
+    total: 39667
   "Silo":
     id: 131
     difficulty: "Medium"
     votes: 623
-    owns: 6847
+    owns: 6851
     chart: [426, 334, 916, 1332, 3785, 1108, 894, 407, 120, 148]
     total: 9470
   "Sizzle":
     id: 169
     difficulty: "Insane"
-    votes: 444
-    owns: 2634
-    chart: [109, 39, 108, 106, 673, 207, 603, 664, 507, 555]
-    total: 3571
+    votes: 445
+    owns: 2640
+    chart: [109, 39, 108, 106, 673, 209, 603, 664, 507, 557]
+    total: 3575
   "SneakyMailer":
     id: 262
     difficulty: "Medium"
@@ -705,90 +705,90 @@ machines:
     id: 211
     difficulty: "Medium"
     votes: 127
-    owns: 5201
-    chart: [170, 96, 409, 746, 2445, 1240, 1213, 704, 220, 245]
-    total: 7488
+    owns: 5210
+    chart: [170, 96, 409, 749, 2445, 1240, 1213, 704, 220, 245]
+    total: 7491
   "SolidState":
     id: 85
     difficulty: "Medium"
     votes: 1059
-    owns: 13681
-    chart: [930, 1756, 4330, 3775, 5745, 870, 503, 178, 59, 102]
-    total: 18248
+    owns: 13697
+    chart: [930, 1758, 4332, 3775, 5748, 870, 503, 178, 59, 102]
+    total: 18255
   "Stacked":
     id: 379
     difficulty: "Insane"
-    votes: 27
-    owns: 580
-    chart: [20, 6, 9, 23, 99, 66, 128, 133, 68, 58]
-    total: 610
+    votes: 28
+    owns: 584
+    chart: [20, 6, 9, 23, 99, 66, 128, 134, 68, 60]
+    total: 613
   "Sunday":
     id: 136
     difficulty: "Easy"
     votes: 2178
-    owns: 12275
-    chart: [1276, 1660, 4005, 3181, 5303, 799, 523, 215, 51, 162]
-    total: 17175
+    owns: 12287
+    chart: [1277, 1660, 4009, 3181, 5303, 799, 523, 215, 51, 162]
+    total: 17180
   "Support":
     id: 484
     difficulty: "Easy"
-    votes: 442
-    owns: 19671
-    chart: [552, 712, 3281, 4534, 3876, 1822, 1186, 390, 92, 244]
-    total: 16689
+    votes: 447
+    owns: 19793
+    chart: [558, 717, 3298, 4550, 3884, 1827, 1189, 390, 92, 246]
+    total: 16751
   "SwagShop":
     id: 188
     difficulty: "Easy"
     votes: 2545
-    owns: 15155
-    chart: [2325, 2517, 4308, 3856, 8068, 1528, 1134, 481, 140, 275]
-    total: 24632
+    owns: 15161
+    chart: [2326, 2517, 4308, 3856, 8068, 1529, 1134, 481, 140, 275]
+    total: 24634
   "Tabby":
     id: 259
     difficulty: "Easy"
     votes: 216
-    owns: 15802
-    chart: [682, 1126, 3180, 4292, 8543, 2380, 1666, 838, 300, 379]
-    total: 23386
+    owns: 15811
+    chart: [682, 1126, 3181, 4293, 8543, 2380, 1666, 838, 300, 381]
+    total: 23390
   "Tally":
     id: 113
     difficulty: "Hard"
     votes: 298
-    owns: 2451
+    owns: 2453
     chart: [101, 69, 165, 217, 1042, 440, 602, 452, 184, 151]
     total: 3423
   "TartarSauce":
     id: 138
     difficulty: "Medium"
     votes: 587
-    owns: 6599
-    chart: [168, 169, 666, 1147, 2869, 906, 1023, 666, 278, 263]
-    total: 8155
+    owns: 6601
+    chart: [168, 169, 666, 1148, 2869, 906, 1024, 666, 278, 263]
+    total: 8157
   "Traverxec":
     id: 217
     difficulty: "Easy"
     votes: 341
-    owns: 21540
-    chart: [1312, 2411, 6089, 6583, 12458, 2921, 2318, 1159, 343, 519]
-    total: 36113
+    owns: 21547
+    chart: [1312, 2411, 6089, 6584, 12458, 2921, 2318, 1159, 343, 519]
+    total: 36114
   "Valentine":
     id: 127
     difficulty: "Easy"
     votes: 2773
-    owns: 20228
-    chart: [1843, 2922, 6554, 5946, 9230, 1387, 809, 298, 88, 165]
-    total: 29242
+    owns: 20248
+    chart: [1844, 2923, 6556, 5949, 9232, 1387, 809, 298, 88, 165]
+    total: 29251
   "Worker":
     id: 270
     difficulty: "Medium"
     votes: 134
-    owns: 6230
+    owns: 6233
     chart: [163, 166, 602, 1294, 3847, 1467, 1054, 476, 180, 183]
     total: 9432
   "Writer":
     id: 361
     difficulty: "Medium"
     votes: 71
-    owns: 3960
+    owns: 3963
     chart: [132, 121, 327, 561, 1349, 798, 665, 233, 58, 80]
     total: 4324
