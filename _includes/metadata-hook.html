@@ -77,9 +77,9 @@
         if (!b) return;
         guardar(b.dataset.v);
         c.remove();
-        // shortcut: si se revoca tras haber aceptado en la misma carga, GA sigue
-        // activo hasta recargar la página; para cortarlo en caliente habría que
-        // borrar sus cookies y desmontar el script.
+        /* shortcut: si se revoca tras haber aceptado en la misma carga, GA sigue
+           activo hasta recargar; para cortarlo en caliente habría que borrar sus
+           cookies y desmontar el script. */
         if (b.dataset.v === 'si') cargarGA();
       });
       document.body.appendChild(c);
@@ -89,7 +89,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
       if (!leer()) banner();
-      // El consentimiento debe poder retirarse tan fácil como se dio.
+      /* El consentimiento debe poder retirarse tan fácil como se dio. */
       var p = document.querySelector('footer[aria-label="Site Info"] p');
       if (!p || p.querySelector('.hx-cookies-link')) return;
       var a = document.createElement('a');

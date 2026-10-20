@@ -20,6 +20,11 @@ import grabar  # cliente CDP ya probado por la animación
 src = (RAIZ / "_includes/metadata-hook.html").read_text(encoding="utf-8")
 bloque = src[src.index("<!-- Consentimiento"):]
 
+# El sitio se publica con compress_html, que junta todo en una sola línea. Se
+# simula aquí: así el test caza los comentarios // que se comerían el resto del
+# script (ya pasó una vez) y cualquier cosa que dependa de los saltos de línea.
+bloque = " ".join(bloque.split())
+
 # El harness imita la página real: mismo selector de pie que usa el script.
 harness = ('<!doctype html><html lang="es"><head><meta charset="utf-8"><title>t</title>\n'
            + bloque +
