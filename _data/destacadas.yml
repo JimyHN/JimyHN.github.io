@@ -20,9 +20,7 @@ certificaciones:
     url: "/titulos/"
 
 maquinas:
-  - nombre: "Dolibarr"
-    img: "/assets/img/machines/dolibarr.png"
-    color: "239 68 68"
-    url: "/posts/dolibarr/"
+  # Dolibarr estaba aquí; se ocultó su write-up (oculto: true en su JSON).
+  - {}
   - {}
   - {}

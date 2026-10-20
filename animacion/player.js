@@ -18,13 +18,13 @@
   //  0) Fundido DE negro: aparece el Inicio y hace zoom-out (empieza
   //     a la vez que el fundido). Antes de acabar el zoom ya funde a negro.
   //  1) Write-ups: scroll hacia abajo por las máquinas (rápido).
-  //  2) Writeup de Dolibarr: arranca en Explotacion y baja al mismo
+  //  2) Writeup de Mirai: arranca en Explotacion y baja al mismo
   //     ritmo calmado que /writeups y el roadmap; corto, solo esa parte.
   //  3) Roadmap: arranca en las easy y baja hasta que asoman las medium;
   //     el fundido entra ahi, con la pagina aun bajando tapada por el negro.
   //  4) Inicio otra vez (zoom-out) y a negro.
   // ============================================================
-  var PAGES = ['/', '/writeups/', '/posts/dolibarr/', '/roadmap/'];
+  var PAGES = ['/', '/writeups/', '/posts/mirai/', '/roadmap/'];
   // páginas que se muestran SIN columnas laterales (solo el contenido)
   var HIDE_CHROME = { 1: true, 2: true, 3: true };
 
@@ -33,7 +33,7 @@
     { trans: 'fade', dur: 0.9 },
     { page: 1, kind: 'scroll',  dur: 4.5, fadeAt: 0.594 }, // Write-ups (fadeAt sube con dur para NO frenar: 0.594/4.5 = 0.33/2.5)
     { trans: 'fade', dur: 0.9 },
-    { page: 2, kind: 'scroll',  dur: 9, speedPx: 105, startAtId: 'explotacion', startAtText: 'CVE-2023-38888' }, // Dolibarr (arranca en la 2ª CVE de Explotación; ritmo calmado, no recorre todo)
+    { page: 2, kind: 'scroll',  dur: 9, speedPx: 105, startAtId: 'explotacion' }, // Mirai (arranca en Explotación; ritmo calmado, no recorre todo)
     { trans: 'fade', dur: 0.9 },
     { page: 3, kind: 'scroll',  dur: 11, speedPx: 135, startAtId: 'easy' }, // Roadmap (arranca en las easy; al acabar el tramo ya se ven las 6 primeras medium)
     { trans: 'fade', dur: 0.9 },

@@ -703,6 +703,11 @@ def front_matter(data: dict) -> str:
         fm["related_old"] = str(data["related_old"]).strip()
     # Un write-up publicado siempre está "Resuelta" (el roadmap lo cruza por machine+platform).
     fm["status"] = "Resuelta"
+    # Oculto: Jekyll deja de publicarlo, así que desaparece de /writeups, de la
+    # portada, de las etiquetas, del sitemap y del buscador. El JSON y el HTML
+    # se conservan: basta con quitar "oculto" del JSON y regenerar para volver.
+    if data.get("oculto"):
+        fm["published"] = False
     if data.get("updated"):
         fm["last_modified_at"] = data["updated"][:10] + " 18:00:00 +0200"
     if data.get("accent"):
