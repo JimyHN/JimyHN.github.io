@@ -6,3 +6,98 @@
 <link rel="stylesheet" href="{{ '/assets/css/hacker.css' | relative_url }}">
 <script defer src="{{ '/assets/js/hacker.js' | relative_url }}"></script>
 <script id="hx-frases" type="application/json">{{ site.data.frases | jsonify }}</script>
+
+<!-- Consentimiento de cookies. Google Analytics NO se carga hasta que se acepta;
+     GoatCounter queda fuera porque no usa cookies ni guarda datos personales. -->
+<style>
+  .hx-cookies {
+    position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 9999;
+    max-width: 880px; margin: 0 auto; padding: 14px 16px;
+    display: flex; flex-wrap: wrap; gap: 12px;
+    align-items: center; justify-content: space-between;
+    background: var(--hx-panel, #111822);
+    border: 1px solid var(--hx-border, #1e2b3a); border-radius: 12px;
+    box-shadow: 0 8px 28px rgb(0 0 0 / 45%);
+    font-family: var(--hx-mono, ui-monospace, monospace);
+    font-size: .82rem; line-height: 1.5; color: var(--hx-text, #c5d1de);
+  }
+  .hx-cookies p { margin: 0; flex: 1 1 320px; }
+  .hx-cookies b { color: var(--hx-cyan, #2ee6d6); font-weight: 600; }
+  .hx-cookies-btns { display: flex; gap: 8px; flex: 0 0 auto; }
+  /* Los dos botones pesan igual: rechazar debe costar lo mismo que aceptar. */
+  .hx-cookies button {
+    font: inherit; cursor: pointer; padding: 8px 18px; border-radius: 8px;
+    border: 1px solid var(--hx-border, #1e2b3a);
+    background: var(--hx-panel-2, #151e2a); color: var(--hx-text, #c5d1de);
+  }
+  .hx-cookies button[data-v="si"] {
+    border-color: var(--hx-green, #44f08a); color: var(--hx-green, #44f08a);
+  }
+  .hx-cookies button:hover { background: var(--hx-bg-2, #0e131b); }
+  .hx-cookies button:focus-visible {
+    outline: 2px solid var(--hx-green, #44f08a); outline-offset: 2px;
+  }
+</style>
+<script>
+  (function () {
+    var ID = 'G-HZKSVC69KS', CLAVE = 'hx-cookies';
+
+    function leer() { try { return localStorage.getItem(CLAVE); } catch (e) { return null; } }
+    function guardar(v) { try { localStorage.setItem(CLAVE, v); } catch (e) { /* modo privado */ } }
+
+    var puesto = false;
+    function cargarGA() {
+      if (puesto) return;
+      puesto = true;
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + ID;
+      document.head.appendChild(s);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+      window.gtag('config', ID);
+    }
+
+    function banner() {
+      if (document.querySelector('.hx-cookies')) return;
+      var c = document.createElement('div');
+      c.className = 'hx-cookies';
+      c.setAttribute('role', 'dialog');
+      c.setAttribute('aria-label', 'Aviso de cookies');
+      c.innerHTML =
+        '<p>Uso <b>Google Analytics</b> para saber qué se lee, y eso instala cookies de terceros. ' +
+        'Solo se cargan si las aceptas; el blog funciona igual si las rechazas.</p>' +
+        '<div class="hx-cookies-btns">' +
+        '<button type="button" data-v="no">Rechazar</button>' +
+        '<button type="button" data-v="si">Aceptar</button>' +
+        '</div>';
+      c.addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-v]');
+        if (!b) return;
+        guardar(b.dataset.v);
+        c.remove();
+        // shortcut: si se revoca tras haber aceptado en la misma carga, GA sigue
+        // activo hasta recargar la página; para cortarlo en caliente habría que
+        // borrar sus cookies y desmontar el script.
+        if (b.dataset.v === 'si') cargarGA();
+      });
+      document.body.appendChild(c);
+    }
+
+    if (leer() === 'si') cargarGA();
+
+    document.addEventListener('DOMContentLoaded', function () {
+      if (!leer()) banner();
+      // El consentimiento debe poder retirarse tan fácil como se dio.
+      var p = document.querySelector('footer[aria-label="Site Info"] p');
+      if (!p || p.querySelector('.hx-cookies-link')) return;
+      var a = document.createElement('a');
+      a.href = '#';
+      a.className = 'hx-cookies-link';
+      a.textContent = 'Cookies';
+      a.addEventListener('click', function (e) { e.preventDefault(); banner(); });
+      p.append(' ', a, '.');
+    });
+  })();
+</script>
