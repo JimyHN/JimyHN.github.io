@@ -64,9 +64,7 @@ webmaster_verifications:
 # Web Analytics Settings
 analytics:
   google:
-    # Vacío a propósito: el tema inyectaría gtag.js sin pedir consentimiento.
-    # GA se carga desde _includes/metadata-hook.html, solo si el visitante acepta.
-    id:
+    id: # fill in your Google Analytics ID
   goatcounter:
     id: jimyhn # https://jimyhn.goatcounter.com
   umami:
