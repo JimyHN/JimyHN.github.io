@@ -1,0 +1,33 @@
+{
+  "name": "Blocky",
+  "ip": "10.129.89.74",
+  "os": "Linux",
+  "diff": "Easy",
+  "plat": "HackTheBox",
+  "date": "2026-10-23",
+  "desc": "",
+  "tags": "",
+  "url": "https://labs.hackthebox.com/achievement/machine/2772097/48",
+  "sections": {
+    "reconocimiento": "Búsqueda de puertos abiertos en la máquina víctima\n\n```term\n$ sudo nmap -p- -Pn -sS -n --max-retries 1 blocky\n```\n\n```table\n{\"corners\":\"round\",\"cells\":[[{\"t\":\"Puerto\",\"b\":true,\"a\":\"c\",\"c\":\"p\"},{\"t\":\"Servicio\",\"b\":true,\"a\":\"c\",\"c\":\"p\"}],[{\"t\":\"\",\"a\":\"l\"},{\"t\":\"\",\"a\":\"l\"}],[{\"t\":\"\",\"a\":\"l\"},{\"t\":\"\",\"a\":\"l\"}]],\"v\":[{\"on\":true,\"color\":\"#243244\",\"w\":1},{\"on\":false},{\"on\":true,\"color\":\"#243244\",\"w\":1}],\"h\":[{\"on\":true,\"color\":\"#243244\",\"w\":1},{\"on\":true,\"color\":\"page\",\"w\":3},{\"on\":false},{\"on\":true,\"color\":\"#243244\",\"w\":1}]}\n```\n\nEnumeración de versiones de los servicios encontrados\n\n```term\n$ sudo nmap -p PUERTOS -n -sCV --version-intensity 9 blocky\n```\n",
+    "explotacion": "<b>Manera 1 —</b> \n\n```term\n$ \n```\n\n<b>Manera 2 —</b> \n\n```term\n$ \n```\n\n<b>Manera 3 —</b> \n\n```term\n$ \n```\n",
+    "flags": "```term\n$ cat /home/USUARIO/user.txt\n```\n\n```term\n$ cat /root/root.txt\n```\n"
+  },
+  "score": "4",
+  "notes": {
+    "reconocimiento": "(captura reconocimiento)",
+    "enumeracion": "(captura enumeracion)\n\nPara localizar la versión de FTP, hacemos banner grabbing sencillo con <b>nc</b>\n\n(captura bannergrabbing.png)\n\nEnumeración web\n\n(captura wappalyzer.png)\n\n(captura whatweb.png)\n\n(captura dirsearch.png)\n\nAl usar wordpress miramos a ver con wpscan\n\n(capturas WPScan1-2-3-4.png)\n\nSacamos usuario notch\n\nConfirmamos que tiene User Enumeration en su panel de login de Wordpress, es una vulnerabilidad muy común en Wordpress y se soluciona con un plugin\n\n(captura userenumeration1-2.png)\n\nEnumerando los directorios de la web, descubrimos el que nos enseña sus plugins\n\n(captura plugins.jar)",
+    "explotacion": "Al tener un plugin de la web llamado <u><bc>BlocyCore.jar</bc></u>, vamos a leerlo a ver si encontramos algo interesante\n\n(captura extraerplugin.png)\n\nal leer el archivo usando <b>strings</b> vemos una contraseña\n\n(contraseñaplugin.png)\n\nProbamos a reutilizar la contraseña usando el usuario notch tanto en phpmyadmin como wp-admin pero vemos que son erroneas\n\n(captura fallologin1-2.png)\n\nProbamos a reutilizar las credenciales y vemos que tanto para ftp como para ssh es valida\n\n(captura ssh.png)\n\nsacamos userflag\n\n(captura userflag.png)",
+    "escalada": "Simplemente, siempre debemos de ver primero que permisos tenemos con el usuario comprometido en el sistema, vemos que tiene permisos de todo, asi que nos hacemos con control de root\n\n(captura escalada.png)\n\nfinalmente sacamos la flag de root\n\n(captura root.png)",
+    "conclusiones": "Una máquina que defrauda muchísimo, desde el inicio pensaba que volvería a mi infancia comprometiendo Minecraft y al final era una máquina hiper sencilla, una pena"
+  },
+  "accent": "163 190 60",
+  "img": {
+    "avatar": "/assets/img/machines/blocky.png",
+    "banner": "/assets/img/machines/blocky-banner.png",
+    "proof": "https://labs.hackthebox.com/achievement/machine/2772097/48"
+  },
+  "mode": "add",
+  "status": "Resuelta",
+  "related_old": "Tabby"
+}
