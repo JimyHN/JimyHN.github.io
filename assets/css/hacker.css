@@ -4170,16 +4170,16 @@ body.hx-cert-locked { overflow: hidden; }
 /* ====== Updates: 3 últimas máquinas en una fila (cuadrado + título) ====== */
 .hx-mgrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.7rem;
   margin: 1.2rem 0 2rem;
 }
 
 .hx-mgrid .hx-mcard {
   flex-direction: column;
   align-items: stretch;
-  gap: 0.7rem;
-  padding: 0.9rem;
+  gap: 0.55rem;
+  padding: 0.7rem;
   text-align: center;
 }
 
@@ -4193,16 +4193,16 @@ body.hx-cert-locked { overflow: hidden; }
 .hx-mgrid .hx-mcard-img.hx-mcard-ph { font-size: 2.6rem; }
 
 .hx-mgrid .hx-mcard-name {
-  font-size: 1rem;
+  font-size: 0.9rem;
   line-height: 1.25;
   text-align: center;
 }
 
 @media (max-width: 500px) {
-  .hx-mgrid { gap: 0.6rem; }
-  .hx-mgrid .hx-mcard { padding: 0.6rem; }
-  .hx-mgrid .hx-mcard-name { font-size: 0.82rem; }
-  .hx-mgrid .hx-new { top: 0.35rem; right: 0.35rem; padding: 0.1rem 0.4rem; font-size: 0.55rem; }
+  .hx-mgrid { gap: 0.4rem; }
+  .hx-mgrid .hx-mcard { padding: 0.45rem; gap: 0.4rem; }
+  .hx-mgrid .hx-mcard-name { font-size: 0.64rem; }
+  .hx-mgrid .hx-new { top: 0.25rem; right: 0.25rem; padding: 0.05rem 0.25rem; font-size: 0.45rem; }
 }
 
 /* =======================================================================
