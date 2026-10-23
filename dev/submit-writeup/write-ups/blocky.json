@@ -27,7 +27,7 @@
     "escalada": "Simplemente, siempre debemos de ver primero que permisos tenemos con el usuario comprometido en el sistema, vemos que tiene permisos de todo, asi que nos hacemos con control de root\n\n(captura escalada.png)\n\nfinalmente sacamos la flag de root\n\n(captura root.png)",
     "conclusiones": "Una máquina que defrauda muchísimo, desde el inicio pensaba que volvería a mi infancia comprometiendo Minecraft y al final era una máquina hiper sencilla, una pena"
   },
-  "accent": "163 190 60",
+  "accent": "198 158 108",
   "img": {
     "avatar": "/assets/img/machines/blocky.png",
     "banner": "/assets/img/machines/blocky-banner.png",

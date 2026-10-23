@@ -3818,6 +3818,8 @@ article:has(.hx-wu) > .post-desc { display: none; }
 .hx-cw { color: #ffffff; font-weight: 700; }
 .hx-cp { color: rgb(var(--c)); font-weight: 700; }
 .hx-ca { color: #5eb4f8; font-weight: 700; }
+.hx-cn { color: #b5835a; font-weight: 700; }
+.hx-ct { color: #d7b68f; font-weight: 700; }
 
 /* ------- Terminal estilo zsh / Kali ------- */
 .hx-term2 {

@@ -144,20 +144,22 @@ def esc(t: str) -> str:
 # ==========================================================================
 # <b> = negrita blanca (general). Colores explícitos: <bc> cian (binarios),
 # <by> amarillo (usuarios), <br> rojo (vulnerabilidades), <bg> verde,
-# <bo> naranja, <ba> ámbar, <bm> magenta, <bw> blanca (alias de <b>).
+# <bo> naranja, <ba> ámbar, <bm> magenta, <bn> marrón, <bt> marrón claro,
+# <bw> blanca (alias de <b>).
 COLORS = {
     "b": "hx-cw", "bw": "hx-cw", "bg": "hx-cg", "bc": "hx-cc", "bm": "hx-cm",
     "br": "hx-cr", "by": "hx-cy", "bo": "hx-co", "ba": "hx-ca", "bp": "hx-cp",
+    "bn": "hx-cn", "bt": "hx-ct",
 }
-_TAG_RE = re.compile(r"<(/?)(bc|bm|br|by|bo|bw|ba|bg|bp|b)>")
+_TAG_RE = re.compile(r"<(/?)(bc|bm|br|by|bo|bw|ba|bg|bp|bn|bt|b)>")
 
 
 def colorize(t: str) -> str:
     """Convierte <b>..</b>, <bc>.. etc. en spans de color; escapa el resto."""
     t = _TAG_RE.sub(lambda m: f"\x00{'/' if m.group(1) else ''}{m.group(2)}\x01", t)
     t = esc(t)
-    t = re.sub(r"\x00/(?:bc|bm|br|by|bo|bw|ba|bg|bp|b)\x01", "</span>", t)
-    t = re.sub(r"\x00(bc|bm|br|by|bo|bw|ba|bg|bp|b)\x01", lambda m: f'<span class="{COLORS[m.group(1)]}">', t)
+    t = re.sub(r"\x00/(?:bc|bm|br|by|bo|bw|ba|bg|bp|bn|bt|b)\x01", "</span>", t)
+    t = re.sub(r"\x00(bc|bm|br|by|bo|bw|ba|bg|bp|bn|bt|b)\x01", lambda m: f'<span class="{COLORS[m.group(1)]}">', t)
     return t
 
 

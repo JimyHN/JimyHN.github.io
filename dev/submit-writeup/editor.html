@@ -298,7 +298,7 @@
       <b>Terminales:</b> bloque <code>```term</code> … <code>```</code>; dentro, las líneas que empiezan por <code>$&nbsp;</code> o <code>#&nbsp;</code> son comandos (prompt de Kali) y el resto es salida. <code>```out</code> = todo salida.<br>
       <b>Listas:</b> líneas que empiezan por <code>-&nbsp;</code>. &nbsp; <b>Tablas:</b> <code>| A | B |</code> + fila <code>| --- | --- |</code>. &nbsp; <b>Avisos:</b> <code>::tip</code> … <code>::</code> (tip/info/warn/danger).<br>
       <b>Imágenes:</b> bloque <code>```img</code> … <code>```</code>; una por línea como <code>/ruta/captura.png | pie de foto</code>. Van centradas, con el borde del color de la máquina, y al pulsarlas se abren ampliadas (lightbox). Sube las capturas a <code>assets/img/writeups/&lt;slug&gt;/</code>.<br>
-      <b>Resaltado:</b> <code>&lt;b&gt;</code> = negrita <b>blanca</b> (la general). Para color, etiqueta propia: <code>&lt;bc&gt;</code> cian (binarios), <code>&lt;by&gt;</code> amarillo (usuarios), <code>&lt;br&gt;</code> rojo (vulnerabilidades), <code>&lt;bg&gt;</code> verde, <code>&lt;bo&gt;</code> naranja (<b>ficheros .txt</b>), <code>&lt;ba&gt;</code> ámbar, <code>&lt;bm&gt;</code> magenta, <code>&lt;bw&gt;</code> blanca. &nbsp; <b>Subrayado</b> <code>&lt;u&gt;</code>, <b>cursiva</b> <code>&lt;i&gt;</code> (o <code>*..*</code>), <b>enlace</b> <code>[texto](url)</code> y <code>`código`</code>. Los binarios (<code>bc</code>) y usuarios (<code>by</code>) se subrayan solos: <code>&lt;u&gt;&lt;bc&gt;nc.exe&lt;/bc&gt;&lt;/u&gt;</code>. Los <b>ficheros <code>.txt</code></b> van en naranja y sin subrayar: al escribirlos se marcan solos como <code>&lt;bo&gt;root.txt&lt;/bo&gt;</code>.
+      <b>Resaltado:</b> <code>&lt;b&gt;</code> = negrita <b>blanca</b> (la general). Para color, etiqueta propia: <code>&lt;bc&gt;</code> cian (binarios), <code>&lt;by&gt;</code> amarillo (usuarios), <code>&lt;br&gt;</code> rojo (vulnerabilidades), <code>&lt;bg&gt;</code> verde, <code>&lt;bo&gt;</code> naranja (<b>ficheros .txt</b>), <code>&lt;ba&gt;</code> ámbar, <code>&lt;bn&gt;</code> marrón, <code>&lt;bt&gt;</code> marrón claro, <code>&lt;bm&gt;</code> magenta, <code>&lt;bw&gt;</code> blanca. &nbsp; <b>Subrayado</b> <code>&lt;u&gt;</code>, <b>cursiva</b> <code>&lt;i&gt;</code> (o <code>*..*</code>), <b>enlace</b> <code>[texto](url)</code> y <code>`código`</code>. Los binarios (<code>bc</code>) y usuarios (<code>by</code>) se subrayan solos: <code>&lt;u&gt;&lt;bc&gt;nc.exe&lt;/bc&gt;&lt;/u&gt;</code>. Los <b>ficheros <code>.txt</code></b> van en naranja y sin subrayar: al escribirlos se marcan solos como <code>&lt;bo&gt;root.txt&lt;/bo&gt;</code>.
     </p>
 
     <div id="ed-sections"></div>
@@ -424,6 +424,8 @@ SECTIONS.forEach((s, i) => {
         <button onclick="wrap('${s.id}','bo')" style="--c:#ffaf00">bo</button>
         <button onclick="wrap('${s.id}','bw')" style="--c:#ffffff">bw</button>
         <button onclick="wrap('${s.id}','ba')" style="--c:#5eb4f8">ba</button>
+        <button onclick="wrap('${s.id}','bn')" style="--c:#b5835a">bn</button>
+        <button onclick="wrap('${s.id}','bt')" style="--c:#d7b68f">bt</button>
         <span class="sep"></span>
         <button onclick="wrap('${s.id}','u')" style="--c:#dfe6ef;text-decoration:underline">u</button>
         <button onclick="wrap('${s.id}','i')" style="--c:#dfe6ef;font-style:italic">i</button>
@@ -458,6 +460,8 @@ NOTE_SECTIONS.forEach(s => {
       <button onclick="wrapN('${s.id}','bo')" style="--c:#ffaf00">bo</button>
       <button onclick="wrapN('${s.id}','bw')" style="--c:#ffffff">bw</button>
       <button onclick="wrapN('${s.id}','ba')" style="--c:#5eb4f8">ba</button>
+      <button onclick="wrapN('${s.id}','bn')" style="--c:#b5835a">bn</button>
+      <button onclick="wrapN('${s.id}','bt')" style="--c:#d7b68f">bt</button>
       <span class="sep"></span>
       <button onclick="wrapN('${s.id}','u')" style="--c:#dfe6ef;text-decoration:underline">u</button>
       <button onclick="wrapN('${s.id}','i')" style="--c:#dfe6ef;font-style:italic">i</button>
