@@ -1066,6 +1066,15 @@ div.highlighter-rouge:hover {
   box-shadow: inset 2px 0 0 var(--hx-green);
 }
 
+/* La tabla-ficha (Máquina/SO/Dificultad/IP) se tiñe al pasar el ratón del color
+   del propio write-up (--m, del front matter "accent"), no del verde genérico.
+   Aplica a todos los write-ups porque --m lo pone cada post en .hx-wu. */
+.content .hx-wu-table tbody tr:hover {
+  background: rgb(var(--m, 154 166 184) / 14%) !important;
+  box-shadow: inset 2px 0 0 rgb(var(--m, 154 166 184));
+}
+.content .hx-wu-table tbody tr:hover td { background: transparent; }
+
 /* Código en línea con un toque de color */
 .content :not(pre) > code {
   color: var(--hx-green);
