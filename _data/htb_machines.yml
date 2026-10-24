@@ -6,7 +6,7 @@
 # chart = los 10 cubos de la gráfica de HTB, en orden:
 #   Cake, Very Easy, Easy, Too Easy, Medium, A bit hard, Hard, Too hard,
 #   Extremely hard, Brainfuck
-updated: "2026-10-24 15:56"
+updated: "2026-10-24 16:32"
 machines:
   "Active":
     id: 148
@@ -68,7 +68,7 @@ machines:
     id: 118
     difficulty: "Easy"
     votes: 2929
-    owns: 41919
+    owns: 41920
     chart: [14628, 10511, 10853, 5574, 10700, 1336, 872, 397, 126, 255]
     total: 55252
   "Bastard":
@@ -103,7 +103,7 @@ machines:
     id: 255
     difficulty: "Hard"
     votes: 320
-    owns: 10720
+    owns: 10721
     chart: [278, 192, 990, 1456, 3484, 2126, 2442, 1054, 385, 304]
     total: 12711
   "Blocky":
@@ -117,7 +117,7 @@ machines:
     id: 51
     difficulty: "Easy"
     votes: 3533
-    owns: 50971
+    owns: 50972
     chart: [32237, 14284, 9757, 2538, 9235, 381, 229, 119, 53, 264]
     total: 69097
   "Blunder":
@@ -165,8 +165,8 @@ machines:
   "Cap":
     id: 351
     difficulty: "Easy"
-    votes: 4801
-    owns: 120955
+    votes: 4802
+    owns: 120962
     chart: [22008, 25092, 42458, 15485, 7840, 1983, 1225, 307, 126, 442]
     total: 116966
   "Cascade":
@@ -250,7 +250,7 @@ machines:
     id: 212
     difficulty: "Easy"
     votes: 541
-    owns: 31849
+    owns: 31850
     chart: [1556, 2205, 7660, 6975, 9298, 3065, 2812, 1638, 589, 764]
     total: 36562
   "Forge":
@@ -285,7 +285,7 @@ machines:
     id: 13
     difficulty: "Easy"
     votes: 1078
-    owns: 21357
+    owns: 21358
     chart: [4223, 5808, 8042, 4230, 6336, 703, 408, 181, 52, 131]
     total: 30114
   "Granny":
@@ -355,7 +355,7 @@ machines:
     id: 144
     difficulty: "Easy"
     votes: 6872
-    owns: 54782
+    owns: 54783
     chart: [21501, 17737, 16338, 5542, 12581, 845, 491, 225, 60, 256]
     total: 75576
   "Knife":
@@ -530,7 +530,7 @@ machines:
     id: 6
     difficulty: "Easy"
     votes: 1646
-    owns: 38897
+    owns: 38898
     chart: [12615, 9823, 10092, 5091, 10082, 1305, 863, 445, 123, 234]
     total: 50673
   "Passage":
