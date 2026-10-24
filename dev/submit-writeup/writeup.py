@@ -721,7 +721,7 @@ def front_matter(data: dict) -> str:
         elif isinstance(v, bool):
             y += f"{k}: {str(v).lower()}\n"
         elif v != "" and v is not None:
-            y += f'{k}: "{str(v).replace(chr(34), chr(92) + chr(34))}"\n'
+            y += f'{k}: "{str(v).replace(chr(92), chr(92) * 2).replace(chr(34), chr(92) + chr(34))}"\n'
     y += "---\n"
     return y
 
