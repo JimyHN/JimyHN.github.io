@@ -87,6 +87,9 @@
   .ed-note { margin-bottom:1rem; }
   .ed-note-h { display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; font-weight:700; color:#e6edf3; margin-bottom:0.4rem; }
   .ed-note-h .dot { width:9px; height:9px; border-radius:50%; background:var(--ac,#9fef00); flex-shrink:0; }
+  .ed-note-hint { margin-left:auto; font-weight:400; font-size:0.72rem; color:#8a97a8; cursor:pointer; border:1px dashed var(--ed-border); border-radius:6px; padding:1px 7px; }
+  .ed-note-hint:hover { color:#5eb4f8; border-color:#5eb4f8; }
+  .ed-note-hint code { color:#5eb4f8; font-size:0.72rem; }
   .ed-note textarea { min-height:150px; }
 
   /* Cabecera del editor: título + estado de publicación */
@@ -450,7 +453,7 @@ NOTE_SECTIONS.forEach(s => {
   const d = document.createElement('div');
   d.className = 'ed-note';
   d.innerHTML = `
-    <div class="ed-note-h" style="--ac:${s.color}"><span class="dot"></span> ${s.nom}</div>
+    <div class="ed-note-h" style="--ac:${s.color}"><span class="dot"></span> ${s.nom}${s.id === 'enumeracion' ? ' <span class="ed-note-hint" title="Inserta la plantilla de enumeración web. También puedes escribir #enumeracionweb, o #enumeracionweb&lt;nombre&gt; (p. ej. #enumeracionwebblog) para prefijar las capturas." onclick="insEnumWeb()">usa <code>#enumeracionweb</code> si quieres la plantilla de enum web</span>' : ''}</div>
     <div class="ed-tools">
       <button onclick="tplN('${s.id}','term')" style="--c:#9fef00">$ terminal</button>
       <button onclick="tplN('${s.id}','out')" style="--c:#ffffff">salida</button>
@@ -571,12 +574,29 @@ function _autoHighlight(ta, e) {
 }
 // ---------- Macros de texto ----------
 // Al escribir una clave y pulsar espacio/intro, se sustituye por su plantilla.
-const MACROS = {
-  '#enumeracionweb':
-    'Enumeramos versiones web\n\ncaptura whatweb y wappalyzer\n\n'
-  + 'Enumeramos directorios web\n\ncaptura dirsearch\n\n'
-  + 'Enumeramos con nikto\n\ncaptura nikto',
-};
+const MACROS = {};   // macros estáticas: clave -> plantilla
+// Plantilla de enumeración web. Sin nombre (#enumeracionweb) -> genérica; con
+// nombre (#enumeracionwebblog) -> prefija las capturas y referencia "de <nombre>".
+function enumWebMacro(nombre) {
+  nombre = (nombre || '').trim();
+  if (!nombre)
+    return 'Enumeramos versiones web\n\ncaptura whatweb y wappalyzer\n\n'
+         + 'Enumeramos directorios web\n\ncaptura dirsearch\n\n'
+         + 'Enumeramos con nikto\n\ncaptura nikto';
+  return `enumeramos servicios web de ${nombre}\n\ncaptura ${nombre}whatweb y ${nombre}wappalyzer\n\n`
+       + `enumeramos directorios web de ${nombre}\n\ncaptura ${nombre}dirsearch\n\n`
+       + `enumeramos con nikto de ${nombre}\n\ncaptura ${nombre}nikto`;
+}
+function macroFor(token) {
+  const low = token.toLowerCase();
+  if (low.startsWith('#enumeracionweb')) return enumWebMacro(token.slice(15));  // 15 = '#enumeracionweb'
+  return (low in MACROS) ? MACROS[low] : null;
+}
+// Botón de ayuda junto al título de Enumeración (pestaña Notas): inserta la plantilla.
+function insEnumWeb() {
+  const ta = document.getElementById('n-enumeracion');
+  if (ta) { _insert(ta, enumWebMacro('')); markDirty(); }
+}
 function autoMacro(ta, e) { try { _autoMacro(ta, e); } catch (err) { /* nunca interrumpir */ } }
 function _autoMacro(ta, e) {
   if (!e || !e.inputType || e.inputType.indexOf('insert') !== 0) return;  // solo al insertar
@@ -586,8 +606,8 @@ function _autoMacro(ta, e) {
   let start = pos - 1;
   while (start > 0 && !/\s/.test(ta.value[start - 1])) start--;
   const token = ta.value.slice(start, pos - 1);
-  const macro = MACROS[token.toLowerCase()];
-  if (!macro) return;
+  const macro = macroFor(token);
+  if (macro == null) return;
   _replaceRange(ta, start, start + token.length, macro);  // deja el separador ya escrito
   const delta = macro.length - token.length;
   ta.setSelectionRange(pos + delta, pos + delta);
@@ -1505,9 +1525,9 @@ function prefillDefaults() {
   if (flags && !flags.value.trim()) flags.value = flagsTemplate(val('f-os'));
   // Notas por defecto: un recordatorio de captura en reconocimiento y enumeración.
   const nRecon = document.getElementById('n-reconocimiento');
-  if (nRecon && !nRecon.value.trim()) nRecon.value = 'captura reconocimiento';
+  if (nRecon && !nRecon.value.trim()) nRecon.value = 'comenzamos reconociendo los puertos abiertos de la maquina\n\ncaptura reconocimiento';
   const nEnum = document.getElementById('n-enumeracion');
-  if (nEnum && !nEnum.value.trim()) nEnum.value = 'captura enumeracion';
+  if (nEnum && !nEnum.value.trim()) nEnum.value = 'enumeramos versiones y servicios de los puertos abiertos de la maquina\n\ncaptura enumeracion';
   markDirty();
   scheduleRender();
 }
