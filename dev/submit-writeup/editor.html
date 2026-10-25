@@ -53,8 +53,11 @@
   .ed-tools button { background:var(--ed-panel); border:1px solid var(--ed-border); border-radius:5px; color:#c5d1de; font-family:inherit; font-size:0.72rem; padding:0.25rem 0.5rem; cursor:pointer; }
   .ed-tools button:hover { border-color:var(--c,var(--ed-green)); color:var(--c,var(--ed-green)); }
   .ed-tools .sep { width:1px; background:var(--ed-border); margin:0 0.15rem; }
-  .ed-pub { display:flex; gap:0.6rem; margin-top:1rem; }
+  .ed-pub { display:flex; gap:0.6rem; margin-top:1rem; align-items:stretch; }
   .ed-pub button { flex:1; padding:0.7rem; border:none; border-radius:8px; font-family:inherit; font-weight:700; font-size:0.9rem; cursor:pointer; }
+  .ed-oculto { display:flex; align-items:center; gap:0.4rem; padding:0 0.7rem; border:1px solid var(--ed-border); border-radius:8px; color:#c5d1de; font-size:0.85rem; cursor:pointer; white-space:nowrap; user-select:none; }
+  .ed-oculto input { accent-color:#c16cff; cursor:pointer; }
+  .ed-oculto:has(input:checked) { border-color:#c16cff; color:#c16cff; }
   .ed-pub .pub { background:var(--ed-green); color:#05070a; }
   .ed-hint { font-size:0.7rem; color:var(--ed-mut); line-height:1.6; margin:0.3rem 0 0; }
   .ed-hint code { color:var(--ed-cyan); background:#0d1420; padding:0 0.25rem; border-radius:3px; }
@@ -313,6 +316,9 @@
     <div class="ed-pub">
       <button class="save-main" id="save-btn" onclick="guardar()">Guardar</button>
       <button class="pub" id="pub-btn" onclick="publicar()">Publicar</button>
+      <label class="ed-oculto" id="oculto-lbl" title="Máquina sin retirar: se publica solo la ficha y el certificado, sin el write-up. El JSON va a la carpeta oculto/ (privada).">
+        <input type="checkbox" id="f-oculto" onchange="onOculto()"> <span>🔒 Oculto</span>
+      </label>
     </div>
     <p class="ed-status" id="pub-status"></p>
   </div>
@@ -563,8 +569,31 @@ function _autoHighlight(ta, e) {
   const delta = repl.length - core.length;
   ta.setSelectionRange(pos + delta, pos + delta);        // deja el cursor tras el separador
 }
+// ---------- Macros de texto ----------
+// Al escribir una clave y pulsar espacio/intro, se sustituye por su plantilla.
+const MACROS = {
+  '#enumeracionweb':
+    'Enumeramos versiones web\n\ncaptura whatweb y wappalyzer\n\n'
+  + 'Enumeramos directorios web\n\ncaptura dirsearch\n\n'
+  + 'Enumeramos con nikto\n\ncaptura nikto',
+};
+function autoMacro(ta, e) { try { _autoMacro(ta, e); } catch (err) { /* nunca interrumpir */ } }
+function _autoMacro(ta, e) {
+  if (!e || !e.inputType || e.inputType.indexOf('insert') !== 0) return;  // solo al insertar
+  const pos = ta.selectionStart;
+  if (pos < 1) return;
+  if (!/\s/.test(ta.value[pos - 1])) return;             // disparador: espacio o salto de línea
+  let start = pos - 1;
+  while (start > 0 && !/\s/.test(ta.value[start - 1])) start--;
+  const token = ta.value.slice(start, pos - 1);
+  const macro = MACROS[token.toLowerCase()];
+  if (!macro) return;
+  _replaceRange(ta, start, start + token.length, macro);  // deja el separador ya escrito
+  const delta = macro.length - token.length;
+  ta.setSelectionRange(pos + delta, pos + delta);
+}
 document.querySelectorAll('textarea[data-sec], textarea[data-note]').forEach(ta => {
-  ta.addEventListener('input', e => autoHighlight(ta, e));
+  ta.addEventListener('input', e => { autoHighlight(ta, e); autoMacro(ta, e); });
 });
 
 // ---------- Recogida de datos y render ----------
@@ -655,8 +684,13 @@ function collectData() {
   if (Object.keys(notes).length) d.notes = notes;   // bloc privado: nunca llega al blog
   if (window._accent) d.accent = window._accent;
   if (window._img) d.img = window._img;
+  const oc = document.getElementById('f-oculto');
+  if (oc && oc.checked) d.oculto = true;             // máquina sin retirar: solo ficha + certificado
   return d;
 }
+
+// Al marcar/desmarcar "Oculto", la vista previa pasa a ficha+certificado y viceversa.
+function onOculto() { markDirty(); scheduleRender(); }
 
 let _rt = null;
 function scheduleRender() { clearTimeout(_rt); _rt = setTimeout(render, 220); }
@@ -1469,6 +1503,11 @@ function prefillDefaults() {
   if (expl && !expl.value.trim()) expl.value = explotacionTemplate();
   const flags = document.getElementById('t-flags');
   if (flags && !flags.value.trim()) flags.value = flagsTemplate(val('f-os'));
+  // Notas por defecto: un recordatorio de captura en reconocimiento y enumeración.
+  const nRecon = document.getElementById('n-reconocimiento');
+  if (nRecon && !nRecon.value.trim()) nRecon.value = 'captura reconocimiento';
+  const nEnum = document.getElementById('n-enumeracion');
+  if (nEnum && !nEnum.value.trim()) nEnum.value = 'captura enumeracion';
   markDirty();
   scheduleRender();
 }
@@ -1505,6 +1544,8 @@ function fillFrom(d) {
   document.getElementById('f-read').value = d.read_min || '';
   document.getElementById('f-imgw').value = d.img_w || '';
   if (d.accent) setAccent(d.accent);
+  const oc = document.getElementById('f-oculto');
+  if (oc) oc.checked = !!d.oculto;
   (d.sections && Object.keys(d.sections) || []).forEach(k => {
     const ta = document.getElementById('t-' + k);
     if (ta) ta.value = d.sections[k];
@@ -1538,6 +1579,7 @@ async function boot() {
   } else {
     modeEl.innerHTML = 'Modo <b>añadir</b>: comienza la redacción';
     _created = false; _published = false; _slug = '';
+    if (qp.get('oculto') === '1') { const oc = document.getElementById('f-oculto'); if (oc) oc.checked = true; }
     if (qp.get('url')) document.getElementById('f-url').value = qp.get('url');
     const qName = qp.get('name');
     if (qName) {

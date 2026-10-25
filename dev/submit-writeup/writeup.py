@@ -43,6 +43,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent  # dev/submit-writeup -> dev -> raíz del repo
 POSTS = ROOT / "_posts"
 SOURCES = HERE / "write-ups"
+HIDDEN = SOURCES / "oculto"   # write-ups ocultos (máquinas sin retirar): carpeta gitignored
 MACHINES_DIR = ROOT / "assets" / "img" / "machines"
 DEFAULT_IP = "10.10.10.10"
 AUTHOR = "Jaime Hereza Niño"
@@ -608,6 +609,13 @@ def render_body(data: dict) -> str:
         h += (f'<button type="button" class="hx-wu-cert" data-cert="{esc(proof)}" '
               f'data-img="{esc(banner_img or avatar)}" data-name="{esc(name)}">'
               f'<i class="fas fa-certificate" aria-hidden="true"></i> Mostrar certificado</button>')
+    # Oculto (máquina sin retirar): solo ficha + certificado, sin el write-up.
+    # El contenido sigue en el JSON; basta con sacarlo de oculto y regenerar.
+    if data.get("oculto"):
+        h += ('<p class="hx-wu-hidden"><i class="fas fa-lock" aria-hidden="true"></i> '
+              'El write-up de esta máquina se publicará cuando sea retirada.</p>')
+        h += "</div>"
+        return h
     # Aviso antes del terminal de hosts
     h += '<p class="hx-wu-note"><b><i>A tener en cuenta...</i></b></p>'
     # Terminal de hosts
@@ -705,11 +713,10 @@ def front_matter(data: dict) -> str:
         fm["related_old"] = str(data["related_old"]).strip()
     # Un write-up publicado siempre está "Resuelta" (el roadmap lo cruza por machine+platform).
     fm["status"] = "Resuelta"
-    # Oculto: Jekyll deja de publicarlo, así que desaparece de /writeups, de la
-    # portada, de las etiquetas, del sitemap y del buscador. El JSON y el HTML
-    # se conservan: basta con quitar "oculto" del JSON y regenerar para volver.
-    if data.get("oculto"):
-        fm["published"] = False
+    # «oculto» (máquina sin retirar) NO despublica el post: sigue publicado y
+    # listado en /writeups, portada, etiquetas y roadmap. Lo que cambia es el
+    # cuerpo (render_body): solo muestra la ficha y el certificado, sin el
+    # write-up. Para esconderlo del todo («sin publicar»), no se genera post.
     if data.get("updated"):
         fm["last_modified_at"] = data["updated"][:10] + " 18:00:00 +0200"
     if data.get("accent"):
@@ -733,15 +740,34 @@ def build_post(data: dict) -> str:
 # ==========================================================================
 #  Fuentes editables (JSON)
 # ==========================================================================
-def source_path(slug: str) -> Path:
-    return SOURCES / f"{slug}.json"
+def source_path(slug: str, oculto=None) -> Path:
+    """Ruta del JSON fuente. oculto=True fuerza la carpeta oculto/; False la
+    normal; None (por defecto) devuelve donde ya exista (oculto/ tiene prioridad)
+    y, si no existe en ninguna, la normal."""
+    if oculto is True:
+        return HIDDEN / f"{slug}.json"
+    if oculto is False:
+        return SOURCES / f"{slug}.json"
+    h = HIDDEN / f"{slug}.json"
+    return h if h.is_file() else SOURCES / f"{slug}.json"
+
+
+def is_hidden(slug: str) -> bool:
+    """¿El JSON de este slug vive en la carpeta oculto/?"""
+    return (HIDDEN / f"{slug}.json").is_file()
 
 
 def save_source(data: dict) -> Path:
-    SOURCES.mkdir(parents=True, exist_ok=True)
     slug = slugify(data.get("name") or "")
-    p = source_path(slug)
+    oculto = bool(data.get("oculto"))
+    dest_dir = HIDDEN if oculto else SOURCES
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    p = dest_dir / f"{slug}.json"
     p.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    # Mover (no duplicar): si había copia en la otra carpeta, se elimina.
+    other = (SOURCES if oculto else HIDDEN) / f"{slug}.json"
+    if other != p and other.is_file():
+        other.unlink()
     return p
 
 
@@ -792,21 +818,26 @@ def publish(data: dict, mode: str = "add") -> str:
 def git_publish(slug: str, name: str) -> dict:
     """Hace commit y push de los ficheros del write-up (post + JSON + imágenes).
     Devuelve {ok, pushed, msg}."""
+    def run(*args):
+        return subprocess.run(args, cwd=str(ROOT), capture_output=True, text=True)
+
     files = []
     for f in post_files(slug):
         files.append(str(f.relative_to(ROOT)))
-    sj = source_path(slug)
-    if sj.is_file():
-        files.append(str(sj.relative_to(ROOT)))
+    # El JSON normal (write-ups/<slug>.json) se versiona; el oculto está
+    # gitignored, así que nunca se añade. Si un write-up pasa a oculto, su JSON
+    # normal se borra: hay que registrar ese borrado si git lo tenía rastreado.
+    norm_rel = str((SOURCES / f"{slug}.json").relative_to(ROOT))
+    if (SOURCES / f"{slug}.json").is_file() and not is_hidden(slug):
+        files.append(norm_rel)
+    elif is_hidden(slug) and run("git", "ls-files", "--error-unmatch", "--", norm_rel).returncode == 0:
+        files.append(norm_rel)   # git add registra el borrado del JSON ya oculto
     for suf in (".png", "-banner.png"):
         img = MACHINES_DIR / f"{slug}{suf}"
         if img.is_file():
             files.append(str(img.relative_to(ROOT)))
     if not files:
         return {"ok": False, "pushed": False, "msg": "No hay ficheros que subir."}
-
-    def run(*args):
-        return subprocess.run(args, cwd=str(ROOT), capture_output=True, text=True)
 
     try:
         run("git", "add", "--", *files)
@@ -962,7 +993,8 @@ class Handler(BaseHTTPRequestHandler):
             return
         if u.path == "/api/list":
             out = []
-            for p in sorted(SOURCES.glob("*.json")):
+            fuentes = list(SOURCES.glob("*.json")) + (list(HIDDEN.glob("*.json")) if HIDDEN.is_dir() else [])
+            for p in sorted(fuentes):
                 try:
                     d = json.loads(p.read_text(encoding="utf-8"))
                 except Exception:  # noqa: BLE001
@@ -971,7 +1003,7 @@ class Handler(BaseHTTPRequestHandler):
                     "slug": p.stem, "name": d.get("name", p.stem), "os": d.get("os", ""),
                     "diff": d.get("diff", ""), "date": (d.get("date") or "")[:10],
                     "accent": d.get("accent", ""), "thumb": (d.get("img") or {}).get("avatar", ""),
-                    "published": is_published(p.stem),
+                    "published": is_published(p.stem), "oculto": p.parent == HIDDEN,
                 })
             out.sort(key=lambda x: x["date"], reverse=True)
             self._send(200, out)
@@ -1101,13 +1133,15 @@ class Handler(BaseHTTPRequestHandler):
         self._send(404, {"error": "not found"})
 
 
-def serve(mode, slug, port, no_open, name=""):
+def serve(mode, slug, port, no_open, name="", oculto=False):
     Handler.mode = mode
     qs = {"mode": mode}
     if slug:
         qs["slug"] = slug
     if name:
         qs["name"] = name
+    if oculto:
+        qs["oculto"] = "1"
     editor_url = f"http://localhost:{port}/editor.html?{urllib.parse.urlencode(qs)}"
     srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
     step("Servidor en marcha: " + _c(editor_url, Col.CYAN))
@@ -1126,6 +1160,7 @@ def serve(mode, slug, port, no_open, name=""):
 # ==========================================================================
 def cmd_add(args):
     banner()
+    oculto = bool(getattr(args, "hide", None))   # --add --hide: nace oculto
     name = args.add if isinstance(args.add, str) else ""
     if name:
         slug = slugify(name)
@@ -1133,11 +1168,82 @@ def cmd_add(args):
             err(f"Ya existe una máquina con el nombre '{name}'.")
             warn("Usa --edit para editarla, o elige otro nombre.")
             sys.exit(1)
-        step("Modo " + _c("añadir", Col.BOLD) + f": nueva máquina {_c(name, Col.BOLD)}.")
-        serve("add", "", args.port, args.no_open, name=name)
+        extra = _c(" (oculto)", Col.DIM) if oculto else ""
+        step("Modo " + _c("añadir", Col.BOLD) + f": nueva máquina {_c(name, Col.BOLD)}{extra}.")
+        serve("add", "", args.port, args.no_open, name=name, oculto=oculto)
     else:
         step("Modo " + _c("añadir", Col.BOLD) + ": elige el nombre de la máquina en el editor.")
-        serve("add", "", args.port, args.no_open)
+        serve("add", "", args.port, args.no_open, oculto=oculto)
+
+
+def _git_report(git: dict):
+    if git["ok"]:
+        ok(f"git: {git['msg']}")
+    else:
+        err(f"git: {git['msg']}")
+
+
+def cmd_publish(args):
+    """Genera (o regenera) el post de un write-up a partir de su JSON y lo sube.
+    Respeta su estado 'oculto': si lo es, el post sale en formato ficha+certificado."""
+    banner()
+    slug = resolve_slug(args.publish)
+    data = load_source(slug)
+    if data is None:
+        err(f"No existe la fuente de '{slug}'.")
+        sys.exit(1)
+    estado = "oculto" if data.get("oculto") else "completo"
+    mode = "edit" if is_published(slug) else "add"
+    rel = publish(data, mode)
+    ok(f"Write-up publicado ({estado}): {_c(rel, Col.BOLD)}")
+    step("Subiendo al blog con git…")
+    _git_report(git_publish(slug, data.get("name") or slug))
+
+
+def cmd_hide(args):
+    """Mueve un write-up a oculto/ (máquina sin retirar). Si está publicado,
+    regenera el post en formato ficha+certificado y lo sube."""
+    banner()
+    slug = resolve_slug(args.hide if isinstance(args.hide, str) else "")
+    data = load_source(slug)
+    if data is None:
+        err(f"No existe la fuente de '{slug}'.")
+        sys.exit(1)
+    if data.get("oculto"):
+        warn(f"'{slug}' ya está oculto.")
+        return
+    data["oculto"] = True
+    save_source(data)   # mueve el JSON a oculto/ (y borra la copia normal)
+    ok(f"{_c(data.get('name') or slug, Col.BOLD)} movido a {_c('oculto/', Col.CYAN)}.")
+    if is_published(slug):
+        publish(data, "edit")
+        step("Adaptando el post a formato oculto y subiéndolo…")
+        _git_report(git_publish(slug, data.get("name") or slug))
+    else:
+        step("No estaba publicado: queda solo como fuente oculta (sin post).")
+
+
+def cmd_dont_hide(args):
+    """Saca un write-up de oculto/ (vuelve a mostrarse completo). Si está
+    publicado, regenera el post con todo el contenido y lo sube."""
+    banner()
+    slug = resolve_slug(args.dont_hide)
+    data = load_source(slug)
+    if data is None:
+        err(f"No existe la fuente de '{slug}'.")
+        sys.exit(1)
+    if not data.get("oculto"):
+        warn(f"'{slug}' no estaba oculto.")
+        return
+    data["oculto"] = False
+    save_source(data)   # mueve el JSON de oculto/ a write-ups/
+    ok(f"{_c(data.get('name') or slug, Col.BOLD)} sacado de {_c('oculto/', Col.CYAN)}.")
+    if is_published(slug):
+        publish(data, "edit")
+        step("Regenerando el post con el contenido completo y subiéndolo…")
+        _git_report(git_publish(slug, data.get("name") or slug))
+    else:
+        step("No estaba publicado: queda como fuente normal (sin post).")
 
 
 def cmd_edit(args):
@@ -1197,7 +1303,8 @@ def cmd_regen(args):
     ya publicados sin abrir el editor uno a uno. No toca los JSON ni las fechas.
     """
     banner()
-    fuentes = sorted(SOURCES.glob("*.json")) if SOURCES.is_dir() else []
+    fuentes = (sorted(SOURCES.glob("*.json")) if SOURCES.is_dir() else [])
+    fuentes += (sorted(HIDDEN.glob("*.json")) if HIDDEN.is_dir() else [])
     if not fuentes:
         warn("No hay ningún write-up en dev/submit-writeup/write-ups/.")
         return
@@ -1248,6 +1355,13 @@ def main():
     g.add_argument("--remove", metavar="RUTA", help="Borrar un write-up publicado (p. ej. /writeups/blue).")
     g.add_argument("--regen", action="store_true",
                    help="Regenerar el HTML de todos los write-ups desde sus JSON (tras cambiar la plantilla).")
+    g.add_argument("--publish", metavar="RUTA",
+                   help="Publicar un write-up desde su JSON (p. ej. /writeups/blue). Si no estaba publicado, lo publica.")
+    g.add_argument("--dont-hide", dest="dont_hide", metavar="RUTA",
+                   help="Sacar un write-up de oculto: vuelve a mostrarse completo (p. ej. /writeups/blue).")
+    # --hide va fuera del grupo exclusivo para poder combinarse con --add.
+    p.add_argument("--hide", nargs="?", const=True, default=None, metavar="RUTA",
+                   help="Con --add: el nuevo write-up nace oculto. Con una ruta: mueve ese write-up a oculto.")
     p.add_argument("-p", "--port", type=int, default=8099, help="Puerto del servidor (por defecto 8099).")
     p.add_argument("--no-open", action="store_true", help="No abrir el navegador automáticamente.")
     args = p.parse_args()
@@ -1260,6 +1374,12 @@ def main():
         cmd_remove(args)
     elif args.regen:
         cmd_regen(args)
+    elif args.publish:
+        cmd_publish(args)
+    elif args.dont_hide:
+        cmd_dont_hide(args)
+    elif isinstance(args.hide, str):
+        cmd_hide(args)
     else:
         banner()
         warn("No has indicado ninguna acción.")
@@ -1268,6 +1388,10 @@ def main():
         print(_c("    python3 dev/submit-writeup/writeup.py --add", Col.GREEN) + "                 redactar uno nuevo")
         print(_c("    python3 dev/submit-writeup/writeup.py --edit /writeups/blue", Col.CYAN) + "   editar Blue")
         print(_c("    python3 dev/submit-writeup/writeup.py --remove /writeups/blue", Col.RED) + " borrar Blue")
+        print(_c("    python3 dev/submit-writeup/writeup.py --add --hide", Col.GREEN) + "          nuevo write-up oculto")
+        print(_c("    python3 dev/submit-writeup/writeup.py --publish /writeups/blue", Col.CYAN) + " publicar Blue desde su JSON")
+        print(_c("    python3 dev/submit-writeup/writeup.py --hide /writeups/blue", Col.DIM) + "    ocultar Blue")
+        print(_c("    python3 dev/submit-writeup/writeup.py --dont-hide /writeups/blue", Col.DIM) + " sacar Blue de oculto")
         print(_c("    python3 dev/submit-writeup/writeup.py --regen", Col.DIM) + "              regenerar todos los posts")
         print()
         print(_c("    -h / --help", Col.DIM) + " para ver todas las opciones.")
