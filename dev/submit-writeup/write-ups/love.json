@@ -4,7 +4,7 @@
   "os": "Windows",
   "diff": "Easy",
   "plat": "HackTheBox",
-  "date": "2026-10-25",
+  "date": "2026-10-26",
   "desc": "Un SSRF en un escáner de ficheros llega a un panel interno en el puerto 5000 que filtra las credenciales de admin del Voting System; desde su panel, una subida de ficheros sin validar da RCE, y un AlwaysInstallElevated a 0x1 remata con SYSTEM vía MSI.",
   "tags": "#windows #web #ssrf #file-upload #rce #voting-system #alwaysinstallelevated #msi #privesc #xampp",
   "url": "https://labs.hackthebox.com/achievement/machine/2772097/344",

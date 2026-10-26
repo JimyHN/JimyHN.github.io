@@ -619,7 +619,7 @@ def render_body(data: dict) -> str:
     # Aviso antes del terminal de hosts
     h += '<p class="hx-wu-note"><b><i>A tener en cuenta...</i></b></p>'
     # Terminal de hosts
-    h += render_term("term", ["$ sudo nano /etc/hosts", f"{ip}   {slug}"])
+    h += render_term("term", ["$ sudo nano /etc/hosts", f"{ip}   {slug} {slug}.htb"])
     # Índice (solo secciones con contenido)
     present = [s for s in SECTIONS if (secs.get(s[0]) or "").strip()]
     if present:
