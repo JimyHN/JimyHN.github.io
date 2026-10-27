@@ -19,8 +19,5 @@ certificaciones:
     color: "220 48 73"
     url: "/titulos/"
 
-maquinas:
-  # Dolibarr estaba aquí; se ocultó su write-up (oculto: true en su JSON).
-  - {}
-  - {}
-  - {}
+# Los "Write-ups destacados" ya NO se listan aquí: se eligen solos en cada build
+# (ver _includes/update-list.html). Prioridad: dificultad > Mi puntuación > fecha.

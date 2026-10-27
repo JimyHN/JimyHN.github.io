@@ -110,19 +110,40 @@
   </section>
 {%- endif -%}
 
-{%- if dest.maquinas -%}
+{%- comment -%}
+  Write-ups destacados: los 3 mejores, elegidos automáticamente y recalculados
+  en cada build (cada push). Prioridad, de mayor a menor peso:
+    1) Dificultad más alta (Insane > Hard > Medium > Easy).
+    2) Mayor "Mi puntuación" (score del front matter).
+    3) Más reciente (date).
+  Clave ordenable por write-up: <dificultad 1 díg><score 2 díg><fecha>::<índice>.
+  Se ordena y se invierte, así que el primero es el de mayor prioridad.
+{%- endcomment -%}
+{%- assign feat_keys = '' | split: '' -%}
+{%- for post in site.posts -%}
+  {%- if post.categories contains 'Writeups' -%}
+    {%- assign dl = post.difficulty | default: '' | downcase -%}
+    {%- assign dr = '1' -%}
+    {%- if dl == 'insane' -%}{%- assign dr = '4' -%}{%- elsif dl == 'hard' -%}{%- assign dr = '3' -%}{%- elsif dl == 'medium' -%}{%- assign dr = '2' -%}{%- endif -%}
+    {%- assign sc = post.score | default: 0 | plus: 0 -%}
+    {%- if sc < 10 -%}{%- assign sc2 = sc | prepend: '0' -%}{%- else -%}{%- assign sc2 = sc | append: '' -%}{%- endif -%}
+    {%- assign ds = post.date | date: '%Y%m%d%H%M%S' -%}
+    {%- assign fkey = dr | append: sc2 | append: ds | append: '::' | append: forloop.index0 -%}
+    {%- assign feat_keys = feat_keys | push: fkey -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- assign feat_keys = feat_keys | sort | reverse -%}
+{%- if feat_keys.size > 0 -%}
   <section class="hx-widget hx-feat hx-feat-maq">
     <h2 class="panel-heading hx-widget-title"><i class="fas fa-star" aria-hidden="true"></i> Write-ups destacados</h2>
     <div class="hx-feat-grid">
-      {%- for m in dest.maquinas limit: 3 -%}
-        {%- if m.nombre -%}
-          <a class="hx-feat-card" href="{{ m.url | default: '/writeups/' | relative_url }}" style="--fc: {{ m.color | default: '46 230 214' }}">
-            <span class="hx-feat-img"{% if m.img %} style="background-image:url('{{ m.img | relative_url }}')"{% endif %}></span>
-            <b>{{ m.nombre }}</b>
-          </a>
-        {%- else -%}
-          <span class="hx-feat-card hx-feat-empty" aria-hidden="true"><i class="fas fa-plus"></i></span>
-        {%- endif -%}
+      {%- for item in feat_keys limit: 3 -%}
+        {%- assign idx = item | split: '::' | last | plus: 0 -%}
+        {%- assign p = site.posts[idx] -%}
+        <a class="hx-feat-card" href="{{ p.url | relative_url }}" style="--fc: {{ p.accent | default: '46 230 214' }}">
+          <span class="hx-feat-img{% unless p.thumb %} hx-feat-ph{% endunless %}"{% if p.thumb %} style="background-image:url('{{ p.thumb | relative_url }}')"{% endif %}></span>
+          <b>{{ p.machine | default: p.title }}</b>
+        </a>
       {%- endfor -%}
     </div>
   </section>
