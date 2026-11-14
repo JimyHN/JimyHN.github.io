@@ -265,6 +265,7 @@ def _render_callout(typ, body):
 # para no confundir un párrafo ("No. ", "Windows. ") con una lista.
 _UL_RE = re.compile(r"^[-*•]\s+")
 _OL_RE = re.compile(r"^(\d{1,3}|[a-z]|[ivxl]{1,4})[.)]\s+")
+_H3_RE = re.compile(r"^###\s+")   # subtítulo dentro de una sección (p. ej. «### 🏷️ Versiones»)
 
 
 def _marker_kind(mark: str) -> str:
@@ -277,7 +278,7 @@ def _marker_kind(mark: str) -> str:
 
 def _starts_block(line: str) -> bool:
     t = line.strip()
-    return (not t) or t.startswith(("|", "::")) or bool(_UL_RE.match(t)) or bool(_OL_RE.match(t))
+    return (not t) or t.startswith(("|", "::")) or bool(_UL_RE.match(t)) or bool(_OL_RE.match(t)) or bool(_H3_RE.match(t))
 
 
 def render_prose(chunk: str) -> str:
@@ -287,6 +288,11 @@ def render_prose(chunk: str) -> str:
     while i < n:
         s = lines[i].strip()
         if not s:
+            i += 1
+            continue
+        # subtítulo ### (más pequeño que el <h2> de la sección)
+        if _H3_RE.match(s):
+            out.append(f'<h3 class="hx-wu-h3">{render_inline(_H3_RE.sub("", s))}</h3>')
             i += 1
             continue
         # aviso ::tip ... ::

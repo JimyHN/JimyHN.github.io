@@ -3769,6 +3769,21 @@ article:has(.hx-wu) > .post-desc { display: none; }
 .content .hx-wu-sec[id='arreglo'] > h2::before { content: '🛠️'; }
 .content .hx-wu-sec[id='conclusiones'] > h2::before { content: '🧠'; }
 
+/* Subtítulo dentro de una sección (### ...): un poco más pequeño que el h2 */
+.content .hx-wu-sec h3.hx-wu-h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.3rem 0 0.7rem;
+  padding: 0.35rem 0.75rem;
+  border-left: 2px solid rgb(var(--c) / 70%);
+  border-radius: 6px;
+  background: linear-gradient(100deg, rgb(var(--c) / 9%), transparent 70%);
+  font-family: var(--hx-mono);
+  font-size: 1.05rem;
+  color: #d7dee6;
+}
+
 /* Lista dentro de un write-up */
 .content .hx-wu-list {
   list-style: none;

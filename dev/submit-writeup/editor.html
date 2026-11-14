@@ -453,7 +453,7 @@ NOTE_SECTIONS.forEach(s => {
   const d = document.createElement('div');
   d.className = 'ed-note';
   d.innerHTML = `
-    <div class="ed-note-h" style="--ac:${s.color}"><span class="dot"></span> ${s.nom}${s.id === 'enumeracion' ? ' <span class="ed-note-hint" title="Inserta la plantilla de enumeración web. También puedes escribir #enumeracionweb, o #enumeracionweb&lt;nombre&gt; (p. ej. #enumeracionwebblog) para prefijar las capturas." onclick="insEnumWeb()">usa <code>#enumeracionweb</code> si quieres la plantilla de enum web</span>' : ''}</div>
+    <div class="ed-note-h" style="--ac:${s.color}"><span class="dot"></span> ${s.nom}${s.id === 'enumeracion' ? ' <span class="ed-note-hint" title="Inserta la plantilla de enumeración web. También puedes escribir #enumeracionweb, o #enumeracionweb&lt;nombre&gt; (p. ej. #enumeracionwebblog) para prefijar las capturas." onclick="insEnumWeb()">puedes usar <code>#enumeracionweb</code> para la plantilla de enum web</span>' : ''}</div>
     <div class="ed-tools">
       <button onclick="tplN('${s.id}','term')" style="--c:#9fef00">$ terminal</button>
       <button onclick="tplN('${s.id}','out')" style="--c:#ffffff">salida</button>
@@ -582,10 +582,9 @@ function enumWebMacro(nombre) {
   if (!nombre)
     return 'Enumeramos versiones web\n\ncaptura whatweb y wappalyzer\n\n'
          + 'Enumeramos directorios web\n\ncaptura dirsearch\n\n'
-         + 'Enumeramos con nikto\n\ncaptura nikto';
+         + '### 🏷️ Versiones\n\nPor lo que sacamos las siguientes versiones:\n\n- versión 1\n- versión 2';
   return `enumeramos servicios web de ${nombre}\n\ncaptura ${nombre}whatweb y ${nombre}wappalyzer\n\n`
-       + `enumeramos directorios web de ${nombre}\n\ncaptura ${nombre}dirsearch\n\n`
-       + `enumeramos con nikto de ${nombre}\n\ncaptura ${nombre}nikto`;
+       + `enumeramos directorios web de ${nombre}\n\ncaptura ${nombre}dirsearch`;
 }
 function macroFor(token) {
   const low = token.toLowerCase();
