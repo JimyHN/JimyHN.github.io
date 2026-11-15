@@ -7,7 +7,7 @@
     {%- if include.post.os -%}
       {%- assign os_down = include.post.os | downcase -%}
       <span class="hx-os">
-        <i class="fab fa-{% if os_down contains 'windows' %}windows{% else %}linux{% endif %}"></i>
+        <i class="fab fa-{% if os_down contains 'windows' %}windows{% elsif os_down contains 'freebsd' %}freebsd{% else %}linux{% endif %}"></i>
         {{ include.post.os }}
       </span>
     {%- endif -%}

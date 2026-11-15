@@ -189,7 +189,7 @@
         <li>
           <a href="{{ post.url | relative_url }}" style="--ic: {{ icol }}">
             <span class="hx-recent-img{% unless post.thumb %} hx-recent-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
-              {% unless post.thumb %}{% if post.categories contains 'Herramientas' %}<i class="fas fa-toolbox" aria-hidden="true"></i>{% elsif os_down contains 'windows' %}<i class="fab fa-windows" aria-hidden="true"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux" aria-hidden="true"></i>{% else %}<i class="fas fa-server" aria-hidden="true"></i>{% endif %}{% endunless %}
+              {% unless post.thumb %}{% if post.categories contains 'Herramientas' %}<i class="fas fa-toolbox" aria-hidden="true"></i>{% elsif os_down contains 'windows' %}<i class="fab fa-windows" aria-hidden="true"></i>{% elsif os_down contains 'linux' %}<i class="fab fa-linux" aria-hidden="true"></i>{% elsif os_down contains 'freebsd' %}<i class="fab fa-freebsd" aria-hidden="true"></i>{% else %}<i class="fas fa-server" aria-hidden="true"></i>{% endif %}{% endunless %}
             </span>
             <span>
               <b>{{ post.title }}</b>

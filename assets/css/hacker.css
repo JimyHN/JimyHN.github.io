@@ -3694,6 +3694,7 @@ article:has(.hx-wu) > .post-desc { display: none; }
 .hx-wu-table .wu-name { font-weight: 700; color: var(--hx-green); }
 .hx-wu-table .wu-os-win { color: var(--hx-cyan); font-weight: 700; }
 .hx-wu-table .wu-os-lin { color: var(--hx-medium); font-weight: 700; }
+.hx-wu-table .wu-os-freebsd { color: #d13b34; font-weight: 700; }
 .hx-wu-table .wu-ip { color: #5eb4f8; }
 
 /* Índice de contenido horizontal */

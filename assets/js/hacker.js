@@ -1463,6 +1463,7 @@
     const OS = [
       { key: 'linux', label: 'Linux', color: '#58c7f0' },
       { key: 'windows', label: 'Windows', color: '#4a86ff' },
+      { key: 'freebsd', label: 'FreeBSD', color: '#d13b34' },
       { key: 'otros', label: 'Otros', color: '#9aa6b8' }
     ].filter((c) => DATA.some((m) => m.os === c.key));
     const PLAT = [

@@ -527,6 +527,8 @@ def _os_class(os_name: str) -> str:
         return "win"
     if "lin" in o:
         return "lin"
+    if "bsd" in o:
+        return "freebsd"
     return "otros"
 
 

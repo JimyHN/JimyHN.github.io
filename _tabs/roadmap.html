@@ -41,6 +41,7 @@ order: 8
             {%- assign os_down = m.os | downcase -%}
             {%- if os_down contains 'windows' -%}{%- assign os_key = 'windows' -%}
             {%- elsif os_down contains 'linux' -%}{%- assign os_key = 'linux' -%}
+            {%- elsif os_down contains 'freebsd' -%}{%- assign os_key = 'freebsd' -%}
             {%- else -%}{%- assign os_key = 'otros' -%}{%- endif -%}
             <tr data-name="{{ m.name | downcase }}" data-diff="{{ m.difficulty | downcase }}" data-os="{{ os_key }}" data-platform="{{ p.platform | downcase | remove: ' ' }}">
               {%- comment -%}

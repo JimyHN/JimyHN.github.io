@@ -79,12 +79,14 @@
             {%- assign os_down = post.os | default: '' | downcase -%}
             {%- if os_down contains 'windows' -%}{%- assign os_key = 'windows' -%}
             {%- elsif os_down contains 'linux' -%}{%- assign os_key = 'linux' -%}
+            {%- elsif os_down contains 'freebsd' -%}{%- assign os_key = 'freebsd' -%}
             {%- else -%}{%- assign os_key = 'otros' -%}{%- endif -%}
             <a class="hx-vcard" data-os="{{ os_key }}" data-diff="{{ post.difficulty | default: '' | downcase }}"
                href="{{ post.url | relative_url }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
               <h3 class="hx-vcard-name">{{ post.title }}</h3>
               {%- if os_down contains 'windows' %}<i class="fab fa-windows hx-vcard-os" role="img" aria-label="Windows"></i>
               {%- elsif os_down contains 'linux' %}<i class="fab fa-linux hx-vcard-os" role="img" aria-label="Linux"></i>
+              {%- elsif os_down contains 'freebsd' %}<i class="fab fa-freebsd hx-vcard-os" role="img" aria-label="FreeBSD"></i>
               {%- else %}<i class="fas fa-microchip hx-vcard-os" role="img" aria-label="{{ post.os }}"></i>{% endif -%}
               <span class="hx-vcard-date">{{ post.date | date: '%d/%m/%Y' }}</span>
               {%- if post.difficulty %}<span class="hx-badge hx-diff-{{ post.difficulty | downcase }}">{{ post.difficulty }}</span>{% endif -%}
@@ -93,6 +95,7 @@
                 {%- unless post.thumb -%}
                   {%- if os_down contains 'windows' %}<i class="fab fa-windows"></i>
                   {%- elsif os_down contains 'linux' %}<i class="fab fa-linux"></i>
+                  {%- elsif os_down contains 'freebsd' %}<i class="fab fa-freebsd"></i>
                   {%- else %}<i class="fas fa-server"></i>{% endif -%}
                 {%- endunless -%}
               </span>
