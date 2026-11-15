@@ -1007,6 +1007,34 @@
     openByHash();
   }
 
+  /* --- Scrollspy del write-up: resalta en el riel la sección en pantalla --- */
+  function initWriteupSpy() {
+    const nav = document.querySelector('.hx-wu-spy');
+    if (!nav) return;
+    const links = new Map();
+    nav.querySelectorAll('a[data-spy]').forEach((a) => links.set(a.dataset.spy, a));
+    const secs = Array.from(document.querySelectorAll('.hx-wu-sec[id]')).filter((s) => links.has(s.id));
+    if (!secs.length) return;
+
+    let activeId = null;
+    const setActive = (id) => {
+      if (id === activeId) return;
+      activeId = id;
+      links.forEach((a, k) => a.classList.toggle('is-active', k === id));
+    };
+    setActive(secs[0].id);
+    if (!('IntersectionObserver' in window)) return;
+
+    const seen = new Set();
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) seen.add(e.target); else seen.delete(e.target); });
+      // Activa la primera sección visible en orden del documento (banda superior)
+      const best = secs.find((s) => seen.has(s));
+      if (best) setActive(best.id);
+    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+    secs.forEach((s) => io.observe(s));
+  }
+
   /* --- Destello al pulsar botones y enlaces de acción --- */
   function initButtonAura() {
     const sel = '.hx-btn, .hx-opt, .hx-filter, .hx-tile, .hx-kv, .hx-tool-toggle, .hx-search-btn, .hx-fbar-reset, .hx-cred-flipbtn, .hx-car-btn, #sidebar .nav-link';
@@ -1462,7 +1490,8 @@
     const xAt = (i) => WV.m + i * (WV.w - 2 * WV.m) / 11;
     const bw = (WV.w - 2 * WV.m) / 11;
     const wHits = [], wDots = [];
-    function pickMonth(i) { if (!monthlyAll[monthKey(i)]) return; toggle('month', monthKey(i)); }
+    // Un mes sin actividad también es seleccionable: filtra a 0 (antes se ignoraba).
+    function pickMonth(i) { toggle('month', monthKey(i)); }
     for (let i = 0; i < 12; i++) {
       const r = svg('rect', { x: (xAt(i) - bw / 2).toFixed(1), y: 0, width: bw.toFixed(1), height: WV.h - 14, class: 'hx-maq-wavehit', tabindex: 0, role: 'button' });
       ((idx) => {
@@ -1676,6 +1705,7 @@
       initProgress,
       initFilterBars,
       initPostSections,
+      initWriteupSpy,
       initButtonAura,
       initCert,
       initFigures,

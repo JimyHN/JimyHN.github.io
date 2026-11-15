@@ -561,7 +561,9 @@ def render_body(data: dict) -> str:
     if data.get("img_w"):
         _svars.append(f"--fig-w:{int(data['img_w'])}px")
     _acc_style = f' style="{";".join(_svars)}"' if _svars else ""
-    h = f'<div class="hx-wu" data-os="{osc}"{f" data-accent=\"{_acc}\"" if _acc else ""}{_acc_style}>'
+    h = f'<div class="hx-wu" data-slug="{slug}" data-os="{osc}"{f" data-accent=\"{_acc}\"" if _acc else ""}{_acc_style}>'
+    # Envoltorio de cabecera (ocupa el ancho completo en la rejilla con riel)
+    h += '<div class="hx-wu-headwrap">'
     # Cabecera: avatar + nombre + autor, y botón de certificado a la derecha
     h += '<header class="hx-wu-head">'
     if avatar:
@@ -615,20 +617,23 @@ def render_body(data: dict) -> str:
     if data.get("oculto"):
         h += ('<p class="hx-wu-hidden"><i class="fas fa-lock" aria-hidden="true"></i> '
               'El write-up de esta máquina se publicará cuando sea retirada.</p>')
-        h += "</div>"
+        h += "</div></div>"   # cierra headwrap + hx-wu
         return h
     # Aviso antes del terminal de hosts
     h += '<p class="hx-wu-note"><b><i>A tener en cuenta...</i></b></p>'
     # Terminal de hosts
     h += render_term("term", ["$ sudo nano /etc/hosts", f"{ip}   {slug} {slug}.htb"])
-    # Índice (solo secciones con contenido)
+    h += "</div>"   # cierra headwrap
+    # Índice / riel de progreso (solo secciones con contenido): columna izquierda
+    # en pantallas anchas (scrollspy), píldoras arriba en estrecho.
     present = [s for s in SECTIONS if (secs.get(s[0]) or "").strip()]
     if present:
-        h += '<nav class="hx-wu-index">'
+        h += '<nav class="hx-wu-index hx-wu-spy" aria-label="Secciones del write-up">'
         for sid, nom, col in present:
-            h += f'<a href="#{sid}" style="--c:{col}">{esc(nom)}</a>'
+            h += f'<a href="#{sid}" style="--c:{col}" data-spy="{sid}">{esc(nom)}</a>'
         h += "</nav>"
-    # Secciones (numeración de figuras compartida entre todas)
+    # Cuerpo: secciones (numeración de figuras compartida entre todas)
+    h += '<div class="hx-wu-body">'
     fig_counter = {}
     for sid, nom, col in present:
         h += f'<section class="hx-wu-sec" id="{sid}" style="--c:{col}"><h2>{esc(nom)}</h2>'
@@ -639,7 +644,8 @@ def render_body(data: dict) -> str:
         h += (f'<button type="button" class="hx-wu-cert hx-wu-cert-fin" data-cert="{esc(proof)}" '
               f'data-img="{esc(banner_img or avatar)}" data-name="{esc(name)}">'
               f'<i class="fas fa-certificate" aria-hidden="true"></i> Mostrar certificado</button>')
-    h += "</div>"
+    h += "</div>"   # cierra hx-wu-body
+    h += "</div>"   # cierra hx-wu
     return h
 
 

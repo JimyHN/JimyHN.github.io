@@ -3098,10 +3098,19 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
    ========================================================================== */
 .hx-creds {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  /* Mismo ancho de tarjeta que el carrusel de Títulos: 3-up y mismos breakpoints */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.1rem;
   margin: 1rem 0 2.2rem;
   align-items: stretch;
+}
+
+@media (max-width: 992px) {
+  .hx-creds { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .hx-creds { grid-template-columns: 1fr; }
 }
 
 .hx-cred {
@@ -3499,6 +3508,9 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding-bottom: 0.4rem;
+  /* El más nuevo (izquierda) se ve nítido; las que salen por la derecha se difuminan */
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 88%, transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0, #000 88%, transparent 100%);
 }
 
 .hx-carousel::-webkit-scrollbar { display: none; }
@@ -3735,6 +3747,52 @@ article:has(.hx-wu) > .post-desc { display: none; }
 }
 
 .content .hx-wu-index a:hover::before { background: #0a0d12; box-shadow: none; }
+
+/* Sección activa (scrollspy): resaltada de forma persistente */
+.content .hx-wu-index a.is-active {
+  background: rgb(var(--c));
+  color: #0a0d12;
+  border-color: rgb(var(--c));
+  box-shadow: 0 0 0 1px rgb(var(--c) / 45%), 0 4px 14px rgb(var(--c) / 32%);
+}
+.content .hx-wu-index a.is-active::before { background: #0a0d12; box-shadow: none; }
+
+/* Más aire entre secciones — de momento solo en Armageddon (luego, global) */
+.hx-wu[data-slug="armageddon"] .hx-wu-sec { margin: 3rem 0; }
+
+/* ===== Riel de progreso a la izquierda en pantallas anchas (scrollspy) ===== */
+@media (min-width: 1200px) {
+  .hx-wu {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    grid-template-areas: "head head" "spy body";
+    column-gap: 1.6rem;
+    align-items: start;
+  }
+  .hx-wu-headwrap { grid-area: head; min-width: 0; }
+  .hx-wu-body { grid-area: body; min-width: 0; }
+
+  .content .hx-wu-index.hx-wu-spy {
+    grid-area: spy;
+    position: sticky;
+    top: 6rem;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0.4rem;
+    margin: 0;
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .content .hx-wu-index.hx-wu-spy::-webkit-scrollbar { display: none; }
+  .content .hx-wu-index.hx-wu-spy a {
+    justify-content: flex-start;
+    font-size: 0.72rem;
+    padding: 0.4rem 0.65rem;
+  }
+}
 
 /* Secciones con color propio */
 .hx-wu-sec {
