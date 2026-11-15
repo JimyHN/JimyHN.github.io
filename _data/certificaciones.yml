@@ -1,4 +1,20 @@
 obtenidas:
+  - nombre: "Qualys VMDR"
+    color: "237 60 60"
+    estado_label: "Obtenida"
+    emisor: "Qualys"
+    logo: "/assets/img/logos/qualys.png"
+    fecha: "Noviembre 2026"
+    documento: "/assets/docs/qualys-vmdr.pdf"
+    preview: "/assets/img/docs-preview/qualys-vmdr.png"
+    resumen: >-
+      La certificación de especialista de Qualys en VMDR (Vulnerability Management, Detection
+      and Response). Va de desplegar y operar la Qualys Cloud Platform para descubrir activos,
+      detectar vulnerabilidades, priorizarlas por riesgo y seguir su remediación. Me suma por
+      el lado defensivo: entender cómo se gestiona el ciclo de vida de una vulnerabilidad desde
+      el lado del que defiende, que es el complemento natural a todo lo ofensivo.
+    habilidades: ["Gestión de vulnerabilidades", "VMDR", "Qualys Cloud Platform", "Detección", "Priorización", "Remediación"]
+
   - nombre: "eJPT"
     color: "94 180 248"
     estado_label: "Obtenida"
