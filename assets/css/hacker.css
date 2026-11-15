@@ -2914,6 +2914,10 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
    Filtros: color propio para cada grupo (sistema y plataforma)
    ========================================================================== */
 .hx-seg[data-group='os'] .hx-opt { --c: 46 230 214; }
+/* Cada SO con su color propio (como la dificultad): Windows azul, Linux amarillo, FreeBSD naranja rojizo */
+.hx-seg[data-group='os'] .hx-opt[data-value='windows'] { --c: 74 134 255; }
+.hx-seg[data-group='os'] .hx-opt[data-value='linux']   { --c: 255 214 10; }
+.hx-seg[data-group='os'] .hx-opt[data-value='freebsd'] { --c: 226 80 46; }
 .hx-seg[data-group='platform'] .hx-opt { --c: 193 108 255; }
 .hx-seg[data-group='os'] .hx-opt.is-active,
 .hx-seg[data-group='platform'] .hx-opt.is-active { color: #05070a; }
