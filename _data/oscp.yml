@@ -74,7 +74,7 @@ sections:
       - { name: "Ophiuchi", os: "Linux", difficulty: "Medium" }
       - { name: "Passage", os: "Linux", difficulty: "Medium" }
       - { name: "Pit", os: "Linux", difficulty: "Medium" }
-      - { name: "Poison", os: "Linux", difficulty: "Medium" }
+      - { name: "Poison", os: "FreeBSD", difficulty: "Medium" }
       - { name: "Popcorn", os: "Linux", difficulty: "Medium" }
       - { name: "Ready", os: "Linux", difficulty: "Medium" }
       - { name: "Seal", os: "Linux", difficulty: "Medium" }
