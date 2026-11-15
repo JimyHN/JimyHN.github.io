@@ -4724,13 +4724,28 @@ a[href*="/tags/windows/"] { --c: 46 230 214 !important; }   /* windows · cian *
   .hx-disclaimer-scan { opacity: 0; }
 }
 
-/* ====== Panel derecho pegado arriba, sin scroll propio (acompaña a la página) ====== */
+/* ====== Panel derecho pegado arriba, con scroll propio si no cabe ======
+   Queda anclado (top: 1rem) pero, cuando es más alto que la ventana, se puede
+   scrollear por dentro al poner el ratón encima; overscroll-behavior evita que
+   el scroll «salte» a la página al llegar al final. */
 @media (min-width: 1200px) {
   #panel-wrapper {
     position: sticky;
     top: 1rem;
     align-self: flex-start;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--page, 46 230 214) / 35%) transparent;
   }
+  #panel-wrapper::-webkit-scrollbar { width: 7px; }
+  #panel-wrapper::-webkit-scrollbar-thumb {
+    background: rgb(var(--page, 46 230 214) / 30%);
+    border-radius: 7px;
+  }
+  #panel-wrapper::-webkit-scrollbar-thumb:hover { background: rgb(var(--page, 46 230 214) / 55%); }
+  #panel-wrapper::-webkit-scrollbar-track { background: transparent; }
 }
 
 /* ==========================================================================

@@ -9,7 +9,7 @@
   "tags": "#linux #drupal #drupalgeddon2 #cve-2018-7600 #rce #mysql #john #ssh #sudo #snap #gtfobins #suid",
   "url": "https://labs.hackthebox.com/achievement/machine/2772097/323",
   "read_min": 12,
-  "score": "9",
+  "score": "9.5",
   "accent": "129 140 248",
   "img": {
     "avatar": "/assets/img/machines/armageddon.png",

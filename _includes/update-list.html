@@ -116,7 +116,7 @@
     1) Dificultad más alta (Insane > Hard > Medium > Easy).
     2) Mayor "Mi puntuación" (score del front matter).
     3) Más reciente (date).
-  Clave ordenable por write-up: <dificultad 1 díg><score 2 díg><fecha>::<índice>.
+  Clave ordenable por write-up: <dificultad 1 díg><score×10 3 díg><fecha>::<índice>.
   Se ordena y se invierte, así que el primero es el de mayor prioridad.
 {%- endcomment -%}
 {%- assign feat_keys = '' | split: '' -%}
@@ -125,8 +125,9 @@
     {%- assign dl = post.difficulty | default: '' | downcase -%}
     {%- assign dr = '1' -%}
     {%- if dl == 'insane' -%}{%- assign dr = '4' -%}{%- elsif dl == 'hard' -%}{%- assign dr = '3' -%}{%- elsif dl == 'medium' -%}{%- assign dr = '2' -%}{%- endif -%}
-    {%- assign sc = post.score | default: 0 | plus: 0 -%}
-    {%- if sc < 10 -%}{%- assign sc2 = sc | prepend: '0' -%}{%- else -%}{%- assign sc2 = sc | append: '' -%}{%- endif -%}
+    {%- comment -%} score ×10 (admite decimales como 9.5) y a 3 dígitos fijos: 10→100, 9.5→095, 7→070 {%- endcomment -%}
+    {%- assign sc = post.score | default: 0 | times: 10 | round -%}
+    {%- if sc < 10 -%}{%- assign sc2 = sc | prepend: '00' -%}{%- elsif sc < 100 -%}{%- assign sc2 = sc | prepend: '0' -%}{%- else -%}{%- assign sc2 = sc | append: '' -%}{%- endif -%}
     {%- assign ds = post.date | date: '%Y%m%d%H%M%S' -%}
     {%- assign fkey = dr | append: sc2 | append: ds | append: '::' | append: forloop.index0 -%}
     {%- assign feat_keys = feat_keys | push: fkey -%}
