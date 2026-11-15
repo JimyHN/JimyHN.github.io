@@ -3787,8 +3787,8 @@ article:has(.hx-wu) > .post-desc { display: none; }
   left: 0;
   right: 0;
   top: -0.9rem;                   /* tapa también el aire de arriba */
-  height: 8.4rem;
-  background: linear-gradient(to bottom, var(--hx-bg) 0, var(--hx-bg) 4.3rem, rgb(10 14 20 / 0) 8.4rem);
+  height: 11rem;
+  background: linear-gradient(to bottom, var(--hx-bg) 0, var(--hx-bg) 6rem, rgb(10 14 20 / 0) 11rem);
   opacity: 0;
   transition: opacity 0.25s ease;
   pointer-events: none;
