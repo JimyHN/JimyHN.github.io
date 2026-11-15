@@ -3783,6 +3783,8 @@ article:has(.hx-wu) > .post-desc { display: none; }
   font-size: 1.05rem;
   color: #d7dee6;
 }
+/* Sin el '#' de ancla que el tema pone en todos los h3 */
+.content .hx-wu-sec h3.hx-wu-h3::before { content: none; }
 
 /* Lista dentro de un write-up */
 .content .hx-wu-list {
