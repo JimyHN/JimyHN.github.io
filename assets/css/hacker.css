@@ -3841,9 +3841,9 @@ article:has(.hx-wu) > .post-desc { display: none; }
 /* Con el ratón en la barra manda el ratón; el activo (si no es el apuntado) se apaga */
 .content .hx-wu-index.hx-wu-spy:hover a.is-active:not(:hover) { color: rgb(var(--c) / 50%); padding-top: 15px; font-size: 0.72rem; }
 .content .hx-wu-index.hx-wu-spy:hover a.is-active:not(:hover)::before { background: rgb(var(--c) / 50%); box-shadow: none; }
-/* Hover: el texto de cada sección, pero más claro (no rojo) */
-.content .hx-wu-index.hx-wu-spy a:hover { color: color-mix(in srgb, rgb(var(--c)) 55%, #fff); background: none; }
-.content .hx-wu-index.hx-wu-spy a:hover::before { background: color-mix(in srgb, rgb(var(--c)) 55%, #fff); box-shadow: 0 0 7px rgb(var(--c) / 45%); }
+/* Hover: igual que estar en esa sección — su color pleno, nombre caído y escalado */
+.content .hx-wu-index.hx-wu-spy a:hover { color: rgb(var(--c)); padding-top: 32px; font-size: 0.9rem; background: none; }
+.content .hx-wu-index.hx-wu-spy a:hover::before { background: rgb(var(--c)); box-shadow: 0 0 7px rgb(var(--c) / 55%); }
 /* Animaciones esporádicas del rombo activo (las lanza el JS por clase) */
 .content .hx-wu-index.hx-wu-spy a.hx-morph-roll::before   { animation: hx-spy-roll 0.9s ease-in-out; }
 .content .hx-wu-index.hx-wu-spy a.hx-morph-ball::before   { animation: hx-spy-ball 0.9s ease-in-out; }
@@ -3853,13 +3853,15 @@ article:has(.hx-wu) > .post-desc { display: none; }
 /* Encoger para que quepan en una línea al estrechar */
 @media (max-width: 1100px) {
   .content .hx-wu-index.hx-wu-spy a { font-size: 0.64rem; }
-  .content .hx-wu-index.hx-wu-spy a.is-active { font-size: 0.8rem; }
+  .content .hx-wu-index.hx-wu-spy a.is-active,
+  .content .hx-wu-index.hx-wu-spy a:hover { font-size: 0.8rem; }
 }
 @media (max-width: 820px) {
   .content .hx-wu-index.hx-wu-spy { gap: 0.15rem; top: var(--topbar-height, 3rem); margin-left: -0.5rem; margin-right: -0.5rem; }
   .content .hx-wu-index.hx-wu-spy a { font-size: 0.55rem; padding-top: 13px; }
   .content .hx-wu-index.hx-wu-spy a::before { width: 7px; height: 7px; margin-left: -3.5px; }
-  .content .hx-wu-index.hx-wu-spy a.is-active { font-size: 0.68rem; padding-top: 28px; }
+  .content .hx-wu-index.hx-wu-spy a.is-active,
+  .content .hx-wu-index.hx-wu-spy a:hover { font-size: 0.68rem; padding-top: 28px; }
 }
 
 @keyframes hx-spy-roll { from { transform: rotate(45deg); } to { transform: rotate(405deg); } }
