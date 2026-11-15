@@ -1017,12 +1017,16 @@
     if (!secs.length) return;
 
     let activeId = null;
+    let stuck = false;   // mientras la barra no esté anclada arriba, ninguna sección se marca
+    const render = () => {
+      links.forEach((a, k) => a.classList.toggle('is-active', stuck && k === activeId));
+    };
     const setActive = (id) => {
       if (id === activeId) return;
       activeId = id;
-      links.forEach((a, k) => a.classList.toggle('is-active', k === id));
+      render();
     };
-    setActive(secs[0].id);
+    activeId = secs[0].id;   // sección lógica inicial (no se pinta hasta anclar)
 
     // Clic: va a la sección respetando el margen superior (scroll-margin-top),
     // a la primera y con scroll suave (vale aunque el scroll no sea el window).
@@ -1058,7 +1062,9 @@
       requestAnimationFrame(() => {
         ticking = false;
         const stickyTop = parseFloat(getComputedStyle(nav).top) || 0;
-        nav.classList.toggle('is-stuck', nav.getBoundingClientRect().top <= stickyTop + 1);
+        const nowStuck = nav.getBoundingClientRect().top <= stickyTop + 1;
+        if (nowStuck !== stuck) { stuck = nowStuck; render(); }
+        nav.classList.toggle('is-stuck', stuck);
         if (concl) nav.classList.toggle('is-gone', concl.getBoundingClientRect().top <= stickyTop + 56);
       });
     };
@@ -1071,7 +1077,7 @@
     if (!reduceMotion) {
       const morphs = ['hx-morph-roll', 'hx-morph-ball', 'hx-morph-square', 'hx-morph-tri'];
       const tick = () => {
-        if (activeId && !nav.classList.contains('is-gone')) {
+        if (stuck && activeId && !nav.classList.contains('is-gone')) {
           const a = links.get(activeId);
           if (a) {
             const cls = morphs[Math.floor(Math.random() * morphs.length)];
