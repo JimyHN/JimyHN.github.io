@@ -65,6 +65,13 @@ SECTIONS = [
 ]
 SEC_NOM = {s[0]: s[1] for s in SECTIONS}
 SEC_COL = {s[0]: s[2] for s in SECTIONS}
+# Etiquetas cortas solo para la barra de secciones (los títulos <h2> siguen completos)
+SEC_NAV = {
+    "escalada": "Escalada",
+    "movimiento": "Mov. lateral",
+    "arreglo": "Arreglo",
+    "vulnerabilidad": "Vulnerab.",
+}
 
 # ==========================================================================
 #  Consola con color
@@ -630,7 +637,7 @@ def render_body(data: dict) -> str:
     if present:
         h += '<nav class="hx-wu-index hx-wu-spy" aria-label="Secciones del write-up">'
         for sid, nom, col in present:
-            h += f'<a href="#{sid}" style="--c:{col}" data-spy="{sid}">{esc(nom)}</a>'
+            h += f'<a href="#{sid}" style="--c:{col}" data-spy="{sid}">{esc(SEC_NAV.get(sid, nom))}</a>'
         h += "</nav>"
     # Cuerpo: secciones (numeración de figuras compartida entre todas)
     h += '<div class="hx-wu-body">'
