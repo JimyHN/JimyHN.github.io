@@ -3883,7 +3883,7 @@ article:has(.hx-wu) > .post-desc { display: none; }
 .hx-wu-sec {
   --c: 68 240 138;
   margin: 3rem 0;
-  scroll-margin-top: 3.6rem;   /* deja el título bajo la barra, no tapado */
+  scroll-margin-top: 30vh;     /* al clicar, el título queda a ~1/3 de la pantalla (no pegado arriba) */
 }
 
 .content .hx-wu-sec > h2 {
