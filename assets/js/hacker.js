@@ -1024,36 +1024,14 @@
     };
     setActive(secs[0].id);
 
-    // Coloca la guía fija en el hueco entre la barra lateral y el texto, pegada
-    // al borde de la barra. Limita su ancho al hueco para no invadir el texto;
-    // si no cabe (hueco pequeño), la oculta.
-    const sidebar = document.getElementById('sidebar');
-    const bodyEl = document.querySelector('.hx-wu-body') || nav.parentElement;
-    function positionSpy() {
-      if (window.innerWidth < 1200 || !sidebar) {
-        nav.style.left = ''; nav.style.maxWidth = ''; nav.classList.remove('hx-spy-off');
-        return;
-      }
-      const sb = sidebar.getBoundingClientRect().right;
-      const gutter = bodyEl.getBoundingClientRect().left - sb;
-      if (gutter < 96) { nav.classList.add('hx-spy-off'); nav.style.left = ''; nav.style.maxWidth = ''; return; }
-      nav.classList.remove('hx-spy-off');
-      nav.style.left = Math.round(sb + 8) + 'px';
-      nav.style.maxWidth = Math.round(Math.min(150, gutter - 16)) + 'px';
-    }
-    positionSpy();
-    window.addEventListener('resize', positionSpy);
-    window.addEventListener('load', positionSpy);
-
-    // Clic: lleva a la sección con el título cerca del borde superior (un par de
-    // saltos de línea de margen), en vez del salto brusco del ancla.
+    // Clic: va a la sección respetando el margen superior (scroll-margin-top),
+    // a la primera y con scroll suave (vale aunque el scroll no sea el window).
     links.forEach((a, id) => {
       a.addEventListener('click', (e) => {
         const sec = document.getElementById(id);
         if (!sec) return;
         e.preventDefault();
-        const y = sec.getBoundingClientRect().top + window.scrollY - 42;
-        window.scrollTo({ top: y, behavior: 'smooth' });
+        sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
         setActive(id);
         try { history.replaceState(null, '', '#' + id); } catch (_) { /* noop */ }
       });
@@ -1070,13 +1048,30 @@
       secs.forEach((s) => io.observe(s));
     }
 
-    // El rombo de la sección actual se transforma de vez en cuando (solo en el
-    // riel de escritorio y respetando "menos movimiento").
+    // Anclaje: is-stuck cuando la barra se pega arriba (activa el difuminado);
+    // is-gone cuando el título de Conclusiones llega arriba (se va; vuelve al subir).
+    const concl = document.getElementById('conclusiones');
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const stickyTop = parseFloat(getComputedStyle(nav).top) || 0;
+        nav.classList.toggle('is-stuck', nav.getBoundingClientRect().top <= stickyTop + 1);
+        if (concl) nav.classList.toggle('is-gone', concl.getBoundingClientRect().top <= stickyTop + 56);
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    window.addEventListener('load', onScroll);
+    onScroll();
+
+    // El rombo de la sección actual se transforma de vez en cuando.
     if (!reduceMotion) {
       const morphs = ['hx-morph-roll', 'hx-morph-ball', 'hx-morph-square', 'hx-morph-tri'];
-      const wide = window.matchMedia('(min-width: 1200px)');
       const tick = () => {
-        if (wide.matches && activeId) {
+        if (activeId && !nav.classList.contains('is-gone')) {
           const a = links.get(activeId);
           if (a) {
             const cls = morphs[Math.floor(Math.random() * morphs.length)];
