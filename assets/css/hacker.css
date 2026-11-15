@@ -3757,16 +3757,16 @@ article:has(.hx-wu) > .post-desc { display: none; }
 }
 .content .hx-wu-index a.is-active::before { background: #0a0d12; box-shadow: none; }
 
-/* Más aire entre secciones — de momento solo en Armageddon (luego, global) */
-.hx-wu[data-slug="armageddon"] .hx-wu-sec { margin: 3rem 0; }
-
-/* ===== Riel de progreso a la izquierda en pantallas anchas (scrollspy) ===== */
+/* ===== Riel de progreso a la izquierda en pantallas anchas (scrollspy) =====
+   Línea vertical del color de la página, rombos de sección y nombres a la
+   derecha, sin recuadros. Rombo apagado por defecto; la sección actual a color
+   pleno y letra algo mayor; al pasar el ratón manda el ratón. */
 @media (min-width: 1200px) {
   .hx-wu {
     display: grid;
-    grid-template-columns: 150px minmax(0, 1fr);
+    grid-template-columns: 118px minmax(0, 1fr);
     grid-template-areas: "head head" "spy body";
-    column-gap: 1.6rem;
+    column-gap: 0.9rem;
     align-items: start;
   }
   .hx-wu-headwrap { grid-area: head; min-width: 0; }
@@ -3775,30 +3775,94 @@ article:has(.hx-wu) > .post-desc { display: none; }
   .content .hx-wu-index.hx-wu-spy {
     grid-area: spy;
     position: sticky;
-    top: 6rem;
+    top: 6.5rem;
+    display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
     align-items: stretch;
-    justify-content: flex-start;
-    gap: 0.4rem;
-    margin: 0;
-    max-height: calc(100vh - 7rem);
-    overflow-y: auto;
-    scrollbar-width: none;
+    gap: 1.15rem;
+    margin: 1.6rem 0 0;              /* arranca un par de saltos más abajo */
+    padding: 0.15rem 0;
+    border: 0;
+    border-left: 2px solid var(--hx-border);   /* la línea */
+    border-radius: 0;
+    background: none;
+    max-height: calc(100vh - 7.5rem);
+    overflow: visible;
   }
-  .content .hx-wu-index.hx-wu-spy::-webkit-scrollbar { display: none; }
   .content .hx-wu-index.hx-wu-spy a {
-    justify-content: flex-start;
-    font-size: 0.72rem;
-    padding: 0.4rem 0.65rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0 0 0 0.95rem;          /* hueco para el rombo sobre la línea */
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    transform: none;
+    color: rgb(var(--c) / 50%);      /* color de sección apagado */
+    font-size: 0.74rem;
+    line-height: 1.15;
+    transition: color 0.2s, font-size 0.15s;
   }
+  /* Rombo (::before) centrado sobre la línea */
+  .content .hx-wu-index.hx-wu-spy a::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    width: 9px;
+    height: 9px;
+    border-radius: 1px;
+    background: rgb(var(--c) / 50%);
+    box-shadow: none;
+    transform: rotate(45deg);        /* rombo de 4 vértices */
+    transition: background 0.2s;
+  }
+
+  /* Sección actual (sin ratón en la barra): pleno + letra algo mayor */
+  .content .hx-wu-index.hx-wu-spy a.is-active {
+    color: rgb(var(--c));
+    font-size: 0.82rem;
+    background: none;
+    box-shadow: none;
+    border-color: transparent;
+  }
+  .content .hx-wu-index.hx-wu-spy a.is-active::before { background: rgb(var(--c)); box-shadow: 0 0 7px rgb(var(--c) / 55%); }
+
+  /* Con el ratón en la barra: el activo (si no es el apuntado) se apaga... */
+  .content .hx-wu-index.hx-wu-spy:hover a.is-active:not(:hover) { color: rgb(var(--c) / 50%); font-size: 0.74rem; }
+  .content .hx-wu-index.hx-wu-spy:hover a.is-active:not(:hover)::before { background: rgb(var(--c) / 50%); box-shadow: none; }
+  /* ...y manda el que tiene el ratón encima, esté donde esté */
+  .content .hx-wu-index.hx-wu-spy a:hover { color: rgb(var(--c)); background: none; border-color: transparent; transform: none; box-shadow: none; }
+  .content .hx-wu-index.hx-wu-spy a:hover::before { background: rgb(var(--c)); box-shadow: 0 0 7px rgb(var(--c) / 55%); }
+
+  /* Animaciones esporádicas del rombo activo (las lanza el JS por clase) */
+  .content .hx-wu-index.hx-wu-spy a.hx-morph-roll::before   { animation: hx-spy-roll 0.9s ease-in-out; }
+  .content .hx-wu-index.hx-wu-spy a.hx-morph-ball::before   { animation: hx-spy-ball 0.9s ease-in-out; }
+  .content .hx-wu-index.hx-wu-spy a.hx-morph-square::before { animation: hx-spy-square 0.9s ease-in-out; }
+  .content .hx-wu-index.hx-wu-spy a.hx-morph-tri::before    { animation: hx-spy-tri 1s ease-in-out; }
+}
+
+@keyframes hx-spy-roll { from { transform: rotate(45deg); } to { transform: rotate(405deg); } }
+@keyframes hx-spy-ball {
+  0%, 100% { transform: rotate(45deg) scale(1); border-radius: 1px; }
+  50% { transform: rotate(45deg) scale(1.15); border-radius: 50%; }
+}
+@keyframes hx-spy-square {
+  0%, 100% { transform: rotate(45deg); }
+  50% { transform: rotate(0deg); }
+}
+@keyframes hx-spy-tri {
+  0%, 100% { transform: rotate(45deg); clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+  50% { transform: rotate(0deg); clip-path: polygon(50% 0, 100% 100%, 0 100%, 0 100%); }
 }
 
 /* Secciones con color propio */
 .hx-wu-sec {
   --c: 68 240 138;
-  margin: 1.8rem 0;
-  scroll-margin-top: 5rem;
+  margin: 3rem 0;
+  scroll-margin-top: 3rem;
 }
 
 .content .hx-wu-sec > h2 {

@@ -1023,16 +1023,50 @@
       links.forEach((a, k) => a.classList.toggle('is-active', k === id));
     };
     setActive(secs[0].id);
-    if (!('IntersectionObserver' in window)) return;
 
-    const seen = new Set();
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => { if (e.isIntersecting) seen.add(e.target); else seen.delete(e.target); });
-      // Activa la primera sección visible en orden del documento (banda superior)
-      const best = secs.find((s) => seen.has(s));
-      if (best) setActive(best.id);
-    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
-    secs.forEach((s) => io.observe(s));
+    // Clic: lleva a la sección con el título cerca del borde superior (un par de
+    // saltos de línea de margen), en vez del salto brusco del ancla.
+    links.forEach((a, id) => {
+      a.addEventListener('click', (e) => {
+        const sec = document.getElementById(id);
+        if (!sec) return;
+        e.preventDefault();
+        const y = sec.getBoundingClientRect().top + window.scrollY - 42;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+        setActive(id);
+        try { history.replaceState(null, '', '#' + id); } catch (_) { /* noop */ }
+      });
+    });
+
+    if ('IntersectionObserver' in window) {
+      const seen = new Set();
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((en) => { if (en.isIntersecting) seen.add(en.target); else seen.delete(en.target); });
+        // Activa la primera sección visible en orden del documento (banda superior)
+        const best = secs.find((s) => seen.has(s));
+        if (best) setActive(best.id);
+      }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+      secs.forEach((s) => io.observe(s));
+    }
+
+    // El rombo de la sección actual se transforma de vez en cuando (solo en el
+    // riel de escritorio y respetando "menos movimiento").
+    if (!reduceMotion) {
+      const morphs = ['hx-morph-roll', 'hx-morph-ball', 'hx-morph-square', 'hx-morph-tri'];
+      const wide = window.matchMedia('(min-width: 1200px)');
+      const tick = () => {
+        if (wide.matches && activeId) {
+          const a = links.get(activeId);
+          if (a) {
+            const cls = morphs[Math.floor(Math.random() * morphs.length)];
+            a.classList.add(cls);
+            setTimeout(() => a.classList.remove(cls), 1100);
+          }
+        }
+        setTimeout(tick, 3200 + Math.random() * 4200);
+      };
+      setTimeout(tick, 2500 + Math.random() * 2500);
+    }
   }
 
   /* --- Destello al pulsar botones y enlaces de acción --- */
