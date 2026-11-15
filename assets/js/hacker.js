@@ -1028,15 +1028,43 @@
     };
     activeId = secs[0].id;   // sección lógica inicial (no se pinta hasta anclar)
 
-    // Clic: va a la sección respetando el margen superior (scroll-margin-top),
-    // a la primera y con scroll suave (vale aunque el scroll no sea el window).
+    // Clic: lleva a la sección respetando scroll-margin-top. Las imágenes son
+    // lazy y sin alto fijo, así que al bajar reflowean y desplazan el objetivo;
+    // por eso seguimos recalculando el destino hasta que el layout se asienta.
+    let scrollRAF = 0;
+    const beh = reduceMotion ? 'auto' : 'smooth';
+    const scrollToSec = (sec) => {
+      cancelAnimationFrame(scrollRAF);
+      const topFor = () => Math.max(0, window.scrollY + sec.getBoundingClientRect().top
+        - (parseFloat(getComputedStyle(sec).scrollMarginTop) || 0));
+      const start = performance.now();
+      let last = -1;
+      let cancelled = false;
+      const stop = () => { cancelled = true; };
+      const evs = ['wheel', 'touchstart', 'keydown'];
+      evs.forEach((ev) => window.addEventListener(ev, stop, { passive: true }));
+      const done = () => evs.forEach((ev) => window.removeEventListener(ev, stop));
+      const step = () => {
+        if (cancelled) { done(); return; }
+        const target = topFor();
+        if (Math.abs(target - last) > 3) {          // el destino se movió (imágenes cargando)
+          last = target;
+          window.scrollTo({ top: target, behavior: beh });
+        }
+        if (performance.now() - start < 1600) scrollRAF = requestAnimationFrame(step);
+        else done();
+      };
+      step();
+    };
     links.forEach((a, id) => {
       a.addEventListener('click', (e) => {
         const sec = document.getElementById(id);
         if (!sec) return;
         e.preventDefault();
-        sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // fuerza la carga de las imágenes lazy para que dejen de mover el layout
+        document.querySelectorAll('.hx-wu-body img[loading="lazy"]').forEach((img) => { img.loading = 'eager'; });
         setActive(id);
+        scrollToSec(sec);
         try { history.replaceState(null, '', '#' + id); } catch (_) { /* noop */ }
       });
     });
