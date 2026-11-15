@@ -3098,15 +3098,13 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
    ========================================================================== */
 .hx-creds {
   display: grid;
-  /* Mismo ancho de tarjeta que el carrusel de Títulos: 3-up y mismos breakpoints */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Tarjetas algo más anchas (para que quepan los recuadros de habilidades):
+     auto-fit entre 300 y 360px, centradas; baja de columnas solo al estrechar. */
+  grid-template-columns: repeat(auto-fit, minmax(300px, 360px));
+  justify-content: center;
   gap: 1.1rem;
   margin: 1rem 0 2.2rem;
   align-items: stretch;
-}
-
-@media (max-width: 992px) {
-  .hx-creds { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
@@ -3247,12 +3245,26 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
   color: var(--hx-text);
 }
 
+/* Cabecera «Habilidades»: centrada, en el color de la tarjeta y con línea debajo */
+.hx-cred-skills-title {
+  margin: auto 0 0.6rem;    /* auto arriba: ancla el bloque de habilidades abajo */
+  text-align: center;
+  font-family: var(--hx-mono);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(var(--c));
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgb(var(--c) / 35%);
+}
+
 /* Habilidades: 3 columnas, 2 filas, ocupando el ancho */
 .hx-cred-skills {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.4rem;
-  margin: auto 0 0;
+  margin: 0 0 0;
   padding: 0;
   list-style: none;
 }
