@@ -2,7 +2,7 @@
   "name": "Poison",
   "ip": "10.129.1.254",
   "os": "FreeBSD",
-  "diff": "Easy",
+  "diff": "Medium",
   "plat": "HackTheBox",
   "date": "2026-11-15",
   "desc": "LFI en browse.php que, envenenando el log de Apache, salta a RCE; luego credenciales reutilizadas y un VNC interno como root por port-forwarding.",
