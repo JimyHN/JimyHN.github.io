@@ -3763,7 +3763,7 @@ article:has(.hx-wu) > .post-desc { display: none; }
    pasa por detrás se difumina hacia el fondo. Se va al llegar a Conclusiones. */
 .content .hx-wu-index.hx-wu-spy {
   position: sticky;
-  top: 0;
+  top: 0.7rem;                    /* algo de aire arriba cuando se ancla */
   z-index: 10;
   display: flex;
   flex-direction: row;
@@ -3786,9 +3786,9 @@ article:has(.hx-wu) > .post-desc { display: none; }
   position: absolute;
   left: 0;
   right: 0;
-  top: 0;
-  height: 6rem;
-  background: linear-gradient(to bottom, var(--hx-bg) 0, var(--hx-bg) 3rem, rgb(10 14 20 / 0) 6rem);
+  top: -0.9rem;                   /* tapa también el aire de arriba */
+  height: 8.4rem;
+  background: linear-gradient(to bottom, var(--hx-bg) 0, var(--hx-bg) 4.3rem, rgb(10 14 20 / 0) 8.4rem);
   opacity: 0;
   transition: opacity 0.25s ease;
   pointer-events: none;
@@ -3841,8 +3841,9 @@ article:has(.hx-wu) > .post-desc { display: none; }
 /* Con el ratón en la barra manda el ratón; el activo (si no es el apuntado) se apaga */
 .content .hx-wu-index.hx-wu-spy:hover a.is-active:not(:hover) { color: rgb(var(--c) / 50%); padding-top: 15px; font-size: 0.72rem; }
 .content .hx-wu-index.hx-wu-spy:hover a.is-active:not(:hover)::before { background: rgb(var(--c) / 50%); box-shadow: none; }
-/* Hover: igual que estar en esa sección — su color pleno, nombre caído y escalado */
-.content .hx-wu-index.hx-wu-spy a:hover { color: rgb(var(--c)); padding-top: 32px; font-size: 0.9rem; background: none; }
+/* Hover: igual que estar en esa sección — su color pleno, nombre caído y escalado.
+   !important para ganar al tema (`.content a:hover { color:#d2603a !important }`). */
+.content .hx-wu-index.hx-wu-spy a:hover { color: rgb(var(--c)) !important; padding-top: 32px; font-size: 0.9rem; background: none; }
 .content .hx-wu-index.hx-wu-spy a:hover::before { background: rgb(var(--c)); box-shadow: 0 0 7px rgb(var(--c) / 55%); }
 /* Animaciones esporádicas del rombo activo (las lanza el JS por clase) */
 .content .hx-wu-index.hx-wu-spy a.hx-morph-roll::before   { animation: hx-spy-roll 0.9s ease-in-out; }
