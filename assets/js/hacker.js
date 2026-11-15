@@ -1024,6 +1024,27 @@
     };
     setActive(secs[0].id);
 
+    // Coloca la guía fija en el hueco entre la barra lateral y el texto, pegada
+    // al borde de la barra. Limita su ancho al hueco para no invadir el texto;
+    // si no cabe (hueco pequeño), la oculta.
+    const sidebar = document.getElementById('sidebar');
+    const bodyEl = document.querySelector('.hx-wu-body') || nav.parentElement;
+    function positionSpy() {
+      if (window.innerWidth < 1200 || !sidebar) {
+        nav.style.left = ''; nav.style.maxWidth = ''; nav.classList.remove('hx-spy-off');
+        return;
+      }
+      const sb = sidebar.getBoundingClientRect().right;
+      const gutter = bodyEl.getBoundingClientRect().left - sb;
+      if (gutter < 96) { nav.classList.add('hx-spy-off'); nav.style.left = ''; nav.style.maxWidth = ''; return; }
+      nav.classList.remove('hx-spy-off');
+      nav.style.left = Math.round(sb + 8) + 'px';
+      nav.style.maxWidth = Math.round(Math.min(150, gutter - 16)) + 'px';
+    }
+    positionSpy();
+    window.addEventListener('resize', positionSpy);
+    window.addEventListener('load', positionSpy);
+
     // Clic: lleva a la sección con el título cerca del borde superior (un par de
     // saltos de línea de margen), en vez del salto brusco del ancla.
     links.forEach((a, id) => {
