@@ -30,6 +30,20 @@ oficiales:
       usando para las utilidades que subo al blog.
     habilidades: ["Sintaxis", "Estructuras de datos", "Scripting", "Automatización", "Ficheros", "POO"]
 
+  - nombre: "Grado en Diseño y Desarrollo de Videojuegos"
+    color: "168 85 247"
+    estado_label: "Oficial"
+    emisor: "Universidad Rey Juan Carlos"
+    icono: "fas fa-graduation-cap"
+    fecha: "2025"
+    documento: "/assets/docs/grado-videojuegos.png"
+    preview: "/assets/docs/grado-videojuegos.png"
+    resumen: >-
+      Mi formación universitaria reglada: el grado donde me peleé a fondo con la programación y
+      aprendí a bajar al detalle técnico de verdad. De aquí salió el gusto por entender cómo
+      funcionan las cosas por dentro, que es justo lo que ahora aplico a la seguridad.
+    habilidades: ["Programación", "C++ / C#", "Unity", "Unreal Engine", "Gráficos", "Diseño de juegos"]
+
 no_oficiales:
   - nombre: "Personalización de entorno en Linux"
     color: "255 62 62"
