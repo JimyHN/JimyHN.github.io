@@ -35,5 +35,19 @@
   "mode": "add",
   "status": "Resuelta",
   "related_old": "Blue",
-  "read_min": 6
+  "read_min": 6,
+  "vulns": [
+    {
+      "nombre": "Credenciales por defecto en el Tomcat Manager",
+      "tipo": "credenciales"
+    },
+    {
+      "nombre": "Despliegue de WAR desde el Tomcat Manager",
+      "tipo": "web"
+    },
+    {
+      "nombre": "El servicio corre como SYSTEM",
+      "tipo": "config"
+    }
+  ]
 }

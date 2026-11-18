@@ -37,5 +37,24 @@
   },
   "read_min": 18,
   "status": "Resuelta",
-  "related_old": "Mirai"
+  "related_old": "Mirai",
+  "vulns": [
+    {
+      "nombre": "Information Disclosure en el historial de Gitea",
+      "tipo": "web"
+    },
+    {
+      "nombre": "Reutilización de credenciales",
+      "tipo": "credenciales"
+    },
+    {
+      "nombre": "RCE autenticado en Krayin CRM 2.2.0",
+      "tipo": "web",
+      "cve": "CVE-2026-38526"
+    },
+    {
+      "nombre": "Directory Traversal en un timer de systemd que corre como root",
+      "tipo": "escalada"
+    }
+  ]
 }

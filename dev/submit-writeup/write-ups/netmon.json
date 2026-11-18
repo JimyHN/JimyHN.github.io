@@ -29,5 +29,20 @@
   "status": "Resuelta",
   "read_min": 11,
   "score": "1",
-  "related_old": "Active"
+  "related_old": "Active",
+  "vulns": [
+    {
+      "nombre": "FTP anónimo con acceso a todo el sistema de ficheros",
+      "tipo": "config"
+    },
+    {
+      "nombre": "Credenciales en los backups de PRTG + patrón predecible",
+      "tipo": "credenciales"
+    },
+    {
+      "nombre": "RCE autenticado en PRTG 18.1.37",
+      "tipo": "web",
+      "cve": "CVE-2018-9276"
+    }
+  ]
 }

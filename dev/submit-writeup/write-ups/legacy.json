@@ -30,5 +30,14 @@
   "updated": "2026-10-04",
   "read_min": 3,
   "related_old": "Active",
-  "score": "6.5"
+  "score": "6.5",
+  "vulns": [
+    {
+      "nombre": "MS08-067 (NetAPI)",
+      "tipo": "servicio",
+      "cve": "CVE-2008-4250",
+      "cvss": 10.0,
+      "sev": "critical"
+    }
+  ]
 }

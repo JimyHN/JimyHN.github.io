@@ -37,5 +37,19 @@
   "mode": "add",
   "status": "Resuelta",
   "related_old": "Tabby",
-  "read_min": 8
+  "read_min": 8,
+  "vulns": [
+    {
+      "nombre": "Credenciales en claro en un plugin descargable",
+      "tipo": "credenciales"
+    },
+    {
+      "nombre": "Reutilización de contraseña",
+      "tipo": "credenciales"
+    },
+    {
+      "nombre": "notch puede ejecutar cualquier cosa como root (sudo)",
+      "tipo": "escalada"
+    }
+  ]
 }

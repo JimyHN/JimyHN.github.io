@@ -37,5 +37,15 @@
   "mode": "add",
   "status": "Resuelta",
   "related_old": "Lame",
-  "read_min": 7
+  "read_min": 7,
+  "vulns": [
+    {
+      "nombre": "Backdoor en PHP 8.1.0-dev (User-Agentt → RCE)",
+      "tipo": "web"
+    },
+    {
+      "nombre": "sudo sobre knife, sin contraseña",
+      "tipo": "escalada"
+    }
+  ]
 }

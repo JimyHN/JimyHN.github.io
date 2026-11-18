@@ -30,5 +30,16 @@
   "updated": "2026-10-04",
   "read_min": 5,
   "related_old": "Devel",
-  "score": "8.5"
+  "score": "8.5",
+  "vulns": [
+    {
+      "nombre": "GPP cpassword (MS14-025)",
+      "tipo": "ad",
+      "cve": "CVE-2014-1812"
+    },
+    {
+      "nombre": "Kerberoasting",
+      "tipo": "ad"
+    }
+  ]
 }

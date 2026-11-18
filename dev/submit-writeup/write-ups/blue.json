@@ -29,5 +29,14 @@
   "updated": "2026-10-04",
   "read_min": 3,
   "related_old": "Optimum",
-  "score": "8.5"
+  "score": "8.5",
+  "vulns": [
+    {
+      "nombre": "MS17-010 / EternalBlue",
+      "tipo": "servicio",
+      "cve": "CVE-2017-0144",
+      "cvss": 8.1,
+      "sev": "critical"
+    }
+  ]
 }

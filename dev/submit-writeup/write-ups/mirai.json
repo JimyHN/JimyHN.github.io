@@ -37,5 +37,23 @@
   "mode": "add",
   "status": "Resuelta",
   "related_old": "Lame",
-  "read_min": 9
+  "read_min": 9,
+  "vulns": [
+    {
+      "nombre": "Credenciales de fábrica (Raspberry Pi)",
+      "tipo": "credenciales"
+    },
+    {
+      "nombre": "El usuario pi puede usar sudo sin contraseña",
+      "tipo": "escalada"
+    },
+    {
+      "nombre": "Panel de Pi-hole publicado sin autenticación",
+      "tipo": "config"
+    },
+    {
+      "nombre": "Datos borrados recuperables en el disco",
+      "tipo": "config"
+    }
+  ]
 }

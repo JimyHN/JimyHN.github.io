@@ -30,5 +30,18 @@
   "updated": "2026-10-04",
   "read_min": 4,
   "related_old": "Legacy",
-  "score": "7.5"
+  "score": "7.5",
+  "vulns": [
+    {
+      "nombre": "FTP anónimo con escritura sobre el webroot",
+      "tipo": "config"
+    },
+    {
+      "nombre": "Escalada local MS15-051",
+      "tipo": "escalada",
+      "cve": "CVE-2015-1701",
+      "cvss": 7.0,
+      "sev": "high"
+    }
+  ]
 }

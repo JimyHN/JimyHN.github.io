@@ -55,8 +55,9 @@ SECTIONS = [
     ("vulnerabilidad", "Vulnerabilidad", "255 62 62"),
     ("reconocimiento", "Reconocimiento", "46 230 214"),
     ("enumeracion", "Enumeración", "94 180 248"),
-    ("versiones", "Versiones", "68 240 138"),
+    ("versiones", "Hallazgos", "68 240 138"),
     ("explotacion", "Explotación", "255 175 0"),
+    ("postexplotacion", "Post-explotación", "255 140 105"),
     ("movimiento", "Movimiento lateral", "46 230 214"),
     ("escalada", "Escalada de privilegios", "193 108 255"),
     ("flags", "Flags", "255 214 10"),
@@ -69,6 +70,7 @@ SEC_COL = {s[0]: s[2] for s in SECTIONS}
 SEC_NAV = {
     "escalada": "Escalada",
     "movimiento": "Mov. lateral",
+    "postexplotacion": "Post-explot.",
     "arreglo": "Arreglo",
     "vulnerabilidad": "Vulnerab.",
 }
@@ -745,6 +747,22 @@ def front_matter(data: dict) -> str:
             y += f"{k}: {str(v).lower()}\n"
         elif v != "" and v is not None:
             y += f'{k}: "{str(v).replace(chr(92), chr(92) * 2).replace(chr(34), chr(92) + chr(34))}"\n'
+    # Vulnerabilidades (lista de mapas) para la pestaña /vulnerabilidades. Va la
+    # última para no empujar los campos que lee _posts_meta en la cabecera.
+    vulns = data.get("vulns") or []
+    if vulns:
+        def _q(s):
+            return str(s).replace(chr(92), chr(92) * 2).replace(chr(34), chr(92) + chr(34))
+        y += "vulns:\n"
+        for vu in vulns:
+            y += f'  - nombre: "{_q(vu.get("nombre", ""))}"\n'
+            y += f'    tipo: "{_q(vu.get("tipo", ""))}"\n'
+            if vu.get("cve"):
+                y += f'    cve: "{_q(vu["cve"])}"\n'
+            if vu.get("cvss") not in (None, ""):
+                y += f'    cvss: {vu["cvss"]}\n'
+            if vu.get("sev"):
+                y += f'    sev: "{_q(vu["sev"])}"\n'
     y += "---\n"
     return y
 

@@ -1,0 +1,418 @@
+---
+title: Vulnerabilidades
+icon: fas fa-virus
+order: 2
+---
+
+{% assign writeups = site.posts | where_exp: 'p', "p.categories contains 'Writeups'" %}
+{% assign vmachines = writeups | where_exp: 'p', "p.vulns" %}
+
+<p class="hx-lead">Todas las vulnerabilidades encontradas, máquina a máquina. Busca por máquina o por vulnerabilidad, filtra por sistema, plataforma o tipo, y consulta la leyenda de tipos o la tabla de CVE.</p>
+
+{% if vmachines.size > 0 %}
+
+<div class="vb-bar">
+  <div class="vb-filters">
+    <div class="vb-row">
+      <span class="vb-label">Sistema</span>
+      <div class="hx-seg" role="group" aria-label="Sistema operativo" data-group="os">
+        <button type="button" class="hx-opt is-active" data-value="all" aria-pressed="true">Todos</button>
+        <button type="button" class="hx-opt" data-value="linux"><i class="fab fa-linux"></i> Linux</button>
+        <button type="button" class="hx-opt" data-value="windows"><i class="fab fa-windows"></i> Windows</button>
+        <button type="button" class="hx-opt" data-value="freebsd"><i class="fab fa-freebsd"></i> FreeBSD</button>
+      </div>
+    </div>
+    <div class="vb-row">
+      <span class="vb-label">Plataforma</span>
+      <div class="hx-seg" role="group" aria-label="Plataforma" data-group="platform">
+        <button type="button" class="hx-opt is-active" data-value="all" aria-pressed="true">Todas</button>
+        <button type="button" class="hx-opt" data-value="hackthebox">HackTheBox</button>
+        <button type="button" class="hx-opt" data-value="investigacion">Investigación</button>
+      </div>
+    </div>
+    <div class="vb-row">
+      <span class="vb-label vb-label-tipo">Tipo</span>
+      <div class="hx-seg" role="group" aria-label="Tipo de vulnerabilidad" data-group="tipo">
+        <button type="button" class="hx-opt is-active" data-value="all" aria-pressed="true">Todas</button>
+        <button type="button" class="hx-opt" data-value="web">Web</button>
+        <button type="button" class="hx-opt" data-value="servicio">Servicio</button>
+        <button type="button" class="hx-opt" data-value="credenciales">Credenciales</button>
+        <button type="button" class="hx-opt" data-value="config">Config</button>
+        <button type="button" class="hx-opt" data-value="ad">AD</button>
+        <button type="button" class="hx-opt" data-value="escalada">Escalada</button>
+      </div>
+      <div class="vb-tools">
+        <button type="button" class="vb-iconbtn" id="vb-legend-open" title="Leyenda de tipos" aria-label="Leyenda de tipos"><i class="fas fa-map"></i></button>
+        <button type="button" class="vb-iconbtn vb-cvebtn" id="vb-cve-open" title="Vulnerabilidades con CVE"><i class="fas fa-shield-virus"></i> CVE</button>
+      </div>
+    </div>
+  </div>
+
+  <form class="vb-row vb-search" role="search" data-kind="maquina">
+    <span class="vb-label">Máquina</span>
+    <div class="hx-seg">
+      <input type="search" id="vb-q-maquina" placeholder="Nombre de la máquina…" autocomplete="off" spellcheck="false">
+      <button type="submit" class="hx-opt"><i class="fas fa-search"></i></button>
+    </div>
+  </form>
+
+  <form class="vb-row vb-search" role="search" data-kind="vuln">
+    <span class="vb-label vb-label-vuln">Vulnerabilidad</span>
+    <div class="hx-seg">
+      <input type="search" id="vb-q-vuln" placeholder="Nombre de la vulnerabilidad…" autocomplete="off" spellcheck="false">
+      <button type="button" class="hx-opt" id="vb-vuln-list" title="Ver todas las vulnerabilidades"><i class="fas fa-list"></i></button>
+      <button type="submit" class="hx-opt"><i class="fas fa-search"></i></button>
+    </div>
+    <div class="vb-vulllist" id="vb-vulllist" hidden></div>
+  </form>
+
+  <p class="vb-active">Filtros activos: <span id="vb-active-val">Ninguno</span>
+    <button type="button" class="hx-fbar-reset vb-reset" id="vb-reset" hidden>· limpiar</button>
+  </p>
+</div>
+
+<div class="vb-list" id="vb-list">
+  {% for post in vmachines %}
+    {% assign os_down = post.os | default: '' | downcase %}
+    {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
+    {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
+    {% elsif os_down contains 'freebsd' %}{% assign os_key = 'freebsd' %}
+    {% else %}{% assign os_key = 'otros' %}{% endif %}
+    <article class="vb-card" data-os="{{ os_key }}" data-name="{{ post.machine | default: post.title | downcase }}" data-platform="{{ post.platform | default: '' | downcase | remove: ' ' }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
+      <a class="vb-card-main" href="{{ post.url | relative_url }}">
+        <span class="vb-card-img{% unless post.thumb %} vb-card-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
+          {% unless post.thumb %}{% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% elsif os_key == 'freebsd' %}<i class="fab fa-freebsd"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
+        </span>
+        <div class="vb-card-head">
+          <h3 class="vb-card-name">{{ post.title }}</h3>
+          <p class="vb-card-meta">
+            {% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% elsif os_key == 'freebsd' %}<i class="fab fa-freebsd"></i>{% else %}<i class="fas fa-microchip"></i>{% endif %}
+            {{ post.os }} · {{ post.date | date: '%d/%m/%Y' }}
+          </p>
+        </div>
+      </a>
+      <div class="vb-card-vulns">
+        {% for v in post.vulns %}
+          <button type="button" class="vb-vuln" data-tipo="{{ v.tipo }}" data-vuln="{{ v.nombre | downcase }}"
+            {% if v.cve %}data-cve="{{ v.cve }}"{% endif %}{% if v.cvss %} data-cvss="{{ v.cvss }}"{% endif %}{% if v.sev %} data-sev="{{ v.sev }}"{% endif %}
+            data-os="{{ post.os }}"
+            title="{{ v.tipo | capitalize }}{% if v.cve %} · {{ v.cve }}{% endif %}">{{ v.nombre }}</button>
+        {% endfor %}
+      </div>
+    </article>
+  {% endfor %}
+</div>
+
+<div class="hx-empty vb-empty" id="vb-empty">
+  <i class="fas fa-filter"></i>
+  Ninguna vulnerabilidad coincide con la búsqueda o el filtro.
+</div>
+
+<!-- Modal: leyenda de tipos -->
+<div class="vb-modal" id="vb-legend" hidden>
+  <div class="vb-modal-box" role="dialog" aria-modal="true" aria-label="Leyenda de tipos">
+    <button type="button" class="vb-modal-x" data-close aria-label="Cerrar">✕</button>
+    <h2 class="vb-modal-title"><i class="fas fa-map"></i> Tipos de vulnerabilidad</h2>
+    <div class="vb-legend-body" id="vb-legend-body"></div>
+  </div>
+</div>
+
+<!-- Modal: tabla de CVE -->
+<div class="vb-modal" id="vb-cve" hidden>
+  <div class="vb-modal-box vb-modal-wide" role="dialog" aria-modal="true" aria-label="Vulnerabilidades con CVE">
+    <button type="button" class="vb-modal-x" data-close aria-label="Cerrar">✕</button>
+    <h2 class="vb-modal-title"><i class="fas fa-shield-virus"></i> Vulnerabilidades con CVE</h2>
+    <div class="vb-cve-wrap"><table class="vb-cve-table" id="vb-cve-table"></table></div>
+  </div>
+</div>
+
+{% else %}
+<div class="hx-empty"><i class="fas fa-virus"></i> Todavía no hay vulnerabilidades registradas.</div>
+{% endif %}
+
+<style>
+:root {
+  --vb-red: #ff3b4e;        /* rojo fuerte: VULNERABILIDAD y nombres de vuln */
+  --vb-red-soft: #ff6b7a;
+  --vb-yellow: #c9962a;     /* amarillo oscuro: "Tipo" */
+}
+.vb-bar { display: grid; gap: .55rem; padding: 1rem 1.1rem; border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,59,78,.10), rgba(255,59,78,.045));
+  border: 1px solid rgba(255,59,78,.22); margin-bottom: 1.1rem; }
+.vb-row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; position: relative; }
+.vb-label { min-width: 92px; font-size: .78rem; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--text-muted-color, #8b98a5); }
+.vb-label-tipo { color: var(--vb-yellow); }
+.vb-label-vuln { color: var(--vb-red); }
+.vb-filters { display: grid; gap: .5rem; }
+.vb-tools { margin-left: auto; display: flex; gap: .4rem; }
+.vb-iconbtn { display: inline-flex; align-items: center; gap: .35rem; padding: .32rem .6rem;
+  border-radius: 9px; border: 1px solid rgba(255,59,78,.4); background: rgba(255,59,78,.08);
+  color: var(--vb-red); font-weight: 700; font-size: .82rem; cursor: pointer; }
+.vb-iconbtn:hover { background: rgba(255,59,78,.18); }
+.vb-cvebtn { letter-spacing: .03em; }
+
+.vb-search .hx-seg { flex: 1; min-width: 220px; }
+.vb-search input { flex: 1; }
+.vb-vulllist { position: absolute; z-index: 30; top: calc(100% + 4px); left: 92px; right: 0;
+  max-height: 320px; overflow: auto; padding: .35rem; border-radius: 12px;
+  background: var(--card-bg, #1b1f24); border: 1px solid rgba(255,59,78,.3);
+  box-shadow: 0 14px 40px rgba(0,0,0,.5); }
+.vb-vulllist button { display: block; width: 100%; text-align: left; padding: .4rem .55rem;
+  border: 0; background: none; color: var(--vb-red-soft); font-size: .86rem; cursor: pointer;
+  border-radius: 8px; }
+.vb-vulllist button:hover { background: rgba(255,59,78,.12); color: var(--vb-red); }
+.vb-vulllist .vb-vl-type { color: var(--vb-yellow); font-size: .72rem; text-transform: uppercase;
+  font-weight: 700; margin: .5rem .55rem .15rem; display: block; }
+
+.vb-active { margin: .2rem 0 0; font-size: .84rem; color: var(--text-muted-color, #8b98a5); }
+.vb-active #vb-active-val { color: var(--vb-red); font-weight: 700; }
+.vb-reset { color: var(--vb-red-soft); }
+
+.vb-list { display: grid; gap: .7rem; }
+.vb-card { display: grid; grid-template-columns: 1fr; gap: .6rem; padding: .85rem 1rem;
+  border-radius: 14px; background: var(--card-bg, #1b1f24);
+  border: 1px solid var(--card-border, rgba(255,255,255,.08));
+  border-left: 3px solid rgb(var(--m, 255 59 78)); }
+.vb-card[hidden] { display: none; }
+.vb-card-main { display: flex; align-items: center; gap: .8rem; color: inherit; text-decoration: none; }
+.vb-card-img { width: 48px; height: 48px; flex: none; border-radius: 10px; background-size: cover;
+  background-position: center; display: grid; place-items: center; }
+.vb-card-ph { background: rgba(255,255,255,.05); color: #8b98a5; font-size: 1.2rem; }
+.vb-card-name { margin: 0; font-size: 1.02rem; }
+.vb-card-meta { margin: .1rem 0 0; font-size: .82rem; color: var(--text-muted-color, #8b98a5); }
+.vb-card-vulns { display: flex; flex-wrap: wrap; gap: .4rem; }
+.vb-vuln { font-size: .8rem; line-height: 1.2; padding: .3rem .55rem; border-radius: 8px;
+  cursor: pointer; text-align: left;
+  color: var(--vb-red); background: rgba(255,59,78,.10); border: 1px solid rgba(255,59,78,.35); }
+.vb-vuln:hover { background: rgba(255,59,78,.2); }
+.vb-vuln[hidden] { display: none; }
+.vb-empty { display: none; }
+.vb-empty.is-visible { display: block; }
+
+/* Modales */
+.vb-modal { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center;
+  padding: 1rem; background: rgba(0,0,0,.6); }
+.vb-modal[hidden] { display: none; }
+.vb-modal-box { position: relative; width: min(560px, 100%); max-height: 85vh; overflow: auto;
+  padding: 1.3rem 1.4rem; border-radius: 16px; background: var(--card-bg, #1b1f24);
+  border: 1px solid rgba(255,59,78,.3); box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+.vb-modal-wide { width: min(820px, 100%); }
+.vb-modal-x { position: absolute; top: .7rem; right: .8rem; border: 0; background: none;
+  color: var(--text-muted-color, #8b98a5); font-size: 1.1rem; cursor: pointer; }
+.vb-modal-title { margin: 0 0 1rem; color: var(--vb-red); font-size: 1.15rem; }
+.vb-legend-item { display: grid; grid-template-columns: 110px 1fr; gap: .6rem; padding: .55rem 0;
+  border-top: 1px solid rgba(255,255,255,.07); }
+.vb-legend-item:first-child { border-top: 0; }
+.vb-legend-name { font-weight: 800; color: var(--vb-red); }
+.vb-legend-ej { font-size: .85rem; color: var(--text-muted-color, #8b98a5); }
+
+.vb-cve-wrap { overflow-x: auto; }
+.vb-cve-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.vb-cve-table th, .vb-cve-table td { text-align: left; padding: .5rem .6rem;
+  border-bottom: 1px solid rgba(255,255,255,.07); }
+.vb-cve-table th { color: var(--vb-yellow); font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; }
+.vb-cve-table .vb-cve-name { color: var(--vb-red); font-weight: 600; }
+.vb-cve-table .vb-cve-code { font-family: var(--mono-font, monospace); }
+.vb-sev { display: inline-block; padding: .12rem .5rem; border-radius: 999px; font-size: .75rem;
+  font-weight: 800; color: #0b0e11; }
+
+@media (max-width: 560px) {
+  .vb-label { min-width: 100%; }
+  .vb-vulllist { left: 0; }
+  .vb-legend-item { grid-template-columns: 1fr; }
+}
+</style>
+
+<script>
+(function () {
+  var list = document.getElementById('vb-list');
+  if (!list) return;
+
+  var TIPOS = {
+    web:          { label: 'Web',          ej: 'RCE, LFI/RFI, SSRF, subida de ficheros, path traversal, IDOR, SSTI, SQLi, info disclosure web.' },
+    servicio:     { label: 'Servicio',     ej: 'Fallo de un servicio de red explotable en remoto: SMB (EternalBlue, MS08-067), Samba, RPC, servicio obsoleto.' },
+    credenciales: { label: 'Credenciales', ej: 'Contraseñas por defecto, débiles, reutilizadas o filtradas.' },
+    config:       { label: 'Config',       ej: 'Mala configuración: FTP anónimo con escritura, panel/servicio expuesto sin auth, datos sin borrar.' },
+    ad:           { label: 'AD',           ej: 'Active Directory: Kerberoasting, AS-REP Roast, GPP cpassword, DCSync, abuso de ACLs.' },
+    escalada:     { label: 'Escalada',     ej: 'Privesc local: sudo, cron, capabilities, abuso de token (SeImpersonate), kernel/exploit local, lxd, AlwaysInstallElevated.' }
+  };
+  var SEV = {
+    low:      { label: 'Baja',    c: '#3fb950' },
+    medium:   { label: 'Media',   c: '#e3b341' },
+    high:     { label: 'Alta',    c: '#f85149' },
+    critical: { label: 'Crítica', c: '#a371f7' }
+  };
+
+  function norm(s) {
+    return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+  }
+
+  var cards = Array.prototype.slice.call(list.querySelectorAll('.vb-card'));
+  var empty = document.getElementById('vb-empty');
+  var qMaq = document.getElementById('vb-q-maquina');
+  var qVuln = document.getElementById('vb-q-vuln');
+  var activeVal = document.getElementById('vb-active-val');
+  var reset = document.getElementById('vb-reset');
+  var state = { os: 'all', platform: 'all', tipo: 'all', mq: '', vq: '' };
+
+  function apply() {
+    var mq = norm(state.mq), vq = norm(state.vq);
+    var anyCard = false;
+    cards.forEach(function (card) {
+      var machineOk =
+        (state.os === 'all' || card.dataset.os === state.os) &&
+        (state.platform === 'all' || card.dataset.platform === state.platform) &&
+        (!mq || norm(card.dataset.name).indexOf(mq) !== -1);
+      var vulns = card.querySelectorAll('.vb-vuln');
+      var anyVuln = false;
+      vulns.forEach(function (b) {
+        var ok = (state.tipo === 'all' || b.dataset.tipo === state.tipo) &&
+                 (!vq || norm(b.dataset.vuln).indexOf(vq) !== -1);
+        b.hidden = !ok;
+        if (ok) anyVuln = true;
+      });
+      var show = machineOk && anyVuln;
+      card.hidden = !show;
+      if (show) anyCard = true;
+    });
+    if (empty) empty.classList.toggle('is-visible', !anyCard);
+
+    var parts = [];
+    if (state.os !== 'all') parts.push(state.os.charAt(0).toUpperCase() + state.os.slice(1));
+    if (state.platform !== 'all') parts.push(state.platform === 'hackthebox' ? 'HackTheBox' : 'Investigación');
+    if (state.tipo !== 'all') parts.push((TIPOS[state.tipo] || {}).label || state.tipo);
+    if (state.mq) parts.push('máquina «' + state.mq + '»');
+    if (state.vq) parts.push('vuln «' + state.vq + '»');
+    activeVal.textContent = parts.length ? parts.join(' | ') : 'Ninguno';
+    reset.hidden = parts.length === 0;
+  }
+
+  // Segmentos de filtro
+  document.querySelectorAll('.hx-seg[data-group]').forEach(function (group) {
+    group.addEventListener('click', function (e) {
+      var btn = e.target.closest('.hx-opt');
+      if (!btn) return;
+      state[group.dataset.group] = btn.dataset.value;
+      group.querySelectorAll('.hx-opt').forEach(function (b) {
+        var on = b.dataset.value === btn.dataset.value;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      apply();
+    });
+  });
+
+  // Buscadores
+  document.querySelector('.vb-search[data-kind="maquina"]').addEventListener('submit', function (e) { e.preventDefault(); });
+  document.querySelector('.vb-search[data-kind="vuln"]').addEventListener('submit', function (e) { e.preventDefault(); });
+  qMaq.addEventListener('input', function () { state.mq = qMaq.value; apply(); });
+  qVuln.addEventListener('input', function () { state.vq = qVuln.value; apply(); });
+
+  // Click en una vuln → al buscador de vulns
+  list.addEventListener('click', function (e) {
+    var b = e.target.closest('.vb-vuln');
+    if (!b) return;
+    qVuln.value = b.textContent.trim();
+    state.vq = qVuln.value;
+    apply();
+    qVuln.focus();
+  });
+
+  // Botón lista: todas las vulns (únicas), agrupadas por tipo
+  var vulllist = document.getElementById('vb-vulllist');
+  document.getElementById('vb-vuln-list').addEventListener('click', function () {
+    if (!vulllist.hidden) { vulllist.hidden = true; return; }
+    var byType = {};
+    list.querySelectorAll('.vb-vuln').forEach(function (b) {
+      var t = b.dataset.tipo || 'otros';
+      (byType[t] = byType[t] || {})[b.textContent.trim()] = true;
+    });
+    var html = '';
+    Object.keys(TIPOS).forEach(function (t) {
+      if (!byType[t]) return;
+      html += '<span class="vb-vl-type">' + TIPOS[t].label + '</span>';
+      Object.keys(byType[t]).sort().forEach(function (name) {
+        html += '<button type="button">' + name.replace(/</g, '&lt;') + '</button>';
+      });
+    });
+    vulllist.innerHTML = html;
+    vulllist.hidden = false;
+  });
+  vulllist.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    qVuln.value = b.textContent;
+    state.vq = qVuln.value;
+    vulllist.hidden = true;
+    apply();
+  });
+  document.addEventListener('click', function (e) {
+    if (!vulllist.hidden && !e.target.closest('.vb-search[data-kind="vuln"]')) vulllist.hidden = true;
+  });
+
+  // Reset
+  reset.addEventListener('click', function () {
+    state = { os: 'all', platform: 'all', tipo: 'all', mq: '', vq: '' };
+    qMaq.value = ''; qVuln.value = '';
+    document.querySelectorAll('.hx-seg[data-group] .hx-opt').forEach(function (b) {
+      var on = b.dataset.value === 'all';
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    apply();
+  });
+
+  // Modales
+  function openModal(id) { var m = document.getElementById(id); if (m) m.hidden = false; }
+  function closeModal(m) { m.hidden = true; }
+  document.querySelectorAll('.vb-modal').forEach(function (m) {
+    m.addEventListener('click', function (e) {
+      if (e.target === m || e.target.closest('[data-close]')) closeModal(m);
+    });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') document.querySelectorAll('.vb-modal:not([hidden])').forEach(closeModal);
+  });
+
+  // Leyenda
+  var legendBody = document.getElementById('vb-legend-body');
+  var lh = '';
+  Object.keys(TIPOS).forEach(function (t) {
+    lh += '<div class="vb-legend-item"><div class="vb-legend-name">' + TIPOS[t].label +
+          '</div><div class="vb-legend-ej">' + TIPOS[t].ej + '</div></div>';
+  });
+  legendBody.innerHTML = lh;
+  document.getElementById('vb-legend-open').addEventListener('click', function () { openModal('vb-legend'); });
+
+  // Tabla de CVE
+  document.getElementById('vb-cve-open').addEventListener('click', function () {
+    var rows = [];
+    list.querySelectorAll('.vb-vuln[data-cve]').forEach(function (b) {
+      rows.push({
+        nombre: b.textContent.trim(),
+        cve: b.dataset.cve,
+        os: b.dataset.os || '',
+        cvss: b.dataset.cvss || '',
+        sev: b.dataset.sev || ''
+      });
+    });
+    rows.sort(function (a, b) { return (parseFloat(b.cvss) || 0) - (parseFloat(a.cvss) || 0); });
+    var html = '<thead><tr><th>Vulnerabilidad</th><th>CVE</th><th>SO</th><th>CVSS</th><th>Severidad</th></tr></thead><tbody>';
+    rows.forEach(function (r) {
+      var sev = SEV[r.sev];
+      var sevCell = sev ? '<span class="vb-sev" style="background:' + sev.c + '">' + sev.label + '</span>' : '—';
+      html += '<tr><td class="vb-cve-name">' + r.nombre.replace(/</g, '&lt;') + '</td>' +
+              '<td class="vb-cve-code">' + r.cve + '</td>' +
+              '<td>' + r.os + '</td>' +
+              '<td>' + (r.cvss || '—') + '</td>' +
+              '<td>' + sevCell + '</td></tr>';
+    });
+    html += '</tbody>';
+    document.getElementById('vb-cve-table').innerHTML = html;
+    openModal('vb-cve');
+  });
+
+  apply();
+})();
+</script>

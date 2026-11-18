@@ -37,5 +37,15 @@
   "mode": "add",
   "status": "Resuelta",
   "related_old": "Blue",
-  "read_min": 12
+  "read_min": 12,
+  "vulns": [
+    {
+      "nombre": "Subida de ficheros + ejecución vía web.config",
+      "tipo": "web"
+    },
+    {
+      "nombre": "SeImpersonatePrivilege (abuso de tokens)",
+      "tipo": "escalada"
+    }
+  ]
 }

@@ -30,5 +30,19 @@
   "status": "Resuelta",
   "read_min": 9,
   "score": "8",
-  "related_old": "Knife"
+  "related_old": "Knife",
+  "vulns": [
+    {
+      "nombre": "Credenciales débiles y bypass del bloqueo por IP",
+      "tipo": "credenciales"
+    },
+    {
+      "nombre": "Arbitrary File Upload en Nibbleblog 4.0.3 (autenticado)",
+      "tipo": "web"
+    },
+    {
+      "nombre": "Escalada por sudo sobre un script modificable",
+      "tipo": "escalada"
+    }
+  ]
 }

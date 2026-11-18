@@ -38,5 +38,27 @@
     "proof": "https://labs.hackthebox.com/achievement/machine/2772097/132"
   },
   "read_min": 13,
-  "status": "Resuelta"
+  "status": "Resuelta",
+  "vulns": [
+    {
+      "nombre": "Local File Inclusion en browse.php",
+      "tipo": "web"
+    },
+    {
+      "nombre": "Path Traversal y php://filter",
+      "tipo": "web"
+    },
+    {
+      "nombre": "Information Disclosure",
+      "tipo": "web"
+    },
+    {
+      "nombre": "Log Poisoning → RCE",
+      "tipo": "web"
+    },
+    {
+      "nombre": "Reutilización de credenciales y VNC como root",
+      "tipo": "credenciales"
+    }
+  ]
 }

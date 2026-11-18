@@ -36,5 +36,16 @@
     "conclusiones": "Máquina muy compleja, intenta continuamente jugar con los permisos para poner problemas, realmente no la consideraría una máquina fácil por eso, luego la explotación y la escalada si no llega a ser por todas las trabas que pone, sería de nivel fácil"
   },
   "status": "Resuelta",
-  "related_old": "Tabby"
+  "related_old": "Tabby",
+  "vulns": [
+    {
+      "nombre": "Drupalgeddon2 — RCE sin autenticar en Drupal 7",
+      "tipo": "web",
+      "cve": "CVE-2018-7600"
+    },
+    {
+      "nombre": "sudo sobre «snap install»",
+      "tipo": "escalada"
+    }
+  ]
 }

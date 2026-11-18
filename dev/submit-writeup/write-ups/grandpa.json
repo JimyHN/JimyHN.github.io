@@ -37,5 +37,18 @@
   "status": "Resuelta",
   "read_min": 7,
   "score": "6",
-  "related_old": "Blue"
+  "related_old": "Blue",
+  "vulns": [
+    {
+      "nombre": "Buffer Overflow en el WebDAV de IIS 6.0",
+      "tipo": "web",
+      "cve": "CVE-2017-7269",
+      "cvss": 9.8,
+      "sev": "critical"
+    },
+    {
+      "nombre": "Suplantación de token con SeImpersonatePrivilege",
+      "tipo": "escalada"
+    }
+  ]
 }

@@ -30,5 +30,15 @@
   "updated": "2026-10-04",
   "read_min": 4,
   "related_old": "Shocker",
-  "score": "8"
+  "score": "8",
+  "vulns": [
+    {
+      "nombre": "IDOR / Broken Access Control",
+      "tipo": "web"
+    },
+    {
+      "nombre": "Capability cap_setuid sobre Python",
+      "tipo": "escalada"
+    }
+  ]
 }

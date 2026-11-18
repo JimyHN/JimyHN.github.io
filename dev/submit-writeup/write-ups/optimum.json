@@ -30,5 +30,21 @@
   "updated": "2026-10-03",
   "read_min": 4,
   "related_old": "Blue",
-  "score": "7"
+  "score": "7",
+  "vulns": [
+    {
+      "nombre": "RCE en Rejetto HFS 2.3",
+      "tipo": "web",
+      "cve": "CVE-2014-6287",
+      "cvss": 9.8,
+      "sev": "critical"
+    },
+    {
+      "nombre": "Escalada local MS16-098",
+      "tipo": "escalada",
+      "cve": "CVE-2016-3309",
+      "cvss": 7.8,
+      "sev": "high"
+    }
+  ]
 }

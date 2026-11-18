@@ -30,5 +30,19 @@
   "updated": "2026-10-04",
   "read_min": 5,
   "related_old": "Lame",
-  "score": "8"
+  "score": "8",
+  "vulns": [
+    {
+      "nombre": "Local File Inclusion (LFI)",
+      "tipo": "web"
+    },
+    {
+      "nombre": "Tomcat Manager + despliegue de WAR",
+      "tipo": "web"
+    },
+    {
+      "nombre": "Grupo lxd",
+      "tipo": "escalada"
+    }
+  ]
 }
