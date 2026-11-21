@@ -1791,6 +1791,11 @@
     };
     var CVE_INFO = {};
     try { CVE_INFO = JSON.parse(document.getElementById('vb-cve-data').textContent); } catch (e) {}
+    var VULN_BY_NORM = {};
+    try {
+      var _vd = JSON.parse(document.getElementById('vb-vuln-data').textContent);
+      Object.keys(_vd).forEach(function (k) { VULN_BY_NORM[k.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim()] = _vd[k]; });
+    } catch (e) {}
 
     function norm(s) { return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
     function esc(s) { return (s || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
@@ -1999,19 +2004,45 @@
     function openVulnInfo(card, idx) {
       var url = card.dataset.url || '#';
       var name = card.querySelector('.vb-card-name').textContent.trim();
-      var boxes = card.querySelectorAll('.vb-vuln');
-      var vulnName = (idx != null && boxes[idx]) ? boxes[idx].textContent.trim() : '';
-      document.getElementById('vb-vi-title').innerHTML = idx != null
-        ? '<i class="fas fa-virus"></i> ' + esc(vulnName) + ' <span class="vb-cd-cve">' + esc(name) + '</span>'
-        : '<i class="fas fa-virus"></i> Vulnerabilidades · ' + esc(name);
-      document.getElementById('vb-vi-go').href = url + '#vulnerabilidad';
       var body = document.getElementById('vb-vi-body');
+      document.getElementById('vb-vi-go').href = url + '#vulnerabilidad';
+
+      // Click en una vuln concreta -> ficha propia (datos, no el write-up)
+      if (idx != null) {
+        var box = card.querySelectorAll('.vb-vuln')[idx];
+        var vulnName = box ? box.textContent.trim() : '';
+        var tipo = box ? box.dataset.tipo : '';
+        var g = box ? grpOf(box) : '';
+        var info = VULN_BY_NORM[g] || (box && box.dataset.cve && CVE_INFO[box.dataset.cve]) || {};
+        document.getElementById('vb-vi-title').innerHTML = '<i class="fas fa-virus"></i> ' + esc(vulnName);
+        // máquinas que tienen esta misma vuln (mismo grupo)
+        var maqs = [];
+        list.querySelectorAll('.vb-vuln').forEach(function (b) {
+          if (grpOf(b) !== g) return;
+          var c = b.closest('.vb-card'); if (!c) return;
+          var nm = c.querySelector('.vb-card-name').textContent.trim();
+          if (!maqs.some(function (m) { return m.name === nm; })) maqs.push({ name: nm, url: c.dataset.url || '#' });
+        });
+        var maqHtml = maqs.map(function (m) { return '<a class="vb-cd-maq" href="' + m.url + '">' + esc(m.name) + '</a>'; }).join('');
+        var h = '';
+        if (tipo) h += '<div class="vb-cd-meta"><span class="vb-cd-chip" style="color:rgb(' + (({web:'94 180 248',servicio:'46 230 214',credenciales:'255 214 10',config:'255 140 105',ad:'193 108 255',escalada:'255 59 78'})[tipo] || '255 255 255') + ')">' + esc(tipo) + '</span></div>';
+        h += '<div class="vb-cd-sec"><h3>Descripción</h3><p>' + esc(info.desc || '—') + '</p></div>';
+        h += '<div class="vb-cd-sec"><h3>Amenaza</h3><p>' + esc(info.amenaza || '—') + '</p></div>';
+        h += '<div class="vb-cd-sec"><h3>Impacto</h3><p>' + esc(info.impact || '—') + '</p></div>';
+        h += '<div class="vb-cd-sec"><h3>Explotación</h3><p>Máquinas que la tienen:</p><div class="vb-cd-maqs">' + (maqHtml || '—') + '</div></div>';
+        body.innerHTML = h;
+        openModal('vb-vulninfo');
+        return;
+      }
+
+      // Click en la máquina -> toda la sección Vulnerabilidad del write-up
+      document.getElementById('vb-vi-title').innerHTML = '<i class="fas fa-virus"></i> Vulnerabilidades · ' + esc(name);
       openModal('vb-vulninfo');
-      if (viCache[url]) { body.innerHTML = infoHTML(viCache[url], idx); return; }
+      if (viCache[url]) { body.innerHTML = infoHTML(viCache[url], null); return; }
       body.innerHTML = '<p class="vb-vi-load">Cargando…</p>';
       fetch(url).then(function (r) { return r.text(); }).then(function (html) {
         viCache[url] = parseSection(html);
-        body.innerHTML = infoHTML(viCache[url], idx);
+        body.innerHTML = infoHTML(viCache[url], null);
       }).catch(function () { body.innerHTML = '<p>No se pudo cargar la sección. Abre el write-up.</p>'; });
     }
 
