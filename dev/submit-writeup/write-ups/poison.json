@@ -42,7 +42,8 @@
   "vulns": [
     {
       "nombre": "Local File Inclusion en browse.php",
-      "tipo": "web"
+      "tipo": "web",
+      "grupo": "Local File Inclusion (LFI)"
     },
     {
       "nombre": "Path Traversal y php://filter",
@@ -50,7 +51,8 @@
     },
     {
       "nombre": "Information Disclosure",
-      "tipo": "web"
+      "tipo": "web",
+      "grupo": "Information Disclosure"
     },
     {
       "nombre": "Log Poisoning → RCE",
@@ -58,7 +60,8 @@
     },
     {
       "nombre": "Reutilización de credenciales y VNC como root",
-      "tipo": "credenciales"
+      "tipo": "credenciales",
+      "grupo": "Reutilización de credenciales"
     }
   ]
 }

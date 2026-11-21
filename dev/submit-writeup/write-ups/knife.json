@@ -45,7 +45,8 @@
     },
     {
       "nombre": "sudo sobre knife, sin contraseña",
-      "tipo": "escalada"
+      "tipo": "escalada",
+      "grupo": "Abuso de sudo"
     }
   ]
 }

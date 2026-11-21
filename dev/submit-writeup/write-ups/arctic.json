@@ -36,7 +36,8 @@
       "tipo": "web",
       "cve": "CVE-2010-2861",
       "cvss": 7.5,
-      "sev": "high"
+      "sev": "high",
+      "grupo": "Directory Traversal"
     },
     {
       "nombre": "Escalada local MS10-059 (Chimichurri)",

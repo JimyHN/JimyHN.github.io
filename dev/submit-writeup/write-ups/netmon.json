@@ -33,7 +33,8 @@
   "vulns": [
     {
       "nombre": "FTP anónimo con acceso a todo el sistema de ficheros",
-      "tipo": "config"
+      "tipo": "config",
+      "grupo": "FTP anónimo"
     },
     {
       "nombre": "Credenciales en los backups de PRTG + patrón predecible",

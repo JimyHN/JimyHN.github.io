@@ -6,7 +6,7 @@ order: 6
 
 {% assign writeups = site.posts | where_exp: 'p', "p.categories contains 'Writeups'" %}
 
-<p class="hx-lead">Explora las máquinas por etiquetas. Selecciona una o varias (en la pestaña «Etiquetas» o escribiéndolas), elige <b>All</b> o <b>Any</b>, y mira las coincidencias en «Máquinas».</p>
+<p class="hx-lead">Explora las máquinas por etiquetas. Pincha en la barra para elegir una o varias (agrupadas por categoría), elige <b>All</b> o <b>Any</b>, y filtra por sistema, plataforma o máquina.</p>
 
 {% if writeups.size > 0 %}
 
@@ -35,14 +35,13 @@ order: 6
       <input type="search" id="tg-q-maquina" placeholder="Nombre de la máquina…" autocomplete="off" spellcheck="false">
     </div>
   </div>
-
-  <div class="vb-row tg-searchrow">
+  <div class="vb-row vb-search">
     <span class="vb-label tg-label">Etiquetas</span>
-    <div class="tg-chipbox" id="tg-chipbox">
-      <input type="text" id="tg-input" placeholder="Añade etiquetas…" autocomplete="off" spellcheck="false">
+    <div class="hx-seg">
+      <input type="text" id="tg-trigger" class="vb-trigger" placeholder="Pincha para elegir etiquetas…" readonly>
+      <button type="button" class="hx-opt tg-clear" id="tg-clear" title="Borrar selección" hidden>clear</button>
+      <button type="button" class="hx-opt tg-mode" id="tg-mode" title="All: máquinas con TODAS · Any: con ALGUNA">All</button>
     </div>
-    <button type="button" class="hx-opt tg-mode" id="tg-mode" title="All: máquinas con TODAS · Any: con ALGUNA">All</button>
-    <div class="tg-suggest" id="tg-suggest" hidden></div>
   </div>
 
   <p class="vb-minileg tg-minileg">
@@ -54,43 +53,46 @@ order: 6
   </p>
 </div>
 
-<div class="tg-tabs" role="tablist">
-  <button type="button" class="tg-tab is-active" data-pane="etiquetas" role="tab">Etiquetas</button>
-  <button type="button" class="tg-tab" data-pane="maquinas" role="tab">Máquinas <span class="tg-count" id="tg-count"></span></button>
+<div class="vb-list" id="tg-list">
+  {% for post in writeups %}
+    {% assign os_down = post.os | default: '' | downcase %}
+    {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
+    {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
+    {% elsif os_down contains 'freebsd' %}{% assign os_key = 'freebsd' %}
+    {% else %}{% assign os_key = 'otros' %}{% endif %}
+    <article class="vb-card tg-card" data-os="{{ os_key }}" data-name="{{ post.machine | default: post.title | downcase }}" data-platform="{{ post.platform | default: '' | downcase | remove: ' ' }}" data-url="{{ post.url | relative_url }}" data-tags="{{ post.tags | join: ' ' }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
+      <a class="vb-card-main" href="{{ post.url | relative_url }}">
+        <span class="vb-card-img{% unless post.thumb %} vb-card-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
+          {% unless post.thumb %}{% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% elsif os_key == 'freebsd' %}<i class="fab fa-freebsd"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
+        </span>
+        <div class="vb-card-head">
+          <h3 class="vb-card-name">{{ post.title }}</h3>
+          <p class="vb-card-meta">
+            {% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% elsif os_key == 'freebsd' %}<i class="fab fa-freebsd"></i>{% else %}<i class="fas fa-microchip"></i>{% endif %}
+            {{ post.os }} · {{ post.date | date: '%d/%m/%Y' }}
+          </p>
+        </div>
+      </a>
+      <div class="tg-card-tags">
+        {% for t in post.tags %}<button type="button" class="tg-chip-sm" data-tag="{{ t }}">{{ t }}</button>{% endfor %}
+      </div>
+    </article>
+  {% endfor %}
 </div>
 
-<div class="tg-pane" id="tg-pane-etiquetas" role="tabpanel"></div>
+<div class="hx-empty vb-empty" id="tg-empty">
+  <i class="fas fa-filter"></i>
+  Ninguna máquina coincide con las etiquetas o el filtro.
+</div>
 
-<div class="tg-pane" id="tg-pane-maquinas" role="tabpanel" hidden>
-  <div class="vb-list" id="tg-list">
-    {% for post in writeups %}
-      {% assign os_down = post.os | default: '' | downcase %}
-      {% if os_down contains 'windows' %}{% assign os_key = 'windows' %}
-      {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
-      {% elsif os_down contains 'freebsd' %}{% assign os_key = 'freebsd' %}
-      {% else %}{% assign os_key = 'otros' %}{% endif %}
-      <article class="vb-card tg-card" data-os="{{ os_key }}" data-name="{{ post.machine | default: post.title | downcase }}" data-platform="{{ post.platform | default: '' | downcase | remove: ' ' }}" data-url="{{ post.url | relative_url }}" data-tags="{{ post.tags | join: ' ' }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
-        <a class="vb-card-main" href="{{ post.url | relative_url }}">
-          <span class="vb-card-img{% unless post.thumb %} vb-card-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
-            {% unless post.thumb %}{% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% elsif os_key == 'freebsd' %}<i class="fab fa-freebsd"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
-          </span>
-          <div class="vb-card-head">
-            <h3 class="vb-card-name">{{ post.title }}</h3>
-            <p class="vb-card-meta">
-              {% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% elsif os_key == 'freebsd' %}<i class="fab fa-freebsd"></i>{% else %}<i class="fas fa-microchip"></i>{% endif %}
-              {{ post.os }} · {{ post.date | date: '%d/%m/%Y' }}
-            </p>
-          </div>
-        </a>
-        <div class="tg-card-tags">
-          {% for t in post.tags %}<button type="button" class="tg-chip-sm" data-tag="{{ t }}">{{ t }}</button>{% endfor %}
-        </div>
-      </article>
-    {% endfor %}
-  </div>
-  <div class="hx-empty vb-empty" id="tg-empty">
-    <i class="fas fa-filter"></i>
-    Ninguna máquina coincide con las etiquetas o el filtro.
+<!-- Modal: elegir etiquetas (checkboxes por categoría, dos columnas) -->
+<div class="vb-modal tg-scope" id="tg-tagpick" hidden>
+  <div class="vb-modal-box vb-modal-wide" role="dialog" aria-modal="true" aria-label="Elegir etiquetas">
+    <button type="button" class="vb-modal-x" data-close aria-label="Cerrar">✕</button>
+    <h2 class="vb-modal-title"><i class="fas fa-tags"></i> Elegir etiquetas</h2>
+    <input type="search" id="tg-pick-filter" class="vb-pick-filter" placeholder="Filtrar…" autocomplete="off" spellcheck="false">
+    <div class="vb-pick-body" id="tg-pick-body"></div>
+    <div class="vb-pick-foot"><button type="button" class="vb-apply" id="tg-pick-apply">Aplicar</button></div>
   </div>
 </div>
 

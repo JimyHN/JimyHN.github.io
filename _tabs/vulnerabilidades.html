@@ -59,9 +59,9 @@ order: 2
   <div class="vb-row vb-search" data-kind="vuln">
     <span class="vb-label vb-label-vuln">Vulnerabilidad</span>
     <div class="hx-seg">
-      <input type="text" id="vb-q-vuln" class="vb-trigger" placeholder="Elige vulnerabilidades…" readonly>
+      <input type="text" id="vb-q-vuln" class="vb-trigger" placeholder="Pincha para elegir vulnerabilidades…" readonly>
+      <button type="button" class="hx-opt vb-clear" id="vb-clear" title="Borrar selección" hidden>clear</button>
       <button type="button" class="hx-opt vb-mode" id="vb-mode" title="All: máquinas con TODAS · Any: con ALGUNA">All</button>
-      <button type="button" class="hx-opt" id="vb-vuln-list" title="Elegir vulnerabilidades"><i class="fas fa-list"></i></button>
     </div>
   </div>
 
@@ -98,10 +98,10 @@ order: 2
       </a>
       <div class="vb-card-vulns">
         {% for v in post.vulns %}
-          <button type="button" class="vb-vuln" data-tipo="{{ v.tipo }}" data-vuln="{{ v.nombre | downcase }}"
+          <button type="button" class="vb-vuln" data-tipo="{{ v.tipo }}" data-vuln="{{ v.nombre | downcase }}" data-grupo="{{ v.grupo | default: v.nombre }}"
             {% if v.cve %}data-cve="{{ v.cve }}"{% endif %}{% if v.cvss %} data-cvss="{{ v.cvss }}"{% endif %}{% if v.sev %} data-sev="{{ v.sev }}"{% endif %}
             data-os="{{ post.os }}"
-            title="{{ v.tipo | capitalize }}{% if v.cve %} · {{ v.cve }}{% endif %}">{{ v.nombre }}</button>
+            title="Ver la sección Vulnerabilidad de {{ post.title }}">{{ v.nombre }}</button>
         {% endfor %}
       </div>
     </article>
@@ -116,20 +116,20 @@ order: 2
 <!-- Datos de cada CVE para el modal de detalle (misma idea que el bloque JSON de maquinas.html) -->
 <script type="application/json" id="vb-cve-data">
 {
-  "CVE-2010-2861": {"desc":"Salto de directorio en el panel de administración de Adobe ColdFusion 8 (parámetro locale) explotable sin autenticar.","impact":"Lectura de ficheros arbitrarios del servidor; se usa para filtrar el hash de la contraseña del administrador.","solucion":"Aplicar el hotfix de Adobe (APSB10-18) y restringir el acceso a /CFIDE/administrator."},
-  "CVE-2010-2554": {"desc":"Elevación de privilegios local en Windows (servicio de seguimiento), explotada con el binario «Chimichurri».","impact":"De la cuenta de servicio web a SYSTEM.","solucion":"Aplicar el boletín MS10-059."},
-  "CVE-2018-7600": {"desc":"Validación insuficiente de entrada en formularios de Drupal 7/8 (Drupalgeddon2) que permite ejecución remota de código sin autenticar.","impact":"RCE total como el usuario del servidor web.","solucion":"Actualizar a Drupal 7.58 / 8.5.1 o superior."},
-  "CVE-2017-0144": {"desc":"Desbordamiento en SMBv1 (MS17-010 / EternalBlue) explotable en remoto y sin autenticar.","impact":"Ejecución de código como SYSTEM en el objetivo.","solucion":"Aplicar MS17-010 y deshabilitar SMBv1."},
-  "CVE-2015-1701": {"desc":"Elevación de privilegios local en win32k.sys (MS15-051).","impact":"De usuario sin privilegios a SYSTEM.","solucion":"Aplicar el boletín MS15-051."},
-  "CVE-2017-7269": {"desc":"Desbordamiento de búfer en ScStoragePathFromUrl del WebDAV de IIS 6.0 (cabecera If larga).","impact":"RCE remoto sin autenticar en el contexto del servicio IIS.","solucion":"Deshabilitar WebDAV y migrar de IIS 6.0 (producto sin soporte)."},
-  "CVE-2007-2447": {"desc":"Inyección de comandos en la opción «username map script» de Samba 3.0.x.","impact":"RCE remoto sin autenticar como root.","solucion":"Actualizar Samba a 3.0.25 o no usar «username map script»."},
-  "CVE-2008-4250": {"desc":"Fallo en el servicio Server (NetAPI) de Windows (MS08-067) que permite RCE sin autenticar.","impact":"Ejecución de código como SYSTEM.","solucion":"Aplicar el boletín MS08-067."},
-  "CVE-2018-9276": {"desc":"Inyección de comandos autenticada en PRTG Network Monitor < 18.2.39 a través de las notificaciones.","impact":"RCE con privilegios del servicio (local/SYSTEM) teniendo sesión de admin.","solucion":"Actualizar PRTG a 18.2.39 o superior."},
-  "CVE-2026-38526": {"desc":"Ejecución remota de código autenticada en Krayin CRM 2.2.x subiendo un fichero a una ruta ejecutable.","impact":"RCE como www-data con una sesión válida del panel.","solucion":"Actualizar Krayin CRM y validar/segregar las subidas de ficheros."},
-  "CVE-2014-6287": {"desc":"Ejecución remota de código en Rejetto HFS 2.3x por una expresión regular mal filtrada (parámetro search).","impact":"RCE remoto sin autenticar.","solucion":"Actualizar HFS a 2.3e o superior / retirar el servicio."},
-  "CVE-2016-3309": {"desc":"Elevación de privilegios en el kernel de Windows (MS16-098).","impact":"De usuario sin privilegios a SYSTEM.","solucion":"Aplicar el boletín MS16-098."},
-  "CVE-2014-6271": {"desc":"Inyección de comandos en Bash a través de funciones exportadas en variables de entorno (Shellshock).","impact":"RCE remoto, típicamente vía CGI de un servidor web.","solucion":"Actualizar Bash a las versiones parcheadas de 2014."},
-  "CVE-2014-1812": {"desc":"Las Group Policy Preferences guardan contraseñas cifradas con una clave AES pública en SYSVOL (MS14-025).","impact":"Cualquier usuario del dominio puede descifrar credenciales, a menudo de cuentas privilegiadas.","solucion":"Aplicar MS14-025 y eliminar los cpassword de SYSVOL."}
+  "CVE-2010-2861": {"desc":"Salto de directorio en el panel de administración de Adobe ColdFusion 8/9: el parámetro «locale» de varias páginas de /administrator no sanea los «../», lo que permite leer ficheros arbitrarios del servidor sin estar autenticado.","impact":"Lectura de cualquier fichero accesible por el servicio web, incluido el fichero de propiedades con el hash de la contraseña del administrador de ColdFusion.","amenaza":"Con ese hash se entra al panel y desde ahí se despliega código CFM: una simple lectura de ficheros termina en ejecución remota y control del servidor.","solucion":"Aplicar el hotfix de Adobe (APSB10-18), restringir el acceso a /CFIDE/administrator y actualizar a una versión con soporte."},
+  "CVE-2010-2554": {"desc":"Elevación de privilegios local en Windows por una validación insuficiente en un servicio del sistema; se explota con el binario público «Chimichurri».","impact":"Una cuenta de servicio con pocos privilegios (p. ej. la de IIS) pasa a NT AUTHORITY\\SYSTEM.","amenaza":"Tras un RCE web que cae como usuario de servicio, este fallo completa la toma total de la máquina.","solucion":"Aplicar el boletín MS10-059 y mantener el sistema actualizado."},
+  "CVE-2018-7600": {"desc":"Validación insuficiente de entrada en la API de formularios de Drupal 7 y 8 (Drupalgeddon2): ciertos campos con notación especial se renderizan en el servidor, permitiendo inyectar y ejecutar código sin autenticación.","impact":"Ejecución remota de código sin credenciales, con los privilegios del proceso del servidor web.","amenaza":"Explotación trivial y masiva (hubo gusanos y mineros automatizados); un Drupal expuesto y sin parchear se compromete en segundos.","solucion":"Actualizar a Drupal 7.58 / 8.5.1 o superior y revisar si ya hubo compromiso."},
+  "CVE-2017-0144": {"desc":"Desbordamiento en el tratamiento de paquetes SMBv1 del servicio Server de Windows (MS17-010 / EternalBlue): peticiones manipuladas corrompen memoria del kernel y permiten ejecutar código.","impact":"Ejecución remota de código como SYSTEM, sin autenticación, a través de la red.","amenaza":"Es la base de WannaCry y NotPetya: se propaga solo de máquina a máquina por SMB, sin interacción del usuario.","solucion":"Aplicar MS17-010, deshabilitar SMBv1 y filtrar/segmentar el puerto 445."},
+  "CVE-2015-1701": {"desc":"Fallo en win32k.sys que expone una dirección del kernel y permite ejecutar código con privilegios del núcleo desde un proceso de usuario (MS15-051).","impact":"Elevación de un usuario sin privilegios a SYSTEM.","amenaza":"Usado en ataques dirigidos (APT28); convierte cualquier ejecución como usuario en control total del equipo.","solucion":"Aplicar el boletín MS15-051."},
+  "CVE-2017-7269": {"desc":"Desbordamiento de búfer en ScStoragePathFromUrl del componente WebDAV de IIS 6.0, al procesar una cabecera «If» excesivamente larga en una petición PROPFIND.","impact":"Ejecución remota de código sin autenticar en el contexto del servicio web.","amenaza":"IIS 6.0 (Windows Server 2003) ya no tiene soporte: no hay parche oficial, así que todo servidor que siga expuesto es vulnerable de forma permanente.","solucion":"Deshabilitar WebDAV y migrar de IIS 6.0 a una versión con soporte; no existe parche de Microsoft."},
+  "CVE-2007-2447": {"desc":"La opción «username map script» de Samba 3.0.x pasa el nombre de usuario a un shell sin sanearlo; los metacaracteres en el campo de usuario se ejecutan como comandos.","impact":"Ejecución remota de comandos sin autenticación y como root (smbd corre como root).","amenaza":"Explotación fiable y de una sola petición; un Samba antiguo con esa opción activa entrega root directamente.","solucion":"Actualizar Samba a 3.0.25 o superior y no usar «username map script»."},
+  "CVE-2008-4250": {"desc":"Fallo en el manejo de rutas RPC del servicio Server (NetAPI32) de Windows (MS08-067): una petición RPC manipulada corrompe la pila y ejecuta código.","impact":"Ejecución remota de código como SYSTEM, sin autenticación.","amenaza":"El gusano Conficker lo usó para infectar millones de equipos; sigue siendo un clásico contra Windows XP/2003 sin parchear.","solucion":"Aplicar el boletín MS08-067 y retirar los sistemas sin soporte."},
+  "CVE-2018-9276": {"desc":"Inyección de comandos en PRTG Network Monitor anterior a 18.2.39: los parámetros de una notificación de tipo «ejecutar programa» no se sanean y se ejecutan en el sistema.","impact":"Ejecución de comandos con los privilegios del servicio PRTG (habitualmente SYSTEM), requiriendo sesión de administrador.","amenaza":"Las credenciales de PRTG suelen estar por defecto o en los backups de configuración; con ellas, el salto a SYSTEM es inmediato.","solucion":"Actualizar PRTG a 18.2.39 o superior y cambiar las credenciales por defecto."},
+  "CVE-2026-38526": {"desc":"Ejecución remota de código autenticada en Krayin CRM 2.2.x: una funcionalidad de subida no valida el tipo ni la ruta del fichero, permitiendo colocar y ejecutar una webshell.","impact":"Ejecución de comandos como el usuario del servidor web (www-data) con una sesión válida del panel.","amenaza":"Combinado con credenciales filtradas o reutilizadas, entrega el primer punto de apoyo en el servidor.","solucion":"Actualizar Krayin CRM, validar el tipo de fichero y guardar las subidas fuera del directorio web."},
+  "CVE-2014-6287": {"desc":"Rejetto HTTP File Server 2.3x no filtra correctamente una expresión regular del parámetro de búsqueda; una petición con macros permite ejecutar comandos.","impact":"Ejecución remota de código sin autenticar.","amenaza":"Exploit público y muy fiable (habitual en OSCP y CTF); cualquier HFS 2.3 expuesto cae sin credenciales.","solucion":"Actualizar HFS a 2.3e o superior, o retirar el servicio."},
+  "CVE-2016-3309": {"desc":"Fallo en el kernel de Windows que permite elevar privilegios desde un proceso de usuario (MS16-098).","impact":"Elevación de un usuario sin privilegios a SYSTEM.","amenaza":"Escalada local fiable en versiones de Windows sin el parche; cierra la cadena tras un RCE como usuario.","solucion":"Aplicar el boletín MS16-098."},
+  "CVE-2014-6271": {"desc":"Bash evalúa el código que sigue a la definición de funciones exportadas en variables de entorno (Shellshock); cualquier entrada que llegue al entorno de un bash (CGI, DHCP, SSH forzado…) puede ejecutar comandos.","impact":"Ejecución remota de código, normalmente vía scripts CGI de un servidor web, con los privilegios del proceso.","amenaza":"Afectó a infinidad de servidores y dispositivos; explotación trivial con una cabecera HTTP manipulada.","solucion":"Actualizar Bash a las versiones parcheadas de 2014 y revisar los CGIs y servicios que invoquen bash."},
+  "CVE-2014-1812": {"desc":"Las Group Policy Preferences permitían fijar contraseñas (p. ej. del administrador local) guardadas en SYSVOL cifradas con AES, pero Microsoft publicó la clave, así que son descifrables (MS14-025).","impact":"Cualquier usuario del dominio con acceso a SYSVOL descifra esas credenciales, a menudo de cuentas administrativas.","amenaza":"Permite movimiento lateral y escalada en el dominio partiendo de una cuenta cualquiera; clásico del pentest de Active Directory.","solucion":"Aplicar MS14-025, eliminar los cpassword de SYSVOL y usar LAPS para las contraseñas de administrador local."}
 }
 </script>
 
@@ -160,6 +160,16 @@ order: 2
     <h2 class="vb-modal-title"><i class="fas fa-shield-virus"></i> Mapa de CVE</h2>
     <p class="vb-cve-hint">Pincha en una fila para ver el detalle de la CVE.</p>
     <div class="vb-cve-wrap"><table class="vb-cve-table" id="vb-cve-table"></table></div>
+  </div>
+</div>
+
+<!-- Modal: sección Vulnerabilidad del write-up de una máquina -->
+<div class="vb-modal vb-modal-top" id="vb-vulninfo" hidden>
+  <div class="vb-modal-box vb-modal-wide" role="dialog" aria-modal="true" aria-label="Sección Vulnerabilidad">
+    <button type="button" class="vb-modal-x" data-close aria-label="Cerrar">✕</button>
+    <h2 class="vb-modal-title" id="vb-vi-title"></h2>
+    <div class="vb-vi-body content" id="vb-vi-body"></div>
+    <div class="vb-vi-foot"><a class="vb-apply vb-vi-go" id="vb-vi-go" href="#">Ir al Write-up</a></div>
   </div>
 </div>
 

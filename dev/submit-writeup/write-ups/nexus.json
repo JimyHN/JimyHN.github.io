@@ -43,11 +43,13 @@
   "vulns": [
     {
       "nombre": "Information Disclosure en el historial de Gitea",
-      "tipo": "web"
+      "tipo": "web",
+      "grupo": "Information Disclosure"
     },
     {
       "nombre": "Reutilización de credenciales",
-      "tipo": "credenciales"
+      "tipo": "credenciales",
+      "grupo": "Reutilización de credenciales"
     },
     {
       "nombre": "RCE autenticado en Krayin CRM 2.2.0",
@@ -56,7 +58,8 @@
     },
     {
       "nombre": "Directory Traversal en un timer de systemd que corre como root",
-      "tipo": "escalada"
+      "tipo": "escalada",
+      "grupo": "Directory Traversal"
     }
   ]
 }

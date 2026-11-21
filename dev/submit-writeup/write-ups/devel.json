@@ -34,7 +34,8 @@
   "vulns": [
     {
       "nombre": "FTP anónimo con escritura sobre el webroot",
-      "tipo": "config"
+      "tipo": "config",
+      "grupo": "FTP anónimo"
     },
     {
       "nombre": "Escalada local MS15-051",

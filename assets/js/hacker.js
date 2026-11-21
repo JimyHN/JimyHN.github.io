@@ -1765,7 +1765,7 @@
     });
   }
 
-  /* --- Pestaña /vulnerabilidades: filtros, selección múltiple, leyenda y mapa CVE --- */
+  /* --- Pestaña /vulnerabilidades: filtros, selección por grupo, leyenda y mapa CVE --- */
   function initVulns() {
     var list = document.getElementById('vb-list');
     if (!list) return;
@@ -1798,17 +1798,19 @@
     var activeVal = document.getElementById('vb-active-val');
     var reset = document.getElementById('vb-reset');
     var modeBtn = document.getElementById('vb-mode');
+    var clearBtn = document.getElementById('vb-clear');
     var state = { os: 'all', platform: 'all', tipo: 'all', mq: '', sel: [], mode: 'all' };
 
-    // Índice de vulnerabilidades distintas: nombre normalizado -> {name, tipo}
-    var VULNS = {};
+    // Índice de GRUPOS distintos: norm(grupo) -> {label, tipo (el primero visto)}
+    var GRUPOS = {};
     list.querySelectorAll('.vb-vuln').forEach(function (b) {
-      var nn = norm(b.dataset.vuln);
-      if (!VULNS[nn]) VULNS[nn] = { name: b.textContent.trim(), tipo: b.dataset.tipo || 'otros' };
+      var g = b.dataset.grupo || b.textContent.trim();
+      var nn = norm(g);
+      if (!GRUPOS[nn]) GRUPOS[nn] = { label: g, tipo: b.dataset.tipo || 'otros' };
     });
+    function grpOf(b) { return norm(b.dataset.grupo || b.textContent.trim()); }
     function selHas(nn) { return state.sel.indexOf(nn) !== -1; }
 
-    // Bloqueo de fondo + apertura/cierre de modales
     function lock() { document.body.classList.add('hx-cert-locked'); }
     function unlock() { if (!document.querySelector('.vb-modal:not([hidden])')) document.body.classList.remove('hx-cert-locked'); }
     function openModal(id) { var m = document.getElementById(id); if (m) { m.hidden = false; lock(); } }
@@ -1825,7 +1827,7 @@
 
         var boxes = card.querySelectorAll('.vb-vuln');
         var cardSet = {};
-        boxes.forEach(function (b) { cardSet[norm(b.dataset.vuln)] = true; });
+        boxes.forEach(function (b) { cardSet[grpOf(b)] = true; });
 
         var selOk = true;
         if (state.sel.length) {
@@ -1835,9 +1837,8 @@
 
         var anyVuln = false;
         boxes.forEach(function (b) {
-          var nn = norm(b.dataset.vuln);
           var ok = (state.tipo === 'all' || b.dataset.tipo === state.tipo) &&
-                   (!state.sel.length || selHas(nn));
+                   (!state.sel.length || selHas(grpOf(b)));
           b.hidden = !ok;
           if (ok) anyVuln = true;
         });
@@ -1856,13 +1857,13 @@
       if (state.sel.length) parts.push((state.mode === 'all' ? 'TODAS' : 'ALGUNA') + ' de ' + state.sel.length + ' vuln' + (state.sel.length > 1 ? 's' : ''));
       activeVal.textContent = parts.length ? parts.join(' | ') : 'Ninguno';
       reset.hidden = parts.length === 0;
+      clearBtn.hidden = state.sel.length === 0;
 
       if (!state.sel.length) qVuln.value = '';
-      else if (state.sel.length === 1) qVuln.value = (VULNS[state.sel[0]] || {}).name || '';
+      else if (state.sel.length === 1) qVuln.value = (GRUPOS[state.sel[0]] || {}).label || '';
       else qVuln.value = 'Varias vulns (' + state.sel.length + ')';
     }
 
-    // Segmentos de filtro (SO / plataforma / tipo)
     document.querySelectorAll('.vb-bar .hx-seg[data-group]').forEach(function (group) {
       group.addEventListener('click', function (e) {
         var btn = e.target.closest('.hx-opt'); if (!btn) return;
@@ -1878,23 +1879,21 @@
 
     qMaq.addEventListener('input', function () { state.mq = qMaq.value; apply(); });
 
-    // All / Any
     modeBtn.addEventListener('click', function () {
       state.mode = state.mode === 'all' ? 'any' : 'all';
       modeBtn.textContent = state.mode === 'all' ? 'All' : 'Any';
       modeBtn.classList.toggle('vb-mode-any', state.mode === 'any');
       apply();
     });
+    clearBtn.addEventListener('click', function () { state.sel = []; apply(); });
 
-    // Click en una vuln de una tarjeta -> la añade a la selección
+    // Click en una vuln de una tarjeta -> popup con la sección Vulnerabilidad del write-up
     list.addEventListener('click', function (e) {
       var b = e.target.closest('.vb-vuln'); if (!b) return;
-      var nn = norm(b.dataset.vuln);
-      if (!selHas(nn)) state.sel.push(nn);
-      apply();
+      var card = b.closest('.vb-card'); if (card) openVulnInfo(card);
     });
 
-    // ---- Modal de selección (checkboxes, dos columnas) ----
+    // ---- Modal de selección (grupos, checkboxes, dos columnas) ----
     var pick = document.getElementById('vb-vulnpick');
     var pickBody = document.getElementById('vb-pick-body');
     var pickFilter = document.getElementById('vb-pick-filter');
@@ -1904,30 +1903,29 @@
       var on = working.indexOf(nn) !== -1 ? ' checked' : '';
       return '<label class="vb-pick-row"><input type="checkbox" data-nn="' + esc(nn) + '"' + on + '>' +
              '<span class="vb-pick-box" aria-hidden="true"></span>' +
-             '<span class="vb-pick-name">' + esc(info.name) + '</span></label>';
+             '<span class="vb-pick-name">' + esc(info.label) + '</span></label>';
     }
     function renderPick() {
       var q = norm(pickFilter.value);
       var html = '';
-      var selList = working.filter(function (nn) { return VULNS[nn] && (!q || norm(VULNS[nn].name).indexOf(q) !== -1); });
+      var selList = working.filter(function (nn) { return GRUPOS[nn] && (!q || norm(GRUPOS[nn].label).indexOf(q) !== -1); });
       if (selList.length) {
         html += '<div class="vb-pick-group"><span class="vb-pick-head" style="color:var(--vb-red)">Seleccionadas (' + working.length + ')</span><div class="vb-pick-cols">';
-        selList.forEach(function (nn) { html += pickRow(nn, VULNS[nn]); });
+        selList.forEach(function (nn) { html += pickRow(nn, GRUPOS[nn]); });
         html += '</div></div>';
       }
       Object.keys(TIPOS).forEach(function (t) {
-        var items = Object.keys(VULNS).filter(function (nn) {
-          return VULNS[nn].tipo === t && working.indexOf(nn) === -1 && (!q || norm(VULNS[nn].name).indexOf(q) !== -1);
-        }).sort(function (a, b) { return VULNS[a].name.localeCompare(VULNS[b].name); });
+        var items = Object.keys(GRUPOS).filter(function (nn) {
+          return GRUPOS[nn].tipo === t && working.indexOf(nn) === -1 && (!q || norm(GRUPOS[nn].label).indexOf(q) !== -1);
+        }).sort(function (a, b) { return GRUPOS[a].label.localeCompare(GRUPOS[b].label); });
         if (!items.length) return;
         html += '<div class="vb-pick-group"><span class="vb-pick-head" style="color:' + (TIPO_COL[t] || '#fff') + '">' + TIPOS[t].label + '</span><div class="vb-pick-cols">';
-        items.forEach(function (nn) { html += pickRow(nn, VULNS[nn]); });
+        items.forEach(function (nn) { html += pickRow(nn, GRUPOS[nn]); });
         html += '</div></div>';
       });
       pickBody.innerHTML = html || '<p class="vb-pick-empty">Sin resultados.</p>';
     }
     function openPick() { working = state.sel.slice(); pickFilter.value = ''; renderPick(); openModal('vb-vulnpick'); }
-    document.getElementById('vb-vuln-list').addEventListener('click', openPick);
     qVuln.addEventListener('click', openPick);
     pickFilter.addEventListener('input', renderPick);
     pickBody.addEventListener('change', function (e) {
@@ -1942,7 +1940,6 @@
       apply();
     });
 
-    // ---- Reset ----
     reset.addEventListener('click', function () {
       state = { os: 'all', platform: 'all', tipo: 'all', mq: '', sel: [], mode: state.mode };
       qMaq.value = '';
@@ -1954,7 +1951,6 @@
       apply();
     });
 
-    // ---- Cierre de modales (fondo, ✕, Esc) ----
     document.querySelectorAll('.vb-modal').forEach(function (m) {
       m.addEventListener('click', function (e) {
         if (e.target === m || e.target.closest('[data-close]')) closeModal(m);
@@ -1974,6 +1970,25 @@
     });
     document.getElementById('vb-legend-body').innerHTML = lh;
     document.getElementById('vb-legend-open').addEventListener('click', function () { openModal('vb-legend'); });
+
+    // ---- Popup: sección Vulnerabilidad del write-up ----
+    var viCache = {};
+    function openVulnInfo(card) {
+      var url = card.dataset.url || '#';
+      var name = card.querySelector('.vb-card-name').textContent.trim();
+      document.getElementById('vb-vi-title').innerHTML = '<i class="fas fa-virus"></i> Vulnerabilidades · ' + esc(name);
+      document.getElementById('vb-vi-go').href = url + '#vulnerabilidad';
+      var body = document.getElementById('vb-vi-body');
+      openModal('vb-vulninfo');
+      if (viCache[url]) { body.innerHTML = viCache[url]; return; }
+      body.innerHTML = '<p class="vb-vi-load">Cargando…</p>';
+      fetch(url).then(function (r) { return r.text(); }).then(function (html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var sec = doc.getElementById('vulnerabilidad');
+        var out = sec ? sec.innerHTML : '<p>No se pudo cargar la sección. Abre el write-up.</p>';
+        viCache[url] = out; body.innerHTML = out;
+      }).catch(function () { body.innerHTML = '<p>No se pudo cargar la sección. Abre el write-up.</p>'; });
+    }
 
     // ---- Mapa de CVE ----
     function cveRows() {
@@ -2024,21 +2039,23 @@
         '<span class="vb-cd-chip">CVSS: ' + (cvss || '—') + '</span>' +
         (sev ? '<span class="vb-sev" style="background:' + sev.c + '">' + sev.label + '</span>' : '');
       var maqHtml = maqs.map(function (m) { return '<a class="vb-cd-maq" href="' + m.url + '">' + esc(m.name) + '</a>'; }).join('');
-      document.getElementById('vb-cd-body').innerHTML =
-        '<div class="vb-cd-sec"><h3>Descripción</h3><p>' + esc(info.desc || '—') + '</p></div>' +
-        '<div class="vb-cd-sec"><h3>Impacto</h3><p>' + esc(info.impact || '—') + '</p></div>' +
-        '<div class="vb-cd-sec"><h3>Solución</h3><p>' + esc(info.solucion || '—') + '</p></div>' +
-        '<div class="vb-cd-sec"><h3>Explotación</h3><p>Máquinas afectadas:</p><div class="vb-cd-maqs">' + (maqHtml || '—') + '</div></div>';
+      var secs = '';
+      if (info.desc) secs += '<div class="vb-cd-sec"><h3>Descripción</h3><p>' + esc(info.desc) + '</p></div>';
+      if (info.impact) secs += '<div class="vb-cd-sec"><h3>Impacto</h3><p>' + esc(info.impact) + '</p></div>';
+      if (info.amenaza) secs += '<div class="vb-cd-sec"><h3>Amenaza</h3><p>' + esc(info.amenaza) + '</p></div>';
+      if (info.solucion) secs += '<div class="vb-cd-sec"><h3>Solución</h3><p>' + esc(info.solucion) + '</p></div>';
+      secs += '<div class="vb-cd-sec"><h3>Explotación</h3><p>Máquinas afectadas:</p><div class="vb-cd-maqs">' + (maqHtml || '—') + '</div></div>';
+      document.getElementById('vb-cd-body').innerHTML = secs;
       openModal('vb-cvedetail');
     }
 
     apply();
   }
 
-  /* --- Pestaña /tags (Etiquetas): rejilla por categorías + filtro de máquinas --- */
+  /* --- Pestaña /tags (Etiquetas): selección por categorías + filtro de máquinas --- */
   function initTags() {
-    var grid = document.getElementById('tg-pane-etiquetas');
-    if (!grid) return;
+    var listEl = document.getElementById('tg-list');
+    if (!listEl) return;
 
     var CATS = [
       ['sistemas', 'Sistemas'],
@@ -2062,63 +2079,31 @@
       if (/^cve-/.test(t) || /^ms\d/.test(t)) return 'cve';
       return CAT_OF[t] || 'otros';
     }
+    var CAT_LABEL = {}; CATS.forEach(function (c) { CAT_LABEL[c[0]] = c[1]; });
 
     function norm(s) { return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
     function esc(s) { return (s || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
-    var cards = Array.prototype.slice.call(document.querySelectorAll('#tg-list .tg-card'));
-    var count = document.getElementById('tg-count');
+    var cards = Array.prototype.slice.call(listEl.querySelectorAll('.tg-card'));
     var empty = document.getElementById('tg-empty');
     var qMaq = document.getElementById('tg-q-maquina');
-    var input = document.getElementById('tg-input');
-    var chipbox = document.getElementById('tg-chipbox');
-    var suggest = document.getElementById('tg-suggest');
+    var trigger = document.getElementById('tg-trigger');
     var activeVal = document.getElementById('tg-active-val');
     var reset = document.getElementById('tg-reset');
     var modeBtn = document.getElementById('tg-mode');
-    var listEl = document.getElementById('tg-list');
-    var state = { os: 'all', platform: 'all', mq: '', tags: [], mode: 'all' };
+    var clearBtn = document.getElementById('tg-clear');
+    var state = { os: 'all', platform: 'all', mq: '', sel: [], mode: 'all' };
 
     var TAGS = {};
     cards.forEach(function (c) {
       (c.dataset.tags || '').split(' ').filter(Boolean).forEach(function (t) { TAGS[t] = (TAGS[t] || 0) + 1; });
     });
-    var ALL = Object.keys(TAGS);
+    function selHas(t) { return state.sel.indexOf(t) !== -1; }
 
-    function selHas(t) { return state.tags.indexOf(t) !== -1; }
-    function toggle(t) { var i = state.tags.indexOf(t); if (i === -1) state.tags.push(t); else state.tags.splice(i, 1); }
-    function addTag(t) { if (t && TAGS[t] && !selHas(t)) { state.tags.push(t); apply(); } }
-
-    function renderGrid() {
-      var html = '';
-      CATS.forEach(function (cat) {
-        var id = cat[0];
-        var tags = ALL.filter(function (t) { return catOf(t) === id; })
-          .sort(function (a, b) { return TAGS[b] - TAGS[a] || a.localeCompare(b); });
-        if (!tags.length) return;
-        html += '<div class="tg-block"><h3 class="tg-block-h">' + cat[1] + ' <span>' + tags.length + '</span></h3><div class="tg-block-tags">';
-        tags.forEach(function (t) {
-          html += '<button type="button" class="tg-tag' + (selHas(t) ? ' is-sel' : '') + '" data-tag="' + esc(t) + '">' + esc(t) + ' <span class="tg-tag-n">' + TAGS[t] + '</span></button>';
-        });
-        html += '</div></div>';
-      });
-      grid.innerHTML = html;
-    }
-
-    function renderChips() {
-      Array.prototype.slice.call(chipbox.querySelectorAll('.tg-chip')).forEach(function (c) { c.remove(); });
-      state.tags.forEach(function (t) {
-        var chip = document.createElement('span');
-        chip.className = 'tg-chip';
-        chip.innerHTML = esc(t) + '<button type="button" class="tg-chip-x" data-tag="' + esc(t) + '" aria-label="Quitar">×</button>';
-        chipbox.insertBefore(chip, input);
-      });
-      input.placeholder = state.tags.length ? '' : 'Añade etiquetas…';
-    }
-
-    function syncGridSel() {
-      grid.querySelectorAll('.tg-tag').forEach(function (b) { b.classList.toggle('is-sel', selHas(b.dataset.tag)); });
-    }
+    function lock() { document.body.classList.add('hx-cert-locked'); }
+    function unlock() { if (!document.querySelector('.vb-modal:not([hidden])')) document.body.classList.remove('hx-cert-locked'); }
+    function openModal(id) { var m = document.getElementById(id); if (m) { m.hidden = false; lock(); } }
+    function closeModal(m) { m.hidden = true; unlock(); }
 
     function apply() {
       var mq = norm(state.mq), vis = 0;
@@ -2128,27 +2113,29 @@
           (state.os === 'all' || card.dataset.os === state.os) &&
           (state.platform === 'all' || card.dataset.platform === state.platform) &&
           (!mq || norm(card.dataset.name).indexOf(mq) !== -1);
-        if (ok && state.tags.length) {
+        if (ok && state.sel.length) {
           ok = state.mode === 'all'
-            ? state.tags.every(function (t) { return ctags.indexOf(t) !== -1; })
-            : state.tags.some(function (t) { return ctags.indexOf(t) !== -1; });
+            ? state.sel.every(function (t) { return ctags.indexOf(t) !== -1; })
+            : state.sel.some(function (t) { return ctags.indexOf(t) !== -1; });
         }
         card.hidden = !ok;
         card.querySelectorAll('.tg-chip-sm').forEach(function (b) { b.classList.toggle('is-sel', selHas(b.dataset.tag)); });
         if (ok) vis++;
       });
-      count.textContent = '(' + vis + ')';
       if (empty) empty.classList.toggle('is-visible', vis === 0);
 
       var parts = [];
       if (state.os !== 'all') parts.push(state.os.charAt(0).toUpperCase() + state.os.slice(1));
       if (state.platform !== 'all') parts.push(state.platform === 'hackthebox' ? 'HackTheBox' : 'Investigación');
       if (state.mq) parts.push('máquina «' + state.mq + '»');
-      if (state.tags.length) parts.push((state.mode === 'all' ? 'TODAS' : 'ALGUNA') + ': ' + state.tags.join(', '));
+      if (state.sel.length) parts.push((state.mode === 'all' ? 'TODAS' : 'ALGUNA') + ': ' + state.sel.join(', '));
       activeVal.textContent = parts.length ? parts.join(' | ') : 'Ninguno';
       reset.hidden = parts.length === 0;
-      renderChips();
-      syncGridSel();
+      clearBtn.hidden = state.sel.length === 0;
+
+      if (!state.sel.length) trigger.value = '';
+      else if (state.sel.length === 1) trigger.value = state.sel[0];
+      else trigger.value = 'Varias etiquetas (' + state.sel.length + ')';
     }
 
     document.querySelectorAll('.tg-bar .hx-seg[data-group]').forEach(function (group) {
@@ -2171,64 +2158,68 @@
       modeBtn.classList.toggle('tg-mode-any', state.mode === 'any');
       apply();
     });
+    clearBtn.addEventListener('click', function () { state.sel = []; apply(); });
 
-    grid.addEventListener('click', function (e) {
-      var b = e.target.closest('.tg-tag'); if (!b) return;
-      toggle(b.dataset.tag); apply();
-    });
+    // click en una etiqueta de una tarjeta -> añadir a la selección
     listEl.addEventListener('click', function (e) {
       var b = e.target.closest('.tg-chip-sm'); if (!b) return;
       e.preventDefault();
-      if (!selHas(b.dataset.tag)) toggle(b.dataset.tag);
+      if (!selHas(b.dataset.tag)) state.sel.push(b.dataset.tag);
       apply();
     });
-    chipbox.addEventListener('click', function (e) {
-      var x = e.target.closest('.tg-chip-x'); if (!x) return;
-      toggle(x.dataset.tag); apply();
-    });
 
-    function renderSuggest() {
-      var q = norm(input.value);
-      if (!q) { suggest.hidden = true; return; }
-      var hits = ALL.filter(function (t) { return !selHas(t) && norm(t).indexOf(q) !== -1; })
-        .sort(function (a, b) { return TAGS[b] - TAGS[a] || a.localeCompare(b); }).slice(0, 10);
-      if (!hits.length) { suggest.hidden = true; return; }
-      suggest.innerHTML = hits.map(function (t) {
-        return '<button type="button" data-tag="' + esc(t) + '">' + esc(t) + ' <span>' + TAGS[t] + '</span></button>';
-      }).join('');
-      suggest.hidden = false;
+    // ---- Modal de selección (checkboxes por categoría, dos columnas) ----
+    var pick = document.getElementById('tg-tagpick');
+    var pickBody = document.getElementById('tg-pick-body');
+    var pickFilter = document.getElementById('tg-pick-filter');
+    var working = [];
+
+    function pickRow(t) {
+      var on = working.indexOf(t) !== -1 ? ' checked' : '';
+      return '<label class="vb-pick-row"><input type="checkbox" data-nn="' + esc(t) + '"' + on + '>' +
+             '<span class="vb-pick-box" aria-hidden="true"></span>' +
+             '<span class="vb-pick-name">' + esc(t) + ' <span class="tg-tag-n">' + TAGS[t] + '</span></span></label>';
     }
-    input.addEventListener('input', renderSuggest);
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        var first = suggest.querySelector('button');
-        var exact = norm(input.value);
-        var t = ALL.filter(function (x) { return norm(x) === exact; })[0] || (first ? first.dataset.tag : '');
-        if (t) { addTag(t); input.value = ''; suggest.hidden = true; }
-      } else if (e.key === 'Escape') { suggest.hidden = true; }
-      else if (e.key === 'Backspace' && !input.value && state.tags.length) { toggle(state.tags[state.tags.length - 1]); apply(); }
-    });
-    suggest.addEventListener('click', function (e) {
-      var b = e.target.closest('button'); if (!b) return;
-      addTag(b.dataset.tag); input.value = ''; suggest.hidden = true; input.focus();
-    });
-    document.addEventListener('click', function (e) {
-      if (!suggest.hidden && !e.target.closest('.tg-searchrow')) suggest.hidden = true;
-    });
-
-    document.querySelectorAll('.tg-tab').forEach(function (tab) {
-      tab.addEventListener('click', function () {
-        document.querySelectorAll('.tg-tab').forEach(function (t) { t.classList.toggle('is-active', t === tab); });
-        var want = tab.dataset.pane;
-        document.getElementById('tg-pane-etiquetas').hidden = want !== 'etiquetas';
-        document.getElementById('tg-pane-maquinas').hidden = want !== 'maquinas';
+    function renderPick() {
+      var q = norm(pickFilter.value);
+      var all = Object.keys(TAGS);
+      var html = '';
+      var selList = working.filter(function (t) { return !q || norm(t).indexOf(q) !== -1; });
+      if (selList.length) {
+        html += '<div class="vb-pick-group"><span class="vb-pick-head" style="color:var(--tg)">Seleccionadas (' + working.length + ')</span><div class="vb-pick-cols">';
+        selList.forEach(function (t) { html += pickRow(t); });
+        html += '</div></div>';
+      }
+      CATS.forEach(function (cat) {
+        var id = cat[0];
+        var items = all.filter(function (t) {
+          return catOf(t) === id && working.indexOf(t) === -1 && (!q || norm(t).indexOf(q) !== -1);
+        }).sort(function (a, b) { return TAGS[b] - TAGS[a] || a.localeCompare(b); });
+        if (!items.length) return;
+        html += '<div class="vb-pick-group"><span class="vb-pick-head" style="color:var(--tg)">' + cat[1] + '</span><div class="vb-pick-cols">';
+        items.forEach(function (t) { html += pickRow(t); });
+        html += '</div></div>';
       });
+      pickBody.innerHTML = html || '<p class="vb-pick-empty">Sin resultados.</p>';
+    }
+    function openPick() { working = state.sel.slice(); pickFilter.value = ''; renderPick(); openModal('tg-tagpick'); }
+    trigger.addEventListener('click', openPick);
+    pickFilter.addEventListener('input', renderPick);
+    pickBody.addEventListener('change', function (e) {
+      var c = e.target.closest('input[type=checkbox]'); if (!c) return;
+      var t = c.dataset.nn, i = working.indexOf(t);
+      if (c.checked && i === -1) working.push(t);
+      else if (!c.checked && i !== -1) working.splice(i, 1);
+    });
+    document.getElementById('tg-pick-apply').addEventListener('click', function () {
+      state.sel = working.slice();
+      closeModal(pick);
+      apply();
     });
 
     reset.addEventListener('click', function () {
-      state = { os: 'all', platform: 'all', mq: '', tags: [], mode: state.mode };
-      qMaq.value = ''; input.value = ''; suggest.hidden = true;
+      state = { os: 'all', platform: 'all', mq: '', sel: [], mode: state.mode };
+      qMaq.value = '';
       document.querySelectorAll('.tg-bar .hx-seg[data-group] .hx-opt').forEach(function (b) {
         var on = b.dataset.value === 'all';
         b.classList.toggle('is-active', on);
@@ -2237,7 +2228,13 @@
       apply();
     });
 
-    renderGrid();
+    pick.addEventListener('click', function (e) {
+      if (e.target === pick || e.target.closest('[data-close]')) closeModal(pick);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !pick.hidden) closeModal(pick);
+    });
+
     apply();
   }
 

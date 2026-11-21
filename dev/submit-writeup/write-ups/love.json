@@ -38,7 +38,8 @@
     },
     {
       "nombre": "Subida de ficheros sin validar en el Voting System (RCE)",
-      "tipo": "web"
+      "tipo": "web",
+      "grupo": "Subida de ficheros"
     },
     {
       "nombre": "AlwaysInstallElevated",

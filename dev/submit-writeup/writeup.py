@@ -757,6 +757,8 @@ def front_matter(data: dict) -> str:
         for vu in vulns:
             y += f'  - nombre: "{_q(vu.get("nombre", ""))}"\n'
             y += f'    tipo: "{_q(vu.get("tipo", ""))}"\n'
+            if vu.get("grupo"):
+                y += f'    grupo: "{_q(vu["grupo"])}"\n'
             if vu.get("cve"):
                 y += f'    cve: "{_q(vu["cve"])}"\n'
             if vu.get("cvss") not in (None, ""):

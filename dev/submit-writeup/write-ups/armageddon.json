@@ -45,7 +45,8 @@
     },
     {
       "nombre": "sudo sobre «snap install»",
-      "tipo": "escalada"
+      "tipo": "escalada",
+      "grupo": "Abuso de sudo"
     }
   ]
 }

@@ -45,11 +45,13 @@
     },
     {
       "nombre": "Reutilización de contraseña",
-      "tipo": "credenciales"
+      "tipo": "credenciales",
+      "grupo": "Reutilización de credenciales"
     },
     {
       "nombre": "notch puede ejecutar cualquier cosa como root (sudo)",
-      "tipo": "escalada"
+      "tipo": "escalada",
+      "grupo": "Abuso de sudo"
     }
   ]
 }

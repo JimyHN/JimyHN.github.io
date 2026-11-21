@@ -41,11 +41,13 @@
   "vulns": [
     {
       "nombre": "Credenciales de fábrica (Raspberry Pi)",
-      "tipo": "credenciales"
+      "tipo": "credenciales",
+      "grupo": "Credenciales por defecto"
     },
     {
       "nombre": "El usuario pi puede usar sudo sin contraseña",
-      "tipo": "escalada"
+      "tipo": "escalada",
+      "grupo": "Abuso de sudo"
     },
     {
       "nombre": "Panel de Pi-hole publicado sin autenticación",

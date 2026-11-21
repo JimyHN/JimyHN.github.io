@@ -41,11 +41,13 @@
   "vulns": [
     {
       "nombre": "Subida de ficheros + ejecución vía web.config",
-      "tipo": "web"
+      "tipo": "web",
+      "grupo": "Subida de ficheros"
     },
     {
       "nombre": "SeImpersonatePrivilege (abuso de tokens)",
-      "tipo": "escalada"
+      "tipo": "escalada",
+      "grupo": "SeImpersonatePrivilege"
     }
   ]
 }

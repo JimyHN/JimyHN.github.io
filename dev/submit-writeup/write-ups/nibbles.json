@@ -38,11 +38,13 @@
     },
     {
       "nombre": "Arbitrary File Upload en Nibbleblog 4.0.3 (autenticado)",
-      "tipo": "web"
+      "tipo": "web",
+      "grupo": "Subida de ficheros"
     },
     {
       "nombre": "Escalada por sudo sobre un script modificable",
-      "tipo": "escalada"
+      "tipo": "escalada",
+      "grupo": "Abuso de sudo"
     }
   ]
 }

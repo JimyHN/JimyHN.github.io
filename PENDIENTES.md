@@ -8,22 +8,20 @@ bash dev/tools/test.sh      # build de producción + validación de enlaces
 bash dev/tools/run.sh       # servidor local para verlo
 ```
 Revisar a ojo:
-- **Vulnerabilidades**: modal de selección (checks en dos columnas, Aplicar), toggle **All/Any** + minileyenda, «Varias vulns (N)», bloqueo de fondo al abrir modales, y el **mapa de CVE** (filas con hover y clic → detalle con descripción/impacto/solución/explotación).
-- **Etiquetas**: color **lima**, dos pestañas (Etiquetas / Máquinas), buscador con chips + autocompletado, All/Any, rejilla por categorías en dos columnas. Que el **menú entero** siga con sus colores correctos.
+- **Vulnerabilidades**: la barra de vulns abre el modal directamente (ya no hay botón de lista); botón **clear**; filtros por **grupo** canónico (FTP anónimo, Abuso de sudo, etc.); click en una vuln de una tarjeta → **popup con la sección Vulnerabilidad** del write-up + «Ir al Write-up»; mapa de **CVE** con filas clicables → detalle con **Descripción / Impacto / Amenaza / Solución / Explotación**.
+- **Etiquetas**: igual que vulns (sin pestañas), color **lima**, barra que abre el modal de etiquetas por categoría, **clear**, All/Any. Que el **menú** mantenga sus colores.
 
 ## 2. Post-explotación en el resto de máquinas
-Hecho en **Nexus**. Cuando valides el resto, repasamos máquina a máquina qué mover
-de Explotación/Escalada a Post-explotación / Movimiento lateral (candidatas de
-cadena larga: Poison, Love, Netmon, Nibbles).
+Hecho en **Nexus**. Pendiente: Poison, Love, Netmon, Nibbles… (cuando valides).
 
-## 3. Afinar categorías de etiquetas (opcional)
-«Otros» tiene ~25 etiquetas (servicios como smb/ftp/ssh, AD, config, misc). Si
-quieres bajarlo, se edita el mapa `CAT_SET` de `initTags()` en `assets/js/hacker.js`.
+## 3. Afinar categorías/grupos (opcional)
+- Etiquetas: «Otros» (~25) se afina en `CAT_SET` de `initTags()` (hacker.js).
+- Grupos de vulns: se editan en el campo `grupo` de cada JSON (y se regenera).
 
 ## Ya resuelto
-- ~~Gráfica de dificultad de Nexus~~ (regenerado el yml).
-- ~~Etiquetas de tipo de vulns~~ (revisadas, consistentes).
-- ~~Colores del menú + botones muertos de Vulnerabilidades~~ (paleta nth-child + JS/CSS a los globales).
-- ~~Post-explotación en Nexus~~.
+- ~~Gráfica de Nexus~~, ~~etiquetas de tipo~~, ~~colores menú + botones~~, ~~Post-explotación Nexus~~.
 - ~~Vulnerabilidades: selección múltiple, All/Any, mapa de CVE con detalle~~.
-- ~~Página de Etiquetas reescrita~~.
+- ~~Página de Etiquetas~~ (reescrita dos veces: ahora al estilo vulns, sin pestañas).
+- ~~Grupos canónicos de vulns~~ (FTP anónimo, Abuso de sudo, Reutilización de credenciales, etc.).
+- ~~CVE: descripción/impacto más completos + Amenaza~~.
+- ~~Vulns: botón clear, lista al pinchar la barra, popup de la sección Vulnerabilidad~~.

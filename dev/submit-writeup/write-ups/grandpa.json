@@ -48,7 +48,8 @@
     },
     {
       "nombre": "Suplantación de token con SeImpersonatePrivilege",
-      "tipo": "escalada"
+      "tipo": "escalada",
+      "grupo": "SeImpersonatePrivilege"
     }
   ]
 }
