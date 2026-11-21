@@ -42,7 +42,6 @@ order: 2
         <button type="button" class="hx-opt" data-value="escalada">Escalada</button>
       </div>
       <div class="vb-tools">
-        <button type="button" class="vb-iconbtn vb-cvebtn" id="vb-cve-open" title="Mapa de CVE"><i class="fas fa-shield-virus"></i> CVE</button>
         <button type="button" class="vb-iconbtn" id="vb-legend-open" title="Leyenda de tipos" aria-label="Leyenda de tipos"><i class="fas fa-map"></i></button>
       </div>
     </div>
@@ -51,7 +50,6 @@ order: 2
   <div class="vb-row vb-search" data-kind="maquina">
     <span class="vb-label">Máquina</span>
     <div class="hx-seg">
-      <span class="vb-static"><i class="fas fa-search"></i></span>
       <input type="search" id="vb-q-maquina" placeholder="Nombre de la máquina…" autocomplete="off" spellcheck="false">
     </div>
   </div>
@@ -74,6 +72,10 @@ order: 2
   <p class="vb-active">Filtros activos: <span id="vb-active-val">Ninguno</span>
     <button type="button" class="hx-fbar-reset vb-reset" id="vb-reset" hidden>· limpiar</button>
   </p>
+
+  <div class="vb-cve-row">
+    <button type="button" class="vb-iconbtn vb-cvebtn" id="vb-cve-open" title="Mapa de CVE"><i class="fas fa-shield-virus"></i> Mapa de CVE</button>
+  </div>
 </div>
 
 <div class="vb-list" id="vb-list">

@@ -5956,6 +5956,7 @@ article:has(.hx-wu) > header,
   color: var(--vb-red); font-weight: 700; font-size: .82rem; cursor: pointer; }
 .vb-iconbtn:hover { background: rgba(255,59,78,.18); }
 .vb-cvebtn { letter-spacing: .03em; }
+.vb-cve-row { display: flex; margin-top: .2rem; }
 .vb-search .hx-seg { flex: 1; min-width: 220px; }
 .vb-search input { flex: 1; }
 .vb-static { display: inline-grid; place-items: center; padding: 0 .55rem; color: var(--text-muted-color, #8b98a5); }
