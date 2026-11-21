@@ -1,37 +1,31 @@
 # Pendientes
 
-Cosas que quedan en tu mano tras los cambios de Hallazgos + Post-explotación +
-página Vulnerabilidades. Borra cada punto según lo cierres.
+Estado de la feature de Vulnerabilidades + Post-explotación. Borra cada punto según lo cierres.
 
-## 1. Verificar el build en local (importante)
-El entorno donde se hicieron los cambios no tiene Ruby/Jekyll, así que **no se ha
-podido compilar el sitio**. Antes de dar por bueno el push:
+## 1. Verificar el build en local (importante, sigue tuyo)
+El entorno de los cambios no tiene Ruby/Jekyll, así que **no se ha compilado el sitio**.
 
 ```bash
 bash dev/tools/test.sh      # build de producción + validación de enlaces
 bash dev/tools/run.sh       # servidor local para verlo
 ```
 
-Revisar a ojo en `/vulnerabilidades`:
-- Los **dos modales**: botón del mapa (leyenda de tipos) y botón **CVE** (tabla con severidad coloreada).
-- El **buscador de vulnerabilidades** y su botón de lista (📋) con todas las vulns agrupadas por tipo.
-- Que los colores del tema Chirpy no pisen los de la página (rojo rosado, «Tipo» en amarillo oscuro).
-- Que la pestaña salga **justo debajo de Write-ups** en el menú.
+Revisar a ojo:
+- `/vulnerabilidades`: filtros, buscadores, botón-lista (📋), leyenda (🗺) y tabla CVE funcionando.
+- **Colores del menú**: que TODAS las pestañas tengan su color correcto (se reasignaron por `nth-child`).
+- Título de Vulnerabilidades en **rojo rosado**, nombres de vuln en **rojo fuerte**, «Tipo» en **amarillo oscuro**.
+- **Nexus**: que se vean las secciones Explotación → Post-explotación → Movimiento lateral → Escalada.
 
-## 2. Revisar etiquetas de tipo discutibles (opcional)
-Las vulns se clasificaron por criterio; estas son opinables. Si no te convencen,
-edita el campo `vulns` del JSON y regenera con `writeup.py --edit`:
-- **Shellshock** (Shocker) e **IIS WebDAV BOF** (Grandpa/Granny) → marcados `web` (van por HTTP).
-- **GPP cpassword** y **Kerberoasting** (Active) → marcados `ad`.
-- **«Datos borrados recuperables»** (Mirai) → marcado `config`.
-
-## 3. Rellenar el módulo «Post-explotación» (opcional, cuando edites)
-El módulo ya existe pero está **vacío** en todos los writeups (solo se pinta si
-tiene contenido). Cuando quieras, mueve el enum interno / loot que hoy está en
-Escalada a Post-explotación. Candidato claro: **Nexus** (el «buen rato de
-enumeración como www-data»). Se hace editando el JSON y regenerando.
+## 2. Post-explotación en el resto de máquinas (siguiente paso)
+Ya hecho en **Nexus** (modelo a seguir). Cuando valides cómo quedó, repasamos el
+resto de writeups y movemos a Post-explotación / Movimiento lateral lo que hoy
+esté metido en Explotación o Escalada. Candidatas probables: las de cadena larga
+(Poison, Love, Netmon, Nibbles…).
 
 ## Ya resuelto
-- ~~Gráfica de dificultad de Nexus~~ → regenerado `_data/htb_machines.yml` (el token
-  seguía válido; solo faltaban los datos de votos de la comunidad, que Nexus aún
-  no tenía la última vez que se generó).
+- ~~Gráfica de dificultad de Nexus~~ → regenerado `_data/htb_machines.yml`.
+- ~~Revisar etiquetas de tipo~~ → revisadas; taxonomía consistente. Única opinable:
+  BOF de IIS WebDAV (Grandpa/Granny) en `web` (por ser HTTP); se puede pasar a `servicio` si se prefiere.
+- ~~Color naranja de la pestaña + botones muertos~~ → eran la paleta del menú por
+  `nth-child` descolocada y el JS/CSS inline que no corría; movido a `hacker.js`/`hacker.css`.
+- ~~Post-explotación en Nexus~~ → Explotación / Post-explotación / Movimiento lateral separados.
