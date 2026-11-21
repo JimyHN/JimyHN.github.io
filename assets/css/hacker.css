@@ -273,13 +273,14 @@ a { transition: color 0.2s, text-shadow 0.2s; }
 #sidebar .nav-item { counter-increment: hx-nav; --c: 68 240 138; --sidebar-hover-bg: rgb(var(--c) / 12%); }
 #sidebar .nav-item:nth-child(1) { --c: 68 240 138; }    /* INICIO · verde */
 #sidebar .nav-item:nth-child(2) { --c: 46 230 214; }   /* WRITE-UPS · cian */
-#sidebar .nav-item:nth-child(3) { --c: 255 175 0; }    /* HERRAMIENTAS · naranja */
-#sidebar .nav-item:nth-child(4) { --c: 193 108 255; }  /* CERTIFICACIONES · morado */
-#sidebar .nav-item:nth-child(5) { --c: 94 180 248; }   /* TÍTULOS · azul */
-#sidebar .nav-item:nth-child(6) { --c: 255 94 135; }   /* ETIQUETAS · rosa */
-#sidebar .nav-item:nth-child(7) { --c: 0 214 170; }    /* ARCHIVO · verde azulado */
-#sidebar .nav-item:nth-child(8) { --c: 255 120 60; }   /* ROADMAP · coral */
-#sidebar .nav-item:nth-child(9) { --c: 240 246 252; }  /* ACERCA DE · blanco */
+#sidebar .nav-item:nth-child(3) { --c: 255 107 122; }  /* VULNERABILIDADES · rojo rosado */
+#sidebar .nav-item:nth-child(4) { --c: 255 175 0; }    /* HERRAMIENTAS · naranja */
+#sidebar .nav-item:nth-child(5) { --c: 193 108 255; }  /* CERTIFICACIONES · morado */
+#sidebar .nav-item:nth-child(6) { --c: 94 180 248; }   /* TÍTULOS · azul */
+#sidebar .nav-item:nth-child(7) { --c: 255 94 135; }   /* ETIQUETAS · rosa */
+#sidebar .nav-item:nth-child(8) { --c: 0 214 170; }    /* ARCHIVO · verde azulado */
+#sidebar .nav-item:nth-child(9) { --c: 255 120 60; }   /* ROADMAP · coral */
+#sidebar .nav-item:nth-child(10) { --c: 240 246 252; } /* ACERCA DE · blanco */
 
 /* Fondo al pasar el ratón: su propio color (tenue/oscuro), no verde */
 #sidebar .nav-item:not(.active) .nav-link:hover { letter-spacing: 0.04em; }
@@ -5927,4 +5928,95 @@ article:has(.hx-wu) > header,
 .content .hx-rm-table .hx-rm-name a:hover {
   color: color-mix(in srgb, #44f08a 62%, #ffffff) !important;
   border-bottom-color: transparent !important;
+}
+
+/* ===================================================================
+   Pestaña /vulnerabilidades
+   El acento de la página (título, //, negritas) sale de --page, que el
+   menú fija en rojo rosado. Aquí: rojo fuerte para las vulns y amarillo
+   oscuro para «Tipo».
+   =================================================================== */
+:root {
+  --vb-red: #ff3b4e;        /* rojo fuerte: nombres de vuln y «VULNERABILIDAD» */
+  --vb-red-soft: #ff6b7a;
+  --vb-yellow: #c9962a;     /* amarillo oscuro: «Tipo» */
+}
+.vb-bar { display: grid; gap: .55rem; padding: 1rem 1.1rem; border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,59,78,.10), rgba(255,59,78,.045));
+  border: 1px solid rgba(255,59,78,.22); margin-bottom: 1.1rem; }
+.vb-row { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; position: relative; }
+.vb-label { min-width: 92px; font-size: .78rem; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--text-muted-color, #8b98a5); }
+.vb-label-tipo { color: var(--vb-yellow); }
+.vb-label-vuln { color: var(--vb-red); }
+.vb-filters { display: grid; gap: .5rem; }
+.vb-tools { margin-left: auto; display: flex; gap: .4rem; }
+.vb-iconbtn { display: inline-flex; align-items: center; gap: .35rem; padding: .32rem .6rem;
+  border-radius: 9px; border: 1px solid rgba(255,59,78,.4); background: rgba(255,59,78,.08);
+  color: var(--vb-red); font-weight: 700; font-size: .82rem; cursor: pointer; }
+.vb-iconbtn:hover { background: rgba(255,59,78,.18); }
+.vb-cvebtn { letter-spacing: .03em; }
+.vb-search .hx-seg { flex: 1; min-width: 220px; }
+.vb-search input { flex: 1; }
+.vb-vulllist { position: absolute; z-index: 30; top: calc(100% + 4px); left: 92px; right: 0;
+  max-height: 320px; overflow: auto; padding: .35rem; border-radius: 12px;
+  background: var(--card-bg, #1b1f24); border: 1px solid rgba(255,59,78,.3);
+  box-shadow: 0 14px 40px rgba(0,0,0,.5); }
+.vb-vulllist button { display: block; width: 100%; text-align: left; padding: .4rem .55rem;
+  border: 0; background: none; color: var(--vb-red-soft); font-size: .86rem; cursor: pointer;
+  border-radius: 8px; }
+.vb-vulllist button:hover { background: rgba(255,59,78,.12); color: var(--vb-red); }
+.vb-vulllist .vb-vl-type { color: var(--vb-yellow); font-size: .72rem; text-transform: uppercase;
+  font-weight: 700; margin: .5rem .55rem .15rem; display: block; }
+.vb-active { margin: .2rem 0 0; font-size: .84rem; color: var(--text-muted-color, #8b98a5); }
+.vb-active #vb-active-val { color: var(--vb-red); font-weight: 700; }
+.vb-reset { color: var(--vb-red-soft); }
+.vb-list { display: grid; gap: .7rem; }
+.vb-card { display: grid; grid-template-columns: 1fr; gap: .6rem; padding: .85rem 1rem;
+  border-radius: 14px; background: var(--card-bg, #1b1f24);
+  border: 1px solid var(--card-border, rgba(255,255,255,.08));
+  border-left: 3px solid rgb(var(--m, 255 59 78)); }
+.vb-card[hidden] { display: none; }
+.vb-card-main { display: flex; align-items: center; gap: .8rem; color: inherit; text-decoration: none; }
+.vb-card-img { width: 48px; height: 48px; flex: none; border-radius: 10px; background-size: cover;
+  background-position: center; display: grid; place-items: center; }
+.vb-card-ph { background: rgba(255,255,255,.05); color: #8b98a5; font-size: 1.2rem; }
+.vb-card-name { margin: 0; font-size: 1.02rem; }
+.vb-card-meta { margin: .1rem 0 0; font-size: .82rem; color: var(--text-muted-color, #8b98a5); }
+.vb-card-vulns { display: flex; flex-wrap: wrap; gap: .4rem; }
+.vb-vuln { font-size: .8rem; line-height: 1.2; padding: .3rem .55rem; border-radius: 8px;
+  cursor: pointer; text-align: left;
+  color: var(--vb-red); background: rgba(255,59,78,.10); border: 1px solid rgba(255,59,78,.35); }
+.vb-vuln:hover { background: rgba(255,59,78,.2); }
+.vb-vuln[hidden] { display: none; }
+.vb-empty { display: none; }
+.vb-empty.is-visible { display: block; }
+.vb-modal { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center;
+  padding: 1rem; background: rgba(0,0,0,.6); }
+.vb-modal[hidden] { display: none; }
+.vb-modal-box { position: relative; width: min(560px, 100%); max-height: 85vh; overflow: auto;
+  padding: 1.3rem 1.4rem; border-radius: 16px; background: var(--card-bg, #1b1f24);
+  border: 1px solid rgba(255,59,78,.3); box-shadow: 0 20px 60px rgba(0,0,0,.6); }
+.vb-modal-wide { width: min(820px, 100%); }
+.vb-modal-x { position: absolute; top: .7rem; right: .8rem; border: 0; background: none;
+  color: var(--text-muted-color, #8b98a5); font-size: 1.1rem; cursor: pointer; }
+.vb-modal-title { margin: 0 0 1rem; color: var(--vb-red); font-size: 1.15rem; }
+.vb-legend-item { display: grid; grid-template-columns: 110px 1fr; gap: .6rem; padding: .55rem 0;
+  border-top: 1px solid rgba(255,255,255,.07); }
+.vb-legend-item:first-child { border-top: 0; }
+.vb-legend-name { font-weight: 800; color: var(--vb-red); }
+.vb-legend-ej { font-size: .85rem; color: var(--text-muted-color, #8b98a5); }
+.vb-cve-wrap { overflow-x: auto; }
+.vb-cve-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.vb-cve-table th, .vb-cve-table td { text-align: left; padding: .5rem .6rem;
+  border-bottom: 1px solid rgba(255,255,255,.07); }
+.vb-cve-table th { color: var(--vb-yellow); font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; }
+.vb-cve-table .vb-cve-name { color: var(--vb-red); font-weight: 600; }
+.vb-cve-table .vb-cve-code { font-family: var(--hx-mono, monospace); }
+.vb-sev { display: inline-block; padding: .12rem .5rem; border-radius: 999px; font-size: .75rem;
+  font-weight: 800; color: #0b0e11; }
+@media (max-width: 560px) {
+  .vb-label { min-width: 100%; }
+  .vb-vulllist { left: 0; }
+  .vb-legend-item { grid-template-columns: 1fr; }
 }

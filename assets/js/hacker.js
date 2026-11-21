@@ -1765,6 +1765,184 @@
     });
   }
 
+  /* --- Pestaña /vulnerabilidades: filtros, buscadores, leyenda y tabla CVE --- */
+  function initVulns() {
+    var list = document.getElementById('vb-list');
+    if (!list) return;
+
+    var TIPOS = {
+      web:          { label: 'Web',          ej: 'RCE, LFI/RFI, SSRF, subida de ficheros, path traversal, IDOR, SSTI, SQLi, info disclosure web.' },
+      servicio:     { label: 'Servicio',     ej: 'Fallo de un servicio de red explotable en remoto: SMB (EternalBlue, MS08-067), Samba, RPC, servicio obsoleto.' },
+      credenciales: { label: 'Credenciales', ej: 'Contraseñas por defecto, débiles, reutilizadas o filtradas.' },
+      config:       { label: 'Config',       ej: 'Mala configuración: FTP anónimo con escritura, panel/servicio expuesto sin auth, datos sin borrar.' },
+      ad:           { label: 'AD',           ej: 'Active Directory: Kerberoasting, AS-REP Roast, GPP cpassword, DCSync, abuso de ACLs.' },
+      escalada:     { label: 'Escalada',     ej: 'Privesc local: sudo, cron, capabilities, abuso de token (SeImpersonate), kernel/exploit local, lxd, AlwaysInstallElevated.' }
+    };
+    var SEV = {
+      low:      { label: 'Baja',    c: '#3fb950' },
+      medium:   { label: 'Media',   c: '#e3b341' },
+      high:     { label: 'Alta',    c: '#f85149' },
+      critical: { label: 'Crítica', c: '#a371f7' }
+    };
+    function norm(s) {
+      return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+    }
+
+    var cards = Array.prototype.slice.call(list.querySelectorAll('.vb-card'));
+    var empty = document.getElementById('vb-empty');
+    var qMaq = document.getElementById('vb-q-maquina');
+    var qVuln = document.getElementById('vb-q-vuln');
+    var activeVal = document.getElementById('vb-active-val');
+    var reset = document.getElementById('vb-reset');
+    var state = { os: 'all', platform: 'all', tipo: 'all', mq: '', vq: '' };
+
+    function apply() {
+      var mq = norm(state.mq), vq = norm(state.vq);
+      var anyCard = false;
+      cards.forEach(function (card) {
+        var machineOk =
+          (state.os === 'all' || card.dataset.os === state.os) &&
+          (state.platform === 'all' || card.dataset.platform === state.platform) &&
+          (!mq || norm(card.dataset.name).indexOf(mq) !== -1);
+        var anyVuln = false;
+        card.querySelectorAll('.vb-vuln').forEach(function (b) {
+          var ok = (state.tipo === 'all' || b.dataset.tipo === state.tipo) &&
+                   (!vq || norm(b.dataset.vuln).indexOf(vq) !== -1);
+          b.hidden = !ok;
+          if (ok) anyVuln = true;
+        });
+        var show = machineOk && anyVuln;
+        card.hidden = !show;
+        if (show) anyCard = true;
+      });
+      if (empty) empty.classList.toggle('is-visible', !anyCard);
+
+      var parts = [];
+      if (state.os !== 'all') parts.push(state.os.charAt(0).toUpperCase() + state.os.slice(1));
+      if (state.platform !== 'all') parts.push(state.platform === 'hackthebox' ? 'HackTheBox' : 'Investigación');
+      if (state.tipo !== 'all') parts.push((TIPOS[state.tipo] || {}).label || state.tipo);
+      if (state.mq) parts.push('máquina «' + state.mq + '»');
+      if (state.vq) parts.push('vuln «' + state.vq + '»');
+      activeVal.textContent = parts.length ? parts.join(' | ') : 'Ninguno';
+      reset.hidden = parts.length === 0;
+    }
+
+    document.querySelectorAll('.vb-bar .hx-seg[data-group]').forEach(function (group) {
+      group.addEventListener('click', function (e) {
+        var btn = e.target.closest('.hx-opt');
+        if (!btn) return;
+        state[group.dataset.group] = btn.dataset.value;
+        group.querySelectorAll('.hx-opt').forEach(function (b) {
+          var on = b.dataset.value === btn.dataset.value;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        apply();
+      });
+    });
+
+    document.querySelectorAll('.vb-search').forEach(function (f) {
+      f.addEventListener('submit', function (e) { e.preventDefault(); });
+    });
+    qMaq.addEventListener('input', function () { state.mq = qMaq.value; apply(); });
+    qVuln.addEventListener('input', function () { state.vq = qVuln.value; apply(); });
+
+    list.addEventListener('click', function (e) {
+      var b = e.target.closest('.vb-vuln');
+      if (!b) return;
+      qVuln.value = b.textContent.trim();
+      state.vq = qVuln.value;
+      apply();
+      qVuln.focus();
+    });
+
+    var vulllist = document.getElementById('vb-vulllist');
+    document.getElementById('vb-vuln-list').addEventListener('click', function () {
+      if (!vulllist.hidden) { vulllist.hidden = true; return; }
+      var byType = {};
+      list.querySelectorAll('.vb-vuln').forEach(function (b) {
+        var t = b.dataset.tipo || 'otros';
+        (byType[t] = byType[t] || {})[b.textContent.trim()] = true;
+      });
+      var html = '';
+      Object.keys(TIPOS).forEach(function (t) {
+        if (!byType[t]) return;
+        html += '<span class="vb-vl-type">' + TIPOS[t].label + '</span>';
+        Object.keys(byType[t]).sort().forEach(function (name) {
+          html += '<button type="button">' + name.replace(/</g, '&lt;') + '</button>';
+        });
+      });
+      vulllist.innerHTML = html;
+      vulllist.hidden = false;
+    });
+    vulllist.addEventListener('click', function (e) {
+      var b = e.target.closest('button');
+      if (!b) return;
+      qVuln.value = b.textContent;
+      state.vq = qVuln.value;
+      vulllist.hidden = true;
+      apply();
+    });
+    document.addEventListener('click', function (e) {
+      if (!vulllist.hidden && !e.target.closest('.vb-search[data-kind="vuln"]')) vulllist.hidden = true;
+    });
+
+    reset.addEventListener('click', function () {
+      state = { os: 'all', platform: 'all', tipo: 'all', mq: '', vq: '' };
+      qMaq.value = ''; qVuln.value = '';
+      document.querySelectorAll('.vb-bar .hx-seg[data-group] .hx-opt').forEach(function (b) {
+        var on = b.dataset.value === 'all';
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      apply();
+    });
+
+    function openModal(id) { var m = document.getElementById(id); if (m) m.hidden = false; }
+    function closeModal(m) { m.hidden = true; }
+    document.querySelectorAll('.vb-modal').forEach(function (m) {
+      m.addEventListener('click', function (e) {
+        if (e.target === m || e.target.closest('[data-close]')) closeModal(m);
+      });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') document.querySelectorAll('.vb-modal:not([hidden])').forEach(closeModal);
+    });
+
+    var legendBody = document.getElementById('vb-legend-body');
+    var lh = '';
+    Object.keys(TIPOS).forEach(function (t) {
+      lh += '<div class="vb-legend-item"><div class="vb-legend-name">' + TIPOS[t].label +
+            '</div><div class="vb-legend-ej">' + TIPOS[t].ej + '</div></div>';
+    });
+    legendBody.innerHTML = lh;
+    document.getElementById('vb-legend-open').addEventListener('click', function () { openModal('vb-legend'); });
+
+    document.getElementById('vb-cve-open').addEventListener('click', function () {
+      var rows = [];
+      list.querySelectorAll('.vb-vuln[data-cve]').forEach(function (b) {
+        rows.push({
+          nombre: b.textContent.trim(), cve: b.dataset.cve, os: b.dataset.os || '',
+          cvss: b.dataset.cvss || '', sev: b.dataset.sev || ''
+        });
+      });
+      rows.sort(function (a, b) { return (parseFloat(b.cvss) || 0) - (parseFloat(a.cvss) || 0); });
+      var html = '<thead><tr><th>Vulnerabilidad</th><th>CVE</th><th>SO</th><th>CVSS</th><th>Severidad</th></tr></thead><tbody>';
+      rows.forEach(function (r) {
+        var sev = SEV[r.sev];
+        var sevCell = sev ? '<span class="vb-sev" style="background:' + sev.c + '">' + sev.label + '</span>' : '—';
+        html += '<tr><td class="vb-cve-name">' + r.nombre.replace(/</g, '&lt;') + '</td>' +
+                '<td class="vb-cve-code">' + r.cve + '</td><td>' + r.os + '</td>' +
+                '<td>' + (r.cvss || '—') + '</td><td>' + sevCell + '</td></tr>';
+      });
+      html += '</tbody>';
+      document.getElementById('vb-cve-table').innerHTML = html;
+      openModal('vb-cve');
+    });
+
+    apply();
+  }
+
   function init() {
     // Cada módulo va aislado: si uno falla, los demás siguen vivos.
     [
@@ -1788,6 +1966,7 @@
       initCardGlow,
       initProgress,
       initFilterBars,
+      initVulns,
       initPostSections,
       initWriteupSpy,
       initButtonAura,
