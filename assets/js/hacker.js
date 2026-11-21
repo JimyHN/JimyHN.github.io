@@ -1765,7 +1765,7 @@
     });
   }
 
-  /* --- Pestaña /vulnerabilidades: filtros, buscadores, leyenda y tabla CVE --- */
+  /* --- Pestaña /vulnerabilidades: filtros, selección múltiple, leyenda y mapa CVE --- */
   function initVulns() {
     var list = document.getElementById('vb-list');
     if (!list) return;
@@ -1778,15 +1778,18 @@
       ad:           { label: 'AD',           ej: 'Active Directory: Kerberoasting, AS-REP Roast, GPP cpassword, DCSync, abuso de ACLs.' },
       escalada:     { label: 'Escalada',     ej: 'Privesc local: sudo, cron, capabilities, abuso de token (SeImpersonate), kernel/exploit local, lxd, AlwaysInstallElevated.' }
     };
+    var TIPO_COL = { web: '#5eb4f8', servicio: '#2ee6d6', credenciales: '#ffd60a', config: '#ff8c69', ad: '#c16cff', escalada: '#ff3b4e' };
     var SEV = {
       low:      { label: 'Baja',    c: '#3fb950' },
       medium:   { label: 'Media',   c: '#e3b341' },
       high:     { label: 'Alta',    c: '#f85149' },
       critical: { label: 'Crítica', c: '#a371f7' }
     };
-    function norm(s) {
-      return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
-    }
+    var CVE_INFO = {};
+    try { CVE_INFO = JSON.parse(document.getElementById('vb-cve-data').textContent); } catch (e) {}
+
+    function norm(s) { return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
+    function esc(s) { return (s || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
     var cards = Array.prototype.slice.call(list.querySelectorAll('.vb-card'));
     var empty = document.getElementById('vb-empty');
@@ -1794,24 +1797,52 @@
     var qVuln = document.getElementById('vb-q-vuln');
     var activeVal = document.getElementById('vb-active-val');
     var reset = document.getElementById('vb-reset');
-    var state = { os: 'all', platform: 'all', tipo: 'all', mq: '', vq: '' };
+    var modeBtn = document.getElementById('vb-mode');
+    var state = { os: 'all', platform: 'all', tipo: 'all', mq: '', sel: [], mode: 'all' };
+
+    // Índice de vulnerabilidades distintas: nombre normalizado -> {name, tipo}
+    var VULNS = {};
+    list.querySelectorAll('.vb-vuln').forEach(function (b) {
+      var nn = norm(b.dataset.vuln);
+      if (!VULNS[nn]) VULNS[nn] = { name: b.textContent.trim(), tipo: b.dataset.tipo || 'otros' };
+    });
+    function selHas(nn) { return state.sel.indexOf(nn) !== -1; }
+
+    // Bloqueo de fondo + apertura/cierre de modales
+    function lock() { document.body.classList.add('hx-cert-locked'); }
+    function unlock() { if (!document.querySelector('.vb-modal:not([hidden])')) document.body.classList.remove('hx-cert-locked'); }
+    function openModal(id) { var m = document.getElementById(id); if (m) { m.hidden = false; lock(); } }
+    function closeModal(m) { m.hidden = true; unlock(); }
 
     function apply() {
-      var mq = norm(state.mq), vq = norm(state.vq);
+      var mq = norm(state.mq);
       var anyCard = false;
       cards.forEach(function (card) {
         var machineOk =
           (state.os === 'all' || card.dataset.os === state.os) &&
           (state.platform === 'all' || card.dataset.platform === state.platform) &&
           (!mq || norm(card.dataset.name).indexOf(mq) !== -1);
+
+        var boxes = card.querySelectorAll('.vb-vuln');
+        var cardSet = {};
+        boxes.forEach(function (b) { cardSet[norm(b.dataset.vuln)] = true; });
+
+        var selOk = true;
+        if (state.sel.length) {
+          if (state.mode === 'all') selOk = state.sel.every(function (s) { return cardSet[s]; });
+          else selOk = state.sel.some(function (s) { return cardSet[s]; });
+        }
+
         var anyVuln = false;
-        card.querySelectorAll('.vb-vuln').forEach(function (b) {
+        boxes.forEach(function (b) {
+          var nn = norm(b.dataset.vuln);
           var ok = (state.tipo === 'all' || b.dataset.tipo === state.tipo) &&
-                   (!vq || norm(b.dataset.vuln).indexOf(vq) !== -1);
+                   (!state.sel.length || selHas(nn));
           b.hidden = !ok;
           if (ok) anyVuln = true;
         });
-        var show = machineOk && anyVuln;
+
+        var show = machineOk && selOk && anyVuln;
         card.hidden = !show;
         if (show) anyCard = true;
       });
@@ -1822,15 +1853,19 @@
       if (state.platform !== 'all') parts.push(state.platform === 'hackthebox' ? 'HackTheBox' : 'Investigación');
       if (state.tipo !== 'all') parts.push((TIPOS[state.tipo] || {}).label || state.tipo);
       if (state.mq) parts.push('máquina «' + state.mq + '»');
-      if (state.vq) parts.push('vuln «' + state.vq + '»');
+      if (state.sel.length) parts.push((state.mode === 'all' ? 'TODAS' : 'ALGUNA') + ' de ' + state.sel.length + ' vuln' + (state.sel.length > 1 ? 's' : ''));
       activeVal.textContent = parts.length ? parts.join(' | ') : 'Ninguno';
       reset.hidden = parts.length === 0;
+
+      if (!state.sel.length) qVuln.value = '';
+      else if (state.sel.length === 1) qVuln.value = (VULNS[state.sel[0]] || {}).name || '';
+      else qVuln.value = 'Varias vulns (' + state.sel.length + ')';
     }
 
+    // Segmentos de filtro (SO / plataforma / tipo)
     document.querySelectorAll('.vb-bar .hx-seg[data-group]').forEach(function (group) {
       group.addEventListener('click', function (e) {
-        var btn = e.target.closest('.hx-opt');
-        if (!btn) return;
+        var btn = e.target.closest('.hx-opt'); if (!btn) return;
         state[group.dataset.group] = btn.dataset.value;
         group.querySelectorAll('.hx-opt').forEach(function (b) {
           var on = b.dataset.value === btn.dataset.value;
@@ -1841,55 +1876,76 @@
       });
     });
 
-    document.querySelectorAll('.vb-search').forEach(function (f) {
-      f.addEventListener('submit', function (e) { e.preventDefault(); });
-    });
     qMaq.addEventListener('input', function () { state.mq = qMaq.value; apply(); });
-    qVuln.addEventListener('input', function () { state.vq = qVuln.value; apply(); });
 
+    // All / Any
+    modeBtn.addEventListener('click', function () {
+      state.mode = state.mode === 'all' ? 'any' : 'all';
+      modeBtn.textContent = state.mode === 'all' ? 'All' : 'Any';
+      modeBtn.classList.toggle('vb-mode-any', state.mode === 'any');
+      apply();
+    });
+
+    // Click en una vuln de una tarjeta -> la añade a la selección
     list.addEventListener('click', function (e) {
-      var b = e.target.closest('.vb-vuln');
-      if (!b) return;
-      qVuln.value = b.textContent.trim();
-      state.vq = qVuln.value;
+      var b = e.target.closest('.vb-vuln'); if (!b) return;
+      var nn = norm(b.dataset.vuln);
+      if (!selHas(nn)) state.sel.push(nn);
       apply();
-      qVuln.focus();
     });
 
-    var vulllist = document.getElementById('vb-vulllist');
-    document.getElementById('vb-vuln-list').addEventListener('click', function () {
-      if (!vulllist.hidden) { vulllist.hidden = true; return; }
-      var byType = {};
-      list.querySelectorAll('.vb-vuln').forEach(function (b) {
-        var t = b.dataset.tipo || 'otros';
-        (byType[t] = byType[t] || {})[b.textContent.trim()] = true;
-      });
+    // ---- Modal de selección (checkboxes, dos columnas) ----
+    var pick = document.getElementById('vb-vulnpick');
+    var pickBody = document.getElementById('vb-pick-body');
+    var pickFilter = document.getElementById('vb-pick-filter');
+    var working = [];
+
+    function pickRow(nn, info) {
+      var on = working.indexOf(nn) !== -1 ? ' checked' : '';
+      return '<label class="vb-pick-row"><input type="checkbox" data-nn="' + esc(nn) + '"' + on + '>' +
+             '<span class="vb-pick-box" aria-hidden="true"></span>' +
+             '<span class="vb-pick-name">' + esc(info.name) + '</span></label>';
+    }
+    function renderPick() {
+      var q = norm(pickFilter.value);
       var html = '';
+      var selList = working.filter(function (nn) { return VULNS[nn] && (!q || norm(VULNS[nn].name).indexOf(q) !== -1); });
+      if (selList.length) {
+        html += '<div class="vb-pick-group"><span class="vb-pick-head" style="color:var(--vb-red)">Seleccionadas (' + working.length + ')</span><div class="vb-pick-cols">';
+        selList.forEach(function (nn) { html += pickRow(nn, VULNS[nn]); });
+        html += '</div></div>';
+      }
       Object.keys(TIPOS).forEach(function (t) {
-        if (!byType[t]) return;
-        html += '<span class="vb-vl-type">' + TIPOS[t].label + '</span>';
-        Object.keys(byType[t]).sort().forEach(function (name) {
-          html += '<button type="button">' + name.replace(/</g, '&lt;') + '</button>';
-        });
+        var items = Object.keys(VULNS).filter(function (nn) {
+          return VULNS[nn].tipo === t && working.indexOf(nn) === -1 && (!q || norm(VULNS[nn].name).indexOf(q) !== -1);
+        }).sort(function (a, b) { return VULNS[a].name.localeCompare(VULNS[b].name); });
+        if (!items.length) return;
+        html += '<div class="vb-pick-group"><span class="vb-pick-head" style="color:' + (TIPO_COL[t] || '#fff') + '">' + TIPOS[t].label + '</span><div class="vb-pick-cols">';
+        items.forEach(function (nn) { html += pickRow(nn, VULNS[nn]); });
+        html += '</div></div>';
       });
-      vulllist.innerHTML = html;
-      vulllist.hidden = false;
+      pickBody.innerHTML = html || '<p class="vb-pick-empty">Sin resultados.</p>';
+    }
+    function openPick() { working = state.sel.slice(); pickFilter.value = ''; renderPick(); openModal('vb-vulnpick'); }
+    document.getElementById('vb-vuln-list').addEventListener('click', openPick);
+    qVuln.addEventListener('click', openPick);
+    pickFilter.addEventListener('input', renderPick);
+    pickBody.addEventListener('change', function (e) {
+      var c = e.target.closest('input[type=checkbox]'); if (!c) return;
+      var nn = c.dataset.nn, i = working.indexOf(nn);
+      if (c.checked && i === -1) working.push(nn);
+      else if (!c.checked && i !== -1) working.splice(i, 1);
     });
-    vulllist.addEventListener('click', function (e) {
-      var b = e.target.closest('button');
-      if (!b) return;
-      qVuln.value = b.textContent;
-      state.vq = qVuln.value;
-      vulllist.hidden = true;
+    document.getElementById('vb-pick-apply').addEventListener('click', function () {
+      state.sel = working.slice();
+      closeModal(pick);
       apply();
     });
-    document.addEventListener('click', function (e) {
-      if (!vulllist.hidden && !e.target.closest('.vb-search[data-kind="vuln"]')) vulllist.hidden = true;
-    });
 
+    // ---- Reset ----
     reset.addEventListener('click', function () {
-      state = { os: 'all', platform: 'all', tipo: 'all', mq: '', vq: '' };
-      qMaq.value = ''; qVuln.value = '';
+      state = { os: 'all', platform: 'all', tipo: 'all', mq: '', sel: [], mode: state.mode };
+      qMaq.value = '';
       document.querySelectorAll('.vb-bar .hx-seg[data-group] .hx-opt').forEach(function (b) {
         var on = b.dataset.value === 'all';
         b.classList.toggle('is-active', on);
@@ -1898,47 +1954,83 @@
       apply();
     });
 
-    function openModal(id) { var m = document.getElementById(id); if (m) m.hidden = false; }
-    function closeModal(m) { m.hidden = true; }
+    // ---- Cierre de modales (fondo, ✕, Esc) ----
     document.querySelectorAll('.vb-modal').forEach(function (m) {
       m.addEventListener('click', function (e) {
         if (e.target === m || e.target.closest('[data-close]')) closeModal(m);
       });
     });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') document.querySelectorAll('.vb-modal:not([hidden])').forEach(closeModal);
+      if (e.key !== 'Escape') return;
+      var open = document.querySelectorAll('.vb-modal:not([hidden])');
+      if (open.length) closeModal(open[open.length - 1]);
     });
 
-    var legendBody = document.getElementById('vb-legend-body');
+    // ---- Leyenda de tipos ----
     var lh = '';
     Object.keys(TIPOS).forEach(function (t) {
-      lh += '<div class="vb-legend-item"><div class="vb-legend-name">' + TIPOS[t].label +
+      lh += '<div class="vb-legend-item"><div class="vb-legend-name" style="color:' + (TIPO_COL[t] || '#fff') + '">' + TIPOS[t].label +
             '</div><div class="vb-legend-ej">' + TIPOS[t].ej + '</div></div>';
     });
-    legendBody.innerHTML = lh;
+    document.getElementById('vb-legend-body').innerHTML = lh;
     document.getElementById('vb-legend-open').addEventListener('click', function () { openModal('vb-legend'); });
 
-    document.getElementById('vb-cve-open').addEventListener('click', function () {
-      var rows = [];
+    // ---- Mapa de CVE ----
+    function cveRows() {
+      var seen = {}, rows = [];
       list.querySelectorAll('.vb-vuln[data-cve]').forEach(function (b) {
-        rows.push({
-          nombre: b.textContent.trim(), cve: b.dataset.cve, os: b.dataset.os || '',
-          cvss: b.dataset.cvss || '', sev: b.dataset.sev || ''
-        });
+        var k = b.dataset.cve;
+        if (seen[k]) return; seen[k] = true;
+        rows.push({ cve: k, nombre: b.textContent.trim(), os: b.dataset.os || '', cvss: b.dataset.cvss || '', sev: b.dataset.sev || '' });
       });
       rows.sort(function (a, b) { return (parseFloat(b.cvss) || 0) - (parseFloat(a.cvss) || 0); });
+      return rows;
+    }
+    document.getElementById('vb-cve-open').addEventListener('click', function () {
       var html = '<thead><tr><th>Vulnerabilidad</th><th>CVE</th><th>SO</th><th>CVSS</th><th>Severidad</th></tr></thead><tbody>';
-      rows.forEach(function (r) {
+      cveRows().forEach(function (r) {
         var sev = SEV[r.sev];
         var sevCell = sev ? '<span class="vb-sev" style="background:' + sev.c + '">' + sev.label + '</span>' : '—';
-        html += '<tr><td class="vb-cve-name">' + r.nombre.replace(/</g, '&lt;') + '</td>' +
-                '<td class="vb-cve-code">' + r.cve + '</td><td>' + r.os + '</td>' +
+        html += '<tr class="vb-cve-tr" data-cve="' + r.cve + '"><td class="vb-cve-name">' + esc(r.nombre) + '</td>' +
+                '<td class="vb-cve-code">' + r.cve + '</td><td>' + esc(r.os) + '</td>' +
                 '<td>' + (r.cvss || '—') + '</td><td>' + sevCell + '</td></tr>';
       });
       html += '</tbody>';
       document.getElementById('vb-cve-table').innerHTML = html;
       openModal('vb-cve');
     });
+    document.getElementById('vb-cve-table').addEventListener('click', function (e) {
+      var tr = e.target.closest('.vb-cve-tr'); if (!tr) return;
+      openCveDetail(tr.dataset.cve);
+    });
+
+    function openCveDetail(cve) {
+      var maqs = [];
+      list.querySelectorAll('.vb-vuln[data-cve="' + cve + '"]').forEach(function (b) {
+        var card = b.closest('.vb-card'); if (!card) return;
+        var name = card.querySelector('.vb-card-name').textContent.trim();
+        if (!maqs.some(function (m) { return m.name === name; })) maqs.push({ name: name, url: card.dataset.url || '#' });
+      });
+      var any = list.querySelector('.vb-vuln[data-cve="' + cve + '"]');
+      var nombre = any ? any.textContent.trim() : cve;
+      var cvss = any ? (any.dataset.cvss || '') : '';
+      var sev = any ? SEV[any.dataset.sev] : null;
+      var os = any ? (any.dataset.os || '') : '';
+      var info = CVE_INFO[cve] || {};
+
+      document.getElementById('vb-cd-title').innerHTML = '<i class="fas fa-shield-virus"></i> ' + esc(nombre) + ' <span class="vb-cd-cve">' + cve + '</span>';
+      document.getElementById('vb-cd-meta').innerHTML =
+        '<span class="vb-cd-chip">SO: ' + esc(os || '—') + '</span>' +
+        '<span class="vb-cd-chip">CVSS: ' + (cvss || '—') + '</span>' +
+        (sev ? '<span class="vb-sev" style="background:' + sev.c + '">' + sev.label + '</span>' : '');
+      var maqHtml = maqs.map(function (m) { return '<a class="vb-cd-maq" href="' + m.url + '">' + esc(m.name) + '</a>'; }).join('');
+      document.getElementById('vb-cd-body').innerHTML =
+        '<div class="vb-cd-sec"><h3>Descripción</h3><p>' + esc(info.desc || '—') + '</p></div>' +
+        '<div class="vb-cd-sec"><h3>Impacto</h3><p>' + esc(info.impact || '—') + '</p></div>' +
+        '<div class="vb-cd-sec"><h3>Solución</h3><p>' + esc(info.solucion || '—') + '</p></div>' +
+        '<div class="vb-cd-sec"><h3>Explotación</h3><p>Máquinas afectadas:</p><div class="vb-cd-maqs">' + (maqHtml || '—') + '</div></div>';
+      openModal('vb-cvedetail');
+    }
 
     apply();
   }

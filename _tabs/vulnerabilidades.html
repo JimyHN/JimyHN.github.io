@@ -7,7 +7,7 @@ order: 2
 {% assign writeups = site.posts | where_exp: 'p', "p.categories contains 'Writeups'" %}
 {% assign vmachines = writeups | where_exp: 'p', "p.vulns" %}
 
-<p class="hx-lead">Todas las vulnerabilidades encontradas, máquina a máquina. Busca por máquina o por vulnerabilidad, filtra por sistema, plataforma o tipo, y consulta la leyenda de tipos o la tabla de CVE.</p>
+<p class="hx-lead">Todas las vulnerabilidades encontradas, máquina a máquina. Filtra por sistema, plataforma o tipo, elige una o varias vulnerabilidades, y consulta la leyenda de tipos o el mapa de CVE.</p>
 
 {% if vmachines.size > 0 %}
 
@@ -42,29 +42,34 @@ order: 2
         <button type="button" class="hx-opt" data-value="escalada">Escalada</button>
       </div>
       <div class="vb-tools">
+        <button type="button" class="vb-iconbtn vb-cvebtn" id="vb-cve-open" title="Mapa de CVE"><i class="fas fa-shield-virus"></i> CVE</button>
         <button type="button" class="vb-iconbtn" id="vb-legend-open" title="Leyenda de tipos" aria-label="Leyenda de tipos"><i class="fas fa-map"></i></button>
-        <button type="button" class="vb-iconbtn vb-cvebtn" id="vb-cve-open" title="Vulnerabilidades con CVE"><i class="fas fa-shield-virus"></i> CVE</button>
       </div>
     </div>
   </div>
 
-  <form class="vb-row vb-search" role="search" data-kind="maquina">
+  <div class="vb-row vb-search" data-kind="maquina">
     <span class="vb-label">Máquina</span>
     <div class="hx-seg">
+      <span class="vb-static"><i class="fas fa-search"></i></span>
       <input type="search" id="vb-q-maquina" placeholder="Nombre de la máquina…" autocomplete="off" spellcheck="false">
-      <button type="submit" class="hx-opt"><i class="fas fa-search"></i></button>
     </div>
-  </form>
+  </div>
 
-  <form class="vb-row vb-search" role="search" data-kind="vuln">
+  <div class="vb-row vb-search" data-kind="vuln">
     <span class="vb-label vb-label-vuln">Vulnerabilidad</span>
     <div class="hx-seg">
-      <input type="search" id="vb-q-vuln" placeholder="Nombre de la vulnerabilidad…" autocomplete="off" spellcheck="false">
-      <button type="button" class="hx-opt" id="vb-vuln-list" title="Ver todas las vulnerabilidades"><i class="fas fa-list"></i></button>
-      <button type="submit" class="hx-opt"><i class="fas fa-search"></i></button>
+      <input type="text" id="vb-q-vuln" class="vb-trigger" placeholder="Elige vulnerabilidades…" readonly>
+      <button type="button" class="hx-opt vb-mode" id="vb-mode" title="All: máquinas con TODAS · Any: con ALGUNA">All</button>
+      <button type="button" class="hx-opt" id="vb-vuln-list" title="Elegir vulnerabilidades"><i class="fas fa-list"></i></button>
     </div>
-    <div class="vb-vulllist" id="vb-vulllist" hidden></div>
-  </form>
+  </div>
+
+  <p class="vb-minileg">
+    <span><i class="fas fa-list"></i> lista de vulnerabilidades</span>
+    <span><b>All</b>: máquinas con TODAS las marcadas</span>
+    <span><b>Any</b>: máquinas con ALGUNA</span>
+  </p>
 
   <p class="vb-active">Filtros activos: <span id="vb-active-val">Ninguno</span>
     <button type="button" class="hx-fbar-reset vb-reset" id="vb-reset" hidden>· limpiar</button>
@@ -78,7 +83,7 @@ order: 2
     {% elsif os_down contains 'linux' %}{% assign os_key = 'linux' %}
     {% elsif os_down contains 'freebsd' %}{% assign os_key = 'freebsd' %}
     {% else %}{% assign os_key = 'otros' %}{% endif %}
-    <article class="vb-card" data-os="{{ os_key }}" data-name="{{ post.machine | default: post.title | downcase }}" data-platform="{{ post.platform | default: '' | downcase | remove: ' ' }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
+    <article class="vb-card" data-os="{{ os_key }}" data-name="{{ post.machine | default: post.title | downcase }}" data-platform="{{ post.platform | default: '' | downcase | remove: ' ' }}" data-url="{{ post.url | relative_url }}"{% if post.accent %} style="--m: {{ post.accent }}"{% endif %}>
       <a class="vb-card-main" href="{{ post.url | relative_url }}">
         <span class="vb-card-img{% unless post.thumb %} vb-card-ph{% endunless %}"{% if post.thumb %} style="background-image:url('{{ post.thumb | relative_url }}')"{% endif %}>
           {% unless post.thumb %}{% if os_key == 'windows' %}<i class="fab fa-windows"></i>{% elsif os_key == 'linux' %}<i class="fab fa-linux"></i>{% elsif os_key == 'freebsd' %}<i class="fab fa-freebsd"></i>{% else %}<i class="fas fa-server"></i>{% endif %}{% endunless %}
@@ -108,6 +113,26 @@ order: 2
   Ninguna vulnerabilidad coincide con la búsqueda o el filtro.
 </div>
 
+<!-- Datos de cada CVE para el modal de detalle (misma idea que el bloque JSON de maquinas.html) -->
+<script type="application/json" id="vb-cve-data">
+{
+  "CVE-2010-2861": {"desc":"Salto de directorio en el panel de administración de Adobe ColdFusion 8 (parámetro locale) explotable sin autenticar.","impact":"Lectura de ficheros arbitrarios del servidor; se usa para filtrar el hash de la contraseña del administrador.","solucion":"Aplicar el hotfix de Adobe (APSB10-18) y restringir el acceso a /CFIDE/administrator."},
+  "CVE-2010-2554": {"desc":"Elevación de privilegios local en Windows (servicio de seguimiento), explotada con el binario «Chimichurri».","impact":"De la cuenta de servicio web a SYSTEM.","solucion":"Aplicar el boletín MS10-059."},
+  "CVE-2018-7600": {"desc":"Validación insuficiente de entrada en formularios de Drupal 7/8 (Drupalgeddon2) que permite ejecución remota de código sin autenticar.","impact":"RCE total como el usuario del servidor web.","solucion":"Actualizar a Drupal 7.58 / 8.5.1 o superior."},
+  "CVE-2017-0144": {"desc":"Desbordamiento en SMBv1 (MS17-010 / EternalBlue) explotable en remoto y sin autenticar.","impact":"Ejecución de código como SYSTEM en el objetivo.","solucion":"Aplicar MS17-010 y deshabilitar SMBv1."},
+  "CVE-2015-1701": {"desc":"Elevación de privilegios local en win32k.sys (MS15-051).","impact":"De usuario sin privilegios a SYSTEM.","solucion":"Aplicar el boletín MS15-051."},
+  "CVE-2017-7269": {"desc":"Desbordamiento de búfer en ScStoragePathFromUrl del WebDAV de IIS 6.0 (cabecera If larga).","impact":"RCE remoto sin autenticar en el contexto del servicio IIS.","solucion":"Deshabilitar WebDAV y migrar de IIS 6.0 (producto sin soporte)."},
+  "CVE-2007-2447": {"desc":"Inyección de comandos en la opción «username map script» de Samba 3.0.x.","impact":"RCE remoto sin autenticar como root.","solucion":"Actualizar Samba a 3.0.25 o no usar «username map script»."},
+  "CVE-2008-4250": {"desc":"Fallo en el servicio Server (NetAPI) de Windows (MS08-067) que permite RCE sin autenticar.","impact":"Ejecución de código como SYSTEM.","solucion":"Aplicar el boletín MS08-067."},
+  "CVE-2018-9276": {"desc":"Inyección de comandos autenticada en PRTG Network Monitor < 18.2.39 a través de las notificaciones.","impact":"RCE con privilegios del servicio (local/SYSTEM) teniendo sesión de admin.","solucion":"Actualizar PRTG a 18.2.39 o superior."},
+  "CVE-2026-38526": {"desc":"Ejecución remota de código autenticada en Krayin CRM 2.2.x subiendo un fichero a una ruta ejecutable.","impact":"RCE como www-data con una sesión válida del panel.","solucion":"Actualizar Krayin CRM y validar/segregar las subidas de ficheros."},
+  "CVE-2014-6287": {"desc":"Ejecución remota de código en Rejetto HFS 2.3x por una expresión regular mal filtrada (parámetro search).","impact":"RCE remoto sin autenticar.","solucion":"Actualizar HFS a 2.3e o superior / retirar el servicio."},
+  "CVE-2016-3309": {"desc":"Elevación de privilegios en el kernel de Windows (MS16-098).","impact":"De usuario sin privilegios a SYSTEM.","solucion":"Aplicar el boletín MS16-098."},
+  "CVE-2014-6271": {"desc":"Inyección de comandos en Bash a través de funciones exportadas en variables de entorno (Shellshock).","impact":"RCE remoto, típicamente vía CGI de un servidor web.","solucion":"Actualizar Bash a las versiones parcheadas de 2014."},
+  "CVE-2014-1812": {"desc":"Las Group Policy Preferences guardan contraseñas cifradas con una clave AES pública en SYSVOL (MS14-025).","impact":"Cualquier usuario del dominio puede descifrar credenciales, a menudo de cuentas privilegiadas.","solucion":"Aplicar MS14-025 y eliminar los cpassword de SYSVOL."}
+}
+</script>
+
 <!-- Modal: leyenda de tipos -->
 <div class="vb-modal" id="vb-legend" hidden>
   <div class="vb-modal-box" role="dialog" aria-modal="true" aria-label="Leyenda de tipos">
@@ -117,12 +142,34 @@ order: 2
   </div>
 </div>
 
-<!-- Modal: tabla de CVE -->
-<div class="vb-modal" id="vb-cve" hidden>
-  <div class="vb-modal-box vb-modal-wide" role="dialog" aria-modal="true" aria-label="Vulnerabilidades con CVE">
+<!-- Modal: elegir vulnerabilidades (checkboxes, dos columnas) -->
+<div class="vb-modal" id="vb-vulnpick" hidden>
+  <div class="vb-modal-box vb-modal-wide" role="dialog" aria-modal="true" aria-label="Elegir vulnerabilidades">
     <button type="button" class="vb-modal-x" data-close aria-label="Cerrar">✕</button>
-    <h2 class="vb-modal-title"><i class="fas fa-shield-virus"></i> Vulnerabilidades con CVE</h2>
+    <h2 class="vb-modal-title"><i class="fas fa-list"></i> Elegir vulnerabilidades</h2>
+    <input type="search" id="vb-pick-filter" class="vb-pick-filter" placeholder="Filtrar…" autocomplete="off" spellcheck="false">
+    <div class="vb-pick-body" id="vb-pick-body"></div>
+    <div class="vb-pick-foot"><button type="button" class="vb-apply" id="vb-pick-apply">Aplicar</button></div>
+  </div>
+</div>
+
+<!-- Modal: mapa de CVE -->
+<div class="vb-modal" id="vb-cve" hidden>
+  <div class="vb-modal-box vb-modal-wide" role="dialog" aria-modal="true" aria-label="Mapa de CVE">
+    <button type="button" class="vb-modal-x" data-close aria-label="Cerrar">✕</button>
+    <h2 class="vb-modal-title"><i class="fas fa-shield-virus"></i> Mapa de CVE</h2>
+    <p class="vb-cve-hint">Pincha en una fila para ver el detalle de la CVE.</p>
     <div class="vb-cve-wrap"><table class="vb-cve-table" id="vb-cve-table"></table></div>
+  </div>
+</div>
+
+<!-- Modal: detalle de una CVE -->
+<div class="vb-modal vb-modal-top" id="vb-cvedetail" hidden>
+  <div class="vb-modal-box vb-modal-wide" role="dialog" aria-modal="true" aria-label="Detalle de CVE">
+    <button type="button" class="vb-modal-x" data-close aria-label="Cerrar">✕</button>
+    <h2 class="vb-modal-title" id="vb-cd-title"></h2>
+    <div class="vb-cd-meta" id="vb-cd-meta"></div>
+    <div id="vb-cd-body"></div>
   </div>
 </div>
 
