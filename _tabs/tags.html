@@ -52,6 +52,8 @@ order: 6
   </p>
 </div>
 
+<p class="vb-count" id="tg-count"></p>
+
 <div class="vb-list" id="tg-list">
   {% for post in writeups %}
     {% assign os_down = post.os | default: '' | downcase %}
@@ -91,7 +93,7 @@ order: 6
     <h2 class="vb-modal-title"><i class="fas fa-tags"></i> Elegir etiquetas</h2>
     <input type="search" id="tg-pick-filter" class="vb-pick-filter" placeholder="Filtrar…" autocomplete="off" spellcheck="false">
     <div class="vb-pick-body" id="tg-pick-body"></div>
-    <div class="vb-pick-foot"><button type="button" class="vb-apply" id="tg-pick-apply">Aplicar</button></div>
+    <div class="vb-pick-foot"><button type="button" class="vb-apply" id="tg-pick-apply">Hecho</button></div>
   </div>
 </div>
 

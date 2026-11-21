@@ -78,6 +78,8 @@ order: 2
   </div>
 </div>
 
+<p class="vb-count" id="vb-count"></p>
+
 <div class="vb-list" id="vb-list">
   {% for post in vmachines %}
     {% assign os_down = post.os | default: '' | downcase %}
@@ -151,7 +153,7 @@ order: 2
     <h2 class="vb-modal-title"><i class="fas fa-list"></i> Elegir vulnerabilidades</h2>
     <input type="search" id="vb-pick-filter" class="vb-pick-filter" placeholder="Filtrar…" autocomplete="off" spellcheck="false">
     <div class="vb-pick-body" id="vb-pick-body"></div>
-    <div class="vb-pick-foot"><button type="button" class="vb-apply" id="vb-pick-apply">Aplicar</button></div>
+    <div class="vb-pick-foot"><button type="button" class="vb-apply" id="vb-pick-apply">Hecho</button></div>
   </div>
 </div>
 

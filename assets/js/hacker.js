@@ -1779,6 +1779,10 @@
       escalada:     { label: 'Escalada',     ej: 'Privesc local: sudo, cron, capabilities, abuso de token (SeImpersonate), kernel/exploit local, lxd, AlwaysInstallElevated.' }
     };
     var TIPO_COL = { web: '#5eb4f8', servicio: '#2ee6d6', credenciales: '#ffd60a', config: '#ff8c69', ad: '#c16cff', escalada: '#ff3b4e' };
+    var TIPO_RGB = { web: '94 180 248', servicio: '46 230 214', credenciales: '255 214 10', config: '255 140 105', ad: '193 108 255', escalada: '255 59 78' };
+    var OS_RGB = { linux: '255 214 10', windows: '74 134 255', freebsd: '226 80 46' };
+    var OS_LABEL = { linux: 'Linux', windows: 'Windows', freebsd: 'FreeBSD' };
+    var PLAT_RGB = { hackthebox: '159 239 0', investigacion: '150 80 210' };
     var SEV = {
       low:      { label: 'Baja',    c: '#3fb950' },
       medium:   { label: 'Media',   c: '#e3b341' },
@@ -1790,9 +1794,11 @@
 
     function norm(s) { return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
     function esc(s) { return (s || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+    function chip(text, rgb) { return '<span style="color:rgb(' + rgb + ')">' + esc(text) + '</span>'; }
 
     var cards = Array.prototype.slice.call(list.querySelectorAll('.vb-card'));
     var empty = document.getElementById('vb-empty');
+    var countEl = document.getElementById('vb-count');
     var qMaq = document.getElementById('vb-q-maquina');
     var qVuln = document.getElementById('vb-q-vuln');
     var activeVal = document.getElementById('vb-active-val');
@@ -1801,7 +1807,6 @@
     var clearBtn = document.getElementById('vb-clear');
     var state = { os: 'all', platform: 'all', tipo: 'all', mq: '', sel: [], mode: 'all' };
 
-    // Índice de GRUPOS distintos: norm(grupo) -> {label, tipo (el primero visto)}
     var GRUPOS = {};
     list.querySelectorAll('.vb-vuln').forEach(function (b) {
       var g = b.dataset.grupo || b.textContent.trim();
@@ -1811,23 +1816,24 @@
     function grpOf(b) { return norm(b.dataset.grupo || b.textContent.trim()); }
     function selHas(nn) { return state.sel.indexOf(nn) !== -1; }
 
-    function lock() { document.body.classList.add('hx-cert-locked'); }
-    function unlock() { if (!document.querySelector('.vb-modal:not([hidden])')) document.body.classList.remove('hx-cert-locked'); }
+    function lock() { document.documentElement.classList.add('hx-cert-locked'); document.body.classList.add('hx-cert-locked'); }
+    function unlock() { if (!document.querySelector('.vb-modal:not([hidden])')) { document.documentElement.classList.remove('hx-cert-locked'); document.body.classList.remove('hx-cert-locked'); } }
     function openModal(id) { var m = document.getElementById(id); if (m) { m.hidden = false; lock(); } }
     function closeModal(m) { m.hidden = true; unlock(); }
 
     function apply() {
       var mq = norm(state.mq);
-      var anyCard = false;
+      var vis = 0;
       cards.forEach(function (card) {
+        var boxes = card.querySelectorAll('.vb-vuln');
+        var cardSet = {}, tipos = {};
+        boxes.forEach(function (b) { cardSet[grpOf(b)] = true; tipos[b.dataset.tipo] = true; });
+
         var machineOk =
           (state.os === 'all' || card.dataset.os === state.os) &&
           (state.platform === 'all' || card.dataset.platform === state.platform) &&
-          (!mq || norm(card.dataset.name).indexOf(mq) !== -1);
-
-        var boxes = card.querySelectorAll('.vb-vuln');
-        var cardSet = {};
-        boxes.forEach(function (b) { cardSet[grpOf(b)] = true; });
+          (!mq || norm(card.dataset.name).indexOf(mq) !== -1) &&
+          (state.tipo === 'all' || tipos[state.tipo]);
 
         var selOk = true;
         if (state.sel.length) {
@@ -1835,27 +1841,23 @@
           else selOk = state.sel.some(function (s) { return cardSet[s]; });
         }
 
-        var anyVuln = false;
-        boxes.forEach(function (b) {
-          var ok = (state.tipo === 'all' || b.dataset.tipo === state.tipo) &&
-                   (!state.sel.length || selHas(grpOf(b)));
-          b.hidden = !ok;
-          if (ok) anyVuln = true;
-        });
+        // Las cajas SIEMPRE se ven; se resalta la que coincide con el filtro.
+        boxes.forEach(function (b) { b.classList.toggle('is-match', state.sel.length > 0 && selHas(grpOf(b))); });
 
-        var show = machineOk && selOk && anyVuln;
+        var show = machineOk && selOk;
         card.hidden = !show;
-        if (show) anyCard = true;
+        if (show) vis++;
       });
-      if (empty) empty.classList.toggle('is-visible', !anyCard);
+      if (empty) empty.classList.toggle('is-visible', vis === 0);
+      if (countEl) countEl.innerHTML = '<span class="vb-count-n">' + vis + '</span> máquina' + (vis === 1 ? '' : 's') + ' encontrada' + (vis === 1 ? '' : 's');
 
       var parts = [];
-      if (state.os !== 'all') parts.push(state.os.charAt(0).toUpperCase() + state.os.slice(1));
-      if (state.platform !== 'all') parts.push(state.platform === 'hackthebox' ? 'HackTheBox' : 'Investigación');
-      if (state.tipo !== 'all') parts.push((TIPOS[state.tipo] || {}).label || state.tipo);
-      if (state.mq) parts.push('máquina «' + state.mq + '»');
-      if (state.sel.length) parts.push((state.mode === 'all' ? 'TODAS' : 'ALGUNA') + ' de ' + state.sel.length + ' vuln' + (state.sel.length > 1 ? 's' : ''));
-      activeVal.textContent = parts.length ? parts.join(' | ') : 'Ninguno';
+      if (state.os !== 'all') parts.push(chip(OS_LABEL[state.os] || state.os, OS_RGB[state.os] || '255 255 255'));
+      if (state.platform !== 'all') parts.push(chip(state.platform === 'hackthebox' ? 'HackTheBox' : 'Investigación', PLAT_RGB[state.platform] || '255 255 255'));
+      if (state.tipo !== 'all') parts.push(chip((TIPOS[state.tipo] || {}).label || state.tipo, TIPO_RGB[state.tipo] || '255 255 255'));
+      if (state.mq) parts.push('<span>máquina «' + esc(state.mq) + '»</span>');
+      if (state.sel.length) parts.push('<span style="color:rgb(var(--page))">' + (state.mode === 'all' ? 'TODAS' : 'ALGUNA') + ' de ' + state.sel.length + ' vuln' + (state.sel.length > 1 ? 's' : '') + '</span>');
+      activeVal.innerHTML = parts.length ? parts.join(' <span class="vb-sep">|</span> ') : 'Ninguno';
       reset.hidden = parts.length === 0;
       clearBtn.hidden = state.sel.length === 0;
 
@@ -1887,20 +1889,26 @@
     });
     clearBtn.addEventListener('click', function () { state.sel = []; apply(); });
 
-    // Click en una vuln de una tarjeta -> popup con la sección Vulnerabilidad del write-up
+    // Click en el cuerpo de la tarjeta -> todas las vulns; click en una vuln -> solo esa
     list.addEventListener('click', function (e) {
-      var b = e.target.closest('.vb-vuln'); if (!b) return;
-      var card = b.closest('.vb-card'); if (card) openVulnInfo(card);
+      var b = e.target.closest('.vb-vuln');
+      if (b) {
+        var card = b.closest('.vb-card');
+        var idx = Array.prototype.indexOf.call(card.querySelectorAll('.vb-vuln'), b);
+        openVulnInfo(card, idx);
+        return;
+      }
+      var main = e.target.closest('.vb-card-main');
+      if (main) { e.preventDefault(); openVulnInfo(main.closest('.vb-card'), null); }
     });
 
-    // ---- Modal de selección (grupos, checkboxes, dos columnas) ----
+    // ---- Modal de selección (grupos, checkboxes; selección en vivo) ----
     var pick = document.getElementById('vb-vulnpick');
     var pickBody = document.getElementById('vb-pick-body');
     var pickFilter = document.getElementById('vb-pick-filter');
-    var working = [];
 
     function pickRow(nn, info) {
-      var on = working.indexOf(nn) !== -1 ? ' checked' : '';
+      var on = selHas(nn) ? ' checked' : '';
       return '<label class="vb-pick-row"><input type="checkbox" data-nn="' + esc(nn) + '"' + on + '>' +
              '<span class="vb-pick-box" aria-hidden="true"></span>' +
              '<span class="vb-pick-name">' + esc(info.label) + '</span></label>';
@@ -1908,15 +1916,15 @@
     function renderPick() {
       var q = norm(pickFilter.value);
       var html = '';
-      var selList = working.filter(function (nn) { return GRUPOS[nn] && (!q || norm(GRUPOS[nn].label).indexOf(q) !== -1); });
+      var selList = state.sel.filter(function (nn) { return GRUPOS[nn] && (!q || norm(GRUPOS[nn].label).indexOf(q) !== -1); });
       if (selList.length) {
-        html += '<div class="vb-pick-group"><span class="vb-pick-head" style="color:var(--vb-red)">Seleccionadas (' + working.length + ')</span><div class="vb-pick-cols">';
+        html += '<div class="vb-pick-group"><span class="vb-pick-head" style="color:var(--vb-red)">Seleccionadas (' + state.sel.length + ')</span><div class="vb-pick-cols">';
         selList.forEach(function (nn) { html += pickRow(nn, GRUPOS[nn]); });
         html += '</div></div>';
       }
       Object.keys(TIPOS).forEach(function (t) {
         var items = Object.keys(GRUPOS).filter(function (nn) {
-          return GRUPOS[nn].tipo === t && working.indexOf(nn) === -1 && (!q || norm(GRUPOS[nn].label).indexOf(q) !== -1);
+          return GRUPOS[nn].tipo === t && !selHas(nn) && (!q || norm(GRUPOS[nn].label).indexOf(q) !== -1);
         }).sort(function (a, b) { return GRUPOS[a].label.localeCompare(GRUPOS[b].label); });
         if (!items.length) return;
         html += '<div class="vb-pick-group"><span class="vb-pick-head" style="color:' + (TIPO_COL[t] || '#fff') + '">' + TIPOS[t].label + '</span><div class="vb-pick-cols">';
@@ -1925,20 +1933,17 @@
       });
       pickBody.innerHTML = html || '<p class="vb-pick-empty">Sin resultados.</p>';
     }
-    function openPick() { working = state.sel.slice(); pickFilter.value = ''; renderPick(); openModal('vb-vulnpick'); }
+    function openPick() { renderPick(); openModal('vb-vulnpick'); }
     qVuln.addEventListener('click', openPick);
     pickFilter.addEventListener('input', renderPick);
     pickBody.addEventListener('change', function (e) {
       var c = e.target.closest('input[type=checkbox]'); if (!c) return;
-      var nn = c.dataset.nn, i = working.indexOf(nn);
-      if (c.checked && i === -1) working.push(nn);
-      else if (!c.checked && i !== -1) working.splice(i, 1);
-    });
-    document.getElementById('vb-pick-apply').addEventListener('click', function () {
-      state.sel = working.slice();
-      closeModal(pick);
+      var nn = c.dataset.nn, i = state.sel.indexOf(nn);
+      if (c.checked && i === -1) state.sel.push(nn);
+      else if (!c.checked && i !== -1) state.sel.splice(i, 1);
       apply();
     });
+    document.getElementById('vb-pick-apply').addEventListener('click', function () { closeModal(pick); });
 
     reset.addEventListener('click', function () {
       state = { os: 'all', platform: 'all', tipo: 'all', mq: '', sel: [], mode: state.mode };
@@ -1971,22 +1976,42 @@
     document.getElementById('vb-legend-body').innerHTML = lh;
     document.getElementById('vb-legend-open').addEventListener('click', function () { openModal('vb-legend'); });
 
-    // ---- Popup: sección Vulnerabilidad del write-up ----
+    // ---- Popup: sección Vulnerabilidad del write-up (toda o una sola vuln) ----
     var viCache = {};
-    function openVulnInfo(card) {
+    function parseSection(html) {
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      var sec = doc.getElementById('vulnerabilidad');
+      if (!sec) return null;
+      var kids = Array.prototype.slice.call(sec.children).filter(function (n) { return n.tagName !== 'H2'; });
+      var headerIdx = [];
+      kids.forEach(function (n, i) { if (n.tagName === 'P' && /^\s*\d+\s*·/.test(n.textContent || '')) headerIdx.push(i); });
+      return { kids: kids.map(function (n) { return n.outerHTML; }), headerIdx: headerIdx };
+    }
+    function infoHTML(entry, idx) {
+      if (!entry) return '<p>No se pudo cargar la sección. Abre el write-up.</p>';
+      if (idx != null && entry.headerIdx.length && idx < entry.headerIdx.length) {
+        var start = entry.headerIdx[idx];
+        var end = (idx + 1 < entry.headerIdx.length) ? entry.headerIdx[idx + 1] : entry.kids.length;
+        return entry.kids.slice(start, end).join('');
+      }
+      return entry.kids.join('');
+    }
+    function openVulnInfo(card, idx) {
       var url = card.dataset.url || '#';
       var name = card.querySelector('.vb-card-name').textContent.trim();
-      document.getElementById('vb-vi-title').innerHTML = '<i class="fas fa-virus"></i> Vulnerabilidades · ' + esc(name);
+      var boxes = card.querySelectorAll('.vb-vuln');
+      var vulnName = (idx != null && boxes[idx]) ? boxes[idx].textContent.trim() : '';
+      document.getElementById('vb-vi-title').innerHTML = idx != null
+        ? '<i class="fas fa-virus"></i> ' + esc(vulnName) + ' <span class="vb-cd-cve">' + esc(name) + '</span>'
+        : '<i class="fas fa-virus"></i> Vulnerabilidades · ' + esc(name);
       document.getElementById('vb-vi-go').href = url + '#vulnerabilidad';
       var body = document.getElementById('vb-vi-body');
       openModal('vb-vulninfo');
-      if (viCache[url]) { body.innerHTML = viCache[url]; return; }
+      if (viCache[url]) { body.innerHTML = infoHTML(viCache[url], idx); return; }
       body.innerHTML = '<p class="vb-vi-load">Cargando…</p>';
       fetch(url).then(function (r) { return r.text(); }).then(function (html) {
-        var doc = new DOMParser().parseFromString(html, 'text/html');
-        var sec = doc.getElementById('vulnerabilidad');
-        var out = sec ? sec.innerHTML : '<p>No se pudo cargar la sección. Abre el write-up.</p>';
-        viCache[url] = out; body.innerHTML = out;
+        viCache[url] = parseSection(html);
+        body.innerHTML = infoHTML(viCache[url], idx);
       }).catch(function () { body.innerHTML = '<p>No se pudo cargar la sección. Abre el write-up.</p>'; });
     }
 
@@ -2075,17 +2100,18 @@
     };
     var CAT_OF = {};
     Object.keys(CAT_SET).forEach(function (c) { CAT_SET[c].forEach(function (t) { CAT_OF[t] = c; }); });
-    function catOf(t) {
-      if (/^cve-/.test(t) || /^ms\d/.test(t)) return 'cve';
-      return CAT_OF[t] || 'otros';
-    }
-    var CAT_LABEL = {}; CATS.forEach(function (c) { CAT_LABEL[c[0]] = c[1]; });
+    function catOf(t) { if (/^cve-/.test(t) || /^ms\d/.test(t)) return 'cve'; return CAT_OF[t] || 'otros'; }
+    var OS_RGB = { linux: '255 214 10', windows: '74 134 255', freebsd: '226 80 46' };
+    var OS_LABEL = { linux: 'Linux', windows: 'Windows', freebsd: 'FreeBSD' };
+    var PLAT_RGB = { hackthebox: '159 239 0', investigacion: '150 80 210' };
 
     function norm(s) { return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
     function esc(s) { return (s || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+    function chip(text, rgb) { return '<span style="color:rgb(' + rgb + ')">' + esc(text) + '</span>'; }
 
     var cards = Array.prototype.slice.call(listEl.querySelectorAll('.tg-card'));
     var empty = document.getElementById('tg-empty');
+    var countEl = document.getElementById('tg-count');
     var qMaq = document.getElementById('tg-q-maquina');
     var trigger = document.getElementById('tg-trigger');
     var activeVal = document.getElementById('tg-active-val');
@@ -2095,13 +2121,11 @@
     var state = { os: 'all', platform: 'all', mq: '', sel: [], mode: 'all' };
 
     var TAGS = {};
-    cards.forEach(function (c) {
-      (c.dataset.tags || '').split(' ').filter(Boolean).forEach(function (t) { TAGS[t] = (TAGS[t] || 0) + 1; });
-    });
+    cards.forEach(function (c) { (c.dataset.tags || '').split(' ').filter(Boolean).forEach(function (t) { TAGS[t] = (TAGS[t] || 0) + 1; }); });
     function selHas(t) { return state.sel.indexOf(t) !== -1; }
 
-    function lock() { document.body.classList.add('hx-cert-locked'); }
-    function unlock() { if (!document.querySelector('.vb-modal:not([hidden])')) document.body.classList.remove('hx-cert-locked'); }
+    function lock() { document.documentElement.classList.add('hx-cert-locked'); document.body.classList.add('hx-cert-locked'); }
+    function unlock() { if (!document.querySelector('.vb-modal:not([hidden])')) { document.documentElement.classList.remove('hx-cert-locked'); document.body.classList.remove('hx-cert-locked'); } }
     function openModal(id) { var m = document.getElementById(id); if (m) { m.hidden = false; lock(); } }
     function closeModal(m) { m.hidden = true; unlock(); }
 
@@ -2123,13 +2147,14 @@
         if (ok) vis++;
       });
       if (empty) empty.classList.toggle('is-visible', vis === 0);
+      if (countEl) countEl.innerHTML = '<span class="vb-count-n">' + vis + '</span> máquina' + (vis === 1 ? '' : 's') + ' encontrada' + (vis === 1 ? '' : 's');
 
       var parts = [];
-      if (state.os !== 'all') parts.push(state.os.charAt(0).toUpperCase() + state.os.slice(1));
-      if (state.platform !== 'all') parts.push(state.platform === 'hackthebox' ? 'HackTheBox' : 'Investigación');
-      if (state.mq) parts.push('máquina «' + state.mq + '»');
-      if (state.sel.length) parts.push((state.mode === 'all' ? 'TODAS' : 'ALGUNA') + ': ' + state.sel.join(', '));
-      activeVal.textContent = parts.length ? parts.join(' | ') : 'Ninguno';
+      if (state.os !== 'all') parts.push(chip(OS_LABEL[state.os] || state.os, OS_RGB[state.os] || '255 255 255'));
+      if (state.platform !== 'all') parts.push(chip(state.platform === 'hackthebox' ? 'HackTheBox' : 'Investigación', PLAT_RGB[state.platform] || '255 255 255'));
+      if (state.mq) parts.push('<span>máquina «' + esc(state.mq) + '»</span>');
+      if (state.sel.length) parts.push('<span style="color:rgb(var(--page))">' + (state.mode === 'all' ? 'TODAS' : 'ALGUNA') + ': ' + esc(state.sel.join(', ')) + '</span>');
+      activeVal.innerHTML = parts.length ? parts.join(' <span class="vb-sep">|</span> ') : 'Ninguno';
       reset.hidden = parts.length === 0;
       clearBtn.hidden = state.sel.length === 0;
 
@@ -2160,7 +2185,6 @@
     });
     clearBtn.addEventListener('click', function () { state.sel = []; apply(); });
 
-    // click en una etiqueta de una tarjeta -> añadir a la selección
     listEl.addEventListener('click', function (e) {
       var b = e.target.closest('.tg-chip-sm'); if (!b) return;
       e.preventDefault();
@@ -2168,14 +2192,13 @@
       apply();
     });
 
-    // ---- Modal de selección (checkboxes por categoría, dos columnas) ----
+    // ---- Modal de selección (por categoría; selección en vivo) ----
     var pick = document.getElementById('tg-tagpick');
     var pickBody = document.getElementById('tg-pick-body');
     var pickFilter = document.getElementById('tg-pick-filter');
-    var working = [];
 
     function pickRow(t) {
-      var on = working.indexOf(t) !== -1 ? ' checked' : '';
+      var on = selHas(t) ? ' checked' : '';
       return '<label class="vb-pick-row"><input type="checkbox" data-nn="' + esc(t) + '"' + on + '>' +
              '<span class="vb-pick-box" aria-hidden="true"></span>' +
              '<span class="vb-pick-name">' + esc(t) + ' <span class="tg-tag-n">' + TAGS[t] + '</span></span></label>';
@@ -2184,17 +2207,16 @@
       var q = norm(pickFilter.value);
       var all = Object.keys(TAGS);
       var html = '';
-      var selList = working.filter(function (t) { return !q || norm(t).indexOf(q) !== -1; });
+      var selList = state.sel.filter(function (t) { return !q || norm(t).indexOf(q) !== -1; });
       if (selList.length) {
-        html += '<div class="vb-pick-group"><span class="vb-pick-head" style="color:var(--tg)">Seleccionadas (' + working.length + ')</span><div class="vb-pick-cols">';
+        html += '<div class="vb-pick-group"><span class="vb-pick-head" style="color:var(--tg)">Seleccionadas (' + state.sel.length + ')</span><div class="vb-pick-cols">';
         selList.forEach(function (t) { html += pickRow(t); });
         html += '</div></div>';
       }
       CATS.forEach(function (cat) {
         var id = cat[0];
-        var items = all.filter(function (t) {
-          return catOf(t) === id && working.indexOf(t) === -1 && (!q || norm(t).indexOf(q) !== -1);
-        }).sort(function (a, b) { return TAGS[b] - TAGS[a] || a.localeCompare(b); });
+        var items = all.filter(function (t) { return catOf(t) === id && !selHas(t) && (!q || norm(t).indexOf(q) !== -1); })
+          .sort(function (a, b) { return TAGS[b] - TAGS[a] || a.localeCompare(b); });
         if (!items.length) return;
         html += '<div class="vb-pick-group"><span class="vb-pick-head" style="color:var(--tg)">' + cat[1] + '</span><div class="vb-pick-cols">';
         items.forEach(function (t) { html += pickRow(t); });
@@ -2202,20 +2224,17 @@
       });
       pickBody.innerHTML = html || '<p class="vb-pick-empty">Sin resultados.</p>';
     }
-    function openPick() { working = state.sel.slice(); pickFilter.value = ''; renderPick(); openModal('tg-tagpick'); }
+    function openPick() { renderPick(); openModal('tg-tagpick'); }
     trigger.addEventListener('click', openPick);
     pickFilter.addEventListener('input', renderPick);
     pickBody.addEventListener('change', function (e) {
       var c = e.target.closest('input[type=checkbox]'); if (!c) return;
-      var t = c.dataset.nn, i = working.indexOf(t);
-      if (c.checked && i === -1) working.push(t);
-      else if (!c.checked && i !== -1) working.splice(i, 1);
-    });
-    document.getElementById('tg-pick-apply').addEventListener('click', function () {
-      state.sel = working.slice();
-      closeModal(pick);
+      var t = c.dataset.nn, i = state.sel.indexOf(t);
+      if (c.checked && i === -1) state.sel.push(t);
+      else if (!c.checked && i !== -1) state.sel.splice(i, 1);
       apply();
     });
+    document.getElementById('tg-pick-apply').addEventListener('click', function () { closeModal(pick); });
 
     reset.addEventListener('click', function () {
       state = { os: 'all', platform: 'all', mq: '', sel: [], mode: state.mode };
@@ -2228,12 +2247,8 @@
       apply();
     });
 
-    pick.addEventListener('click', function (e) {
-      if (e.target === pick || e.target.closest('[data-close]')) closeModal(pick);
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && !pick.hidden) closeModal(pick);
-    });
+    pick.addEventListener('click', function (e) { if (e.target === pick || e.target.closest('[data-close]')) closeModal(pick); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !pick.hidden) closeModal(pick); });
 
     apply();
   }

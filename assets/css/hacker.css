@@ -2920,7 +2920,17 @@ a.hx-kv:active { transform: translateY(-1px) scale(0.98); }
 .hx-seg[data-group='os'] .hx-opt[data-value='linux']   { --c: 255 214 10; }
 .hx-seg[data-group='os'] .hx-opt[data-value='freebsd'] { --c: 226 80 46; }
 .hx-seg[data-group='platform'] .hx-opt { --c: 193 108 255; }
+.hx-seg[data-group='platform'] .hx-opt[data-value='hackthebox']    { --c: 159 239 0; }   /* verde HackTheBox */
+.hx-seg[data-group='platform'] .hx-opt[data-value='investigacion'] { --c: 150 80 210; }  /* morado más oscuro */
+/* Cada tipo de vulnerabilidad con su color */
+.hx-seg[data-group='tipo'] .hx-opt[data-value='web']          { --c: 94 180 248; }
+.hx-seg[data-group='tipo'] .hx-opt[data-value='servicio']     { --c: 46 230 214; }
+.hx-seg[data-group='tipo'] .hx-opt[data-value='credenciales'] { --c: 255 214 10; }
+.hx-seg[data-group='tipo'] .hx-opt[data-value='config']       { --c: 255 140 105; }
+.hx-seg[data-group='tipo'] .hx-opt[data-value='ad']           { --c: 193 108 255; }
+.hx-seg[data-group='tipo'] .hx-opt[data-value='escalada']     { --c: 255 59 78; }
 .hx-seg[data-group='os'] .hx-opt.is-active,
+.hx-seg[data-group='tipo'] .hx-opt.is-active,
 .hx-seg[data-group='platform'] .hx-opt.is-active { color: #05070a; }
 
 .hx-fbar-label { color: var(--hx-cyan); }
@@ -4219,7 +4229,7 @@ article:has(.hx-wu) > .post-desc { display: none; }
 .hx-cert-foot a:hover { box-shadow: 0 0 16px rgb(193 108 255 / 50%); }
 .hx-cert-foot small { color: var(--hx-muted); font-family: var(--hx-mono); }
 
-body.hx-cert-locked { overflow: hidden; }
+html.hx-cert-locked, body.hx-cert-locked { overflow: hidden !important; }
 
 /* ---- Tabla de diseño (editor visual), sin el estilo verde por defecto ---- */
 .content table.hx-tbl {
@@ -5987,6 +5997,13 @@ article:has(.hx-wu) > header,
   color: var(--vb-red); background: rgba(255,59,78,.10); border: 1px solid rgba(255,59,78,.35); }
 .vb-vuln:hover { background: rgba(255,59,78,.2); }
 .vb-vuln[hidden] { display: none; }
+.vb-vuln.is-match { background: rgba(255,120,138,.32); border-color: #ff8c99; color: #fff; }
+
+/* Contador «N máquinas encontradas», centrado; el número en el color de la página */
+.vb-count { text-align: center; margin: 0 0 .9rem; color: var(--text-color, #c5d1de); font-size: .92rem; }
+.vb-count:empty { display: none; }
+.vb-count-n { color: rgb(var(--page, 68 240 138)); font-weight: 800; }
+.vb-sep { color: var(--text-muted-color, #8b98a5); }
 .vb-empty { display: none; }
 .vb-empty.is-visible { display: block; }
 .vb-modal { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center;
