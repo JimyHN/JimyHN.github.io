@@ -2035,6 +2035,212 @@
     apply();
   }
 
+  /* --- Pestaña /tags (Etiquetas): rejilla por categorías + filtro de máquinas --- */
+  function initTags() {
+    var grid = document.getElementById('tg-pane-etiquetas');
+    if (!grid) return;
+
+    var CATS = [
+      ['sistemas', 'Sistemas'],
+      ['web', 'Web'],
+      ['escalada', 'Escalada / Privesc'],
+      ['credenciales', 'Credenciales'],
+      ['herramientas', 'Herramientas'],
+      ['cve', 'CVE y boletines'],
+      ['otros', 'Otros']
+    ];
+    var CAT_SET = {
+      sistemas: ['windows', 'linux', 'freebsd', 'windows-xp', 'windows-server-2008', 'raspberry-pi'],
+      herramientas: ['metasploit', 'msfvenom', 'burp', 'hydra', 'impacket', 'john', 'wpscan', 'searchsploit', 'gtfobins', 'strings', 'msi', 'jar', 'pcap', 'reverse-shell'],
+      escalada: ['privesc', 'sudo', 'suid', 'seimpersonate', 'seimpersonateprivilege', 'juicypotato', 'churrasco', 'capabilities', 'lxd', 'cron', 'alwaysinstallelevated', 'tokens', 'system', 'win32k', 'chimichurri', 'port-forwarding', 'pivoting', 'snap'],
+      credenciales: ['reutilizacion-de-credenciales', 'credenciales', 'password-reuse', 'credenciales-por-defecto', 'fuerza-bruta', 'backups', 'anonymous'],
+      web: ['web', 'rce', 'lfi', 'rfi', 'ssrf', 'idor', 'file-upload', 'subida-de-ficheros', 'path-traversal', 'directory-traversal', 'log-poisoning', 'webshell', 'phpbash', 'cgi', 'shellshock', 'webdav', 'buffer-overflow', 'byte-nulo', 'user-agentt', 'x-forwarded-for', 'backdoor', 'cadena-de-suministro', 'information-disclosure', 'aspx', 'war', 'php', 'tomcat', 'drupal', 'drupalgeddon2', 'wordpress', 'hfs', 'rejetto', 'coldfusion', 'prtg', 'nibbleblog', 'gitea', 'krayin', 'xampp', 'voting-system', 'iis']
+    };
+    var CAT_OF = {};
+    Object.keys(CAT_SET).forEach(function (c) { CAT_SET[c].forEach(function (t) { CAT_OF[t] = c; }); });
+    function catOf(t) {
+      if (/^cve-/.test(t) || /^ms\d/.test(t)) return 'cve';
+      return CAT_OF[t] || 'otros';
+    }
+
+    function norm(s) { return (s || '').toString().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
+    function esc(s) { return (s || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
+
+    var cards = Array.prototype.slice.call(document.querySelectorAll('#tg-list .tg-card'));
+    var count = document.getElementById('tg-count');
+    var empty = document.getElementById('tg-empty');
+    var qMaq = document.getElementById('tg-q-maquina');
+    var input = document.getElementById('tg-input');
+    var chipbox = document.getElementById('tg-chipbox');
+    var suggest = document.getElementById('tg-suggest');
+    var activeVal = document.getElementById('tg-active-val');
+    var reset = document.getElementById('tg-reset');
+    var modeBtn = document.getElementById('tg-mode');
+    var listEl = document.getElementById('tg-list');
+    var state = { os: 'all', platform: 'all', mq: '', tags: [], mode: 'all' };
+
+    var TAGS = {};
+    cards.forEach(function (c) {
+      (c.dataset.tags || '').split(' ').filter(Boolean).forEach(function (t) { TAGS[t] = (TAGS[t] || 0) + 1; });
+    });
+    var ALL = Object.keys(TAGS);
+
+    function selHas(t) { return state.tags.indexOf(t) !== -1; }
+    function toggle(t) { var i = state.tags.indexOf(t); if (i === -1) state.tags.push(t); else state.tags.splice(i, 1); }
+    function addTag(t) { if (t && TAGS[t] && !selHas(t)) { state.tags.push(t); apply(); } }
+
+    function renderGrid() {
+      var html = '';
+      CATS.forEach(function (cat) {
+        var id = cat[0];
+        var tags = ALL.filter(function (t) { return catOf(t) === id; })
+          .sort(function (a, b) { return TAGS[b] - TAGS[a] || a.localeCompare(b); });
+        if (!tags.length) return;
+        html += '<div class="tg-block"><h3 class="tg-block-h">' + cat[1] + ' <span>' + tags.length + '</span></h3><div class="tg-block-tags">';
+        tags.forEach(function (t) {
+          html += '<button type="button" class="tg-tag' + (selHas(t) ? ' is-sel' : '') + '" data-tag="' + esc(t) + '">' + esc(t) + ' <span class="tg-tag-n">' + TAGS[t] + '</span></button>';
+        });
+        html += '</div></div>';
+      });
+      grid.innerHTML = html;
+    }
+
+    function renderChips() {
+      Array.prototype.slice.call(chipbox.querySelectorAll('.tg-chip')).forEach(function (c) { c.remove(); });
+      state.tags.forEach(function (t) {
+        var chip = document.createElement('span');
+        chip.className = 'tg-chip';
+        chip.innerHTML = esc(t) + '<button type="button" class="tg-chip-x" data-tag="' + esc(t) + '" aria-label="Quitar">×</button>';
+        chipbox.insertBefore(chip, input);
+      });
+      input.placeholder = state.tags.length ? '' : 'Añade etiquetas…';
+    }
+
+    function syncGridSel() {
+      grid.querySelectorAll('.tg-tag').forEach(function (b) { b.classList.toggle('is-sel', selHas(b.dataset.tag)); });
+    }
+
+    function apply() {
+      var mq = norm(state.mq), vis = 0;
+      cards.forEach(function (card) {
+        var ctags = (card.dataset.tags || '').split(' ').filter(Boolean);
+        var ok =
+          (state.os === 'all' || card.dataset.os === state.os) &&
+          (state.platform === 'all' || card.dataset.platform === state.platform) &&
+          (!mq || norm(card.dataset.name).indexOf(mq) !== -1);
+        if (ok && state.tags.length) {
+          ok = state.mode === 'all'
+            ? state.tags.every(function (t) { return ctags.indexOf(t) !== -1; })
+            : state.tags.some(function (t) { return ctags.indexOf(t) !== -1; });
+        }
+        card.hidden = !ok;
+        card.querySelectorAll('.tg-chip-sm').forEach(function (b) { b.classList.toggle('is-sel', selHas(b.dataset.tag)); });
+        if (ok) vis++;
+      });
+      count.textContent = '(' + vis + ')';
+      if (empty) empty.classList.toggle('is-visible', vis === 0);
+
+      var parts = [];
+      if (state.os !== 'all') parts.push(state.os.charAt(0).toUpperCase() + state.os.slice(1));
+      if (state.platform !== 'all') parts.push(state.platform === 'hackthebox' ? 'HackTheBox' : 'Investigación');
+      if (state.mq) parts.push('máquina «' + state.mq + '»');
+      if (state.tags.length) parts.push((state.mode === 'all' ? 'TODAS' : 'ALGUNA') + ': ' + state.tags.join(', '));
+      activeVal.textContent = parts.length ? parts.join(' | ') : 'Ninguno';
+      reset.hidden = parts.length === 0;
+      renderChips();
+      syncGridSel();
+    }
+
+    document.querySelectorAll('.tg-bar .hx-seg[data-group]').forEach(function (group) {
+      group.addEventListener('click', function (e) {
+        var btn = e.target.closest('.hx-opt'); if (!btn) return;
+        state[group.dataset.group] = btn.dataset.value;
+        group.querySelectorAll('.hx-opt').forEach(function (b) {
+          var on = b.dataset.value === btn.dataset.value;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        apply();
+      });
+    });
+    qMaq.addEventListener('input', function () { state.mq = qMaq.value; apply(); });
+
+    modeBtn.addEventListener('click', function () {
+      state.mode = state.mode === 'all' ? 'any' : 'all';
+      modeBtn.textContent = state.mode === 'all' ? 'All' : 'Any';
+      modeBtn.classList.toggle('tg-mode-any', state.mode === 'any');
+      apply();
+    });
+
+    grid.addEventListener('click', function (e) {
+      var b = e.target.closest('.tg-tag'); if (!b) return;
+      toggle(b.dataset.tag); apply();
+    });
+    listEl.addEventListener('click', function (e) {
+      var b = e.target.closest('.tg-chip-sm'); if (!b) return;
+      e.preventDefault();
+      if (!selHas(b.dataset.tag)) toggle(b.dataset.tag);
+      apply();
+    });
+    chipbox.addEventListener('click', function (e) {
+      var x = e.target.closest('.tg-chip-x'); if (!x) return;
+      toggle(x.dataset.tag); apply();
+    });
+
+    function renderSuggest() {
+      var q = norm(input.value);
+      if (!q) { suggest.hidden = true; return; }
+      var hits = ALL.filter(function (t) { return !selHas(t) && norm(t).indexOf(q) !== -1; })
+        .sort(function (a, b) { return TAGS[b] - TAGS[a] || a.localeCompare(b); }).slice(0, 10);
+      if (!hits.length) { suggest.hidden = true; return; }
+      suggest.innerHTML = hits.map(function (t) {
+        return '<button type="button" data-tag="' + esc(t) + '">' + esc(t) + ' <span>' + TAGS[t] + '</span></button>';
+      }).join('');
+      suggest.hidden = false;
+    }
+    input.addEventListener('input', renderSuggest);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        var first = suggest.querySelector('button');
+        var exact = norm(input.value);
+        var t = ALL.filter(function (x) { return norm(x) === exact; })[0] || (first ? first.dataset.tag : '');
+        if (t) { addTag(t); input.value = ''; suggest.hidden = true; }
+      } else if (e.key === 'Escape') { suggest.hidden = true; }
+      else if (e.key === 'Backspace' && !input.value && state.tags.length) { toggle(state.tags[state.tags.length - 1]); apply(); }
+    });
+    suggest.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      addTag(b.dataset.tag); input.value = ''; suggest.hidden = true; input.focus();
+    });
+    document.addEventListener('click', function (e) {
+      if (!suggest.hidden && !e.target.closest('.tg-searchrow')) suggest.hidden = true;
+    });
+
+    document.querySelectorAll('.tg-tab').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        document.querySelectorAll('.tg-tab').forEach(function (t) { t.classList.toggle('is-active', t === tab); });
+        var want = tab.dataset.pane;
+        document.getElementById('tg-pane-etiquetas').hidden = want !== 'etiquetas';
+        document.getElementById('tg-pane-maquinas').hidden = want !== 'maquinas';
+      });
+    });
+
+    reset.addEventListener('click', function () {
+      state = { os: 'all', platform: 'all', mq: '', tags: [], mode: state.mode };
+      qMaq.value = ''; input.value = ''; suggest.hidden = true;
+      document.querySelectorAll('.tg-bar .hx-seg[data-group] .hx-opt').forEach(function (b) {
+        var on = b.dataset.value === 'all';
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      apply();
+    });
+
+    renderGrid();
+    apply();
+  }
+
   function init() {
     // Cada módulo va aislado: si uno falla, los demás siguen vivos.
     [
@@ -2059,6 +2265,7 @@
       initProgress,
       initFilterBars,
       initVulns,
+      initTags,
       initPostSections,
       initWriteupSpy,
       initButtonAura,
