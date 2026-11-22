@@ -6090,7 +6090,8 @@ article:has(.hx-wu) > header,
 .vb-vi-body img { max-width: 100%; height: auto; border-radius: 10px; }
 .vb-vi-load { color: var(--text-muted-color, #8b98a5); }
 .vb-vi-foot { display: flex; justify-content: center; margin-top: 1.1rem; }
-.vb-vi-go { text-decoration: none; }
+.vb-vi-go { text-decoration: none; background: none; border-color: #2ee6d6; color: #2ee6d6; }
+.vb-vi-go:hover { background: rgba(46,230,214,.14); color: #2ee6d6; }
 
 @media (max-width: 560px) {
   .vb-label { min-width: 100%; }
