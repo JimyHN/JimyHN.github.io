@@ -1789,8 +1789,6 @@
       high:     { label: 'Alta',    c: '#f85149' },
       critical: { label: 'Crítica', c: '#a371f7' }
     };
-    var CVE_INFO = {};
-    try { CVE_INFO = JSON.parse(document.getElementById('vb-cve-data').textContent); } catch (e) {}
     var VULN_BY_NORM = {};
     try {
       var _vd = JSON.parse(document.getElementById('vb-vuln-data').textContent);
@@ -1897,14 +1895,9 @@
     // Click en el cuerpo de la tarjeta -> todas las vulns; click en una vuln -> solo esa
     list.addEventListener('click', function (e) {
       var b = e.target.closest('.vb-vuln');
-      if (b) {
-        var card = b.closest('.vb-card');
-        var idx = Array.prototype.indexOf.call(card.querySelectorAll('.vb-vuln'), b);
-        openVulnInfo(card, idx);
-        return;
-      }
+      if (b) { openDetail(grpOf(b)); return; }
       var main = e.target.closest('.vb-card-main');
-      if (main) { e.preventDefault(); openVulnInfo(main.closest('.vb-card'), null); }
+      if (main) { e.preventDefault(); openSection(main.closest('.vb-card')); }
     });
 
     // ---- Modal de selección (grupos, checkboxes; selección en vivo) ----
@@ -1981,89 +1974,92 @@
     document.getElementById('vb-legend-body').innerHTML = lh;
     document.getElementById('vb-legend-open').addEventListener('click', function () { openModal('vb-legend'); });
 
-    // ---- Popup: sección Vulnerabilidad del write-up (toda o una sola vuln) ----
+    // ---- Popup: sección Vulnerabilidad del write-up (click en la máquina) ----
     var viCache = {};
     function parseSection(html) {
       var doc = new DOMParser().parseFromString(html, 'text/html');
       var sec = doc.getElementById('vulnerabilidad');
       if (!sec) return null;
-      var kids = Array.prototype.slice.call(sec.children).filter(function (n) { return n.tagName !== 'H2'; });
-      var headerIdx = [];
-      kids.forEach(function (n, i) { if (n.tagName === 'P' && /^\s*\d+\s*·/.test(n.textContent || '')) headerIdx.push(i); });
-      return { kids: kids.map(function (n) { return n.outerHTML; }), headerIdx: headerIdx };
+      return Array.prototype.slice.call(sec.children).filter(function (n) { return n.tagName !== 'H2'; })
+        .map(function (n) { return n.outerHTML; }).join('');
     }
-    function infoHTML(entry, idx) {
-      if (!entry) return '<p>No se pudo cargar la sección. Abre el write-up.</p>';
-      if (idx != null && entry.headerIdx.length && idx < entry.headerIdx.length) {
-        var start = entry.headerIdx[idx];
-        var end = (idx + 1 < entry.headerIdx.length) ? entry.headerIdx[idx + 1] : entry.kids.length;
-        return entry.kids.slice(start, end).join('');
-      }
-      return entry.kids.join('');
-    }
-    function openVulnInfo(card, idx) {
+    function openSection(card) {
       var url = card.dataset.url || '#';
       var name = card.querySelector('.vb-card-name').textContent.trim();
-      var body = document.getElementById('vb-vi-body');
-      document.getElementById('vb-vi-go').href = url + '#vulnerabilidad';
-
-      // Click en una vuln concreta -> ficha propia (datos, no el write-up)
-      if (idx != null) {
-        var box = card.querySelectorAll('.vb-vuln')[idx];
-        var vulnName = box ? box.textContent.trim() : '';
-        var tipo = box ? box.dataset.tipo : '';
-        var g = box ? grpOf(box) : '';
-        var info = VULN_BY_NORM[g] || (box && box.dataset.cve && CVE_INFO[box.dataset.cve]) || {};
-        document.getElementById('vb-vi-title').innerHTML = '<i class="fas fa-virus"></i> ' + esc(vulnName);
-        // máquinas que tienen esta misma vuln (mismo grupo)
-        var maqs = [];
-        list.querySelectorAll('.vb-vuln').forEach(function (b) {
-          if (grpOf(b) !== g) return;
-          var c = b.closest('.vb-card'); if (!c) return;
-          var nm = c.querySelector('.vb-card-name').textContent.trim();
-          if (!maqs.some(function (m) { return m.name === nm; })) maqs.push({ name: nm, url: c.dataset.url || '#' });
-        });
-        var maqHtml = maqs.map(function (m) { return '<a class="vb-cd-maq" href="' + m.url + '">' + esc(m.name) + '</a>'; }).join('');
-        var h = '';
-        if (tipo) h += '<div class="vb-cd-meta"><span class="vb-cd-chip" style="color:rgb(' + (({web:'94 180 248',servicio:'46 230 214',credenciales:'255 214 10',config:'255 140 105',ad:'193 108 255',escalada:'255 59 78'})[tipo] || '255 255 255') + ')">' + esc(tipo) + '</span></div>';
-        h += '<div class="vb-cd-sec"><h3>Descripción</h3><p>' + esc(info.desc || '—') + '</p></div>';
-        h += '<div class="vb-cd-sec"><h3>Amenaza</h3><p>' + esc(info.amenaza || '—') + '</p></div>';
-        h += '<div class="vb-cd-sec"><h3>Impacto</h3><p>' + esc(info.impact || '—') + '</p></div>';
-        h += '<div class="vb-cd-sec"><h3>Explotación</h3><p>Máquinas que la tienen:</p><div class="vb-cd-maqs">' + (maqHtml || '—') + '</div></div>';
-        body.innerHTML = h;
-        openModal('vb-vulninfo');
-        return;
-      }
-
-      // Click en la máquina -> toda la sección Vulnerabilidad del write-up
       document.getElementById('vb-vi-title').innerHTML = '<i class="fas fa-virus"></i> Vulnerabilidades · ' + esc(name);
+      document.getElementById('vb-vi-go').href = url + '#vulnerabilidad';
+      var body = document.getElementById('vb-vi-body');
       openModal('vb-vulninfo');
-      if (viCache[url]) { body.innerHTML = infoHTML(viCache[url], null); return; }
+      if (viCache[url] != null) { body.innerHTML = viCache[url] || '<p>No se pudo cargar la sección. Abre el write-up.</p>'; return; }
       body.innerHTML = '<p class="vb-vi-load">Cargando…</p>';
       fetch(url).then(function (r) { return r.text(); }).then(function (html) {
-        viCache[url] = parseSection(html);
-        body.innerHTML = infoHTML(viCache[url], null);
+        viCache[url] = parseSection(html) || '';
+        body.innerHTML = viCache[url] || '<p>No se pudo cargar la sección. Abre el write-up.</p>';
       }).catch(function () { body.innerHTML = '<p>No se pudo cargar la sección. Abre el write-up.</p>'; });
     }
 
-    // ---- Mapa de CVE ----
-    function cveRows() {
-      var seen = {}, rows = [];
-      list.querySelectorAll('.vb-vuln[data-cve]').forEach(function (b) {
-        var k = b.dataset.cve;
-        if (seen[k]) return; seen[k] = true;
-        rows.push({ cve: k, nombre: b.textContent.trim(), os: b.dataset.os || '', cvss: b.dataset.cvss || '', sev: b.dataset.sev || '' });
+    // ---- Ficha de una vuln (click en la vuln o en una fila del mapa) ----
+    function boxesOfKey(k) { var r = []; list.querySelectorAll('.vb-vuln').forEach(function (b) { if (grpOf(b) === k) r.push(b); }); return r; }
+    function raw(x) { return (x == null || x === '') ? '—' : x; }
+    function openDetail(k) {
+      var info = VULN_BY_NORM[k] || {};
+      var boxes = boxesOfKey(k);
+      var label = (GRUPOS[k] && GRUPOS[k].label) || (boxes[0] ? boxes[0].textContent.trim() : k);
+      var tipo = (GRUPOS[k] && GRUPOS[k].tipo) || (boxes[0] ? boxes[0].dataset.tipo : '');
+      var cves = {}, oses = {}, cvss = '', maqs = [];
+      boxes.forEach(function (b) {
+        if (b.dataset.cve) cves[b.dataset.cve] = true;
+        if (b.dataset.cvss) cvss = b.dataset.cvss;
+        if (b.dataset.os) oses[b.dataset.os] = true;
+        var c = b.closest('.vb-card'); if (!c) return;
+        var nm = c.querySelector('.vb-card-name').textContent.trim();
+        if (!maqs.some(function (m) { return m.name === nm; })) maqs.push({ name: nm, url: c.dataset.url || '#' });
       });
-      rows.sort(function (a, b) { return (parseFloat(b.cvss) || 0) - (parseFloat(a.cvss) || 0); });
-      return rows;
+      var cveList = Object.keys(cves), osList = Object.keys(oses), sev = SEV[info.sev];
+      document.getElementById('vb-cd-title').innerHTML = '<i class="fas fa-shield-virus"></i> ' + esc(label) +
+        (cveList.length ? ' <span class="vb-cd-cve">' + cveList.join(' · ') + '</span>' : '');
+      var meta = '';
+      if (tipo) meta += '<span class="vb-cd-chip" style="color:rgb(' + (TIPO_RGB[tipo] || '255 255 255') + ')">' + esc(tipo) + '</span>';
+      meta += '<span class="vb-cd-chip">SO: ' + esc(osList.join(', ') || '—') + '</span>';
+      meta += '<span class="vb-cd-chip">CVSS: ' + (cvss || '—') + '</span>';
+      if (sev) meta += '<span class="vb-sev" style="background:' + sev.c + '">' + sev.label + '</span>';
+      document.getElementById('vb-cd-meta').innerHTML = meta;
+      var pts = (info.points || []).map(function (p) { return '<li>' + p + '</li>'; }).join('');
+      var maqHtml = maqs.map(function (m) { return '<a class="vb-cd-maq" href="' + m.url + '">' + esc(m.name) + '</a>'; }).join('');
+      var h = '';
+      if (info.ref) h += '<p class="vb-cd-ref"><a href="' + esc(info.ref) + '" target="_blank" rel="noopener"><i class="fas fa-up-right-from-square"></i> Más información (fuente oficial)</a></p>';
+      h += '<div class="vb-cd-sec"><h3>Descripción</h3><p>' + raw(info.intro) + '</p>' + (pts ? '<ul class="vb-cd-points">' + pts + '</ul>' : '') + '</div>';
+      h += '<div class="vb-cd-sec"><h3>Amenaza</h3><p>' + raw(info.amenaza) + '</p></div>';
+      h += '<div class="vb-cd-sec"><h3>Impacto</h3><p>' + raw(info.impact) + '</p></div>';
+      h += '<div class="vb-cd-sec"><h3>Máquinas afectadas</h3><div class="vb-cd-maqs">' + (maqHtml || '—') + '</div></div>';
+      h += '<div class="vb-cd-sec"><h3>Explotación</h3>' +
+           '<p><b class="vb-cd-step">Reconocer.</b> ' + raw(info.rec) + '</p>' +
+           '<p><b class="vb-cd-step">Confirmar.</b> ' + raw(info.conf) + '</p>' +
+           '<p><b class="vb-cd-step">Explotar.</b> ' + raw(info.expl) + '</p></div>';
+      document.getElementById('vb-cd-body').innerHTML = h;
+      openModal('vb-cvedetail');
     }
+
+    // ---- Mapa de vulnerabilidades (todas) ----
+    var SEV_RANK = { critical: 4, high: 3, medium: 2, low: 1 };
+    var mapKeys = [];
     document.getElementById('vb-cve-open').addEventListener('click', function () {
+      var rows = Object.keys(GRUPOS).map(function (k) {
+        var boxes = boxesOfKey(k), cves = {}, oses = {}, cvss = '';
+        boxes.forEach(function (b) { if (b.dataset.cve) cves[b.dataset.cve] = true; if (b.dataset.os) oses[b.dataset.os] = true; if (b.dataset.cvss) cvss = b.dataset.cvss; });
+        var info = VULN_BY_NORM[k] || {};
+        return { k: k, label: GRUPOS[k].label, cve: Object.keys(cves), os: Object.keys(oses), cvss: cvss, sev: info.sev || '' };
+      });
+      rows.sort(function (a, b) { return (SEV_RANK[b.sev] || 0) - (SEV_RANK[a.sev] || 0) || (parseFloat(b.cvss) || 0) - (parseFloat(a.cvss) || 0) || a.label.localeCompare(b.label); });
+      mapKeys = rows.map(function (r) { return r.k; });
       var html = '<thead><tr><th>Vulnerabilidad</th><th>CVE</th><th>SO</th><th>CVSS</th><th>Severidad</th></tr></thead><tbody>';
-      cveRows().forEach(function (r) {
+      rows.forEach(function (r, i) {
         var sev = SEV[r.sev];
         var sevCell = sev ? '<span class="vb-sev" style="background:' + sev.c + '">' + sev.label + '</span>' : '—';
-        html += '<tr class="vb-cve-tr" data-cve="' + r.cve + '"><td class="vb-cve-name">' + esc(r.nombre) + '</td>' +
-                '<td class="vb-cve-code">' + r.cve + '</td><td>' + esc(r.os) + '</td>' +
+        var cveCell = r.cve.length ? (r.cve.length > 1 ? 'Varios' : r.cve[0]) : '—';
+        var osCell = r.os.length > 1 ? 'Varios' : (r.os[0] || '—');
+        html += '<tr class="vb-cve-tr" data-i="' + i + '"><td class="vb-cve-name">' + esc(r.label) + '</td>' +
+                '<td class="vb-cve-code">' + esc(cveCell) + '</td><td>' + esc(osCell) + '</td>' +
                 '<td>' + (r.cvss || '—') + '</td><td>' + sevCell + '</td></tr>';
       });
       html += '</tbody>';
@@ -2072,38 +2068,8 @@
     });
     document.getElementById('vb-cve-table').addEventListener('click', function (e) {
       var tr = e.target.closest('.vb-cve-tr'); if (!tr) return;
-      openCveDetail(tr.dataset.cve);
+      openDetail(mapKeys[+tr.dataset.i]);
     });
-
-    function openCveDetail(cve) {
-      var maqs = [];
-      list.querySelectorAll('.vb-vuln[data-cve="' + cve + '"]').forEach(function (b) {
-        var card = b.closest('.vb-card'); if (!card) return;
-        var name = card.querySelector('.vb-card-name').textContent.trim();
-        if (!maqs.some(function (m) { return m.name === name; })) maqs.push({ name: name, url: card.dataset.url || '#' });
-      });
-      var any = list.querySelector('.vb-vuln[data-cve="' + cve + '"]');
-      var nombre = any ? any.textContent.trim() : cve;
-      var cvss = any ? (any.dataset.cvss || '') : '';
-      var sev = any ? SEV[any.dataset.sev] : null;
-      var os = any ? (any.dataset.os || '') : '';
-      var info = CVE_INFO[cve] || {};
-
-      document.getElementById('vb-cd-title').innerHTML = '<i class="fas fa-shield-virus"></i> ' + esc(nombre) + ' <span class="vb-cd-cve">' + cve + '</span>';
-      document.getElementById('vb-cd-meta').innerHTML =
-        '<span class="vb-cd-chip">SO: ' + esc(os || '—') + '</span>' +
-        '<span class="vb-cd-chip">CVSS: ' + (cvss || '—') + '</span>' +
-        (sev ? '<span class="vb-sev" style="background:' + sev.c + '">' + sev.label + '</span>' : '');
-      var maqHtml = maqs.map(function (m) { return '<a class="vb-cd-maq" href="' + m.url + '">' + esc(m.name) + '</a>'; }).join('');
-      var secs = '';
-      if (info.desc) secs += '<div class="vb-cd-sec"><h3>Descripción</h3><p>' + esc(info.desc) + '</p></div>';
-      if (info.impact) secs += '<div class="vb-cd-sec"><h3>Impacto</h3><p>' + esc(info.impact) + '</p></div>';
-      if (info.amenaza) secs += '<div class="vb-cd-sec"><h3>Amenaza</h3><p>' + esc(info.amenaza) + '</p></div>';
-      if (info.solucion) secs += '<div class="vb-cd-sec"><h3>Solución</h3><p>' + esc(info.solucion) + '</p></div>';
-      secs += '<div class="vb-cd-sec"><h3>Explotación</h3><p>Máquinas afectadas:</p><div class="vb-cd-maqs">' + (maqHtml || '—') + '</div></div>';
-      document.getElementById('vb-cd-body').innerHTML = secs;
-      openModal('vb-cvedetail');
-    }
 
     apply();
   }
@@ -2219,7 +2185,8 @@
     listEl.addEventListener('click', function (e) {
       var b = e.target.closest('.tg-chip-sm'); if (!b) return;
       e.preventDefault();
-      if (!selHas(b.dataset.tag)) state.sel.push(b.dataset.tag);
+      var i = state.sel.indexOf(b.dataset.tag);
+      if (i === -1) state.sel.push(b.dataset.tag); else state.sel.splice(i, 1);
       apply();
     });
 

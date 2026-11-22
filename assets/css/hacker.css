@@ -6074,6 +6074,13 @@ article:has(.hx-wu) > header,
 .vb-cd-maq { padding: .28rem .6rem; border-radius: 8px; font-size: .82rem; text-decoration: none;
   color: var(--vb-red); background: rgba(255,59,78,.1); border: 1px solid rgba(255,59,78,.35); }
 .vb-cd-maq:hover { background: rgba(255,59,78,.22); }
+.vb-cd-ref { margin: 0 0 .9rem; }
+.vb-cd-ref a { color: rgb(var(--page, 68 240 138)); text-decoration: none; font-weight: 600; font-size: .85rem; }
+.vb-cd-ref a:hover { text-decoration: underline; }
+.vb-cd-points { margin: .4rem 0 0; padding-left: 1.1rem; }
+.vb-cd-points li { margin: .22rem 0; color: var(--text-color, #c5d1de); font-size: .88rem; }
+.vb-cd-step { color: var(--vb-yellow); }
+.vb-cd-sec code, .vb-vi-body code { background: rgba(255,255,255,.07); padding: .05rem .3rem; border-radius: 5px; font-family: var(--hx-mono, monospace); font-size: .85em; }
 
 /* Botón clear del buscador de vulns */
 .vb-clear { color: var(--vb-red-soft) !important; font-weight: 700; }
